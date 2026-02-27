@@ -196,7 +196,6 @@ export function DataTable<T extends { id: string }>({
           />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {headerActions}
           {filters?.map((filter) => (
             <Select
               key={filter.key}
@@ -221,6 +220,7 @@ export function DataTable<T extends { id: string }>({
               </SelectContent>
             </Select>
           ))}
+          {headerActions}
         </div>
       </div>
 
