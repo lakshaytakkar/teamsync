@@ -45,6 +45,7 @@ interface DataTableProps<T extends { id: string }> {
   pageSize?: number;
   emptyTitle?: string;
   emptyDescription?: string;
+  emptyIllustration?: string;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -58,6 +59,7 @@ export function DataTable<T extends { id: string }>({
   pageSize = 10,
   emptyTitle = "No data found",
   emptyDescription = "There are no records to display.",
+  emptyIllustration,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -231,9 +233,19 @@ export function DataTable<T extends { id: string }>({
                   colSpan={columns.length + (rowActions ? 2 : 1)}
                   className="px-4 py-12 text-center"
                 >
-                  <div className="flex flex-col items-center gap-2">
-                    <p className="text-sm font-medium text-foreground">{emptyTitle}</p>
-                    <p className="text-xs text-muted-foreground">{emptyDescription}</p>
+                  <div className="flex flex-col items-center gap-4" data-testid="empty-state">
+                    {emptyIllustration && (
+                      <img
+                        src={emptyIllustration}
+                        alt=""
+                        className="size-28 object-contain"
+                        draggable={false}
+                      />
+                    )}
+                    <div className="flex flex-col items-center gap-1.5">
+                      <p className="text-sm font-medium text-foreground">{emptyTitle}</p>
+                      <p className="max-w-xs text-xs text-muted-foreground">{emptyDescription}</p>
+                    </div>
                   </div>
                 </td>
               </tr>

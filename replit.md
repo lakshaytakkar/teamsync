@@ -21,10 +21,11 @@ client/src/
       topbar.tsx         - Top header bar with search, notifications, user menu
       page-header.tsx    - Reusable page header with title + actions
     hr/
-      data-table.tsx     - Reusable data table with search, filters, pagination, row actions
+      data-table.tsx     - Reusable data table with search, filters, pagination, row actions, empty state illustrations
       status-badge.tsx   - Status badge component with auto-variant mapping
       stats-card.tsx     - Dashboard stats card
       form-dialog.tsx    - Reusable form dialog for CRUD operations
+      empty-state.tsx    - Reusable empty state with illustration, messaging, and action button
     ui/                  - Shadcn UI components
   pages/
     dashboard.tsx        - Overview with stats, charts, recent activity
@@ -35,6 +36,8 @@ client/src/
     leave-management.tsx - Leave request management with approve/reject
     attendance.tsx       - Attendance tracking with daily records
     documents.tsx        - Document management
+  assets/
+    illustrations/       - AI-generated empty state illustrations (background-less PNGs)
   lib/
     mock-data.ts         - Realistic mock data for all modules
 ```

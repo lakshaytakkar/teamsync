@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+import emptyPeopleImg from "@/assets/illustrations/empty-people.png";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { FormDialog } from "@/components/hr/form-dialog";
 import { Input } from "@/components/ui/input";
@@ -204,6 +205,7 @@ export default function Candidates() {
           ]}
           emptyTitle="No candidates found"
           emptyDescription="Start building your talent pipeline."
+          emptyIllustration={emptyPeopleImg}
         />
       </div>
 

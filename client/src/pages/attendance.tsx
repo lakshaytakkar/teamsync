@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+import emptyAttendanceImg from "@/assets/illustrations/empty-attendance.png";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { FormDialog } from "@/components/hr/form-dialog";
 import { Input } from "@/components/ui/input";
@@ -210,6 +211,7 @@ export default function Attendance() {
           ]}
           emptyTitle="No attendance records"
           emptyDescription="No attendance data available for this date."
+          emptyIllustration={emptyAttendanceImg}
         />
       </div>
 

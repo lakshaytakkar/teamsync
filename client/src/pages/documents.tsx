@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+import emptyDocumentsImg from "@/assets/illustrations/empty-documents.png";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { FormDialog } from "@/components/hr/form-dialog";
 import { Input } from "@/components/ui/input";
@@ -176,6 +177,7 @@ export default function Documents() {
           ]}
           emptyTitle="No documents found"
           emptyDescription="Upload your first HR document."
+          emptyIllustration={emptyDocumentsImg}
         />
       </div>
 

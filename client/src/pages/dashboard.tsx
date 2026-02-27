@@ -1,5 +1,6 @@
 import { Users, UserPlus, Briefcase, CalendarDays, TrendingUp, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import { Topbar } from "@/components/layout/topbar";
+import emptyCalendarImg from "@/assets/illustrations/empty-calendar.png";
 import { StatsCard } from "@/components/hr/stats-card";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { employees, candidates, jobPostings, leaveRequests, attendanceRecords } from "@/lib/mock-data";
@@ -118,9 +119,10 @@ export default function Dashboard() {
                   </div>
                 ))
               ) : (
-                <div className="flex flex-col items-center gap-2 py-8">
-                  <CheckCircle2 className="size-8 text-emerald-500" />
-                  <p className="text-sm text-muted-foreground">All leave requests processed</p>
+                <div className="flex flex-col items-center gap-3 py-6">
+                  <img src={emptyCalendarImg} alt="" className="size-20 object-contain" draggable={false} />
+                  <p className="text-sm font-medium text-foreground">All caught up</p>
+                  <p className="text-xs text-muted-foreground">No pending leave requests to review</p>
                 </div>
               )}
             </div>

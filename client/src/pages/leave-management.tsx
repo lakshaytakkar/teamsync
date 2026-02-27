@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+import emptyCalendarImg from "@/assets/illustrations/empty-calendar.png";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { FormDialog } from "@/components/hr/form-dialog";
 import { Input } from "@/components/ui/input";
@@ -184,6 +185,7 @@ export default function LeaveManagement() {
           ]}
           emptyTitle="No leave requests"
           emptyDescription="There are no leave requests to display."
+          emptyIllustration={emptyCalendarImg}
         />
       </div>
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+import emptyJobsImg from "@/assets/illustrations/empty-jobs.png";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { FormDialog } from "@/components/hr/form-dialog";
 import { Input } from "@/components/ui/input";
@@ -201,6 +202,7 @@ export default function JobPostings() {
           ]}
           emptyTitle="No job postings found"
           emptyDescription="Create your first job posting to start hiring."
+          emptyIllustration={emptyJobsImg}
         />
       </div>
 

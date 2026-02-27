@@ -1,22 +1,16 @@
-import { AlertCircle } from "lucide-react";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/hr/empty-state";
+import notFoundIllustration from "@/assets/illustrations/not-found.png";
 
 export default function NotFound() {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10">
-          <AlertCircle className="size-5 text-destructive" />
-        </div>
-        <h1 className="text-lg font-semibold">Page Not Found</h1>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <Button size="sm" asChild>
-          <Link href="/" data-testid="link-back-home">Back to Dashboard</Link>
-        </Button>
-      </div>
+      <EmptyState
+        illustration={notFoundIllustration}
+        title="Page Not Found"
+        description="The page you're looking for doesn't exist or has been moved."
+        actionLabel="Back to Dashboard"
+        actionHref="/"
+      />
     </div>
   );
 }

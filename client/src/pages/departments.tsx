@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+import emptyDepartmentsImg from "@/assets/illustrations/empty-departments.png";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { FormDialog } from "@/components/hr/form-dialog";
 import { Input } from "@/components/ui/input";
@@ -146,6 +147,7 @@ export default function Departments() {
           ]}
           emptyTitle="No departments found"
           emptyDescription="Create your first department to organize your team."
+          emptyIllustration={emptyDepartmentsImg}
         />
       </div>
 
