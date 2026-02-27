@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Topbar } from "@/components/layout/topbar";
 import { PageBanner } from "@/components/hr/page-banner";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatsCard } from "@/components/hr/stats-card";
@@ -95,9 +94,7 @@ export default function Projects() {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title="Projects" subtitle="Manage and track projects" />
-      <div className="flex-1 overflow-auto p-6">
+    <div className="px-8 py-6 lg:px-12">
         <PageTransition>
           <PageBanner
             title="Project Management"
@@ -225,7 +222,6 @@ export default function Projects() {
             </Fade>
           )}
         </PageTransition>
-      </div>
 
       <FormDialog
         open={dialogOpen}

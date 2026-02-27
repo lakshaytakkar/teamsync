@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageBanner } from "@/components/hr/page-banner";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
@@ -168,9 +167,7 @@ export default function Employees() {
   const statuses: Employee["status"][] = ["Active", "Inactive", "On Leave"];
 
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title="Employees" subtitle="Manage your team members" />
-      <div className="flex-1 overflow-auto p-6">
+    <div className="px-8 py-6 lg:px-12">
         <PageTransition>
         <PageBanner
           title="Employee Directory"
@@ -201,7 +198,6 @@ export default function Employees() {
           />
         )}
         </PageTransition>
-      </div>
 
       <FormDialog
         open={dialogOpen}

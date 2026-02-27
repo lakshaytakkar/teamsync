@@ -1,4 +1,3 @@
-import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageTransition } from "@/components/ui/animated";
@@ -289,10 +288,8 @@ function ShadowTab() {
 
 export default function StyleGuide() {
   return (
-    <div className="flex h-full flex-col" data-testid="page-style-guide">
-      <Topbar title="Style Guide" />
-      <div className="flex-1 overflow-auto">
-        <PageTransition className="px-6 py-6">
+    <div className="px-8 py-6 lg:px-12" data-testid="page-style-guide">
+        <PageTransition>
           <PageHeader
             title="Style Guide"
             description="TeamSync Design System foundation — typography, colors, and shadows."
@@ -318,7 +315,6 @@ export default function StyleGuide() {
             </Tabs>
           </div>
         </PageTransition>
-      </div>
     </div>
   );
 }

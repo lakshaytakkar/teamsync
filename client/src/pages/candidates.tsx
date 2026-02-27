@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageBanner } from "@/components/hr/page-banner";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
@@ -188,9 +187,7 @@ export default function Candidates() {
   const sources = [...new Set(data.map((c) => c.source))];
 
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title="Candidates" subtitle="Track your recruitment pipeline" />
-      <div className="flex-1 overflow-auto p-6">
+    <div className="px-8 py-6 lg:px-12">
         <PageTransition>
         <PageBanner
           title="Recruitment Pipeline"
@@ -222,7 +219,6 @@ export default function Candidates() {
           />
         )}
         </PageTransition>
-      </div>
 
       <FormDialog
         open={dialogOpen}

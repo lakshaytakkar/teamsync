@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useRoute, Link } from "wouter";
-import { Topbar } from "@/components/layout/topbar";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatsCard } from "@/components/hr/stats-card";
@@ -52,9 +51,7 @@ export default function ProjectDetail() {
 
   if (!project) {
     return (
-      <div className="flex flex-col h-full">
-        <Topbar title="Project Not Found" />
-        <div className="flex-1 flex items-center justify-center p-6">
+      <div className="px-8 py-6 lg:px-12 flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <p className="text-sm text-muted-foreground mb-4" data-testid="text-not-found">This project does not exist.</p>
             <Link href="/projects">
@@ -64,7 +61,6 @@ export default function ProjectDetail() {
               </Button>
             </Link>
           </div>
-        </div>
       </div>
     );
   }
@@ -127,9 +123,7 @@ export default function ProjectDetail() {
   ];
 
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title={project.name} subtitle="Project Details" />
-      <div className="flex-1 overflow-auto p-6">
+    <div className="px-8 py-6 lg:px-12">
         <PageTransition>
           <div className="mb-5">
             <Link href="/projects">
@@ -277,7 +271,6 @@ export default function ProjectDetail() {
             </Tabs>
           </Fade>
         </PageTransition>
-      </div>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Topbar } from "@/components/layout/topbar";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageBanner } from "@/components/hr/page-banner";
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
@@ -174,9 +173,7 @@ export default function Documents() {
   const categories: HRDocument["category"][] = ["Policy", "Contract", "Certificate", "Report", "Other"];
 
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title="Documents" subtitle="HR document management" />
-      <div className="flex-1 overflow-auto p-6">
+    <div className="px-8 py-6 lg:px-12">
         <PageTransition>
         <PageBanner
           title="Document Library"
@@ -209,7 +206,6 @@ export default function Documents() {
           />
         )}
         </PageTransition>
-      </div>
 
       <DocumentPreviewModal
         open={previewOpen}

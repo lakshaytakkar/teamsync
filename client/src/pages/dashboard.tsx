@@ -1,5 +1,4 @@
 import { Users, UserPlus, Briefcase, CalendarDays, TrendingUp, Clock, CheckCircle2, AlertCircle } from "lucide-react";
-import { Topbar } from "@/components/layout/topbar";
 import { PageBanner } from "@/components/hr/page-banner";
 import emptyCalendarImg from "@/assets/illustrations/empty-calendar.png";
 import { StatsCard } from "@/components/hr/stats-card";
@@ -27,10 +26,8 @@ export default function Dashboard() {
   const pendingLeavesList = leaveRequests.filter((l) => l.status === "Pending").slice(0, 5);
 
   return (
-    <div className="flex flex-col h-full">
-      <Topbar title="Dashboard" subtitle="Welcome back, Sneha" />
-      <div className="flex-1 overflow-auto p-6">
-        <PageTransition>
+    <div className="px-8 py-6 lg:px-12">
+      <PageTransition>
         <PageBanner
           title="Welcome to TeamSync"
           iconSrc="/3d-icons/dashboard.png"
@@ -237,7 +234,6 @@ export default function Dashboard() {
         </Fade>
         )}
         </PageTransition>
-      </div>
     </div>
   );
 }

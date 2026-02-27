@@ -3,9 +3,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
+import { TopNavigation } from "@/components/layout/top-navigation";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Employees from "@/pages/employees";
@@ -44,23 +43,16 @@ function Router() {
   );
 }
 
-const sidebarStyle = {
-  "--sidebar-width": "15rem",
-  "--sidebar-width-icon": "3rem",
-};
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div className="flex h-screen w-full flex-col">
           <AnnouncementBanner />
-          <SidebarProvider style={sidebarStyle as React.CSSProperties} className="flex-1 min-h-0">
-            <AppSidebar />
-            <main className="flex-1 overflow-hidden">
-              <Router />
-            </main>
-          </SidebarProvider>
+          <TopNavigation />
+          <main className="flex-1 overflow-auto">
+            <Router />
+          </main>
         </div>
         <Toaster />
       </TooltipProvider>
