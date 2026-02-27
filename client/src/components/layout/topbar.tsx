@@ -24,7 +24,7 @@ export function Topbar({ title, subtitle }: TopbarProps) {
         <SidebarTrigger data-testid="button-sidebar-toggle" />
         <Separator orientation="vertical" className="h-5" />
         <div className="flex flex-col">
-          <h1 className="text-sm font-semibold leading-tight" data-testid="text-page-title">{title}</h1>
+          <h1 className="text-sm font-semibold font-heading leading-tight" data-testid="text-page-title">{title}</h1>
           {subtitle && (
             <p className="text-xs text-muted-foreground" data-testid="text-page-subtitle">{subtitle}</p>
           )}

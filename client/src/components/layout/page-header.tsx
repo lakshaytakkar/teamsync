@@ -21,7 +21,7 @@ export function PageHeader({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 pb-4">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight" data-testid="text-section-title">{title}</h2>
+        <h2 className="text-lg font-semibold font-heading tracking-tight" data-testid="text-section-title">{title}</h2>
         {description && (
           <p className="mt-0.5 text-sm text-muted-foreground" data-testid="text-section-description">{description}</p>
         )}

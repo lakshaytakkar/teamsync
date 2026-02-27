@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 transition-all duration-150",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[12px] text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 transition-all duration-150",
   {
     variants: {
       variant: {
@@ -15,14 +15,14 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground border border-destructive-border hover-elevate active-elevate-2",
         outline:
           "border [border-color:var(--button-outline)] [box-shadow:var(--shadow-btn-secondary)] hover:bg-accent active:[box-shadow:none]",
-        secondary: "bg-white dark:bg-secondary text-secondary-foreground [box-shadow:var(--shadow-btn-secondary)] hover:bg-accent active:[box-shadow:none] rounded-lg",
+        secondary: "bg-white dark:bg-secondary text-secondary-foreground [box-shadow:var(--shadow-btn-secondary)] hover:bg-accent active:[box-shadow:none]",
         ghost: "border border-transparent hover:bg-accent hover:text-accent-foreground",
       },
       size: {
         default: "min-h-9 px-4 py-2",
-        sm: "min-h-8 rounded-[8px] px-3 text-xs",
-        lg: "min-h-10 rounded-[10px] px-8",
-        icon: "h-9 w-9 rounded-[8px]",
+        sm: "min-h-8 rounded-[10px] px-3 text-xs",
+        lg: "min-h-10 rounded-[12px] px-8",
+        icon: "h-9 w-9 rounded-[10px]",
       },
     },
     defaultVariants: {

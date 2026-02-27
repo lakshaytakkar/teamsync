@@ -40,7 +40,7 @@ import {
 } from "lucide-react";
 
 function SectionTitle({ children }: { children: string }) {
-  return <p className="text-lg font-semibold text-[#151E3A] mb-4">{children}</p>;
+  return <p className="text-lg font-semibold font-heading text-[#151E3A] mb-4">{children}</p>;
 }
 
 function SubSection({ title, children }: { title: string; children: React.ReactNode }) {

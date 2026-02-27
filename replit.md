@@ -7,7 +7,7 @@ A custom HR Management Portal branded as TeamSync. Focused on perfect UI/UX insp
 - **Frontend**: React + TypeScript, Tailwind CSS, Shadcn UI, Wouter (routing)
 - **Backend**: Express.js (Node.js)
 - **State**: In-memory (frontend state management with React useState)
-- **Font**: Inter (Google Fonts)
+- **Fonts**: Plus Jakarta Sans (headings), Inter (body) — Google Fonts
 - **Design System**: Dropship.io-inspired brand tokens (documented in Style Guide page)
 
 ## Architecture
@@ -20,6 +20,7 @@ client/src/
       app-sidebar.tsx    - Navigation sidebar with Main Menu + Design System groups
       topbar.tsx         - Top header bar with search, notifications, user menu
       page-header.tsx    - Reusable page header with title + actions
+      announcement-banner.tsx - Full-width blue announcement bar at top of app, dismissible per session
     hr/
       data-table.tsx     - Reusable data table with search, filters, pagination, row actions, empty state illustrations
       status-badge.tsx   - Status badge component with auto-variant mapping
@@ -93,8 +94,10 @@ Status badges and change indicators use Tailwind semantic colors intentionally d
 - **Neutral**: `slate` (Contract, Archived, Late)
 
 ### Typography
-- **Font Family**: Inter (Google Fonts)
-- **Weights**: Regular (400), Medium (500), Semibold (600)
+- **Heading Font**: Plus Jakarta Sans (Google Fonts) — `font-heading` Tailwind class. Applied globally via `DialogTitle`, `AlertDialogTitle` base components, plus `PageBanner`, `StatsCard`, `Topbar`, sidebar brand, dashboard section headers
+- **Body Font**: Inter (Google Fonts) — `font-sans` Tailwind class
+- **Heading Weights**: Medium (500), Semibold (600), Bold (700), Extra Bold (800)
+- **Body Weights**: Regular (400), Medium (500), Semibold (600)
 
 | Scale | Size | Weight | Line Height |
 |-------|------|--------|-------------|
@@ -145,14 +148,14 @@ Status badges and change indicators use Tailwind semantic colors intentionally d
 | Large | 0px 12px 16px -4px rgba(21,30,58,0.08), 0px 4px 6px -2px rgba(21,30,58,0.03) |
 | XLarge | 0px 24px 48px -12px rgba(21,30,58,0.12) |
 | XXLarge | 0px 24px 48px -12px rgba(21,30,58,0.18) |
-| Btn Primary | rgba(20,72,203,0.48) 0px -1px 2px inset, rgba(34,90,234,0.16) 0 0 0 1px, rgba(34,90,234,0.64) 0 8px 16px -8px |
-| Btn Secondary | rgba(242,243,248,0.48) 0px -1px 2px inset, rgba(197,204,227,0.45) 0 0 0 1px, rgba(21,30,58,0.04) 0 4px 4px |
+| Btn Primary | rgba(0,14,88,0.4) 0px 1px 2px 0px, rgba(34,90,234,0.84) 0px 0px 0px 1px |
+| Btn Secondary | rgba(21,30,58,0.12) 0px 1px 2px 0px, rgba(21,30,58,0.12) 0px 0px 0px 1px |
 
 ### Border Radius
-- Buttons & Inputs: 10px (rounded-[10px])
-- Secondary/Small buttons: 8px (rounded-lg)
-- Cards: 10px (rounded-lg)
-- General: `--radius: 0.625rem` (10px)
+- Buttons & Inputs: 12px (rounded-[12px])
+- Small buttons/Icon buttons: 10px (rounded-[10px])
+- Cards: 12px (rounded-lg)
+- General: `--radius: 0.75rem` (12px)
 
 
 ### Key Components
@@ -162,6 +165,7 @@ Status badges and change indicators use Tailwind semantic colors intentionally d
 - **StatsCard**: Dashboard metric card with icon and change indicator
 - **EmptyState**: Reusable empty state with illustration, title, description, and optional action button
 - **PageBanner**: Full-width indigo banner with 3D PNG icon (48×48), title, description, optional action button. Used at the top of every HR page. Icons stored in `client/public/3d-icons/`
+- **AnnouncementBanner**: Full-width blue bar at the very top of the app (above sidebar + content), dismissible per session via sessionStorage (`announcement-dismissed` key). Renders in `App.tsx`
 - **DocumentPreviewModal**: Full modal for previewing documents — renders mock content by type (PDF sections, DOCX templates, XLSX tables, certificates) with prev/next navigation
 - **Spinner/PageSpinner/InlineSpinner**: Loading spinners in 5 sizes (xs→xl). PageSpinner is centered with optional label. InlineSpinner for buttons
 - **TableSkeleton/CardSkeleton/StatsCardSkeleton**: Skeleton loading states mimicking real component layouts

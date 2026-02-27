@@ -77,34 +77,63 @@ function TypographyTab() {
   return (
     <div className="flex flex-col gap-16">
       <div className="flex flex-col gap-6">
-        <div className="relative rounded-2xl bg-[#F8F9FC] overflow-hidden" style={{ minHeight: "200px" }}>
-          <div className="px-16 py-14 flex flex-col gap-4">
-            <p className="text-[48px] font-semibold text-[#151E3A] leading-tight" data-testid="text-font-name">
-              Inter
-            </p>
-            <p className="text-lg text-[#5A6380]">
-              Download Font:{" "}
-              <a
-                href="https://fonts.google.com/specimen/Inter"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-                data-testid="link-font-download"
-              >
-                https://fonts.google.com/specimen/Inter
-              </a>
-            </p>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="relative rounded-2xl bg-[#F8F9FC] overflow-hidden" style={{ minHeight: "200px" }}>
+            <div className="px-12 py-14 flex flex-col gap-4">
+              <p className="text-[48px] font-semibold font-heading text-[#151E3A] leading-tight" data-testid="text-font-heading">
+                Plus Jakarta Sans
+              </p>
+              <p className="text-sm text-[#5A6380]">
+                Headings &amp; Display —{" "}
+                <a href="https://fonts.google.com/specimen/Plus+Jakarta+Sans" target="_blank" rel="noopener noreferrer" className="underline">Google Fonts</a>
+              </p>
+            </div>
+          </div>
+          <div className="relative rounded-2xl bg-[#F8F9FC] overflow-hidden" style={{ minHeight: "200px" }}>
+            <div className="px-12 py-14 flex flex-col gap-4">
+              <p className="text-[48px] font-semibold text-[#151E3A] leading-tight" data-testid="text-font-name">
+                Inter
+              </p>
+              <p className="text-sm text-[#5A6380]">
+                Body &amp; UI —{" "}
+                <a href="https://fonts.google.com/specimen/Inter" target="_blank" rel="noopener noreferrer" className="underline" data-testid="link-font-download">Google Fonts</a>
+              </p>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-6">
           {[
-            { weight: "Semibold", fontClass: "font-semibold" },
-            { weight: "Medium", fontClass: "font-medium" },
-            { weight: "Regular", fontClass: "font-normal" },
+            { name: "Plus Jakarta Sans", weight: "Bold", fontClass: "font-bold font-heading" },
+            { name: "Plus Jakarta Sans", weight: "Semibold", fontClass: "font-semibold font-heading" },
+            { name: "Plus Jakarta Sans", weight: "Medium", fontClass: "font-medium font-heading" },
           ].map((item) => (
             <div
-              key={item.weight}
+              key={`heading-${item.weight}`}
+              className="rounded-2xl bg-[#F8F9FC] p-6"
+              data-testid={`typeface-heading-${item.weight.toLowerCase()}`}
+            >
+              <div className="flex items-center gap-8">
+                <div className="flex size-[92px] shrink-0 items-center justify-center rounded-xl bg-white shadow-[0px_12px_24px_0px_#f2f2f2]">
+                  <span className={`text-[48px] ${item.fontClass} text-[#151E3A] leading-[1.25]`}>Aa</span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <p className="text-xl font-semibold font-heading text-[#151E3A]">{item.name}</p>
+                  <p className="text-base text-[#7A8299]">{item.weight}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-3 gap-6">
+          {[
+            { name: "Inter", weight: "Semibold", fontClass: "font-semibold" },
+            { name: "Inter", weight: "Medium", fontClass: "font-medium" },
+            { name: "Inter", weight: "Regular", fontClass: "font-normal" },
+          ].map((item) => (
+            <div
+              key={`body-${item.weight}`}
               className="rounded-2xl bg-[#F8F9FC] p-6"
               data-testid={`typeface-${item.weight.toLowerCase()}`}
             >
@@ -113,7 +142,7 @@ function TypographyTab() {
                   <span className={`text-[48px] ${item.fontClass} text-[#151E3A] leading-[1.25]`}>Aa</span>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <p className="text-xl font-semibold text-[#151E3A]">Inter</p>
+                  <p className="text-xl font-semibold text-[#151E3A]">{item.name}</p>
                   <p className="text-base text-[#7A8299]">{item.weight}</p>
                 </div>
               </div>
@@ -125,24 +154,24 @@ function TypographyTab() {
       <div className="h-px bg-border" />
 
       <div className="flex flex-col gap-10">
-        <p className="text-[32px] font-semibold text-[#151E3A] leading-[1.4]">Display</p>
+        <p className="text-[32px] font-semibold font-heading text-[#151E3A] leading-[1.4]">Display</p>
         <div className="flex flex-col gap-4" data-testid="heading-64px">
-          <p className="text-[64px] font-semibold text-[#151E3A] leading-[80px] tracking-[-0.64px]">Display</p>
-          <p className="text-sm font-medium text-[#5A6380]">Display / Semibold / 64px / line-height 80px</p>
+          <p className="text-[64px] font-semibold font-heading text-[#151E3A] leading-[80px] tracking-[-0.64px]">Display</p>
+          <p className="text-sm font-medium text-[#5A6380]">Plus Jakarta Sans / Display / Semibold / 64px / line-height 80px</p>
         </div>
       </div>
 
       <div className="h-px bg-border" />
 
       <div className="flex flex-col gap-10">
-        <p className="text-[32px] font-semibold text-[#151E3A] leading-[1.4]">Heading</p>
+        <p className="text-[32px] font-semibold font-heading text-[#151E3A] leading-[1.4]">Heading</p>
         <div className="flex flex-col gap-14">
           <div className="grid grid-cols-4 gap-8 items-end">
             {headings.slice(0, 4).map((h) => (
               <div key={h.label} className="flex flex-col gap-4" data-testid={`heading-${h.size}`}>
-                <p className={`${h.className} text-[#151E3A]`}>{h.label}</p>
+                <p className={`${h.className} font-heading text-[#151E3A]`}>{h.label}</p>
                 <p className="text-sm font-medium text-[#5A6380]">
-                  {h.label} / {h.weight} / {h.size}
+                  Plus Jakarta Sans / {h.label} / {h.weight} / {h.size}
                 </p>
               </div>
             ))}
@@ -150,9 +179,9 @@ function TypographyTab() {
           <div className="grid grid-cols-4 gap-8 items-end">
             {headings.slice(4).map((h) => (
               <div key={h.label} className="flex flex-col gap-4" data-testid={`heading-${h.size}`}>
-                <p className={`${h.className} text-[#151E3A]`}>{h.label}</p>
+                <p className={`${h.className} font-heading text-[#151E3A]`}>{h.label}</p>
                 <p className="text-sm font-medium text-[#5A6380]">
-                  {h.label} / {h.weight} / {h.size}
+                  Plus Jakarta Sans / {h.label} / {h.weight} / {h.size}
                 </p>
               </div>
             ))}
@@ -163,7 +192,7 @@ function TypographyTab() {
       <div className="h-px bg-border" />
 
       <div className="flex flex-col gap-10">
-        <p className="text-[32px] font-semibold text-[#151E3A] leading-[1.4]">Body</p>
+        <p className="text-[32px] font-semibold font-heading text-[#151E3A] leading-[1.4]">Body</p>
         <div className="flex flex-col gap-10">
           {bodyStyles.map((b) => (
             <div key={b.label} className="flex flex-col gap-6" data-testid={`body-${b.size}`}>

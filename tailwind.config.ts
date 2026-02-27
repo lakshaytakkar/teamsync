@@ -6,8 +6,8 @@ export default {
   theme: {
     extend: {
       borderRadius: {
-        lg: ".625rem", /* 10px */
-        md: ".5rem", /* 8px */
+        lg: ".75rem", /* 12px */
+        md: ".625rem", /* 10px */
         sm: ".25rem", /* 4px */
       },
       colors: {
@@ -84,6 +84,7 @@ export default {
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
+        heading: ["var(--font-heading)"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
       },

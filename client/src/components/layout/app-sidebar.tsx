@@ -55,7 +55,7 @@ export function AppSidebar() {
           <img src={logoImg} alt="TeamSync" className="size-8 shrink-0 object-contain" />
           {!isCollapsed && (
             <div className="flex flex-col">
-              <span className="text-sm font-semibold tracking-tight" data-testid="text-brand-name">TeamSync</span>
+              <span className="text-sm font-semibold font-heading tracking-tight" data-testid="text-brand-name">TeamSync</span>
               <span className="text-[11px] text-muted-foreground">HR Portal</span>
             </div>
           )}

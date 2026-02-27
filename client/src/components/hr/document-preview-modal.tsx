@@ -37,7 +37,7 @@ function PolicyPreview({ preview }: { preview: DocumentPreview }) {
     <div className="flex flex-col gap-5">
       {preview.sections?.map((section, idx) => (
         <div key={idx} className="flex flex-col gap-2">
-          <h3 className="text-sm font-semibold">{section.heading}</h3>
+          <h3 className="text-sm font-semibold font-heading">{section.heading}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{section.content}</p>
         </div>
       ))}
@@ -50,7 +50,7 @@ function ContractPreview({ preview }: { preview: DocumentPreview }) {
     <div className="flex flex-col gap-5">
       {preview.sections?.map((section, idx) => (
         <div key={idx} className="flex flex-col gap-2">
-          <h3 className="text-sm font-semibold">{section.heading}</h3>
+          <h3 className="text-sm font-semibold font-heading">{section.heading}</h3>
           <div className="text-sm text-muted-foreground leading-relaxed">
             {section.content.split(/(\[.*?\])/).map((part, i) =>
               part.startsWith("[") && part.endsWith("]") ? (
@@ -103,7 +103,7 @@ function CertificatePreview({ preview }: { preview: DocumentPreview }) {
     <div className="flex flex-col items-center gap-6 py-8">
       <Award className="size-16 text-primary" />
       <div className="flex flex-col items-center gap-2 text-center">
-        <h3 className="text-lg font-semibold">{preview.certificateTitle}</h3>
+        <h3 className="text-lg font-semibold font-heading">{preview.certificateTitle}</h3>
         <p className="text-sm text-muted-foreground">This is to certify that</p>
         <p className="text-base font-medium text-primary">{preview.certificateRecipient}</p>
         <p className="max-w-md text-sm text-muted-foreground leading-relaxed">{preview.certificateBody}</p>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Employees from "@/pages/employees";
@@ -47,11 +48,14 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <SidebarProvider style={sidebarStyle as React.CSSProperties}>
-          <div className="flex h-screen w-full">
-            <AppSidebar />
-            <main className="flex-1 overflow-hidden">
-              <Router />
-            </main>
+          <div className="flex h-screen w-full flex-col">
+            <AnnouncementBanner />
+            <div className="flex flex-1 overflow-hidden">
+              <AppSidebar />
+              <main className="flex-1 overflow-hidden">
+                <Router />
+              </main>
+            </div>
           </div>
         </SidebarProvider>
         <Toaster />
