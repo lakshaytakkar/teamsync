@@ -31,6 +31,19 @@ const variantMap: Record<string, StatusVariant> = {
   Report: "warning",
   Other: "neutral",
   Archived: "neutral",
+  Paid: "success",
+  Failed: "error",
+  Processing: "warning",
+  Completed: "success",
+  "On Hold": "warning",
+  Overdue: "error",
+  "To Do": "neutral",
+  "In Progress": "info",
+  Review: "warning",
+  Done: "success",
+  High: "error",
+  Medium: "warning",
+  Low: "neutral",
 };
 
 const variantStyles: Record<StatusVariant, string> = {

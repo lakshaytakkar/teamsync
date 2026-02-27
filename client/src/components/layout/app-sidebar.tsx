@@ -8,6 +8,8 @@ import {
   CalendarDays,
   Clock,
   FileText,
+  Wallet,
+  FolderKanban,
   Palette,
   Component,
   Grid3X3,
@@ -37,6 +39,8 @@ const mainNavItems = [
   { title: "Leave Management", url: "/leave", icon: CalendarDays },
   { title: "Attendance", url: "/attendance", icon: Clock },
   { title: "Documents", url: "/documents", icon: FileText },
+  { title: "Payroll", url: "/payroll", icon: Wallet },
+  { title: "Projects", url: "/projects", icon: FolderKanban },
 ];
 
 const designNavItems = [

@@ -6,6 +6,10 @@ import type {
   LeaveRequest,
   AttendanceRecord,
   HRDocument,
+  PayrollRun,
+  PayrollEntry,
+  Project,
+  ProjectTask,
 } from "@shared/schema";
 
 export const employees: Employee[] = [
@@ -219,3 +223,71 @@ export const documentPreviews: Record<string, DocumentPreview> = {
     ],
   },
 };
+
+export const payrollRuns: PayrollRun[] = [
+  { id: "pr-1", period: "February 2026", runDate: "2026-02-25", status: "Completed", totalGross: 18600000, totalDeductions: 3720000, totalNet: 14880000, employeeCount: 14 },
+  { id: "pr-2", period: "January 2026", runDate: "2026-01-25", status: "Completed", totalGross: 18600000, totalDeductions: 3720000, totalNet: 14880000, employeeCount: 14 },
+  { id: "pr-3", period: "December 2025", runDate: "2025-12-25", status: "Completed", totalGross: 17800000, totalDeductions: 3560000, totalNet: 14240000, employeeCount: 13 },
+  { id: "pr-4", period: "November 2025", runDate: "2025-11-25", status: "Completed", totalGross: 17800000, totalDeductions: 3560000, totalNet: 14240000, employeeCount: 13 },
+  { id: "pr-5", period: "October 2025", runDate: "2025-10-25", status: "Completed", totalGross: 16500000, totalDeductions: 3300000, totalNet: 13200000, employeeCount: 12 },
+  { id: "pr-6", period: "March 2026", runDate: "2026-03-01", status: "Draft", totalGross: 0, totalDeductions: 0, totalNet: 0, employeeCount: 15 },
+];
+
+export const payrollEntries: PayrollEntry[] = [
+  { id: "pe-1", payrollRunId: "pr-1", employeeId: "1", employeeName: "Arjun Mehta", department: "Engineering", baseSalary: 150000, bonus: 15000, deductions: 33000, netPay: 132000, status: "Paid" },
+  { id: "pe-2", payrollRunId: "pr-1", employeeId: "2", employeeName: "Priya Sharma", department: "Design", baseSalary: 133333, bonus: 10000, deductions: 28667, netPay: 114666, status: "Paid" },
+  { id: "pe-3", payrollRunId: "pr-1", employeeId: "3", employeeName: "Rahul Kumar", department: "Engineering", baseSalary: 100000, bonus: 5000, deductions: 21000, netPay: 84000, status: "Paid" },
+  { id: "pe-4", payrollRunId: "pr-1", employeeId: "4", employeeName: "Sneha Patel", department: "HR", baseSalary: 125000, bonus: 12500, deductions: 27500, netPay: 110000, status: "Paid" },
+  { id: "pe-5", payrollRunId: "pr-1", employeeId: "5", employeeName: "Vikram Singh", department: "Marketing", baseSalary: 116667, bonus: 8000, deductions: 24933, netPay: 99734, status: "Paid" },
+  { id: "pe-6", payrollRunId: "pr-1", employeeId: "6", employeeName: "Ananya Reddy", department: "Engineering", baseSalary: 91667, bonus: 0, deductions: 18333, netPay: 73334, status: "Pending" },
+  { id: "pe-7", payrollRunId: "pr-1", employeeId: "7", employeeName: "Karan Gupta", department: "Sales", baseSalary: 75000, bonus: 12000, deductions: 17400, netPay: 69600, status: "Paid" },
+  { id: "pe-8", payrollRunId: "pr-1", employeeId: "8", employeeName: "Meera Nair", department: "Design", baseSalary: 83333, bonus: 5000, deductions: 17667, netPay: 70666, status: "Paid" },
+  { id: "pe-9", payrollRunId: "pr-1", employeeId: "9", employeeName: "Rohan Joshi", department: "Engineering", baseSalary: 125000, bonus: 10000, deductions: 27000, netPay: 108000, status: "Paid" },
+  { id: "pe-10", payrollRunId: "pr-1", employeeId: "11", employeeName: "Aditya Verma", department: "Engineering", baseSalary: 79167, bonus: 4000, deductions: 16633, netPay: 66534, status: "Paid" },
+  { id: "pe-11", payrollRunId: "pr-1", employeeId: "12", employeeName: "Nisha Choudhary", department: "HR", baseSalary: 66667, bonus: 3000, deductions: 13933, netPay: 55734, status: "Paid" },
+  { id: "pe-12", payrollRunId: "pr-1", employeeId: "13", employeeName: "Siddharth Rao", department: "Product", baseSalary: 141667, bonus: 14000, deductions: 31133, netPay: 124534, status: "Paid" },
+  { id: "pe-13", payrollRunId: "pr-1", employeeId: "14", employeeName: "Pooja Bhat", department: "Marketing", baseSalary: 58333, bonus: 2000, deductions: 12067, netPay: 48266, status: "Failed" },
+  { id: "pe-14", payrollRunId: "pr-1", employeeId: "15", employeeName: "Amit Desai", department: "Engineering", baseSalary: 183333, bonus: 20000, deductions: 40667, netPay: 162666, status: "Paid" },
+];
+
+export const projects: Project[] = [
+  { id: "proj-1", name: "HR Portal Redesign", description: "Complete redesign of the internal HR management portal with new dashboard, improved UX, and mobile responsiveness.", status: "Active", startDate: "2025-11-01", endDate: "2026-04-30", progress: 68, priority: "High", teamSize: 6 },
+  { id: "proj-2", name: "Mobile App Launch", description: "Build and launch the TeamSync mobile app for iOS and Android with core HR features.", status: "Active", startDate: "2025-12-15", endDate: "2026-06-30", progress: 35, priority: "High", teamSize: 5 },
+  { id: "proj-3", name: "Payroll Automation", description: "Automate payroll processing, tax calculations, and compliance reporting for all employees.", status: "Active", startDate: "2026-01-10", endDate: "2026-05-15", progress: 22, priority: "Medium", teamSize: 3 },
+  { id: "proj-4", name: "Employee Onboarding Flow", description: "Streamline the new employee onboarding process with automated checklists and document collection.", status: "Completed", startDate: "2025-06-01", endDate: "2025-12-20", progress: 100, priority: "Medium", teamSize: 4 },
+  { id: "proj-5", name: "Performance Review System", description: "Build a 360-degree performance review system with goal tracking, feedback, and analytics.", status: "On Hold", startDate: "2025-09-01", endDate: "2026-03-31", progress: 45, priority: "Low", teamSize: 3 },
+  { id: "proj-6", name: "Data Migration", description: "Migrate legacy HR data from the old system to the new platform with data validation and integrity checks.", status: "Completed", startDate: "2025-07-15", endDate: "2025-10-30", progress: 100, priority: "High", teamSize: 2 },
+  { id: "proj-7", name: "Benefits Portal", description: "Create a self-service benefits enrollment portal for employees to manage health insurance and other perks.", status: "Overdue", startDate: "2025-08-01", endDate: "2026-01-31", progress: 60, priority: "Medium", teamSize: 4 },
+  { id: "proj-8", name: "Analytics Dashboard", description: "Build real-time HR analytics dashboard with headcount trends, attrition analysis, and recruitment funnel metrics.", status: "Active", startDate: "2026-01-05", endDate: "2026-07-15", progress: 15, priority: "Low", teamSize: 3 },
+];
+
+export const projectTasks: ProjectTask[] = [
+  { id: "task-1", projectId: "proj-1", title: "Design system documentation", assignee: "Priya Sharma", status: "Done", priority: "High", dueDate: "2026-01-15" },
+  { id: "task-2", projectId: "proj-1", title: "Dashboard wireframes", assignee: "Meera Nair", status: "Done", priority: "High", dueDate: "2026-01-20" },
+  { id: "task-3", projectId: "proj-1", title: "Frontend component library", assignee: "Rahul Kumar", status: "In Progress", priority: "High", dueDate: "2026-03-01" },
+  { id: "task-4", projectId: "proj-1", title: "API integration layer", assignee: "Arjun Mehta", status: "In Progress", priority: "Medium", dueDate: "2026-03-10" },
+  { id: "task-5", projectId: "proj-1", title: "User acceptance testing", assignee: "Aditya Verma", status: "To Do", priority: "Medium", dueDate: "2026-04-15" },
+  { id: "task-6", projectId: "proj-1", title: "Performance optimization", assignee: "Rohan Joshi", status: "To Do", priority: "Low", dueDate: "2026-04-20" },
+  { id: "task-7", projectId: "proj-1", title: "Mobile responsive layouts", assignee: "Priya Sharma", status: "Review", priority: "High", dueDate: "2026-02-28" },
+  { id: "task-8", projectId: "proj-2", title: "React Native setup", assignee: "Rahul Kumar", status: "Done", priority: "High", dueDate: "2026-01-10" },
+  { id: "task-9", projectId: "proj-2", title: "Authentication flow", assignee: "Arjun Mehta", status: "In Progress", priority: "High", dueDate: "2026-02-15" },
+  { id: "task-10", projectId: "proj-2", title: "Push notification service", assignee: "Rohan Joshi", status: "To Do", priority: "Medium", dueDate: "2026-03-20" },
+  { id: "task-11", projectId: "proj-2", title: "Offline mode support", assignee: "Arjun Mehta", status: "To Do", priority: "Low", dueDate: "2026-04-30" },
+  { id: "task-12", projectId: "proj-2", title: "App store submission", assignee: "Vikram Singh", status: "To Do", priority: "High", dueDate: "2026-06-15" },
+  { id: "task-13", projectId: "proj-3", title: "Tax calculation engine", assignee: "Amit Desai", status: "In Progress", priority: "High", dueDate: "2026-03-01" },
+  { id: "task-14", projectId: "proj-3", title: "Payslip generation", assignee: "Rahul Kumar", status: "To Do", priority: "Medium", dueDate: "2026-03-15" },
+  { id: "task-15", projectId: "proj-3", title: "Bank integration API", assignee: "Rohan Joshi", status: "To Do", priority: "High", dueDate: "2026-04-01" },
+  { id: "task-16", projectId: "proj-3", title: "Compliance reports", assignee: "Divya Iyer", status: "To Do", priority: "Medium", dueDate: "2026-04-15" },
+  { id: "task-17", projectId: "proj-7", title: "Insurance provider API", assignee: "Arjun Mehta", status: "Done", priority: "High", dueDate: "2025-10-15" },
+  { id: "task-18", projectId: "proj-7", title: "Enrollment form builder", assignee: "Meera Nair", status: "Done", priority: "Medium", dueDate: "2025-11-01" },
+  { id: "task-19", projectId: "proj-7", title: "Benefits comparison view", assignee: "Priya Sharma", status: "In Progress", priority: "Medium", dueDate: "2026-01-15" },
+  { id: "task-20", projectId: "proj-7", title: "Employee notifications", assignee: "Karan Gupta", status: "Review", priority: "Low", dueDate: "2026-01-20" },
+  { id: "task-21", projectId: "proj-7", title: "Admin approval workflow", assignee: "Sneha Patel", status: "To Do", priority: "High", dueDate: "2026-02-10" },
+  { id: "task-22", projectId: "proj-8", title: "Data pipeline setup", assignee: "Rohan Joshi", status: "Done", priority: "High", dueDate: "2026-02-01" },
+  { id: "task-23", projectId: "proj-8", title: "Chart components", assignee: "Meera Nair", status: "In Progress", priority: "Medium", dueDate: "2026-03-15" },
+  { id: "task-24", projectId: "proj-8", title: "Attrition prediction model", assignee: "Amit Desai", status: "To Do", priority: "Low", dueDate: "2026-05-01" },
+  { id: "task-25", projectId: "proj-8", title: "Export to PDF/Excel", assignee: "Aditya Verma", status: "To Do", priority: "Medium", dueDate: "2026-06-01" },
+  { id: "task-26", projectId: "proj-1", title: "Dark mode implementation", assignee: "Rahul Kumar", status: "Review", priority: "Medium", dueDate: "2026-03-05" },
+  { id: "task-27", projectId: "proj-2", title: "UI design mockups", assignee: "Priya Sharma", status: "Review", priority: "High", dueDate: "2026-02-01" },
+  { id: "task-28", projectId: "proj-3", title: "Database schema design", assignee: "Amit Desai", status: "Done", priority: "High", dueDate: "2026-01-20" },
+];

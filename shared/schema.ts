@@ -165,6 +165,94 @@ export const insertDocumentSchema = z.object({
   status: z.enum(["Active", "Archived"]),
 });
 
+export interface PayrollRun {
+  id: string;
+  period: string;
+  runDate: string;
+  status: "Draft" | "Processing" | "Completed" | "Failed";
+  totalGross: number;
+  totalDeductions: number;
+  totalNet: number;
+  employeeCount: number;
+}
+
+export interface PayrollEntry {
+  id: string;
+  payrollRunId: string;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  baseSalary: number;
+  bonus: number;
+  deductions: number;
+  netPay: number;
+  status: "Paid" | "Pending" | "Failed";
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  status: "Active" | "Completed" | "On Hold" | "Overdue";
+  startDate: string;
+  endDate: string;
+  progress: number;
+  priority: "High" | "Medium" | "Low";
+  teamSize: number;
+}
+
+export interface ProjectTask {
+  id: string;
+  projectId: string;
+  title: string;
+  assignee: string;
+  status: "To Do" | "In Progress" | "Review" | "Done";
+  priority: "High" | "Medium" | "Low";
+  dueDate: string;
+}
+
+export const insertPayrollRunSchema = z.object({
+  period: z.string().min(1),
+  runDate: z.string().min(1),
+  status: z.enum(["Draft", "Processing", "Completed", "Failed"]),
+  totalGross: z.number().min(0),
+  totalDeductions: z.number().min(0),
+  totalNet: z.number().min(0),
+  employeeCount: z.number().min(0),
+});
+
+export const insertPayrollEntrySchema = z.object({
+  payrollRunId: z.string().min(1),
+  employeeId: z.string().min(1),
+  employeeName: z.string().min(1),
+  department: z.string().min(1),
+  baseSalary: z.number().min(0),
+  bonus: z.number().min(0),
+  deductions: z.number().min(0),
+  netPay: z.number().min(0),
+  status: z.enum(["Paid", "Pending", "Failed"]),
+});
+
+export const insertProjectSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().min(1),
+  status: z.enum(["Active", "Completed", "On Hold", "Overdue"]),
+  startDate: z.string().min(1),
+  endDate: z.string().min(1),
+  progress: z.number().min(0).max(100),
+  priority: z.enum(["High", "Medium", "Low"]),
+  teamSize: z.number().min(1),
+});
+
+export const insertProjectTaskSchema = z.object({
+  projectId: z.string().min(1),
+  title: z.string().min(1),
+  assignee: z.string().min(1),
+  status: z.enum(["To Do", "In Progress", "Review", "Done"]),
+  priority: z.enum(["High", "Medium", "Low"]),
+  dueDate: z.string().min(1),
+});
+
 export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
 export type InsertCandidate = z.infer<typeof insertCandidateSchema>;
 export type InsertDepartment = z.infer<typeof insertDepartmentSchema>;
@@ -172,3 +260,7 @@ export type InsertJobPosting = z.infer<typeof insertJobPostingSchema>;
 export type InsertLeaveRequest = z.infer<typeof insertLeaveRequestSchema>;
 export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
+export type InsertPayrollRun = z.infer<typeof insertPayrollRunSchema>;
+export type InsertPayrollEntry = z.infer<typeof insertPayrollEntrySchema>;
+export type InsertProject = z.infer<typeof insertProjectSchema>;
+export type InsertProjectTask = z.infer<typeof insertProjectTaskSchema>;

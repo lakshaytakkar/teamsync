@@ -46,6 +46,9 @@ client/src/
     leave-management.tsx - Leave request management with approve/reject
     attendance.tsx       - Attendance tracking with daily records
     documents.tsx        - Document management
+    payroll.tsx          - Payroll management with run payroll flow, stats, entry table
+    projects.tsx         - Project management with card grid, stats, new project form
+    project-detail.tsx   - Project detail with Kanban board + Table views, task stats
     style-guide.tsx      - Design System style guide (Typography, Colors, Shadow tabs)
     components-guide.tsx - Component library (Buttons, Forms, Components, Logos & Cursors, Badges, Avatar tabs)
     icons-guide.tsx      - Icon library with search (lucide-react icons organized by category)
@@ -56,13 +59,31 @@ client/src/
     use-toast.ts         - Toast system (showSuccess/showError/showInfo/showWarning + legacy toast())
     use-simulated-loading.ts - Simulated loading hook (500ms delay for demo skeletons)
   lib/
-    mock-data.ts         - Realistic mock data for all modules (includes documentPreviews)
+    mock-data.ts         - Realistic mock data for all modules (includes documentPreviews, payrollRuns, payrollEntries, projects, projectTasks)
     avatars.ts           - DiceBear avatar helpers (Micah for people, Glass for entities)
 ```
 
 ### Sidebar Navigation
-- **Main Menu**: Dashboard, Employees, Candidates, Departments, Job Postings, Leave Management, Attendance, Documents
+- **Main Menu**: Dashboard, Employees, Candidates, Departments, Job Postings, Leave Management, Attendance, Documents, Payroll, Projects
 - **Design System**: Style Guide (`/dev/style-guide`), Components (`/dev/components`), Icons (`/dev/icons`)
+
+### Routes
+| Path | Page | Description |
+|------|------|-------------|
+| `/` | Dashboard | Overview with stats and activity |
+| `/employees` | Employees | Employee CRUD management |
+| `/candidates` | Candidates | Recruitment pipeline |
+| `/departments` | Departments | Organization structure |
+| `/job-postings` | Job Postings | Position management |
+| `/leave` | Leave Management | Leave requests |
+| `/attendance` | Attendance | Daily tracking |
+| `/documents` | Documents | HR document management |
+| `/payroll` | Payroll | Payroll runs and entries |
+| `/projects` | Projects | Project list with cards |
+| `/projects/:id` | Project Detail | Kanban + Table views |
+| `/dev/style-guide` | Style Guide | Design system reference |
+| `/dev/components` | Components | Component library |
+| `/dev/icons` | Icons | Icon library |
 
 ## Design System Foundation (Dropship.io Tokens)
 
@@ -88,11 +109,11 @@ Button shadows: `--shadow-btn-primary` (blue inset glow), `--shadow-btn-secondar
 
 ### Status Colors (Semantic — separate from brand palette)
 Status badges and change indicators use Tailwind semantic colors intentionally distinct from the brand palette:
-- **Success**: `emerald` (Active, Present, Approved, Hired, Open)
-- **Error**: `red` (Inactive, Absent, Rejected, Closed)
-- **Warning**: `amber` (On Leave, Half Day, Pending)
-- **Info**: `blue` (Interview, Screening, Notice Period)
-- **Neutral**: `slate` (Contract, Archived, Late)
+- **Success**: `emerald` (Active, Present, Approved, Hired, Open, Paid, Completed, Done)
+- **Error**: `red` (Inactive, Absent, Rejected, Closed, Failed, Overdue, High priority)
+- **Warning**: `amber` (On Leave, Half Day, Pending, Processing, On Hold, Review, Medium priority)
+- **Info**: `blue` (Interview, Screening, In Progress)
+- **Neutral**: `slate` (Contract, Archived, Draft, To Do, Low priority)
 
 ### Typography
 - **Heading Font**: Plus Jakarta Sans (Google Fonts) — `font-heading` Tailwind class. Applied globally via `DialogTitle`, `AlertDialogTitle` base components, plus `PageBanner`, `StatsCard`, `Topbar`, sidebar brand, dashboard section headers
@@ -164,10 +185,10 @@ Status badges and change indicators use Tailwind semantic colors intentionally d
 - **FormDialog**: Standard dialog for create/edit forms (scale+fade animation on open)
 - **StatsCard**: Dashboard metric card with icon and change indicator
 - **EmptyState**: Reusable empty state with illustration, title, description, and optional action button (fade+scale on mount)
-- **PageBanner**: Full-width indigo banner with 3D PNG icon (48×48), title, description, optional action button. Used at the top of every HR page. Icons stored in `client/public/3d-icons/`
+- **PageBanner**: Full-width indigo banner with 3D PNG icon (48x48), title, description, optional action button. Used at the top of every HR page. Icons stored in `client/public/3d-icons/`
 - **AnnouncementBanner**: Full-width blue bar at the very top of the app (above sidebar + content), dismissible per session via sessionStorage (`announcement-dismissed` key). Slide-down on mount, slide-up on dismiss. Renders in `App.tsx`
 - **DocumentPreviewModal**: Full modal for previewing documents — renders mock content by type (PDF sections, DOCX templates, XLSX tables, certificates) with prev/next navigation
-- **Spinner/PageSpinner/InlineSpinner**: Loading spinners in 5 sizes (xs→xl). PageSpinner is centered with optional label. InlineSpinner for buttons
+- **Spinner/PageSpinner/InlineSpinner**: Loading spinners in 5 sizes (xs->xl). PageSpinner is centered with optional label. InlineSpinner for buttons
 - **TableSkeleton/CardSkeleton/StatsCardSkeleton**: Skeleton loading states mimicking real component layouts
 
 ### Toast System
@@ -177,20 +198,21 @@ Status badges and change indicators use Tailwind semantic colors intentionally d
 - Position: fixed bottom-right, auto-dismiss 3s, slide-in/out animation with layout reflow
 
 ### Loading States
-- All 8 HR pages use `useSimulatedLoading(500)` hook for a brief skeleton flash on mount
+- All HR pages use `useSimulatedLoading(500)` hook for a brief skeleton flash on mount
 - Pages with DataTable show `TableSkeleton` while loading
 - Dashboard shows `StatsCardSkeleton` grid + `Skeleton` cards while loading
+- Projects page shows `CardSkeleton` grid while loading
 - In future with DB, these will be replaced by real react-query loading states
 
 ### Component Library Reference (Components Page)
-- **Buttons**: 5 variants (Primary, Secondary, Outline, Ghost, Destructive) × 3 sizes (lg, default, sm) × states (Default, Hover, Focused, Disabled) + icon-only
+- **Buttons**: 5 variants (Primary, Secondary, Outline, Ghost, Destructive) x 3 sizes (lg, default, sm) x states (Default, Hover, Focused, Disabled) + icon-only
 - **Forms**: Text Input (Default/Filled/Disabled/Error + icon prefixes), Select/Dropdown, Checkbox, Switch/Toggle
 - **Table Components**: Cell types (Avatar+Text, Title+Description, Badge, Button, Plain Text), Header styles
-- **Loading**: Spinner sizes (xs→xl), PageSpinner, InlineSpinner, StatsCardSkeleton grid, CardSkeleton variants, TableSkeleton
+- **Loading**: Spinner sizes (xs->xl), PageSpinner, InlineSpinner, StatsCardSkeleton grid, CardSkeleton variants, TableSkeleton
 - **Toasts**: 4 semantic toast types with trigger buttons + static style previews
 - **Banner**: PageBanner demo with 3D icon variants + 3D icon gallery (8 icons)
-- **Badges**: 5 colors (Neutral/Primary/Green/Yellow/Red) × 3 sizes (Large/Medium/Small) × 2 styles (Fill/Outlined) + Dot and Close icon types
-- **Avatars**: 7 sizes (24px→72px), Initials/Icon fallback types, 4 status indicators (Online/Offline/Busy/Away), stacked avatar groups
+- **Badges**: 5 colors (Neutral/Primary/Green/Yellow/Red) x 3 sizes (Large/Medium/Small) x 2 styles (Fill/Outlined) + Dot and Close icon types
+- **Avatars**: 7 sizes (24px->72px), Initials/Icon fallback types, 4 status indicators (Online/Offline/Busy/Away), stacked avatar groups
 - **Logos & Cursors**: TeamSync brand mark (Primary, Dark, Icon-only) + 12 cursor type demos
 
 ### Icon Library Reference (Icons Page)
@@ -206,17 +228,26 @@ Status badges and change indicators use Tailwind semantic colors intentionally d
 6. **Leave Management** - Request submission and approval workflow
 7. **Attendance** - Daily check-in/out tracking with stats
 8. **Documents** - HR document management with categories
+9. **Payroll** - Payroll run management with period selection, stats cards (Total Payroll, Net Pay, Deductions, Employees Paid), entry table with employee details, Run Payroll confirmation flow with success toast, Export button
+10. **Projects** - Project management with card grid view, stats cards (Total, Completed, In Progress, Overdue), progress bars, priority indicators, New Project form dialog, click-through to project detail
+11. **Project Detail** - Kanban board (To Do / In Progress / Review / Done columns with task cards showing assignee, priority dot, due date) + Table view with DataTable, back navigation to projects list
 
 ### Data Model
-All types defined in `shared/schema.ts` with Zod validation schemas.
+All types defined in `shared/schema.ts` with Zod validation schemas:
+- Employee, Candidate, Department, JobPosting, LeaveRequest, AttendanceRecord, HRDocument
+- PayrollRun (id, period, runDate, status, totalGross, totalDeductions, totalNet, employeeCount)
+- PayrollEntry (id, payrollRunId, employeeId, employeeName, department, baseSalary, bonus, deductions, netPay, status)
+- Project (id, name, description, status, startDate, endDate, progress, priority, teamSize)
+- ProjectTask (id, projectId, title, assignee, status, priority, dueDate)
+
 Currently using frontend state (useState) with mock data. Database integration planned for later phase.
 
 ## Animation System
 Uses `motion/react` (Framer Motion) for professional, polished animations throughout the app.
 
 ### Animation Primitives (`client/src/components/ui/animated.tsx`)
-- **Fade**: Opacity 0→1 with optional direction (up/down/left/right) and distance
-- **Scale**: Scale 0.95→1 + fade, for mount reveals
+- **Fade**: Opacity 0->1 with optional direction (up/down/left/right) and distance
+- **Scale**: Scale 0.95->1 + fade, for mount reveals
 - **Slide**: Slide from direction + fade
 - **Stagger / StaggerItem**: Container that staggers children's animations (configurable interval)
 - **PageTransition**: Route-level wrapper with subtle fade + slide-up (8px, 0.35s)
@@ -225,13 +256,22 @@ Uses `motion/react` (Framer Motion) for professional, polished animations throug
 ### Animation Patterns
 - **Page transitions**: Every page wraps scrollable content in `PageTransition` (fade+slide-up on mount)
 - **Dashboard**: Stats cards use `Stagger` (50ms apart), section panels use `Fade` with increasing delays (0.15s, 0.25s)
-- **Overlays**: Dialog/AlertDialog use motion scale+fade (0.95→1), Sheet slides from edge with spring physics, dropdown/popover/tooltip/select use refined CSS animations
+- **Overlays**: Dialog/AlertDialog use motion scale+fade (0.95->1), Sheet slides from edge with spring physics, dropdown/popover/tooltip/select use refined CSS animations
 - **Toaster**: AnimatePresence + motion for slide-in from right, slide-out, and layout reflow
 - **Sidebar**: Staggered nav items (30ms apart), active indicator with `layoutId` animation
 - **Banner**: AnnouncementBanner slides down on mount, slides up on dismiss
 - **Buttons**: CSS `active:scale-[0.97]` micro-interaction
 - **PageBanner**: Fade+slide-down on mount
 - **EmptyState**: Scale+fade on mount
+
+## Figma Reference
+Figma design file: `nu2VXP4aauKutoNXCp6JwU` (LUMIN HR Management Dashboard)
+See `.local/figma-reference.md` for full screen inventory and implementation status.
+
+### Implementation Status
+- **Chunk 1 (Done)**: Payroll page, Projects page, Project Detail (Kanban + Table)
+- **Chunk 2 (Pending)**: Calendar (month/week/day), Settings, Account/Profile
+- **Chunk 3 (Pending)**: Dashboard/Attendance/Job Postings refinements vs Figma
 
 ## Running
 - `npm run dev` starts both Express backend and Vite frontend dev server
