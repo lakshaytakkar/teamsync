@@ -1,14 +1,14 @@
 # TeamSync - HR Management Portal
 
 ## Overview
-A custom HR Management Portal (formerly LUMIN HR, now branded as TeamSync). Focused on perfect UI/UX, standardized components, comprehensive CRUD operations, and recruiter-ready functionality. Uses DiceBear Micah avatars for people and DiceBear Glass avatars for non-human entities (departments, documents).
+A custom HR Management Portal branded as TeamSync. Focused on perfect UI/UX inspired by Dropship.io design system, standardized components, comprehensive CRUD operations, and recruiter-ready functionality. Uses DiceBear Micah avatars for people and DiceBear Glass avatars for non-human entities (departments, documents).
 
 ## Tech Stack
 - **Frontend**: React + TypeScript, Tailwind CSS, Shadcn UI, Wouter (routing)
 - **Backend**: Express.js (Node.js)
 - **State**: In-memory (frontend state management with React useState)
 - **Font**: Inter (Google Fonts)
-- **Design System**: LUMIN brand tokens (documented in Style Guide page)
+- **Design System**: Dropship.io-inspired brand tokens (documented in Style Guide page)
 
 ## Architecture
 
@@ -62,29 +62,30 @@ client/src/
 - **Main Menu**: Dashboard, Employees, Candidates, Departments, Job Postings, Leave Management, Attendance, Documents
 - **Design System**: Style Guide (`/dev/style-guide`), Components (`/dev/components`), Icons (`/dev/icons`)
 
-## Design System Foundation (LUMIN Tokens)
+## Design System Foundation (Dropship.io Tokens)
 
 ### CSS Variable Mapping
-All LUMIN tokens are precisely mapped to CSS custom properties in `client/src/index.css`. Every Shadcn/Tailwind component automatically uses the correct LUMIN colors, shadows, and spacing via `hsl(var(--token))`. The style guide pages are the single source of truth for the design system.
+All Dropship.io tokens are precisely mapped to CSS custom properties in `client/src/index.css`. Every Shadcn/Tailwind component automatically uses the correct colors, shadows, and spacing via `hsl(var(--token))`. The style guide pages are the single source of truth for the design system.
 
-| CSS Variable | LUMIN Token | Hex |
+| CSS Variable | Token | Hex |
 |---|---|---|
-| `--primary` | Primary 500 (Indigo) | #4F46E5 |
-| `--background` | Greyscale 0 | #F8F9FB |
-| `--foreground` | Greyscale 900 | #0D0D12 |
-| `--border` | Greyscale 100 | #DFE1E7 |
-| `--muted` | Greyscale 50 | #ECEFF3 |
-| `--muted-foreground` | Greyscale 400 | #818898 |
-| `--secondary` | Greyscale 50 | #ECEFF3 |
-| `--secondary-foreground` | Greyscale 600 | #36394A |
-| `--accent` | Greyscale 25 | #F6F8FA |
-| `--input` | Greyscale 200 | #C1C7D0 |
-| `--sidebar` | Greyscale 25 | #F6F8FA |
+| `--primary` | Primary 500 (Dropship Blue) | #225AEA |
+| `--background` | Background | #FFFFFF |
+| `--foreground` | Text Primary | #151E3A |
+| `--border` | Border | #E2E6F3 |
+| `--muted` | Muted | #F2F3F8 |
+| `--muted-foreground` | Muted Text | ~#7A8299 |
+| `--secondary` | Secondary | #F2F3F8 |
+| `--secondary-foreground` | Secondary Text | #151E3A |
+| `--accent` | Accent | #F8F9FC |
+| `--input` | Input Border | #E2E6F3 |
+| `--sidebar` | Sidebar Bg | #F8F9FC |
 
-Shadows use LUMIN tokens: `rgba(13,13,18,...)` base color (from `--shadow-xs` through `--shadow-2xl`).
+Shadows use `rgba(21,30,58,...)` base color (from `--shadow-xs` through `--shadow-2xl`).
+Button shadows: `--shadow-btn-primary` (blue inset glow), `--shadow-btn-secondary` (subtle ring shadow).
 
 ### Status Colors (Semantic — separate from brand palette)
-Status badges and change indicators use Tailwind semantic colors intentionally distinct from the LUMIN brand palette:
+Status badges and change indicators use Tailwind semantic colors intentionally distinct from the brand palette:
 - **Success**: `emerald` (Active, Present, Approved, Hired, Open)
 - **Error**: `red` (Inactive, Absent, Rejected, Closed)
 - **Warning**: `amber` (On Leave, Half Day, Pending)
@@ -109,41 +110,49 @@ Status badges and change indicators use Tailwind semantic colors intentionally d
 | Body Small | 14px | Regular/Medium | 20px |
 | Body XSmall | 12px | Regular/Medium | 16px |
 
-### Colors — Primary (Indigo)
+### Colors — Primary (Dropship Blue)
 | Token | Hex |
 |-------|------|
-| 50 | #EEF2FF |
-| 100 | #E0E7FF |
-| 200 | #C7D2FE |
-| 300 | #A5B4FC |
-| 400 | #818CF8 |
-| 500 | #4F46E5 |
+| 50 | #EBF1FF |
+| 100 | #D6E2FE |
+| 200 | #ADC5FD |
+| 300 | #84A8FC |
+| 400 | #5B8BFB |
+| 500 | #225AEA |
 
 ### Colors — Greyscale
 | Token | Hex |
 |-------|------|
-| 0 | #F8F9FB |
-| 25 | #F6F8FA |
-| 50 | #ECEFF3 |
-| 100 | #DFE1E7 |
-| 200 | #C1C7D0 |
+| 0 | #FFFFFF |
+| 25 | #F8F9FC |
+| 50 | #F2F3F8 |
+| 100 | #E2E6F3 |
+| 200 | #C5CCE3 |
 | 300 | #A4ACB9 |
-| 400 | #818898 |
-| 500 | #666D80 |
+| 400 | #7A8299 |
+| 500 | #5A6380 |
 | 600 | #36394A |
 | 700 | #272835 |
-| 800 | #1A1B25 |
-| 900 | #0D0D12 |
+| 800 | #1A1D2E |
+| 900 | #151E3A |
 
 ### Shadows
 | Name | CSS Value |
 |------|-----------|
-| XSmall | 0px 1px 2px rgba(13,13,18,0.06) |
-| Small | 0px 1px 3px rgba(13,13,18,0.05), 0px 1px 2px rgba(13,13,18,0.04) |
-| Medium | 0px 5px 10px -2px rgba(13,13,18,0.04), 0px 4px 8px -1px rgba(13,13,18,0.02) |
-| Large | 0px 12px 16px -4px rgba(13,13,18,0.08), 0px 4px 6px -2px rgba(13,13,18,0.03) |
-| XLarge | 0px 24px 48px -12px rgba(13,13,18,0.12) |
-| XXLarge | 0px 24px 48px -12px rgba(13,13,18,0.18) |
+| XSmall | 0px 1px 2px rgba(21,30,58,0.06) |
+| Small | 0px 1px 3px rgba(21,30,58,0.05), 0px 1px 2px rgba(21,30,58,0.04) |
+| Medium | 0px 5px 10px -2px rgba(21,30,58,0.04), 0px 4px 8px -1px rgba(21,30,58,0.02) |
+| Large | 0px 12px 16px -4px rgba(21,30,58,0.08), 0px 4px 6px -2px rgba(21,30,58,0.03) |
+| XLarge | 0px 24px 48px -12px rgba(21,30,58,0.12) |
+| XXLarge | 0px 24px 48px -12px rgba(21,30,58,0.18) |
+| Btn Primary | rgba(20,72,203,0.48) 0px -1px 2px inset, rgba(34,90,234,0.16) 0 0 0 1px, rgba(34,90,234,0.64) 0 8px 16px -8px |
+| Btn Secondary | rgba(242,243,248,0.48) 0px -1px 2px inset, rgba(197,204,227,0.45) 0 0 0 1px, rgba(21,30,58,0.04) 0 4px 4px |
+
+### Border Radius
+- Buttons & Inputs: 10px (rounded-[10px])
+- Secondary/Small buttons: 8px (rounded-lg)
+- Cards: 10px (rounded-lg)
+- General: `--radius: 0.625rem` (10px)
 
 
 ### Key Components

@@ -369,7 +369,7 @@ export default function IconsGuide() {
                   {icons.map((item) => (
                     <div
                       key={item.name}
-                      className="flex flex-col items-center gap-2 rounded-lg border border-[#DFE1E7] bg-white p-3 transition-shadow hover:shadow-[0px_1px_2px_rgba(13,13,18,0.06)]"
+                      className="flex flex-col items-center gap-2 rounded-lg border border-[#E2E6F3] bg-white p-3 transition-shadow hover:shadow-[0px_1px_2px_rgba(21,30,58,0.06)]"
                       title={item.name}
                       data-testid={`icon-${item.name}`}
                     >

@@ -40,13 +40,13 @@ import {
 } from "lucide-react";
 
 function SectionTitle({ children }: { children: string }) {
-  return <p className="text-lg font-semibold text-[#0D0D12] mb-4">{children}</p>;
+  return <p className="text-lg font-semibold text-[#151E3A] mb-4">{children}</p>;
 }
 
 function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm font-medium text-[#666D80]">{title}</p>
+      <p className="text-sm font-medium text-[#5A6380]">{title}</p>
       {children}
     </div>
   );
@@ -71,10 +71,10 @@ function ButtonsTab() {
     <div className="flex flex-col gap-12">
       <div>
         <SectionTitle>Button Variants</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-5 gap-4 mb-3">
             {["Default", "Hover", "Focused", "Disabled", ""].map((h, i) => (
-              <p key={i} className="text-xs font-medium text-[#666D80] text-center">{h}</p>
+              <p key={i} className="text-xs font-medium text-[#5A6380] text-center">{h}</p>
             ))}
           </div>
           <div className="flex flex-col gap-6">
@@ -112,14 +112,14 @@ function ButtonsTab() {
 
       <div>
         <SectionTitle>Button Sizes</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="flex items-end gap-6">
             {sizes.map((s) => (
               <div key={s.label} className="flex flex-col items-center gap-3">
                 <Button size={s.size} data-testid={`btn-size-${s.label.toLowerCase()}`}>
                   <Plus className="size-4 mr-1.5" /> {s.label}
                 </Button>
-                <p className="text-xs text-[#666D80]">{s.label}</p>
+                <p className="text-xs text-[#5A6380]">{s.label}</p>
               </div>
             ))}
           </div>
@@ -128,7 +128,7 @@ function ButtonsTab() {
 
       <div>
         <SectionTitle>Icon-Only Buttons</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="flex items-center gap-4">
             {[
               { icon: Plus, label: "Add" },
@@ -141,7 +141,7 @@ function ButtonsTab() {
                 <Button variant="outline" size="icon" data-testid={`btn-icon-${item.label.toLowerCase()}`}>
                   <item.icon className="size-4" />
                 </Button>
-                <span className="text-[10px] text-[#666D80]">{item.label}</span>
+                <span className="text-[10px] text-[#5A6380]">{item.label}</span>
               </div>
             ))}
           </div>
@@ -156,7 +156,7 @@ function FormsTab() {
     <div className="flex flex-col gap-12">
       <div>
         <SectionTitle>Text Input</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-3 gap-8">
             <SubSection title="Default">
               <div className="space-y-2">
@@ -226,7 +226,7 @@ function FormsTab() {
 
       <div>
         <SectionTitle>Dropdown / Select</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-3 gap-8">
             <SubSection title="Default">
               <div className="space-y-2">
@@ -277,7 +277,7 @@ function FormsTab() {
 
       <div>
         <SectionTitle>Checkbox, Radio & Toggle</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-3 gap-8">
             <SubSection title="Checkbox">
               <div className="flex flex-col gap-3">
@@ -323,16 +323,16 @@ function ComponentsTab() {
     <div className="flex flex-col gap-12">
       <div>
         <SectionTitle>Table Cell Types</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="overflow-hidden rounded-lg border bg-white">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-[#F8FAFB]">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#666D80]">Avatar with Text</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#666D80]">Title + Description</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#666D80]">Badge</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#666D80]">Button</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#666D80]">Plain Text</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#5A6380]">Avatar with Text</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#5A6380]">Title + Description</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#5A6380]">Badge</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#5A6380]">Button</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#5A6380]">Plain Text</th>
                 </tr>
               </thead>
               <tbody>
@@ -341,14 +341,14 @@ function ComponentsTab() {
                     <div className="flex items-center gap-3">
                       <div className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">RP</div>
                       <div>
-                        <p className="text-sm font-medium text-[#0D0D12]">Rahul Patel</p>
-                        <p className="text-xs text-[#666D80]">Engineering</p>
+                        <p className="text-sm font-medium text-[#151E3A]">Rahul Patel</p>
+                        <p className="text-xs text-[#5A6380]">Engineering</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-sm font-medium text-[#0D0D12]">Senior Developer</p>
-                    <p className="text-xs text-[#666D80]">Full Stack</p>
+                    <p className="text-sm font-medium text-[#151E3A]">Senior Developer</p>
+                    <p className="text-xs text-[#5A6380]">Full Stack</p>
                   </td>
                   <td className="px-4 py-3"><StatusBadge status="Active" /></td>
                   <td className="px-4 py-3"><Button variant="outline" size="sm" data-testid="btn-view-primary">View</Button></td>
@@ -359,14 +359,14 @@ function ComponentsTab() {
                     <div className="flex items-center gap-3">
                       <div className="flex size-8 items-center justify-center rounded-full bg-emerald-50 text-xs font-semibold text-emerald-700">AS</div>
                       <div>
-                        <p className="text-sm font-medium text-[#0D0D12]">Anita Sharma</p>
-                        <p className="text-xs text-[#666D80]">Design</p>
+                        <p className="text-sm font-medium text-[#151E3A]">Anita Sharma</p>
+                        <p className="text-xs text-[#5A6380]">Design</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-sm font-medium text-[#0D0D12]">Lead Designer</p>
-                    <p className="text-xs text-[#666D80]">UI/UX</p>
+                    <p className="text-sm font-medium text-[#151E3A]">Lead Designer</p>
+                    <p className="text-xs text-[#5A6380]">UI/UX</p>
                   </td>
                   <td className="px-4 py-3"><StatusBadge status="On Leave" /></td>
                   <td className="px-4 py-3"><Button variant="outline" size="sm" data-testid="btn-view-default">View</Button></td>
@@ -377,14 +377,14 @@ function ComponentsTab() {
                     <div className="flex items-center gap-3">
                       <div className="flex size-8 items-center justify-center rounded-full bg-red-50 text-xs font-semibold text-red-700">VK</div>
                       <div>
-                        <p className="text-sm font-medium text-[#0D0D12]">Vikram Kumar</p>
-                        <p className="text-xs text-[#666D80]">Marketing</p>
+                        <p className="text-sm font-medium text-[#151E3A]">Vikram Kumar</p>
+                        <p className="text-xs text-[#5A6380]">Marketing</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-sm font-medium text-[#0D0D12]">Marketing Head</p>
-                    <p className="text-xs text-[#666D80]">Digital</p>
+                    <p className="text-sm font-medium text-[#151E3A]">Marketing Head</p>
+                    <p className="text-xs text-[#5A6380]">Digital</p>
                   </td>
                   <td className="px-4 py-3"><StatusBadge status="Inactive" /></td>
                   <td className="px-4 py-3"><Button variant="outline" size="sm" data-testid="btn-view-inactive">View</Button></td>
@@ -398,21 +398,21 @@ function ComponentsTab() {
 
       <div>
         <SectionTitle>Table Header Styles</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="overflow-hidden rounded-lg border bg-white">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-[#F8FAFB]" data-testid="table-header-example">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#666D80]">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#5A6380]">
                     <div className="flex items-center gap-1.5">
                       <Checkbox className="size-4" data-testid="checkbox-header" />
                       <span>Name</span>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#666D80]">Department</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#666D80]">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#666D80]">Role</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-[#666D80]">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#5A6380]">Department</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#5A6380]">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#5A6380]">Role</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-[#5A6380]">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -450,25 +450,25 @@ function LogosCursorsTab() {
     <div className="flex flex-col gap-12">
       <div>
         <SectionTitle>Brand Logo</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-3 gap-6">
-            <div className="flex flex-col items-center gap-4 rounded-xl bg-white p-8 shadow-[0px_1px_2px_rgba(13,13,18,0.06)]" data-testid="logo-primary">
+            <div className="flex flex-col items-center gap-4 rounded-xl bg-white p-8 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-primary">
               <div className="flex items-center gap-3">
                 <img src={logoImg} alt="TeamSync" className="size-10 object-contain" />
                 <span className="text-xl font-semibold tracking-tight">TeamSync</span>
               </div>
-              <p className="text-xs text-[#666D80]">Primary Logo</p>
+              <p className="text-xs text-[#5A6380]">Primary Logo</p>
             </div>
-            <div className="flex flex-col items-center gap-4 rounded-xl bg-[#0D0D12] p-8 shadow-[0px_1px_2px_rgba(13,13,18,0.06)]" data-testid="logo-dark">
+            <div className="flex flex-col items-center gap-4 rounded-xl bg-[#151E3A] p-8 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-dark">
               <div className="flex items-center gap-3">
                 <img src={logoImg} alt="TeamSync" className="size-10 object-contain" />
                 <span className="text-xl font-semibold tracking-tight text-white">TeamSync</span>
               </div>
-              <p className="text-xs text-[#818898]">Dark Background</p>
+              <p className="text-xs text-[#7A8299]">Dark Background</p>
             </div>
-            <div className="flex flex-col items-center gap-4 rounded-xl bg-white p-8 shadow-[0px_1px_2px_rgba(13,13,18,0.06)]" data-testid="logo-icon">
+            <div className="flex flex-col items-center gap-4 rounded-xl bg-white p-8 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-icon">
               <img src={logoImg} alt="TeamSync" className="size-12 object-contain" />
-              <p className="text-xs text-[#666D80]">Icon Only</p>
+              <p className="text-xs text-[#5A6380]">Icon Only</p>
             </div>
           </div>
         </div>
@@ -476,7 +476,7 @@ function LogosCursorsTab() {
 
       <div>
         <SectionTitle>Cursors</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-4 gap-4">
             {cursors.map((c) => (
               <div
@@ -492,7 +492,7 @@ function LogosCursorsTab() {
                   </div>
                 )}
                 <p className="text-xs font-medium text-[#36394A]">{c.name}</p>
-                <p className="text-[10px] text-[#818898]">{c.css}</p>
+                <p className="text-[10px] text-[#7A8299]">{c.css}</p>
               </div>
             ))}
           </div>
@@ -506,12 +506,12 @@ function BadgesTab() {
   const badgeColors = [
     {
       label: "Neutral",
-      fill: { bg: "#ECEFF3", text: "#0D0D12", border: "#C1C7D0" },
+      fill: { bg: "#F2F3F8", text: "#151E3A", border: "#C5CCE3" },
       statuses: ["Draft", "Archived", "Contract"],
     },
     {
       label: "Primary",
-      fill: { bg: "#F0EBFE", text: "#412294", border: "#D3C4FC" },
+      fill: { bg: "#EBF1FF", text: "#1A3FAA", border: "#ADC5FD" },
       statuses: ["Interview", "Screening", "Notice Period"],
     },
     {
@@ -535,7 +535,7 @@ function BadgesTab() {
     <div className="flex flex-col gap-12">
       <div>
         <SectionTitle>Badge Variants by Color</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="flex flex-col gap-8">
             {badgeColors.map((group) => (
               <div key={group.label} data-testid={`badge-group-${group.label.toLowerCase()}`}>
@@ -553,14 +553,14 @@ function BadgesTab() {
 
       <div>
         <SectionTitle>Badge Sizes</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="flex flex-col gap-6">
             <SubSection title="Large (default)">
               <div className="flex items-center gap-3">
-                <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style={{ backgroundColor: "#ECEFF3", color: "#0D0D12" }}>
+                <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style={{ backgroundColor: "#F2F3F8", color: "#151E3A" }}>
                   Large
                 </span>
-                <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style={{ backgroundColor: "#F0EBFE", color: "#412294" }}>
+                <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style={{ backgroundColor: "#EBF1FF", color: "#1A3FAA" }}>
                   Large
                 </span>
                 <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style={{ backgroundColor: "#E2F7E7", color: "#0C5C27" }}>
@@ -570,10 +570,10 @@ function BadgesTab() {
             </SubSection>
             <SubSection title="Medium">
               <div className="flex items-center gap-3">
-                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ backgroundColor: "#ECEFF3", color: "#0D0D12" }}>
+                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ backgroundColor: "#F2F3F8", color: "#151E3A" }}>
                   Medium
                 </span>
-                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ backgroundColor: "#F0EBFE", color: "#412294" }}>
+                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ backgroundColor: "#EBF1FF", color: "#1A3FAA" }}>
                   Medium
                 </span>
                 <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" style={{ backgroundColor: "#E2F7E7", color: "#0C5C27" }}>
@@ -583,10 +583,10 @@ function BadgesTab() {
             </SubSection>
             <SubSection title="Small">
               <div className="flex items-center gap-3">
-                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium leading-tight" style={{ backgroundColor: "#ECEFF3", color: "#0D0D12" }}>
+                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium leading-tight" style={{ backgroundColor: "#F2F3F8", color: "#151E3A" }}>
                   Small
                 </span>
-                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium leading-tight" style={{ backgroundColor: "#F0EBFE", color: "#412294" }}>
+                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium leading-tight" style={{ backgroundColor: "#EBF1FF", color: "#1A3FAA" }}>
                   Small
                 </span>
                 <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium leading-tight" style={{ backgroundColor: "#E2F7E7", color: "#0C5C27" }}>
@@ -600,7 +600,7 @@ function BadgesTab() {
 
       <div>
         <SectionTitle>Badge Styles</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-2 gap-8">
             <SubSection title="Fill">
               <div className="flex items-center gap-3">
@@ -626,7 +626,7 @@ function BadgesTab() {
 
       <div>
         <SectionTitle>Badge Types</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-3 gap-8">
             <SubSection title="Default">
               <div className="flex items-center gap-3">
@@ -642,7 +642,7 @@ function BadgesTab() {
                   { label: "Away", dotColor: "#EAB308" },
                   { label: "Offline", dotColor: "#94A3B8" },
                 ].map((item) => (
-                  <span key={item.label} className="inline-flex items-center gap-1.5 rounded-full bg-[#ECEFF3] px-3 py-1 text-sm font-medium text-[#0D0D12]">
+                  <span key={item.label} className="inline-flex items-center gap-1.5 rounded-full bg-[#F2F3F8] px-3 py-1 text-sm font-medium text-[#151E3A]">
                     <span className="size-1.5 rounded-full" style={{ backgroundColor: item.dotColor }} />
                     {item.label}
                   </span>
@@ -652,9 +652,9 @@ function BadgesTab() {
             <SubSection title="With Close Icon">
               <div className="flex items-center gap-3">
                 {["Engineering", "Design", "Marketing"].map((label) => (
-                  <span key={label} className="inline-flex items-center gap-1 rounded-full bg-[#F0EBFE] px-3 py-1 text-sm font-medium text-[#412294]">
+                  <span key={label} className="inline-flex items-center gap-1 rounded-full bg-[#EBF1FF] px-3 py-1 text-sm font-medium text-[#1A3FAA]">
                     {label}
-                    <button className="ml-0.5 rounded-full p-0.5 hover:bg-[#412294]/10">
+                    <button className="ml-0.5 rounded-full p-0.5 hover:bg-[#1A3FAA]/10">
                       <svg className="size-3" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
                     </button>
                   </span>
@@ -690,7 +690,7 @@ function AvatarTab() {
     <div className="flex flex-col gap-12">
       <div>
         <SectionTitle>Avatar Sizes</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="flex items-end gap-6">
             {sizes.map((s) => (
               <div key={s.label} className="flex flex-col items-center gap-3" data-testid={`avatar-size-${s.label.toLowerCase()}`}>
@@ -700,7 +700,7 @@ function AvatarTab() {
                   className="rounded-full"
                   style={{ width: s.size, height: s.size }}
                 />
-                <p className="text-xs text-[#666D80]">{s.label} ({s.size}px)</p>
+                <p className="text-xs text-[#5A6380]">{s.label} ({s.size}px)</p>
               </div>
             ))}
           </div>
@@ -709,7 +709,7 @@ function AvatarTab() {
 
       <div>
         <SectionTitle>Avatar Types</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-3 gap-8">
             <SubSection title="Micah (People)">
               <div className="flex items-center gap-4">
@@ -744,7 +744,7 @@ function AvatarTab() {
 
       <div>
         <SectionTitle>Avatar Group (Stacked)</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="flex flex-col gap-6">
             <SubSection title="Overlapping Stack">
               <div className="flex -space-x-2">
@@ -757,7 +757,7 @@ function AvatarTab() {
                     style={{ zIndex: 5 - i }}
                   />
                 ))}
-                <div className="flex size-9 items-center justify-center rounded-full border-2 border-white bg-[#ECEFF3] text-[10px] font-medium text-[#666D80]">
+                <div className="flex size-9 items-center justify-center rounded-full border-2 border-white bg-[#F2F3F8] text-[10px] font-medium text-[#5A6380]">
                   +3
                 </div>
               </div>
@@ -774,12 +774,12 @@ function LoadingTab() {
     <div className="flex flex-col gap-12">
       <div>
         <SectionTitle>Spinner Sizes</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="flex items-end gap-8">
             {(["xs", "sm", "md", "lg", "xl"] as const).map((size) => (
               <div key={size} className="flex flex-col items-center gap-3" data-testid={`spinner-size-${size}`}>
                 <Spinner size={size} />
-                <p className="text-xs text-[#666D80]">{size}</p>
+                <p className="text-xs text-[#5A6380]">{size}</p>
               </div>
             ))}
           </div>
@@ -788,7 +788,7 @@ function LoadingTab() {
 
       <div>
         <SectionTitle>Page Spinner</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="rounded-lg border bg-background" style={{ height: 160 }}>
             <PageSpinner label="Loading data..." />
           </div>
@@ -797,7 +797,7 @@ function LoadingTab() {
 
       <div>
         <SectionTitle>Inline Spinner</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="flex items-center gap-6">
             <Button disabled data-testid="btn-inline-spinner">
               <InlineSpinner className="mr-2" /> Saving...
@@ -809,7 +809,7 @@ function LoadingTab() {
 
       <div>
         <SectionTitle>Stats Card Skeleton</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-4 gap-4" data-testid="stats-skeleton-grid">
             <StatsCardSkeleton />
             <StatsCardSkeleton />
@@ -821,7 +821,7 @@ function LoadingTab() {
 
       <div>
         <SectionTitle>Card Skeleton</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-3 gap-4" data-testid="card-skeleton-grid">
             <CardSkeleton />
             <CardSkeleton lines={4} />
@@ -832,7 +832,7 @@ function LoadingTab() {
 
       <div>
         <SectionTitle>Table Skeleton</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8" data-testid="table-skeleton-demo">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8" data-testid="table-skeleton-demo">
           <TableSkeleton rows={4} columns={5} />
         </div>
       </div>
@@ -845,8 +845,8 @@ function ToastsTab() {
     <div className="flex flex-col gap-12">
       <div>
         <SectionTitle>Toast Types</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
-          <p className="text-sm text-[#666D80] mb-6">Click each button to trigger a toast notification. Toasts appear in the bottom-right corner and auto-dismiss after 3 seconds.</p>
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
+          <p className="text-sm text-[#5A6380] mb-6">Click each button to trigger a toast notification. Toasts appear in the bottom-right corner and auto-dismiss after 3 seconds.</p>
           <div className="flex flex-wrap gap-4">
             <Button
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
@@ -882,7 +882,7 @@ function ToastsTab() {
 
       <div>
         <SectionTitle>Toast Styles</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="flex flex-col gap-4 max-w-md">
             <div className="flex items-start gap-3 rounded-lg border bg-emerald-50 border-emerald-200 p-3" data-testid="toast-preview-success">
               <div className="shrink-0 mt-0.5 text-emerald-700">✓</div>
@@ -924,8 +924,8 @@ function BannerTab() {
     <div className="flex flex-col gap-12">
       <div>
         <SectionTitle>Page Banner</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
-          <p className="text-sm text-[#666D80] mb-6">Full-width branded banner with 3D icon, title, description, and optional action button. Used at the top of every HR module page.</p>
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
+          <p className="text-sm text-[#5A6380] mb-6">Full-width branded banner with 3D icon, title, description, and optional action button. Used at the top of every HR module page.</p>
           <div className="flex flex-col gap-4">
             <PageBanner
               title="Employee Directory"
@@ -945,7 +945,7 @@ function BannerTab() {
 
       <div>
         <SectionTitle>3D Icons</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FB] p-8">
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-4 gap-6">
             {[
               { name: "Dashboard", src: "/3d-icons/dashboard.png" },
