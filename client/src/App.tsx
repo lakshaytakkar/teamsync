@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Switch, Route, useLocation, Redirect } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -41,7 +41,6 @@ import AdminReports from "@/pages/admin/reports";
 function Router() {
   return (
     <Switch>
-      <Route path="/">{() => <Redirect to="/hr" />}</Route>
       <Route path="/hr" component={Dashboard} />
       <Route path="/hr/employees" component={Employees} />
       <Route path="/hr/candidates" component={Candidates} />
@@ -76,13 +75,17 @@ function Router() {
 }
 
 function VerticalSync({ setCurrentVertical }: { setCurrentVertical: (id: string) => void }) {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   useEffect(() => {
+    if (location === "/") {
+      setLocation("/hr", { replace: true });
+      return;
+    }
     const detected = detectVerticalFromUrl(location);
     if (detected) {
       setCurrentVertical(detected.id);
     }
-  }, [location, setCurrentVertical]);
+  }, [location, setCurrentVertical, setLocation]);
   return null;
 }
 
