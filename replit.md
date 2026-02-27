@@ -7,7 +7,7 @@ A custom HR Management Portal built with the LUMIN design system. Focused on per
 - **Frontend**: React + TypeScript, Tailwind CSS, Shadcn UI, Wouter (routing)
 - **Backend**: Express.js (Node.js)
 - **State**: In-memory (frontend state management with React useState)
-- **Font**: Inter Tight (Google Fonts)
+- **Font**: Inter (Google Fonts)
 - **Design System**: LUMIN brand tokens (documented in Style Guide page)
 
 ## Architecture
@@ -80,7 +80,7 @@ Status badges and change indicators use Tailwind semantic colors intentionally d
 - **Neutral**: `slate` (Contract, Archived, Late)
 
 ### Typography
-- **Font Family**: Inter Tight (Google Fonts)
+- **Font Family**: Inter (Google Fonts)
 - **Weights**: Regular (400), Medium (500), Semibold (600)
 
 | Scale | Size | Weight | Line Height |

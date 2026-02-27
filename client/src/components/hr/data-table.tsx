@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Search, Filter, ChevronLeft, ChevronRight, MoreHorizontal, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
@@ -17,6 +17,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 export interface Column<T> {
@@ -32,6 +42,7 @@ export interface RowAction<T> {
   onClick: (item: T) => void;
   variant?: "default" | "destructive";
   separator?: boolean;
+  confirmMessage?: string;
 }
 
 interface DataTableProps<T extends { id: string }> {
@@ -67,6 +78,12 @@ export function DataTable<T extends { id: string }>({
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({ open: false, title: "", description: "", onConfirm: () => {} });
 
   const filteredData = useMemo(() => {
     let result = [...data];
@@ -138,6 +155,23 @@ export function DataTable<T extends { id: string }>({
       setSortDir("asc");
     }
   };
+
+  const handleAction = useCallback((action: RowAction<T>, item: T) => {
+    if (action.variant === "destructive") {
+      const itemName = (item as Record<string, unknown>)["name"] || (item as Record<string, unknown>)["title"] || "";
+      setConfirmDialog({
+        open: true,
+        title: action.confirmMessage ? action.label : `${action.label} Record`,
+        description: action.confirmMessage || `Are you sure you want to ${action.label.toLowerCase()}${itemName ? ` "${itemName}"` : " this record"}? This action cannot be undone.`,
+        onConfirm: () => {
+          action.onClick(item);
+          setConfirmDialog((prev) => ({ ...prev, open: false }));
+        },
+      });
+    } else {
+      action.onClick(item);
+    }
+  }, []);
 
   const startIndex = (currentPage - 1) * pageSize + 1;
   const endIndex = Math.min(currentPage * pageSize, filteredData.length);
@@ -294,7 +328,7 @@ export function DataTable<T extends { id: string }>({
                             <div key={action.label}>
                               {action.separator && idx > 0 && <DropdownMenuSeparator />}
                               <DropdownMenuItem
-                                onClick={() => action.onClick(item)}
+                                onClick={() => handleAction(action, item)}
                                 className={action.variant === "destructive" ? "text-destructive focus:text-destructive" : ""}
                                 data-testid={`action-${action.label.toLowerCase().replace(/\s+/g, "-")}-${item.id}`}
                               >
@@ -366,6 +400,25 @@ export function DataTable<T extends { id: string }>({
           </div>
         </div>
       )}
+
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog((prev) => ({ ...prev, open }))}>
+        <AlertDialogContent data-testid="confirm-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle data-testid="text-confirm-title">{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription data-testid="text-confirm-description">{confirmDialog.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-confirm-cancel">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDialog.onConfirm}
+              className={cn(buttonVariants({ variant: "destructive" }))}
+              data-testid="button-confirm-action"
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

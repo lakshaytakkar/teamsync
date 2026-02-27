@@ -78,18 +78,18 @@ function TypographyTab() {
         <div className="relative rounded-2xl bg-[#F8F9FB] overflow-hidden" style={{ minHeight: "200px" }}>
           <div className="px-16 py-14 flex flex-col gap-4">
             <p className="text-[48px] font-semibold text-[#0D0D12] leading-tight" data-testid="text-font-name">
-              Inter Tight
+              Inter
             </p>
             <p className="text-lg text-[#666D80]">
               Download Font:{" "}
               <a
-                href="https://fonts.google.com/specimen/Inter+Tight"
+                href="https://fonts.google.com/specimen/Inter"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
                 data-testid="link-font-download"
               >
-                https://fonts.google.com/specimen/Inter+Tight
+                https://fonts.google.com/specimen/Inter
               </a>
             </p>
           </div>
@@ -111,7 +111,7 @@ function TypographyTab() {
                   <span className={`text-[48px] ${item.fontClass} text-[#0D0D12] leading-[1.25]`}>Aa</span>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <p className="text-xl font-semibold text-[#0D0D12]">Inter Tight</p>
+                  <p className="text-xl font-semibold text-[#0D0D12]">Inter</p>
                   <p className="text-base text-[#818898]">{item.weight}</p>
                 </div>
               </div>
