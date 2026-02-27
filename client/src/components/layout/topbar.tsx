@@ -44,7 +44,7 @@ export function Topbar({ title, subtitle }: TopbarProps) {
 
         <Button size="icon" variant="ghost" className="relative" data-testid="button-notifications">
           <Bell className="size-4" />
-          <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-destructive" />
+          <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-destructive animate-pulse" />
         </Button>
 
         <Separator orientation="vertical" className="h-5" />
