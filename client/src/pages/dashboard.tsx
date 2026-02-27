@@ -1,10 +1,14 @@
-import { Users, UserPlus, Briefcase, CalendarDays, TrendingUp, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Users, UserPlus, Briefcase, CalendarDays, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye, Check, X, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 import { PageBanner } from "@/components/hr/page-banner";
 import emptyCalendarImg from "@/assets/illustrations/empty-calendar.png";
 import { StatsCard } from "@/components/hr/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { RadialProgress } from "@/components/ui/radial-progress";
 import { employees, candidates, jobPostings, leaveRequests, attendanceRecords } from "@/lib/mock-data";
 import { getPersonAvatar } from "@/lib/avatars";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
@@ -17,6 +21,10 @@ export default function Dashboard() {
   const openJobs = jobPostings.filter((j) => j.status === "Open").length;
   const pendingLeaves = leaveRequests.filter((l) => l.status === "Pending").length;
   const todayPresent = attendanceRecords.filter((a) => a.status === "Present").length;
+  const todayLate = attendanceRecords.filter((a) => a.status === "Late").length;
+  const todayAbsent = attendanceRecords.filter((a) => a.status === "Absent").length;
+  const todayHalfDay = attendanceRecords.filter((a) => a.status === "Half Day").length;
+  const totalAttendance = attendanceRecords.length;
   const activeCandidates = candidates.filter((c) => !["Hired", "Rejected"].includes(c.stage)).length;
 
   const recentCandidates = [...candidates]
@@ -24,6 +32,16 @@ export default function Dashboard() {
     .slice(0, 5);
 
   const pendingLeavesList = leaveRequests.filter((l) => l.status === "Pending").slice(0, 5);
+
+  const departments = [
+    { name: "Engineering", count: 6, color: "bg-blue-500", members: ["Alice Chen", "Bob Kumar", "Charlie Park"] },
+    { name: "Design", count: 2, color: "bg-purple-500", members: ["Diana Lee", "Eva Singh"] },
+    { name: "HR", count: 2, color: "bg-emerald-500", members: ["Sneha Patel", "Raj Mehta"] },
+    { name: "Marketing", count: 2, color: "bg-amber-500", members: ["Fatima Khan", "Grace Liu"] },
+    { name: "Sales", count: 1, color: "bg-pink-500", members: ["Hiro Tanaka"] },
+    { name: "Finance", count: 1, color: "bg-indigo-500", members: ["Isha Reddy"] },
+    { name: "Product", count: 1, color: "bg-teal-500", members: ["Jake Wilson"] },
+  ];
 
   return (
     <div className="px-8 py-6 lg:px-12">
@@ -47,6 +65,7 @@ export default function Dashboard() {
               change={`${activeEmployees} active`}
               changeType="positive"
               icon={<Users className="size-5" />}
+              sparkline={{ values: [10, 11, 12, 11, 13, 14, 15], color: "#10b981" }}
             /></StaggerItem>
             <StaggerItem><StatsCard
               title="Open Positions"
@@ -54,6 +73,7 @@ export default function Dashboard() {
               change={`${jobPostings.reduce((a, j) => a + j.applicants, 0)} total applicants`}
               changeType="neutral"
               icon={<Briefcase className="size-5" />}
+              sparkline={{ values: [3, 4, 3, 5, 4, 3, 4], color: "#6366f1" }}
             /></StaggerItem>
             <StaggerItem><StatsCard
               title="Active Candidates"
@@ -61,6 +81,7 @@ export default function Dashboard() {
               change={`${candidates.filter((c) => c.stage === "Interview").length} in interviews`}
               changeType="positive"
               icon={<UserPlus className="size-5" />}
+              sparkline={{ values: [5, 7, 6, 8, 9, 7, 8], color: "#10b981" }}
             /></StaggerItem>
             <StaggerItem><StatsCard
               title="Pending Leaves"
@@ -68,6 +89,7 @@ export default function Dashboard() {
               change={`${onLeave} currently on leave`}
               changeType="warning"
               icon={<CalendarDays className="size-5" />}
+              sparkline={{ values: [2, 3, 1, 4, 3, 2, 3], color: "#f59e0b" }}
             /></StaggerItem>
           </Stagger>
         )}
@@ -91,7 +113,7 @@ export default function Dashboard() {
               {recentCandidates.map((candidate) => (
                 <div
                   key={candidate.id}
-                  className="flex items-center justify-between px-5 py-3"
+                  className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/30"
                   data-testid={`card-candidate-${candidate.id}`}
                 >
                   <div className="flex items-center gap-3">
@@ -101,9 +123,30 @@ export default function Dashboard() {
                       <p className="text-xs text-muted-foreground">{candidate.position}</p>
                     </div>
                   </div>
-                  <StatusBadge status={candidate.stage} />
+                  <div className="flex items-center gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="size-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                          data-testid={`button-view-candidate-${candidate.id}`}
+                        >
+                          <Eye className="size-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>View Profile</TooltipContent>
+                    </Tooltip>
+                    <StatusBadge status={candidate.stage} />
+                  </div>
                 </div>
               ))}
+            </div>
+            <div className="border-t px-5 py-3">
+              <Link href="/candidates" className="flex items-center gap-1.5 text-sm font-medium text-primary transition-colors" data-testid="link-view-all-candidates">
+                View all candidates
+                <ArrowRight className="size-3.5" />
+              </Link>
             </div>
           </div>
 
@@ -120,7 +163,7 @@ export default function Dashboard() {
                 pendingLeavesList.map((leave) => (
                   <div
                     key={leave.id}
-                    className="flex items-center justify-between px-5 py-3"
+                    className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-muted/30"
                     data-testid={`card-leave-${leave.id}`}
                   >
                     <div className="flex items-center gap-3">
@@ -132,9 +175,29 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs font-medium">{leave.startDate}</p>
-                      <p className="text-xs text-muted-foreground">to {leave.endDate}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" variant="ghost" className="size-7" data-testid={`button-approve-leave-${leave.id}`}>
+                              <Check className="size-3.5 text-emerald-600" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Approve</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button size="icon" variant="ghost" className="size-7" data-testid={`button-reject-leave-${leave.id}`}>
+                              <X className="size-3.5 text-red-500" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Reject</TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <div className="text-right opacity-100 group-hover:opacity-0 transition-opacity">
+                        <p className="text-xs font-medium">{leave.startDate}</p>
+                        <p className="text-xs text-muted-foreground">to {leave.endDate}</p>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -145,6 +208,12 @@ export default function Dashboard() {
                   <p className="text-xs text-muted-foreground">No pending leave requests to review</p>
                 </div>
               )}
+            </div>
+            <div className="border-t px-5 py-3">
+              <Link href="/leave" className="flex items-center gap-1.5 text-sm font-medium text-primary transition-colors" data-testid="link-view-all-leaves">
+                View all requests
+                <ArrowRight className="size-3.5" />
+              </Link>
             </div>
           </div>
         </Fade>
@@ -163,41 +232,35 @@ export default function Dashboard() {
               <p className="text-xs text-muted-foreground mt-0.5">Feb 27, 2025</p>
             </div>
             <div className="p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex flex-col items-center gap-1 flex-1">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950">
-                    <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <span className="text-lg font-semibold font-heading">{todayPresent}</span>
-                  <span className="text-xs text-muted-foreground">Present</span>
-                </div>
-                <div className="flex flex-col items-center gap-1 flex-1">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950">
-                    <Clock className="size-4 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <span className="text-lg font-semibold font-heading">
-                    {attendanceRecords.filter((a) => a.status === "Late").length}
-                  </span>
-                  <span className="text-xs text-muted-foreground">Late</span>
-                </div>
-                <div className="flex flex-col items-center gap-1 flex-1">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-red-50 dark:bg-red-950">
-                    <AlertCircle className="size-4 text-red-600 dark:text-red-400" />
-                  </div>
-                  <span className="text-lg font-semibold font-heading">
-                    {attendanceRecords.filter((a) => a.status === "Absent").length}
-                  </span>
-                  <span className="text-xs text-muted-foreground">Absent</span>
-                </div>
-                <div className="flex flex-col items-center gap-1 flex-1">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950">
-                    <TrendingUp className="size-4 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <span className="text-lg font-semibold font-heading">
-                    {attendanceRecords.filter((a) => a.status === "Half Day").length}
-                  </span>
-                  <span className="text-xs text-muted-foreground">Half Day</span>
-                </div>
+              <div className="flex items-center justify-between gap-3">
+                <RadialProgress
+                  value={todayPresent}
+                  max={totalAttendance}
+                  color="#10b981"
+                  label="Present"
+                  className="flex-1"
+                />
+                <RadialProgress
+                  value={todayLate}
+                  max={totalAttendance}
+                  color="#f59e0b"
+                  label="Late"
+                  className="flex-1"
+                />
+                <RadialProgress
+                  value={todayAbsent}
+                  max={totalAttendance}
+                  color="#ef4444"
+                  label="Absent"
+                  className="flex-1"
+                />
+                <RadialProgress
+                  value={todayHalfDay}
+                  max={totalAttendance}
+                  color="#3b82f6"
+                  label="Half Day"
+                  className="flex-1"
+                />
               </div>
             </div>
           </div>
@@ -208,27 +271,38 @@ export default function Dashboard() {
               <p className="text-xs text-muted-foreground mt-0.5">Team distribution</p>
             </div>
             <div className="divide-y">
-              {[
-                { name: "Engineering", count: 6, color: "bg-blue-500" },
-                { name: "Design", count: 2, color: "bg-purple-500" },
-                { name: "HR", count: 2, color: "bg-emerald-500" },
-                { name: "Marketing", count: 2, color: "bg-amber-500" },
-                { name: "Sales", count: 1, color: "bg-pink-500" },
-                { name: "Finance", count: 1, color: "bg-indigo-500" },
-                { name: "Product", count: 1, color: "bg-teal-500" },
-              ].map((dept) => (
-                <div key={dept.name} className="flex items-center gap-3 px-5 py-2.5" data-testid={`card-dept-${dept.name.toLowerCase()}`}>
-                  <div className={`size-2 rounded-full ${dept.color}`} />
-                  <span className="flex-1 text-sm">{dept.name}</span>
-                  <span className="text-sm font-medium">{dept.count}</span>
-                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className={`h-full rounded-full ${dept.color}`}
-                      style={{ width: `${(dept.count / employees.length) * 100}%` }}
-                    />
+              {departments.map((dept) => {
+                const percentage = Math.round((dept.count / employees.length) * 100);
+                return (
+                  <div key={dept.name} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-muted/30" data-testid={`card-dept-${dept.name.toLowerCase()}`}>
+                    <div className={`size-2.5 rounded-full ${dept.color}`} />
+                    <span className="flex-1 text-sm font-medium">{dept.name}</span>
+                    <div className="flex -space-x-2 mr-2">
+                      {dept.members.slice(0, 3).map((name) => (
+                        <img
+                          key={name}
+                          src={getPersonAvatar(name, 24)}
+                          alt={name}
+                          className="size-6 rounded-full border-2 border-background"
+                          title={name}
+                        />
+                      ))}
+                      {dept.count > 3 && (
+                        <div className="flex size-6 items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-medium text-muted-foreground">
+                          +{dept.count - 3}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground w-8 text-right">{percentage}%</span>
+                    <div className="h-2 w-28 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={`h-full rounded-full ${dept.color} transition-all duration-500`}
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </Fade>

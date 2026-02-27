@@ -45,6 +45,13 @@ The backend is powered by Express.js (Node.js).
 ### Data Model
 Data models for all HR entities (Employee, Candidate, Department, JobPosting, LeaveRequest, AttendanceRecord, HRDocument, PayrollRun, PayrollEntry, Project, ProjectTask) are defined using Zod for validation. Currently, the system uses in-memory mock data, with future plans for database integration.
 
+## Component Registry References (shadcn-compatible)
+- **KokonutUI** (https://kokonutui.com): Cards (Spotlight, Bento Grid, Liquid Glass), Buttons (Particle, Gradient, Magnet), Inputs (Action Search Bar, Profile Dropdown), Text Effects (Shimmer, Typing, Dynamic), Navigation (Smooth Tab, Morphic Navbar), AI Components. Install: `npx shadcn@latest add @kokonutui/<name>`
+- **Cult-UI** (https://www.cult-ui.com): Cards (Expandable, Minimal, Texture, Shift), Navigation (Direction Aware Tabs, Floating Panel), Interactive (Dynamic Island, Timer), Typography (Animated Number, Gradient Heading, Typewriter), Media (Logo Carousel, 3D Carousel). Install: `npx shadcn@beta add @cult-ui/<name>`
+- **Aceternity UI** (https://ui.aceternity.com): 3D Card Effect, Animated Tooltip, Bento Grid, Card Hover Effect, Floating Dock, Moving Border, Sparkles, Text Generate Effect, Timeline, Card Spotlight, Animated Testimonials, Apple Cards Carousel, Infinite Moving Cards. Copy-paste from docs.
+- **Tool-UI** (https://www.tool-ui.com): Data Table (expandable), Chart, Stats Display, Approval Card, Progress Tracker, Code Block, Link Preview. Install: `npx assistant-ui add tool-ui <name>`
+- **AI SDK Elements** (https://elements.ai-sdk.dev): Attachments, Conversation, Message, Prompt Input, Code Block, File Tree, Terminal, Canvas, Workflow components. Install: `npx ai-elements@latest add <name>`
+
 ## External Dependencies
 - **React**: Frontend library.
 - **TypeScript**: Superset of JavaScript for type safety.
