@@ -3,25 +3,52 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/app-sidebar";
 import NotFound from "@/pages/not-found";
+import Dashboard from "@/pages/dashboard";
+import Employees from "@/pages/employees";
+import Candidates from "@/pages/candidates";
+import Departments from "@/pages/departments";
+import JobPostings from "@/pages/job-postings";
+import LeaveManagement from "@/pages/leave-management";
+import Attendance from "@/pages/attendance";
+import Documents from "@/pages/documents";
 
 function Router() {
   return (
     <Switch>
-      {/* Add pages below */}
-      {/* <Route path="/" component={Home}/> */}
-      {/* Fallback to 404 */}
+      <Route path="/" component={Dashboard} />
+      <Route path="/employees" component={Employees} />
+      <Route path="/candidates" component={Candidates} />
+      <Route path="/departments" component={Departments} />
+      <Route path="/job-postings" component={JobPostings} />
+      <Route path="/leave" component={LeaveManagement} />
+      <Route path="/attendance" component={Attendance} />
+      <Route path="/documents" component={Documents} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
+const sidebarStyle = {
+  "--sidebar-width": "15rem",
+  "--sidebar-width-icon": "3rem",
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <SidebarProvider style={sidebarStyle as React.CSSProperties}>
+          <div className="flex h-screen w-full">
+            <AppSidebar />
+            <main className="flex-1 overflow-hidden">
+              <Router />
+            </main>
+          </div>
+        </SidebarProvider>
         <Toaster />
-        <Router />
       </TooltipProvider>
     </QueryClientProvider>
   );
