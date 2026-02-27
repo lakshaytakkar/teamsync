@@ -312,7 +312,7 @@ const allIcons: IconEntry[] = [
   { name: "LogOut", icon: LogOut, category: "Misc" },
 ];
 
-const categories = [...new Set(allIcons.map((i) => i.category))];
+const categories = Array.from(new Set(allIcons.map((i) => i.category)));
 
 export default function IconsGuide() {
   const [search, setSearch] = useState("");

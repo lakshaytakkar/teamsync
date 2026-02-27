@@ -1,266 +1,171 @@
 import { z } from "zod";
 
-export interface Employee {
+export interface FormationClient {
   id: string;
-  employeeId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  department: string;
-  position: string;
-  status: "Active" | "Inactive" | "On Leave";
-  joinDate: string;
-  avatar?: string;
-  salary?: number;
-}
-
-export interface Candidate {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  position: string;
-  department: string;
-  stage: "Applied" | "Screening" | "Interview" | "Offer" | "Hired" | "Rejected";
-  appliedDate: string;
-  source: string;
-  rating?: number;
-}
-
-export interface Department {
-  id: string;
-  name: string;
-  head: string;
-  employeeCount: number;
-  description: string;
-  status: "Active" | "Inactive";
-}
-
-export interface JobPosting {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  type: "Full-time" | "Part-time" | "Contract" | "Internship";
-  status: "Open" | "Closed" | "Draft";
-  postedDate: string;
-  closingDate?: string;
-  applicants: number;
-  description: string;
-  salaryRange?: string;
-  experience?: string;
-}
-
-export interface LeaveRequest {
-  id: string;
-  employeeId: string;
-  employeeName: string;
-  type: "Annual" | "Sick" | "Personal" | "Maternity" | "Paternity";
+  clientName: string;
+  companyName: string;
+  companyType: "LLC" | "Corp" | "S-Corp";
+  state: string;
+  packageType: "Basic" | "Standard" | "Premium";
+  assignedManager: string;
+  currentStage: number;
+  priority: "high" | "medium" | "low";
+  riskFlag: "at-risk" | "delayed" | "on-track";
   startDate: string;
-  endDate: string;
-  status: "Pending" | "Approved" | "Rejected";
-  reason: string;
-  days: number;
+  expectedCompletion: string;
+  notes: string;
+  email: string;
+  phone: string;
 }
 
-export interface AttendanceRecord {
+export interface StageChecklist {
   id: string;
-  employeeId: string;
-  employeeName: string;
-  date: string;
-  checkIn: string;
-  checkOut: string;
-  status: "Present" | "Absent" | "Late" | "Half Day";
-  department: string;
-  workHours: string;
+  clientId: string;
+  stage: number;
+  item: string;
+  responsible: string;
+  deadline: string;
+  completed: boolean;
+  documentAttachment?: string;
 }
 
-export interface HRDocument {
+export interface ClientDocument {
   id: string;
+  clientId: string;
+  clientName: string;
   title: string;
-  category: "Policy" | "Contract" | "Certificate" | "Report" | "Other";
-  uploadedBy: string;
+  category: "Articles" | "EIN Letter" | "BOI Receipt" | "Operating Agreement" | "Bank Docs" | "Passport" | "Address Proof" | "Filing Receipt" | "IRS Confirmation" | "Other";
+  stage: number;
   uploadDate: string;
+  uploadedBy: string;
   fileSize: string;
-  fileType: string;
-  status: "Active" | "Archived";
+  status: "uploaded" | "pending" | "verified";
 }
 
-export const insertEmployeeSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().min(1),
-  department: z.string().min(1),
-  position: z.string().min(1),
-  status: z.enum(["Active", "Inactive", "On Leave"]),
-  joinDate: z.string().min(1),
-  salary: z.number().optional(),
-});
-
-export const insertCandidateSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().min(1),
-  position: z.string().min(1),
-  department: z.string().min(1),
-  stage: z.enum(["Applied", "Screening", "Interview", "Offer", "Hired", "Rejected"]),
-  appliedDate: z.string().min(1),
-  source: z.string().min(1),
-  rating: z.number().min(1).max(5).optional(),
-});
-
-export const insertDepartmentSchema = z.object({
-  name: z.string().min(1),
-  head: z.string().min(1),
-  employeeCount: z.number().min(0),
-  description: z.string().min(1),
-  status: z.enum(["Active", "Inactive"]),
-});
-
-export const insertJobPostingSchema = z.object({
-  title: z.string().min(1),
-  department: z.string().min(1),
-  location: z.string().min(1),
-  type: z.enum(["Full-time", "Part-time", "Contract", "Internship"]),
-  status: z.enum(["Open", "Closed", "Draft"]),
-  postedDate: z.string().min(1),
-  closingDate: z.string().optional(),
-  applicants: z.number().min(0),
-  description: z.string().min(1),
-  salaryRange: z.string().optional(),
-  experience: z.string().optional(),
-});
-
-export const insertLeaveRequestSchema = z.object({
-  employeeId: z.string().min(1),
-  employeeName: z.string().min(1),
-  type: z.enum(["Annual", "Sick", "Personal", "Maternity", "Paternity"]),
-  startDate: z.string().min(1),
-  endDate: z.string().min(1),
-  status: z.enum(["Pending", "Approved", "Rejected"]),
-  reason: z.string().min(1),
-  days: z.number().min(1),
-});
-
-export const insertAttendanceSchema = z.object({
-  employeeId: z.string().min(1),
-  employeeName: z.string().min(1),
-  date: z.string().min(1),
-  checkIn: z.string().min(1),
-  checkOut: z.string().min(1),
-  status: z.enum(["Present", "Absent", "Late", "Half Day"]),
-  department: z.string().min(1),
-  workHours: z.string().min(1),
-});
-
-export const insertDocumentSchema = z.object({
-  title: z.string().min(1),
-  category: z.enum(["Policy", "Contract", "Certificate", "Report", "Other"]),
-  uploadedBy: z.string().min(1),
-  uploadDate: z.string().min(1),
-  fileSize: z.string().min(1),
-  fileType: z.string().min(1),
-  status: z.enum(["Active", "Archived"]),
-});
-
-export interface PayrollRun {
+export interface ComplianceItem {
   id: string;
-  period: string;
-  runDate: string;
-  status: "Draft" | "Processing" | "Completed" | "Failed";
-  totalGross: number;
-  totalDeductions: number;
-  totalNet: number;
-  employeeCount: number;
+  clientId: string;
+  companyName: string;
+  type: "annual-report" | "boi-recheck" | "irs-compliance" | "state-alert";
+  dueDate: string;
+  status: "upcoming" | "overdue" | "completed";
+  state: string;
+  notes: string;
 }
 
-export interface PayrollEntry {
+export interface FormationTask {
   id: string;
-  payrollRunId: string;
-  employeeId: string;
-  employeeName: string;
-  department: string;
-  baseSalary: number;
-  bonus: number;
-  deductions: number;
-  netPay: number;
-  status: "Paid" | "Pending" | "Failed";
+  clientId: string;
+  clientName: string;
+  title: string;
+  description: string;
+  assignedTo: string;
+  dueDate: string;
+  priority: "high" | "medium" | "low";
+  status: "pending" | "in-progress" | "completed" | "overdue";
+  stage: number;
+  autoGenerated: boolean;
 }
 
-export interface Project {
+export interface Escalation {
+  id: string;
+  clientId: string;
+  companyName: string;
+  type: "delayed" | "missing-docs" | "irs-rejection" | "bank-rejection" | "client-unresponsive";
+  severity: "critical" | "warning";
+  createdDate: string;
+  resolvedDate?: string;
+  assignedTo: string;
+  notes: string;
+}
+
+export interface TeamMember {
   id: string;
   name: string;
-  description: string;
-  status: "Active" | "Completed" | "On Hold" | "Overdue";
-  startDate: string;
-  endDate: string;
-  progress: number;
-  priority: "High" | "Medium" | "Low";
-  teamSize: number;
+  role: "ops-manager" | "executive" | "admin";
+  activeClients: number;
+  completedThisMonth: number;
+  avgCompletionDays: number;
+  email: string;
 }
 
-export interface ProjectTask {
+export interface FormationMetric {
+  month: string;
+  formations: number;
+  completed: number;
+  avgDays: number;
+  rejections: number;
+}
+
+export interface StageDefinition {
   id: string;
-  projectId: string;
-  title: string;
-  assignee: string;
-  status: "To Do" | "In Progress" | "Review" | "Done";
-  priority: "High" | "Medium" | "Low";
-  dueDate: string;
+  number: number;
+  name: string;
+  description: string;
+  checklistTemplate: string[];
 }
 
-export const insertPayrollRunSchema = z.object({
-  period: z.string().min(1),
-  runDate: z.string().min(1),
-  status: z.enum(["Draft", "Processing", "Completed", "Failed"]),
-  totalGross: z.number().min(0),
-  totalDeductions: z.number().min(0),
-  totalNet: z.number().min(0),
-  employeeCount: z.number().min(0),
-});
+export interface DocumentTemplate {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  lastUpdated: string;
+  version: string;
+}
 
-export const insertPayrollEntrySchema = z.object({
-  payrollRunId: z.string().min(1),
-  employeeId: z.string().min(1),
-  employeeName: z.string().min(1),
-  department: z.string().min(1),
-  baseSalary: z.number().min(0),
-  bonus: z.number().min(0),
-  deductions: z.number().min(0),
-  netPay: z.number().min(0),
-  status: z.enum(["Paid", "Pending", "Failed"]),
-});
+export const stageDefinitions: StageDefinition[] = [
+  { id: "STG-0", number: 0, name: "Lead Converted", description: "Payment received, package selected, client ID generated", checklistTemplate: ["Payment confirmed", "Package selected", "Client ID generated", "Assigned to Ops Manager"] },
+  { id: "STG-1", number: 1, name: "Intake", description: "KYC docs collected, formation state finalized", checklistTemplate: ["Passport collected", "Address proof collected", "Email confirmed", "Formation state finalized", "KYC verification complete"] },
+  { id: "STG-2", number: 2, name: "Formation Filed", description: "Articles submitted, filing receipt uploaded", checklistTemplate: ["Articles of incorporation drafted", "Articles submitted to state", "Filing receipt uploaded", "Registered agent confirmed"] },
+  { id: "STG-3", number: 3, name: "EIN", description: "EIN applied and IRS confirmation received", checklistTemplate: ["EIN application submitted", "IRS confirmation received", "EIN letter uploaded", "EIN shared with client"] },
+  { id: "STG-4", number: 4, name: "BOI Filing", description: "Beneficial Ownership Information filed", checklistTemplate: ["BOI form completed", "BOI submitted to FinCEN", "BOI confirmation uploaded"] },
+  { id: "STG-5", number: 5, name: "Bank / Stripe", description: "Banking and payment processing initiated", checklistTemplate: ["Bank application submitted", "Bank account opened", "Stripe application submitted", "Stripe account verified"] },
+  { id: "STG-6", number: 6, name: "Completion", description: "All docs compiled, compliance calendar created, handover complete", checklistTemplate: ["All documents compiled", "Compliance calendar created", "Handover checklist completed", "Client onboarding call done"] },
+];
 
-export const insertProjectSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1),
-  status: z.enum(["Active", "Completed", "On Hold", "Overdue"]),
+export const insertFormationClientSchema = z.object({
+  clientName: z.string().min(1),
+  companyName: z.string().min(1),
+  companyType: z.enum(["LLC", "Corp", "S-Corp"]),
+  state: z.string().min(1),
+  packageType: z.enum(["Basic", "Standard", "Premium"]),
+  assignedManager: z.string().min(1),
+  currentStage: z.number().min(0).max(6),
+  priority: z.enum(["high", "medium", "low"]),
+  riskFlag: z.enum(["at-risk", "delayed", "on-track"]),
   startDate: z.string().min(1),
-  endDate: z.string().min(1),
-  progress: z.number().min(0).max(100),
-  priority: z.enum(["High", "Medium", "Low"]),
-  teamSize: z.number().min(1),
+  expectedCompletion: z.string().min(1),
+  notes: z.string(),
+  email: z.string().email(),
+  phone: z.string().min(1),
 });
 
-export const insertProjectTaskSchema = z.object({
-  projectId: z.string().min(1),
+export const insertFormationTaskSchema = z.object({
+  clientId: z.string().min(1),
+  clientName: z.string().min(1),
   title: z.string().min(1),
-  assignee: z.string().min(1),
-  status: z.enum(["To Do", "In Progress", "Review", "Done"]),
-  priority: z.enum(["High", "Medium", "Low"]),
+  description: z.string(),
+  assignedTo: z.string().min(1),
   dueDate: z.string().min(1),
+  priority: z.enum(["high", "medium", "low"]),
+  status: z.enum(["pending", "in-progress", "completed", "overdue"]),
+  stage: z.number().min(0).max(6),
+  autoGenerated: z.boolean(),
 });
 
-export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
-export type InsertCandidate = z.infer<typeof insertCandidateSchema>;
-export type InsertDepartment = z.infer<typeof insertDepartmentSchema>;
-export type InsertJobPosting = z.infer<typeof insertJobPostingSchema>;
-export type InsertLeaveRequest = z.infer<typeof insertLeaveRequestSchema>;
-export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
-export type InsertDocument = z.infer<typeof insertDocumentSchema>;
-export type InsertPayrollRun = z.infer<typeof insertPayrollRunSchema>;
-export type InsertPayrollEntry = z.infer<typeof insertPayrollEntrySchema>;
-export type InsertProject = z.infer<typeof insertProjectSchema>;
-export type InsertProjectTask = z.infer<typeof insertProjectTaskSchema>;
+export const insertClientDocumentSchema = z.object({
+  clientId: z.string().min(1),
+  clientName: z.string().min(1),
+  title: z.string().min(1),
+  category: z.enum(["Articles", "EIN Letter", "BOI Receipt", "Operating Agreement", "Bank Docs", "Passport", "Address Proof", "Filing Receipt", "IRS Confirmation", "Other"]),
+  stage: z.number().min(0).max(6),
+  uploadDate: z.string().min(1),
+  uploadedBy: z.string().min(1),
+  fileSize: z.string().min(1),
+  status: z.enum(["uploaded", "pending", "verified"]),
+});
+
+export type InsertFormationClient = z.infer<typeof insertFormationClientSchema>;
+export type InsertFormationTask = z.infer<typeof insertFormationTaskSchema>;
+export type InsertClientDocument = z.infer<typeof insertClientDocumentSchema>;

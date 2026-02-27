@@ -19,7 +19,14 @@ The portal supports multiple business verticals, each with its own navigation, b
 - **Vertical Switcher** (`client/src/components/layout/vertical-switcher.tsx`): Dropdown in topbar to switch between verticals, shows brand logos
 
 ### Active Verticals (Branded Products)
-1. **LegalNations** (id: `hr`, color: #225AEA) — People, Recruitment, Operations, Finance, Projects — Routes: `/hr/*`
+1. **LegalNations** (id: `hr`, color: #225AEA) — US Company Formation & Compliance Operations — Routes: `/hr/*`
+   - Dashboard (operations overview: active formations, stuck/delayed, avg time, team load)
+   - Clients (All Clients, Client Detail with stage progression, Client Intake, Stage Overview)
+   - Operations (Formation Pipeline kanban, Task Board, Escalations)
+   - Documents (Document Vault, Templates)
+   - Compliance (Compliance Tracker, Annual Reports)
+   - Analytics (Formation Analytics, Team Performance)
+   - 7-stage workflow: Lead Converted → Intake → Formation Filed → EIN → BOI Filing → Bank/Stripe → Completion
 2. **USDrop AI** (id: `sales`, color: #F34147) — D2C Dropshipping SaaS Backoffice — Routes: `/sales/*`
    - Dashboard, Products & Catalog (Products, Categories, Suppliers, Winning Products)
    - Users & Subscriptions (Users, Leads, Plans, Subscriptions)
@@ -54,17 +61,20 @@ React with TypeScript, Tailwind CSS, Shadcn UI, Wouter routing, motion/react ani
 ### Page Organization
 ```
 client/src/pages/
-├── dashboard.tsx          # HR Dashboard (route: /hr)
-├── employees.tsx          # HR (route: /hr/employees)
-├── candidates.tsx         # HR (route: /hr/candidates)
-├── departments.tsx        # HR (route: /hr/departments)
-├── job-postings.tsx       # HR (route: /hr/job-postings)
-├── leave-management.tsx   # HR (route: /hr/leave)
-├── attendance.tsx         # HR (route: /hr/attendance)
-├── documents.tsx          # HR (route: /hr/documents)
-├── payroll.tsx            # HR (route: /hr/payroll)
-├── projects.tsx           # HR (route: /hr/projects)
-├── project-detail.tsx     # HR (route: /hr/projects/:id)
+├── dashboard.tsx              # LegalNations Dashboard (route: /hr)
+├── clients.tsx                # All Clients (route: /hr/clients)
+├── client-detail.tsx          # Client Detail (route: /hr/clients/:id)
+├── client-intake.tsx          # Client Intake Queue (route: /hr/intake)
+├── stage-overview.tsx         # Stage Overview (route: /hr/stages)
+├── formation-pipeline.tsx     # Formation Pipeline Kanban (route: /hr/pipeline)
+├── task-board.tsx             # Task Board (route: /hr/tasks)
+├── escalations.tsx            # Escalation Flags (route: /hr/escalations)
+├── document-vault.tsx         # Document Vault (route: /hr/documents)
+├── templates.tsx              # Document Templates (route: /hr/templates)
+├── compliance-tracker.tsx     # Compliance Tracker (route: /hr/compliance)
+├── annual-reports.tsx         # Annual Reports (route: /hr/annual-reports)
+├── formation-analytics.tsx    # Formation Analytics (route: /hr/analytics)
+├── team-performance.tsx       # Team Performance (route: /hr/team-performance)
 ├── sales/
 │   ├── dashboard.tsx           # USDrop AI Dashboard (route: /sales)
 │   ├── products.tsx            # Product Library (route: /sales/products)
@@ -100,8 +110,12 @@ client/src/pages/
 └── not-found.tsx          # 404
 ```
 
+### LegalNations-Specific Components
+- **Stage Stepper** (`client/src/components/hr/stage-stepper.tsx`): Reusable 7-step progress indicator with full and mini (dot) variants
+- **Data Types** (`shared/schema.ts`): FormationClient, StageChecklist, ClientDocument, ComplianceItem, FormationTask, Escalation, TeamMember, FormationMetric, StageDefinition, DocumentTemplate
+
 ### Mock Data Files
-- `client/src/lib/mock-data.ts` — HR entities (employees, candidates, departments, etc.)
+- `client/src/lib/mock-data.ts` — LegalNations entities (20 formation clients, 45+ checklist items, 25 documents, 15 compliance items, 25 tasks, 10 escalations, 6 team members, formation metrics, document templates)
 - `client/src/lib/mock-data-sales.ts` — USDrop AI entities (products, categories, suppliers, users, leads, subscriptions, stores, fulfillment, tickets, courses, plans, revenue metrics, help center articles)
 - `client/src/lib/mock-data-events.ts` — Events (events, venues, attendees)
 - `client/src/lib/mock-data-admin.ts` — Admin (team members, activity logs, reports)

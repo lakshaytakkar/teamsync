@@ -21,6 +21,7 @@ import {
   Store,
   Headphones,
   LineChart,
+  GitBranch,
   type LucideIcon,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -62,7 +63,7 @@ export const verticals: Vertical[] = [
     logo: LegalNationsLogo,
     color: "#225AEA",
     tagline: "B2B SaaS",
-    description: "Legal compliance & HR operations platform",
+    description: "US company formation & compliance operations",
     navCategories: [
       {
         title: "Dashboard",
@@ -71,47 +72,50 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "People",
-        defaultUrl: "/hr/employees",
-        icon: Users,
+        title: "Clients",
+        defaultUrl: "/hr/clients",
+        icon: Briefcase,
         items: [
-          { title: "Employees", url: "/hr/employees" },
-          { title: "Departments", url: "/hr/departments" },
-        ],
-      },
-      {
-        title: "Recruitment",
-        defaultUrl: "/hr/candidates",
-        icon: UserPlus,
-        items: [
-          { title: "Candidates", url: "/hr/candidates" },
-          { title: "Job Postings", url: "/hr/job-postings" },
+          { title: "All Clients", url: "/hr/clients" },
+          { title: "Client Intake", url: "/hr/intake" },
+          { title: "Stage Overview", url: "/hr/stages" },
         ],
       },
       {
         title: "Operations",
-        defaultUrl: "/hr/leave",
-        icon: CalendarDays,
+        defaultUrl: "/hr/pipeline",
+        icon: GitBranch,
         items: [
-          { title: "Leave Management", url: "/hr/leave" },
-          { title: "Attendance", url: "/hr/attendance" },
-          { title: "Documents", url: "/hr/documents" },
+          { title: "Formation Pipeline", url: "/hr/pipeline" },
+          { title: "Task Board", url: "/hr/tasks" },
+          { title: "Escalations", url: "/hr/escalations" },
         ],
       },
       {
-        title: "Finance",
-        defaultUrl: "/hr/payroll",
-        icon: DollarSign,
+        title: "Documents",
+        defaultUrl: "/hr/documents",
+        icon: FileText,
         items: [
-          { title: "Payroll", url: "/hr/payroll" },
+          { title: "Document Vault", url: "/hr/documents" },
+          { title: "Templates", url: "/hr/templates" },
         ],
       },
       {
-        title: "Projects",
-        defaultUrl: "/hr/projects",
-        icon: FolderKanban,
+        title: "Compliance",
+        defaultUrl: "/hr/compliance",
+        icon: Shield,
         items: [
-          { title: "Projects", url: "/hr/projects" },
+          { title: "Compliance Tracker", url: "/hr/compliance" },
+          { title: "Annual Reports", url: "/hr/annual-reports" },
+        ],
+      },
+      {
+        title: "Analytics",
+        defaultUrl: "/hr/analytics",
+        icon: BarChart3,
+        items: [
+          { title: "Formation Analytics", url: "/hr/analytics" },
+          { title: "Team Performance", url: "/hr/team-performance" },
         ],
       },
       {

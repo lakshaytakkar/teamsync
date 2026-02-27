@@ -10,16 +10,19 @@ import { VerticalContext, getStoredVertical, setStoredVerticalId } from "@/lib/v
 import { getVerticalById, detectVerticalFromUrl, type Vertical } from "@/lib/verticals-config";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
-import Employees from "@/pages/employees";
-import Candidates from "@/pages/candidates";
-import Departments from "@/pages/departments";
-import JobPostings from "@/pages/job-postings";
-import LeaveManagement from "@/pages/leave-management";
-import Attendance from "@/pages/attendance";
-import Documents from "@/pages/documents";
-import Payroll from "@/pages/payroll";
-import Projects from "@/pages/projects";
-import ProjectDetail from "@/pages/project-detail";
+import Clients from "@/pages/clients";
+import ClientDetail from "@/pages/client-detail";
+import ClientIntake from "@/pages/client-intake";
+import StageOverview from "@/pages/stage-overview";
+import FormationPipeline from "@/pages/formation-pipeline";
+import TaskBoard from "@/pages/task-board";
+import Escalations from "@/pages/escalations";
+import DocumentVault from "@/pages/document-vault";
+import Templates from "@/pages/templates";
+import ComplianceTracker from "@/pages/compliance-tracker";
+import AnnualReports from "@/pages/annual-reports";
+import FormationAnalytics from "@/pages/formation-analytics";
+import TeamPerformance from "@/pages/team-performance";
 import StyleGuide from "@/pages/style-guide";
 import ComponentsGuide from "@/pages/components-guide";
 import IconsGuide from "@/pages/icons-guide";
@@ -54,16 +57,19 @@ function Router() {
   return (
     <Switch>
       <Route path="/hr" component={Dashboard} />
-      <Route path="/hr/employees" component={Employees} />
-      <Route path="/hr/candidates" component={Candidates} />
-      <Route path="/hr/departments" component={Departments} />
-      <Route path="/hr/job-postings" component={JobPostings} />
-      <Route path="/hr/leave" component={LeaveManagement} />
-      <Route path="/hr/attendance" component={Attendance} />
-      <Route path="/hr/documents" component={Documents} />
-      <Route path="/hr/payroll" component={Payroll} />
-      <Route path="/hr/projects/:id" component={ProjectDetail} />
-      <Route path="/hr/projects" component={Projects} />
+      <Route path="/hr/clients/:id" component={ClientDetail} />
+      <Route path="/hr/clients" component={Clients} />
+      <Route path="/hr/intake" component={ClientIntake} />
+      <Route path="/hr/stages" component={StageOverview} />
+      <Route path="/hr/pipeline" component={FormationPipeline} />
+      <Route path="/hr/tasks" component={TaskBoard} />
+      <Route path="/hr/escalations" component={Escalations} />
+      <Route path="/hr/documents" component={DocumentVault} />
+      <Route path="/hr/templates" component={Templates} />
+      <Route path="/hr/compliance" component={ComplianceTracker} />
+      <Route path="/hr/annual-reports" component={AnnualReports} />
+      <Route path="/hr/analytics" component={FormationAnalytics} />
+      <Route path="/hr/team-performance" component={TeamPerformance} />
       <Route path="/dev/style-guide" component={StyleGuide} />
       <Route path="/dev/components" component={ComponentsGuide} />
       <Route path="/dev/icons" component={IconsGuide} />
