@@ -1,6 +1,5 @@
 import { useLocation, Link } from "wouter";
 import { Search, Bell, ChevronDown } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getPersonAvatar } from "@/lib/avatars";
@@ -84,15 +83,9 @@ export function TopNavigation() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="relative hidden md:block">
-            <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="h-9 w-56 pl-8 text-sm"
-              data-testid="input-global-search"
-            />
-          </div>
+          <Button size="icon" variant="ghost" data-testid="button-search">
+            <Search className="size-4" />
+          </Button>
 
           <Button size="icon" variant="ghost" className="relative" data-testid="button-notifications">
             <Bell className="size-4" />
