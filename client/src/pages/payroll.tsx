@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatsCard } from "@/components/hr/stats-card";
@@ -153,14 +153,8 @@ export default function Payroll() {
   };
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
         <PageTransition>
-          <PageBanner
-            title="Payroll Management"
-            description="Process salaries, review compensation, and manage employee payments."
-            iconSrc="/3d-icons/employees.webp"
-          />
-
           <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <StaggerItem>
               <StatsCard

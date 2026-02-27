@@ -19,6 +19,11 @@ import {
   BarChart3,
   type LucideIcon,
 } from "lucide-react";
+import type { ComponentType } from "react";
+import { LegalNationsLogo } from "@/components/brand/legalnations-logo";
+import { UsdropAiLogo } from "@/components/brand/usdrop-ai-logo";
+import { GoyoToursLogo } from "@/components/brand/goyotours-logo";
+import { LbmLifestyleLogo } from "@/components/brand/lbm-lifestyle-logo";
 
 export interface NavItem {
   title: string;
@@ -37,6 +42,7 @@ export interface Vertical {
   name: string;
   shortName: string;
   icon: LucideIcon;
+  logo: ComponentType<{ size?: number; className?: string }>;
   color: string;
   description: string;
   navCategories: NavCategory[];
@@ -45,60 +51,61 @@ export interface Vertical {
 export const verticals: Vertical[] = [
   {
     id: "hr",
-    name: "HR Portal",
-    shortName: "HR",
+    name: "LegalNations",
+    shortName: "LegalNations",
     icon: Users,
+    logo: LegalNationsLogo,
     color: "#225AEA",
     description: "People, recruitment, and operations",
     navCategories: [
       {
         title: "Dashboard",
-        defaultUrl: "/",
+        defaultUrl: "/hr",
         icon: LayoutDashboard,
         items: [],
       },
       {
         title: "People",
-        defaultUrl: "/employees",
+        defaultUrl: "/hr/employees",
         icon: Users,
         items: [
-          { title: "Employees", url: "/employees" },
-          { title: "Departments", url: "/departments" },
+          { title: "Employees", url: "/hr/employees" },
+          { title: "Departments", url: "/hr/departments" },
         ],
       },
       {
         title: "Recruitment",
-        defaultUrl: "/candidates",
+        defaultUrl: "/hr/candidates",
         icon: UserPlus,
         items: [
-          { title: "Candidates", url: "/candidates" },
-          { title: "Job Postings", url: "/job-postings" },
+          { title: "Candidates", url: "/hr/candidates" },
+          { title: "Job Postings", url: "/hr/job-postings" },
         ],
       },
       {
         title: "Operations",
-        defaultUrl: "/leave",
+        defaultUrl: "/hr/leave",
         icon: CalendarDays,
         items: [
-          { title: "Leave Management", url: "/leave" },
-          { title: "Attendance", url: "/attendance" },
-          { title: "Documents", url: "/documents" },
+          { title: "Leave Management", url: "/hr/leave" },
+          { title: "Attendance", url: "/hr/attendance" },
+          { title: "Documents", url: "/hr/documents" },
         ],
       },
       {
         title: "Finance",
-        defaultUrl: "/payroll",
+        defaultUrl: "/hr/payroll",
         icon: DollarSign,
         items: [
-          { title: "Payroll", url: "/payroll" },
+          { title: "Payroll", url: "/hr/payroll" },
         ],
       },
       {
         title: "Projects",
-        defaultUrl: "/projects",
+        defaultUrl: "/hr/projects",
         icon: FolderKanban,
         items: [
-          { title: "Projects", url: "/projects" },
+          { title: "Projects", url: "/hr/projects" },
         ],
       },
       {
@@ -115,9 +122,10 @@ export const verticals: Vertical[] = [
   },
   {
     id: "sales",
-    name: "Sales CRM",
-    shortName: "Sales",
+    name: "USDrop AI",
+    shortName: "USDrop AI",
     icon: TrendingUp,
+    logo: UsdropAiLogo,
     color: "#F34147",
     description: "Leads, pipeline, and performance",
     navCategories: [
@@ -157,9 +165,10 @@ export const verticals: Vertical[] = [
   },
   {
     id: "events",
-    name: "Events",
-    shortName: "Events",
+    name: "GoyoTours",
+    shortName: "GoyoTours",
     icon: Ticket,
+    logo: GoyoToursLogo,
     color: "#E91E63",
     description: "Seminars, meets, and venue management",
     navCategories: [
@@ -190,9 +199,10 @@ export const verticals: Vertical[] = [
   },
   {
     id: "admin",
-    name: "Admin & IT",
-    shortName: "Admin",
+    name: "LBM Lifestyle",
+    shortName: "LBM Lifestyle",
     icon: Shield,
+    logo: LbmLifestyleLogo,
     color: "#673AB7",
     description: "System administration and reports",
     navCategories: [
@@ -243,8 +253,9 @@ export function getAllNavUrls(vertical: Vertical): string[] {
 }
 
 export function detectVerticalFromUrl(location: string): Vertical | undefined {
+  if (location.startsWith("/hr")) return getVerticalById("hr");
   if (location.startsWith("/sales")) return getVerticalById("sales");
   if (location.startsWith("/events")) return getVerticalById("events");
   if (location.startsWith("/admin")) return getVerticalById("admin");
-  return getVerticalById("hr");
+  return undefined;
 }

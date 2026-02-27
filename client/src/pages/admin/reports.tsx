@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Download, RefreshCw } from "lucide-react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { StatusBadge } from "@/components/hr/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -37,13 +37,8 @@ export default function AdminReports() {
   });
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner
-          title="Reports & Analytics"
-          iconSrc="/3d-icons/departments.webp"
-        />
-
         {loading ? (
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-3">

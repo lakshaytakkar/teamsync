@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
 import emptyDepartmentsImg from "@/assets/illustrations/empty-departments.webp";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -130,13 +130,8 @@ export default function Departments() {
   };
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
         <PageTransition>
-        <PageBanner
-          title="Department Overview"
-          description="Manage your organizational structure and department details."
-          iconSrc="/3d-icons/departments.webp"
-        />
         {loading ? (
           <TableSkeleton rows={8} columns={4} />
         ) : (

@@ -1,5 +1,5 @@
 import { CalendarDays, Users, Building2, IndianRupee, MapPin, CheckCircle2 } from "lucide-react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { StatsCard } from "@/components/hr/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,10 +30,8 @@ export default function EventsDashboard() {
   const totalBudget = events.reduce((sum, e) => sum + e.budget, 0);
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner title="Events Hub" iconSrc="/3d-icons/dashboard.webp" />
-
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatsCardSkeleton />

@@ -1,5 +1,5 @@
 import { UserPlus } from "lucide-react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -84,13 +84,8 @@ export default function AdminTeam() {
   const loading = useSimulatedLoading();
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner
-          title="Team Members"
-          iconSrc="/3d-icons/employees.webp"
-        />
-
         {loading ? (
           <TableSkeleton rows={6} columns={6} />
         ) : (

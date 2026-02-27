@@ -26,7 +26,7 @@ function getActiveCategory(location: string, categories: NavCategory[]): NavCate
       }
     }
   }
-  if (categories.length > 0 && (location === categories[0].defaultUrl || location === "/")) {
+  if (categories.length > 0 && location === categories[0].defaultUrl) {
     return categories[0];
   }
   return null;
@@ -45,7 +45,7 @@ export function TopNavigation() {
 
   return (
     <div className="shrink-0 overflow-y-hidden">
-      <header className="flex h-14 items-center justify-between gap-2 border-b bg-background px-6 lg:px-10 overflow-hidden overflow-y-hidden">
+      <header className="flex h-14 items-center justify-between gap-2 border-b bg-background px-12 lg:px-20 overflow-hidden overflow-y-hidden">
         <div className="flex items-center gap-6 min-w-0">
           <VerticalSwitcher />
 
@@ -120,7 +120,7 @@ export function TopNavigation() {
       </header>
 
       {showSubNav && (
-        <div className="flex items-center gap-1 border-b bg-muted/30 px-6 py-2 lg:px-10 overflow-x-auto overflow-y-hidden scrollbar-hide" data-testid="nav-level-2">
+        <div className="flex items-center gap-1 border-b bg-primary px-12 py-2 lg:px-20 overflow-x-auto overflow-y-hidden scrollbar-hide" data-testid="nav-level-2">
           {activeCategory.items.map((item, index) => {
             const isActive = isItemActive(location, item.url);
             return (
@@ -131,11 +131,11 @@ export function TopNavigation() {
                 className={cn(
                   "relative whitespace-nowrap px-4 py-1.5 text-sm rounded-lg transition-all",
                   isActive
-                    ? "bg-background text-foreground font-semibold shadow-sm border border-border/60"
-                    : "text-muted-foreground font-medium hover:text-foreground hover:bg-background/60"
+                    ? "bg-white/20 text-white font-semibold"
+                    : "text-white/70 font-medium hover:text-white hover:bg-white/10"
                 )}
               >
-                <span className="text-muted-foreground mr-1.5">{index + 1})</span>
+                <span className="text-white/50 mr-1.5">{index + 1})</span>
                 {item.title}
               </Link>
             );

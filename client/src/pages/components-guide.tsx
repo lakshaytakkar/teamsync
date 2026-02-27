@@ -19,7 +19,7 @@ import { TeamSyncMascot } from "@/components/brand/teamsync-mascot";
 import { Spinner, PageSpinner, InlineSpinner } from "@/components/ui/spinner";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { CardSkeleton, StatsCardSkeleton } from "@/components/ui/card-skeleton";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { showSuccess, showError, showInfo, showWarning } from "@/hooks/use-toast";
 import {
   Plus,
@@ -979,27 +979,6 @@ function BannerTab() {
   return (
     <div className="flex flex-col gap-12">
       <div>
-        <SectionTitle>Page Banner</SectionTitle>
-        <div className="rounded-2xl bg-[#F8F9FC] p-8">
-          <p className="text-sm text-[#5A6380] mb-6">Full-width branded banner with 3D icon, title, description, and optional action button. Used at the top of every HR module page.</p>
-          <div className="flex flex-col gap-4">
-            <PageBanner
-              title="Employee Directory"
-              description="View, manage, and organize your entire workforce in one place."
-              iconSrc="/3d-icons/employees.webp"
-            />
-            <PageBanner
-              title="Leave Management"
-              description="Review and manage employee leave requests and approvals."
-              iconSrc="/3d-icons/leave.webp"
-              actionLabel="New Request"
-              onAction={() => showInfo("Action", "New Request button clicked")}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div>
         <SectionTitle>3D Icons</SectionTitle>
         <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-4 gap-6">
@@ -1027,7 +1006,7 @@ function BannerTab() {
 
 export default function ComponentsGuide() {
   return (
-    <div className="px-8 py-6 lg:px-12" data-testid="page-components-guide">
+    <div className="px-16 py-6 lg:px-24" data-testid="page-components-guide">
         <PageTransition>
           <div>
             <Tabs defaultValue="buttons" data-testid="tabs-components">

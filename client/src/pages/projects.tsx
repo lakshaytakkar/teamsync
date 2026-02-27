@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { Button } from "@/components/ui/button";
 import { StatsCard } from "@/components/hr/stats-card";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -95,14 +95,8 @@ export default function Projects() {
   };
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
         <PageTransition>
-          <PageBanner
-            title="Project Management"
-            description="Track progress, manage tasks, and collaborate across teams."
-            iconSrc="/3d-icons/departments.webp"
-          />
-
           <Stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
             <StaggerItem>
               <StatsCard
@@ -162,7 +156,7 @@ export default function Projects() {
                   <Card
                     key={project.id}
                     className="cursor-pointer overflow-visible hover-elevate p-5"
-                    onClick={() => navigate(`/projects/${project.id}`)}
+                    onClick={() => navigate(`/hr/projects/${project.id}`)}
                     data-testid={`card-project-${project.id}`}
                   >
                     <div className="flex flex-col gap-3">

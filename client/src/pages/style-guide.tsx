@@ -287,7 +287,7 @@ function ShadowTab() {
 
 export default function StyleGuide() {
   return (
-    <div className="px-8 py-6 lg:px-12" data-testid="page-style-guide">
+    <div className="px-16 py-6 lg:px-24" data-testid="page-style-guide">
         <PageTransition>
           <div>
             <Tabs defaultValue="typography" data-testid="tabs-style-guide">

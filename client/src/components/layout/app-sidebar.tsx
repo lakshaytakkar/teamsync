@@ -31,16 +31,16 @@ import { Fade } from "@/components/ui/animated";
 import { motion } from "motion/react";
 
 const mainNavItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Employees", url: "/employees", icon: Users },
-  { title: "Candidates", url: "/candidates", icon: UserPlus },
-  { title: "Departments", url: "/departments", icon: Building2 },
-  { title: "Job Postings", url: "/job-postings", icon: Briefcase },
-  { title: "Leave Management", url: "/leave", icon: CalendarDays },
-  { title: "Attendance", url: "/attendance", icon: Clock },
-  { title: "Documents", url: "/documents", icon: FileText },
-  { title: "Payroll", url: "/payroll", icon: Wallet },
-  { title: "Projects", url: "/projects", icon: FolderKanban },
+  { title: "Dashboard", url: "/hr", icon: LayoutDashboard },
+  { title: "Employees", url: "/hr/employees", icon: Users },
+  { title: "Candidates", url: "/hr/candidates", icon: UserPlus },
+  { title: "Departments", url: "/hr/departments", icon: Building2 },
+  { title: "Job Postings", url: "/hr/job-postings", icon: Briefcase },
+  { title: "Leave Management", url: "/hr/leave", icon: CalendarDays },
+  { title: "Attendance", url: "/hr/attendance", icon: Clock },
+  { title: "Documents", url: "/hr/documents", icon: FileText },
+  { title: "Payroll", url: "/hr/payroll", icon: Wallet },
+  { title: "Projects", url: "/hr/projects", icon: FolderKanban },
 ];
 
 const designNavItems = [

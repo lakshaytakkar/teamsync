@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -176,12 +176,8 @@ export default function LeadsPage() {
   };
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner
-          title="Lead Management"
-          iconSrc="/3d-icons/candidates.webp"
-        />
         {loading ? (
           <TableSkeleton rows={8} columns={8} />
         ) : (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
 import { DocumentPreviewModal } from "@/components/hr/document-preview-modal";
 import emptyDocumentsImg from "@/assets/illustrations/empty-documents.webp";
@@ -173,13 +173,8 @@ export default function Documents() {
   const categories: HRDocument["category"][] = ["Policy", "Contract", "Certificate", "Report", "Other"];
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
         <PageTransition>
-        <PageBanner
-          title="Document Library"
-          description="Store, organize, and manage all HR documents and policies."
-          iconSrc="/3d-icons/documents.webp"
-        />
         {loading ? (
           <TableSkeleton rows={8} columns={5} />
         ) : (

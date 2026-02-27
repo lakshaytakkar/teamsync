@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { FormDialog } from "@/components/hr/form-dialog";
@@ -78,10 +78,8 @@ export default function EventsList() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner title="All Events" iconSrc="/3d-icons/attendance.webp" />
-
         {loading ? (
           <TableSkeleton rows={6} columns={7} />
         ) : (

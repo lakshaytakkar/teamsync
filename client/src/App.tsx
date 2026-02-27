@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -41,17 +41,18 @@ import AdminReports from "@/pages/admin/reports";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/employees" component={Employees} />
-      <Route path="/candidates" component={Candidates} />
-      <Route path="/departments" component={Departments} />
-      <Route path="/job-postings" component={JobPostings} />
-      <Route path="/leave" component={LeaveManagement} />
-      <Route path="/attendance" component={Attendance} />
-      <Route path="/documents" component={Documents} />
-      <Route path="/payroll" component={Payroll} />
-      <Route path="/projects/:id" component={ProjectDetail} />
-      <Route path="/projects" component={Projects} />
+      <Route path="/">{() => <Redirect to="/hr" />}</Route>
+      <Route path="/hr" component={Dashboard} />
+      <Route path="/hr/employees" component={Employees} />
+      <Route path="/hr/candidates" component={Candidates} />
+      <Route path="/hr/departments" component={Departments} />
+      <Route path="/hr/job-postings" component={JobPostings} />
+      <Route path="/hr/leave" component={LeaveManagement} />
+      <Route path="/hr/attendance" component={Attendance} />
+      <Route path="/hr/documents" component={Documents} />
+      <Route path="/hr/payroll" component={Payroll} />
+      <Route path="/hr/projects/:id" component={ProjectDetail} />
+      <Route path="/hr/projects" component={Projects} />
       <Route path="/dev/style-guide" component={StyleGuide} />
       <Route path="/dev/components" component={ComponentsGuide} />
       <Route path="/dev/icons" component={IconsGuide} />

@@ -335,7 +335,7 @@ export default function IconsGuide() {
   }, [filtered]);
 
   return (
-    <div className="px-8 py-6 lg:px-12" data-testid="page-icons-guide">
+    <div className="px-16 py-6 lg:px-24" data-testid="page-icons-guide">
         <PageTransition>
           <div className="mb-8 max-w-sm">
             <div className="relative">

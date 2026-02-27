@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
 import emptyJobsImg from "@/assets/illustrations/empty-jobs.webp";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -184,13 +184,8 @@ export default function JobPostings() {
   const departments = [...new Set(data.map((j) => j.department))];
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
         <PageTransition>
-        <PageBanner
-          title="Job Postings"
-          description="Create, manage, and track open positions across departments."
-          iconSrc="/3d-icons/job-postings.webp"
-        />
         {loading ? (
           <TableSkeleton rows={8} columns={6} />
         ) : (

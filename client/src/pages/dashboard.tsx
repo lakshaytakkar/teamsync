@@ -1,6 +1,6 @@
 import { Users, UserPlus, Briefcase, CalendarDays, TrendingUp, Clock, CheckCircle2, AlertCircle, Eye, Check, X, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import emptyCalendarImg from "@/assets/illustrations/empty-calendar.webp";
 import { StatsCard } from "@/components/hr/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
@@ -44,12 +44,8 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner
-          title="Welcome to TeamSync"
-          iconSrc="/3d-icons/dashboard.webp"
-        />
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatsCardSkeleton />
@@ -143,7 +139,7 @@ export default function Dashboard() {
               ))}
             </div>
             <div className="border-t px-5 py-3">
-              <Link href="/candidates" className="flex items-center gap-1.5 text-sm font-medium text-primary transition-colors" data-testid="link-view-all-candidates">
+              <Link href="/hr/candidates" className="flex items-center gap-1.5 text-sm font-medium text-primary transition-colors" data-testid="link-view-all-candidates">
                 View all candidates
                 <ArrowRight className="size-3.5" />
               </Link>
@@ -210,7 +206,7 @@ export default function Dashboard() {
               )}
             </div>
             <div className="border-t px-5 py-3">
-              <Link href="/leave" className="flex items-center gap-1.5 text-sm font-medium text-primary transition-colors" data-testid="link-view-all-leaves">
+              <Link href="/hr/leave" className="flex items-center gap-1.5 text-sm font-medium text-primary transition-colors" data-testid="link-view-all-leaves">
                 View all requests
                 <ArrowRight className="size-3.5" />
               </Link>

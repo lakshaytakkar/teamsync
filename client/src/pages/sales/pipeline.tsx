@@ -1,4 +1,4 @@
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { leads, pipelineStages } from "@/lib/mock-data-sales";
@@ -24,13 +24,8 @@ export default function PipelinePage() {
   }));
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner
-          title="Sales Pipeline"
-          iconSrc="/3d-icons/departments.webp"
-        />
-
         {loading ? (
           <div className="flex gap-4 overflow-x-auto pb-4">
             {Array.from({ length: 6 }).map((_, i) => (

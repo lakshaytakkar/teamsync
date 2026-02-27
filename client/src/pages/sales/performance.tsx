@@ -1,5 +1,5 @@
 import { DollarSign, TrendingUp, Target, Award } from "lucide-react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { StatsCard } from "@/components/hr/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,13 +35,8 @@ export default function PerformancePage() {
   };
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner
-          title="Team Performance"
-          iconSrc="/3d-icons/employees.webp"
-        />
-
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatsCardSkeleton />

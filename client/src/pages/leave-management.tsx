@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
 import emptyCalendarImg from "@/assets/illustrations/empty-calendar.webp";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -168,13 +168,8 @@ export default function LeaveManagement() {
   const statuses: LeaveRequest["status"][] = ["Pending", "Approved", "Rejected"];
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
         <PageTransition>
-        <PageBanner
-          title="Leave Management"
-          description="Review and manage employee leave requests and approvals."
-          iconSrc="/3d-icons/leave.webp"
-        />
         {loading ? (
           <TableSkeleton rows={8} columns={6} />
         ) : (

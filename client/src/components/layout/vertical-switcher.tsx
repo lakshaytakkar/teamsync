@@ -11,7 +11,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { TeamSyncMascot } from "@/components/brand/teamsync-mascot";
 
 export function VerticalSwitcher() {
   const { currentVertical, setCurrentVertical } = useVertical();
@@ -25,6 +24,8 @@ export function VerticalSwitcher() {
     }
   };
 
+  const CurrentLogo = currentVertical.logo;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -32,15 +33,7 @@ export function VerticalSwitcher() {
           className="flex items-center gap-2.5 shrink-0 rounded-md px-1.5 py-1 transition-colors hover:bg-accent outline-none"
           data-testid="vertical-switcher"
         >
-          <div
-            className="flex size-7 items-center justify-center rounded-md"
-            style={{ backgroundColor: currentVertical.color + "18" }}
-          >
-            <currentVertical.icon
-              className="size-4"
-              style={{ color: currentVertical.color }}
-            />
-          </div>
+          <CurrentLogo size={28} />
           <div className="hidden sm:flex flex-col items-start">
             <span className="text-sm font-bold font-heading tracking-tight leading-tight">
               {currentVertical.shortName}
@@ -56,6 +49,7 @@ export function VerticalSwitcher() {
         <DropdownMenuSeparator />
         {verticals.map((v) => {
           const isActive = currentVertical.id === v.id;
+          const LogoComponent = v.logo;
           return (
             <DropdownMenuItem
               key={v.id}
@@ -66,12 +60,7 @@ export function VerticalSwitcher() {
               )}
               data-testid={`vertical-option-${v.id}`}
             >
-              <div
-                className="flex size-8 items-center justify-center rounded-lg shrink-0"
-                style={{ backgroundColor: v.color + "18" }}
-              >
-                <v.icon className="size-4" style={{ color: v.color }} />
-              </div>
+              <LogoComponent size={32} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{v.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{v.description}</p>

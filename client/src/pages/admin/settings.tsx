@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Building2, Bell, Shield, Puzzle } from "lucide-react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { StatusBadge } from "@/components/hr/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
@@ -53,13 +53,8 @@ export default function AdminSettings() {
   const [passwordPolicy, setPasswordPolicy] = useState("strong");
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner
-          title="System Settings"
-          iconSrc="/3d-icons/documents.webp"
-        />
-
         {loading ? (
           <div className="flex flex-col gap-6">
             {Array.from({ length: 4 }).map((_, i) => (

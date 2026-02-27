@@ -1,7 +1,7 @@
 # TeamSync - Multi-Vertical Team Portal
 
 ## Overview
-TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the Dropship.io design system. It supports multiple business verticals (HR, Sales CRM, Events, Admin) with a config-driven navigation system. Each vertical has its own dashboard, pages, and workflows. Built with React, TypeScript, Tailwind CSS, and Shadcn UI.
+TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the Dropship.io design system. It supports 4 branded products — LegalNations (HR), USDrop AI (Sales), GoyoTours (Events), LBM Lifestyle (Admin) — with a config-driven navigation system. Each vertical has its own dashboard, pages, brand logo, and workflows. Built with React, TypeScript, Tailwind CSS, and Shadcn UI.
 
 ## User Preferences
 - Single font: Plus Jakarta Sans only (Inter fully removed)
@@ -13,57 +13,70 @@ TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the 
 ## System Architecture
 
 ### Multi-Vertical Architecture
-The portal supports multiple business verticals, each with its own navigation and pages:
-- **Verticals Config** (`client/src/lib/verticals-config.ts`): Defines all verticals with their navigation categories
+The portal supports multiple business verticals, each with its own navigation, brand logo, and pages:
+- **Verticals Config** (`client/src/lib/verticals-config.ts`): Defines all verticals with their navigation categories and brand logos
 - **Vertical Store** (`client/src/lib/vertical-store.ts`): React context for current vertical state, persisted to localStorage
-- **Vertical Switcher** (`client/src/components/layout/vertical-switcher.tsx`): Dropdown in topbar to switch between verticals
+- **Vertical Switcher** (`client/src/components/layout/vertical-switcher.tsx`): Dropdown in topbar to switch between verticals, shows brand logos
 
-### Active Verticals
-1. **HR Portal** (id: `hr`, color: #225AEA) — People, Recruitment, Operations, Finance, Projects
-2. **Sales CRM** (id: `sales`, color: #F34147) — Leads, Pipeline, Tasks, Follow-ups, Performance
-3. **Events** (id: `events`, color: #E91E63) — Events, Venues, Check-in
-4. **Admin & IT** (id: `admin`, color: #673AB7) — Team, Settings, Reports
+### Active Verticals (Branded Products)
+1. **LegalNations** (id: `hr`, color: #225AEA) — People, Recruitment, Operations, Finance, Projects — Routes: `/hr/*`
+2. **USDrop AI** (id: `sales`, color: #F34147) — Leads, Pipeline, Tasks, Follow-ups, Performance — Routes: `/sales/*`
+3. **GoyoTours** (id: `events`, color: #E91E63) — Events, Venues, Check-in — Routes: `/events/*`
+4. **LBM Lifestyle** (id: `admin`, color: #673AB7) — Team, Settings, Reports — Routes: `/admin/*`
+
+### Brand Logo Components
+Each vertical has a unique SVG logo in hexagonal mascot style:
+- `client/src/components/brand/legalnations-logo.tsx` — Scales/balance icon
+- `client/src/components/brand/usdrop-ai-logo.tsx` — Box+arrow/dropship icon
+- `client/src/components/brand/goyotours-logo.tsx` — Compass icon
+- `client/src/components/brand/lbm-lifestyle-logo.tsx` — Heart-star/lifestyle icon
 
 ### Frontend Technology
 React with TypeScript, Tailwind CSS, Shadcn UI, Wouter routing, motion/react animations.
 
+### Routing
+- All verticals use consistent `/vertical/*` URL namespacing
+- Root `/` redirects to `/hr` (default vertical)
+- Deep links auto-detect the correct vertical via `detectVerticalFromUrl`
+- Dev routes remain at `/dev/*` (style-guide, components, icons)
+
 ### Navigation
 - **Two-Level Horizontal Top Navigation**: Dynamic based on active vertical
-- **Vertical Switcher**: Replaces static logo area, allows switching between products
+- **Vertical Switcher**: Shows brand logo, allows switching between products (navigates to target vertical's dashboard)
 - **Level 1**: Category tabs (change per vertical)
-- **Level 2**: Sub-page navigation within active category
+- **Level 2**: Sub-page navigation within active category — styled with primary blue background for visual separation
 
 ### Page Organization
 ```
 client/src/pages/
-├── dashboard.tsx          # HR Dashboard
-├── employees.tsx          # HR
-├── candidates.tsx         # HR
-├── departments.tsx        # HR
-├── job-postings.tsx       # HR
-├── leave-management.tsx   # HR
-├── attendance.tsx         # HR
-├── documents.tsx          # HR
-├── payroll.tsx            # HR
-├── projects.tsx           # HR
-├── project-detail.tsx     # HR
+├── dashboard.tsx          # HR Dashboard (route: /hr)
+├── employees.tsx          # HR (route: /hr/employees)
+├── candidates.tsx         # HR (route: /hr/candidates)
+├── departments.tsx        # HR (route: /hr/departments)
+├── job-postings.tsx       # HR (route: /hr/job-postings)
+├── leave-management.tsx   # HR (route: /hr/leave)
+├── attendance.tsx         # HR (route: /hr/attendance)
+├── documents.tsx          # HR (route: /hr/documents)
+├── payroll.tsx            # HR (route: /hr/payroll)
+├── projects.tsx           # HR (route: /hr/projects)
+├── project-detail.tsx     # HR (route: /hr/projects/:id)
 ├── sales/
-│   ├── dashboard.tsx      # Sales Dashboard
-│   ├── leads.tsx          # Lead Management
-│   ├── pipeline.tsx       # Kanban Pipeline
-│   ├── tasks.tsx          # Sales Tasks
-│   ├── follow-ups.tsx     # Follow-ups
-│   └── performance.tsx    # Team Performance
+│   ├── dashboard.tsx      # Sales Dashboard (route: /sales)
+│   ├── leads.tsx          # Lead Management (route: /sales/leads)
+│   ├── pipeline.tsx       # Kanban Pipeline (route: /sales/pipeline)
+│   ├── tasks.tsx          # Sales Tasks (route: /sales/tasks)
+│   ├── follow-ups.tsx     # Follow-ups (route: /sales/follow-ups)
+│   └── performance.tsx    # Team Performance (route: /sales/performance)
 ├── events/
-│   ├── dashboard.tsx      # Events Hub
-│   ├── events-list.tsx    # All Events
-│   ├── venues.tsx         # Venue Directory
-│   └── checkin.tsx        # Event Check-in
+│   ├── dashboard.tsx      # Events Hub (route: /events)
+│   ├── events-list.tsx    # All Events (route: /events/list)
+│   ├── venues.tsx         # Venue Directory (route: /events/venues)
+│   └── checkin.tsx        # Event Check-in (route: /events/checkin)
 ├── admin/
-│   ├── dashboard.tsx      # System Overview
-│   ├── team.tsx           # Team Management
-│   ├── settings.tsx       # System Settings
-│   └── reports.tsx        # Reports & Analytics
+│   ├── dashboard.tsx      # System Overview (route: /admin)
+│   ├── team.tsx           # Team Management (route: /admin/team)
+│   ├── settings.tsx       # System Settings (route: /admin/settings)
+│   └── reports.tsx        # Reports & Analytics (route: /admin/reports)
 ├── style-guide.tsx        # Dev: Style Guide
 ├── components-guide.tsx   # Dev: Components
 ├── icons-guide.tsx        # Dev: Icons
@@ -80,7 +93,6 @@ client/src/pages/
 - **DataTable**: Generic reusable table with search, filters, sorting, pagination, row actions
 - **StatsCard**: Stats display with AnimatedNumber, sparklines, hover lift
 - **StatusBadge**: Semantic color variants (success, error, warning, info, neutral)
-- **PageBanner**: Branded banner with 3D WebP icon, title, description, action
 - **AnimatedNumber**: Spring-animated counter using motion/react
 - **RadialProgress**: SVG circular progress rings with animated fill
 - **FormDialog**: Standardized dialog for create/edit forms

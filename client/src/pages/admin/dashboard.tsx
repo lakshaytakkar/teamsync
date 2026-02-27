@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Users, UserCheck, FileText, Activity, ArrowRight, Plus, Settings, BarChart3, Download, LogIn, Pencil, Trash2, Upload } from "lucide-react";
 import { Link } from "wouter";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { StatsCard } from "@/components/hr/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,13 +43,8 @@ export default function AdminDashboard() {
   const activeUsers = teamMembers.filter((m) => m.status === "active").length;
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner
-          title="System Overview"
-          iconSrc="/3d-icons/dashboard.webp"
-        />
-
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatsCardSkeleton />

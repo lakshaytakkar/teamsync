@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Search, CheckCircle2, Circle, Users, UserCheck, Percent } from "lucide-react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { StatsCard } from "@/components/hr/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -58,10 +58,8 @@ export default function CheckinPage() {
   const selectedEvent = events.find((e) => e.id === selectedEventId);
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner title="Event Check-in" iconSrc="/3d-icons/leave.webp" />
-
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <Select value={selectedEventId} onValueChange={(val) => { setSelectedEventId(val); setSearchQuery(""); }}>
             <SelectTrigger className="h-9 w-auto min-w-[260px] text-sm" data-testid="select-event">

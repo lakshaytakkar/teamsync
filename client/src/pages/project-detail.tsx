@@ -31,7 +31,7 @@ const priorityDot: Record<string, string> = {
 
 export default function ProjectDetail() {
   const loading = useSimulatedLoading();
-  const [, params] = useRoute("/projects/:id");
+  const [, params] = useRoute("/hr/projects/:id");
   const { showSuccess } = useToast();
   const projectId = params?.id;
 
@@ -51,10 +51,10 @@ export default function ProjectDetail() {
 
   if (!project) {
     return (
-      <div className="px-8 py-6 lg:px-12 flex items-center justify-center min-h-[50vh]">
+      <div className="px-16 py-6 lg:px-24 flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <p className="text-sm text-muted-foreground mb-4" data-testid="text-not-found">This project does not exist.</p>
-            <Link href="/projects">
+            <Link href="/hr/projects">
               <Button variant="outline" size="sm" data-testid="link-back-projects">
                 <ArrowLeft className="mr-1.5 size-3.5" />
                 Back to Projects
@@ -123,10 +123,10 @@ export default function ProjectDetail() {
   ];
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
         <PageTransition>
           <div className="mb-5">
-            <Link href="/projects">
+            <Link href="/hr/projects">
               <Button variant="ghost" size="sm" className="mb-3 -ml-2" data-testid="link-back-projects">
                 <ArrowLeft className="mr-1.5 size-3.5" />
                 Back to Projects

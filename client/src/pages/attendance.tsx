@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
 import emptyAttendanceImg from "@/assets/illustrations/empty-attendance.webp";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -163,13 +163,8 @@ export default function Attendance() {
   const departments = [...new Set(data.map((a) => a.department))];
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
         <PageTransition>
-        <PageBanner
-          title="Attendance Tracker"
-          description="Monitor daily check-ins, work hours, and attendance patterns."
-          iconSrc="/3d-icons/attendance.webp"
-        />
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
             <StatsCardSkeleton />

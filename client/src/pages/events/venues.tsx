@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { MapPin, Users, Star, IndianRupee, Filter } from "lucide-react";
-import { PageBanner } from "@/components/hr/page-banner";
+
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -44,10 +44,8 @@ export default function VenuesPage() {
   }, [cityFilter, typeFilter, statusFilter]);
 
   return (
-    <div className="px-8 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
-        <PageBanner title="Venue Directory" iconSrc="/3d-icons/departments.webp" />
-
         <div className="mb-5 flex flex-wrap items-center gap-3" data-testid="venue-filters">
           <Select value={cityFilter} onValueChange={setCityFilter}>
             <SelectTrigger className="h-8 w-auto min-w-[120px] text-sm" data-testid="filter-city">
