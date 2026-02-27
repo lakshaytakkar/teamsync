@@ -1,10 +1,13 @@
-import { Switch, Route } from "wouter";
+import { useState, useCallback, useEffect } from "react";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { TopNavigation } from "@/components/layout/top-navigation";
+import { VerticalContext, getStoredVertical, setStoredVerticalId } from "@/lib/vertical-store";
+import { getVerticalById, detectVerticalFromUrl, type Vertical } from "@/lib/verticals-config";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Employees from "@/pages/employees";
@@ -20,6 +23,20 @@ import ProjectDetail from "@/pages/project-detail";
 import StyleGuide from "@/pages/style-guide";
 import ComponentsGuide from "@/pages/components-guide";
 import IconsGuide from "@/pages/icons-guide";
+import SalesDashboard from "@/pages/sales/dashboard";
+import SalesLeads from "@/pages/sales/leads";
+import SalesPipeline from "@/pages/sales/pipeline";
+import SalesTasks from "@/pages/sales/tasks";
+import SalesFollowUps from "@/pages/sales/follow-ups";
+import SalesPerformance from "@/pages/sales/performance";
+import EventsDashboard from "@/pages/events/dashboard";
+import EventsList from "@/pages/events/events-list";
+import EventsVenues from "@/pages/events/venues";
+import EventsCheckin from "@/pages/events/checkin";
+import AdminDashboard from "@/pages/admin/dashboard";
+import AdminTeam from "@/pages/admin/team";
+import AdminSettings from "@/pages/admin/settings";
+import AdminReports from "@/pages/admin/reports";
 
 function Router() {
   return (
@@ -38,25 +55,66 @@ function Router() {
       <Route path="/dev/style-guide" component={StyleGuide} />
       <Route path="/dev/components" component={ComponentsGuide} />
       <Route path="/dev/icons" component={IconsGuide} />
+      <Route path="/sales" component={SalesDashboard} />
+      <Route path="/sales/leads" component={SalesLeads} />
+      <Route path="/sales/pipeline" component={SalesPipeline} />
+      <Route path="/sales/tasks" component={SalesTasks} />
+      <Route path="/sales/follow-ups" component={SalesFollowUps} />
+      <Route path="/sales/performance" component={SalesPerformance} />
+      <Route path="/events" component={EventsDashboard} />
+      <Route path="/events/list" component={EventsList} />
+      <Route path="/events/venues" component={EventsVenues} />
+      <Route path="/events/checkin" component={EventsCheckin} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/team" component={AdminTeam} />
+      <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/reports" component={AdminReports} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
+function VerticalSync({ setCurrentVertical }: { setCurrentVertical: (id: string) => void }) {
+  const [location] = useLocation();
+  useEffect(() => {
+    const detected = detectVerticalFromUrl(location);
+    if (detected) {
+      setCurrentVertical(detected.id);
+    }
+  }, [location, setCurrentVertical]);
+  return null;
+}
+
 function App() {
+  const [currentVertical, setVerticalState] = useState<Vertical>(getStoredVertical);
+
+  const setCurrentVertical = useCallback((id: string) => {
+    setVerticalState((prev) => {
+      const v = getVerticalById(id);
+      if (v && v.id !== prev.id) {
+        setStoredVerticalId(id);
+        return v;
+      }
+      return prev;
+    });
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="flex h-screen w-full flex-col">
-          <AnnouncementBanner />
-          <TopNavigation />
-          <main className="flex-1 overflow-auto">
-            <Router />
-          </main>
-        </div>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <VerticalContext.Provider value={{ currentVertical, setCurrentVertical }}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <VerticalSync setCurrentVertical={setCurrentVertical} />
+          <div className="flex h-screen w-full flex-col">
+            <AnnouncementBanner />
+            <TopNavigation />
+            <main className="flex-1 overflow-auto">
+              <Router />
+            </main>
+          </div>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </VerticalContext.Provider>
   );
 }
 

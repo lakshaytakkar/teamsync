@@ -11,85 +11,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TeamSyncMascot } from "@/components/brand/teamsync-mascot";
+import { VerticalSwitcher } from "./vertical-switcher";
+import { useVertical } from "@/lib/vertical-store";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import type { NavCategory } from "@/lib/verticals-config";
 
-interface NavItem {
-  title: string;
-  url: string;
-}
-
-interface NavCategory {
-  title: string;
-  items: NavItem[];
-  defaultUrl: string;
-}
-
-const navCategories: NavCategory[] = [
-  {
-    title: "Dashboard",
-    defaultUrl: "/",
-    items: [],
-  },
-  {
-    title: "People",
-    defaultUrl: "/employees",
-    items: [
-      { title: "Employees", url: "/employees" },
-      { title: "Departments", url: "/departments" },
-    ],
-  },
-  {
-    title: "Recruitment",
-    defaultUrl: "/candidates",
-    items: [
-      { title: "Candidates", url: "/candidates" },
-      { title: "Job Postings", url: "/job-postings" },
-    ],
-  },
-  {
-    title: "Operations",
-    defaultUrl: "/leave",
-    items: [
-      { title: "Leave Management", url: "/leave" },
-      { title: "Attendance", url: "/attendance" },
-      { title: "Documents", url: "/documents" },
-    ],
-  },
-  {
-    title: "Finance",
-    defaultUrl: "/payroll",
-    items: [
-      { title: "Payroll", url: "/payroll" },
-    ],
-  },
-  {
-    title: "Projects",
-    defaultUrl: "/projects",
-    items: [
-      { title: "Projects", url: "/projects" },
-    ],
-  },
-  {
-    title: "Design System",
-    defaultUrl: "/dev/style-guide",
-    items: [
-      { title: "Style Guide", url: "/dev/style-guide" },
-      { title: "Components", url: "/dev/components" },
-      { title: "Icons", url: "/dev/icons" },
-    ],
-  },
-];
-
-function getActiveCategory(location: string): NavCategory | null {
-  if (location === "/") return navCategories[0];
-  for (const cat of navCategories) {
+function getActiveCategory(location: string, categories: NavCategory[]): NavCategory | null {
+  for (const cat of categories) {
+    if (cat.items.length === 0 && location === cat.defaultUrl) return cat;
     for (const item of cat.items) {
       if (location === item.url || location.startsWith(item.url + "/")) {
         return cat;
       }
     }
+  }
+  if (categories.length > 0 && (location === categories[0].defaultUrl || location === "/")) {
+    return categories[0];
   }
   return null;
 }
@@ -100,19 +38,16 @@ function isItemActive(location: string, itemUrl: string): boolean {
 
 export function TopNavigation() {
   const [location] = useLocation();
-  const activeCategory = getActiveCategory(location);
+  const { currentVertical } = useVertical();
+  const navCategories = currentVertical.navCategories;
+  const activeCategory = getActiveCategory(location, navCategories);
   const showSubNav = activeCategory && activeCategory.items.length > 1;
 
   return (
     <div className="shrink-0 overflow-y-hidden">
       <header className="flex h-14 items-center justify-between gap-2 border-b bg-background px-6 lg:px-10 overflow-hidden overflow-y-hidden">
         <div className="flex items-center gap-6 min-w-0">
-          <Link href="/" className="flex items-center gap-2.5 shrink-0" data-testid="nav-brand">
-            <TeamSyncMascot size={30} />
-            <span className="text-lg font-bold font-heading tracking-tight hidden sm:inline" data-testid="text-brand-name">
-              TeamSync
-            </span>
-          </Link>
+          <VerticalSwitcher />
 
           <Separator orientation="vertical" className="h-6 hidden sm:block" />
 

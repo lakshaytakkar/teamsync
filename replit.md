@@ -1,67 +1,110 @@
-# TeamSync - HR Management Portal
+# TeamSync - Multi-Vertical Team Portal
 
 ## Overview
-TeamSync is a custom HR Management Portal designed with a focus on exceptional UI/UX, drawing inspiration from the Dropship.io design system. It provides comprehensive CRUD operations across various HR modules and is built to be recruiter-ready. The project aims to offer a standardized, visually appealing, and highly functional platform for managing HR processes.
+TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the Dropship.io design system. It supports multiple business verticals (HR, Sales CRM, Events, Admin) with a config-driven navigation system. Each vertical has its own dashboard, pages, and workflows. Built with React, TypeScript, Tailwind CSS, and Shadcn UI.
 
 ## User Preferences
-Not specified.
+- Single font: Plus Jakarta Sans only (Inter fully removed)
+- No custom hover color classes on Shadcn Button components
+- Use Shadcn Avatar instead of raw img for profile images
+- All interactive elements need data-testid attributes
+- Frontend-first with mock data (no database yet)
 
 ## System Architecture
 
+### Multi-Vertical Architecture
+The portal supports multiple business verticals, each with its own navigation and pages:
+- **Verticals Config** (`client/src/lib/verticals-config.ts`): Defines all verticals with their navigation categories
+- **Vertical Store** (`client/src/lib/vertical-store.ts`): React context for current vertical state, persisted to localStorage
+- **Vertical Switcher** (`client/src/components/layout/vertical-switcher.tsx`): Dropdown in topbar to switch between verticals
+
+### Active Verticals
+1. **HR Portal** (id: `hr`, color: #225AEA) — People, Recruitment, Operations, Finance, Projects
+2. **Sales CRM** (id: `sales`, color: #F34147) — Leads, Pipeline, Tasks, Follow-ups, Performance
+3. **Events** (id: `events`, color: #E91E63) — Events, Venues, Check-in
+4. **Admin & IT** (id: `admin`, color: #673AB7) — Team, Settings, Reports
+
 ### Frontend Technology
-The frontend is built using React with TypeScript, styled with Tailwind CSS, and utilizes Shadcn UI for componentry. Routing is handled by Wouter, and animations are powered by `motion/react` (Framer Motion). The single font family is Plus Jakarta Sans, used for both headings and body text.
+React with TypeScript, Tailwind CSS, Shadcn UI, Wouter routing, motion/react animations.
 
-### Design System
-The UI/UX is inspired by the Dropship.io design system, featuring custom brand tokens mapped to CSS variables for consistent theming. This includes a primary blue palette, a comprehensive greyscale, and semantic status colors for indicators. Shadows are meticulously defined, and typography scales are established using Plus Jakarta Sans as the unified font family.
+### Navigation
+- **Two-Level Horizontal Top Navigation**: Dynamic based on active vertical
+- **Vertical Switcher**: Replaces static logo area, allows switching between products
+- **Level 1**: Category tabs (change per vertical)
+- **Level 2**: Sub-page navigation within active category
 
-### Core UI/UX Decisions and Components
-- **Two-Level Horizontal Top Navigation**: Replaces traditional sidebars, offering category-based (Level 1: Dashboard, People, Recruitment, Operations, Finance, Projects, Design System) and sub-page navigation (Level 2) with animated indicators.
-- **Page Layout**: Content areas maintain consistent padding (`px-8 py-6 lg:px-12`).
-- **Data Table**: A generic, reusable component supporting search, filtering, sorting, pagination, row selections, and actions, with integrated empty state illustrations.
-- **Status Badge**: Automatically maps status strings to a predefined set of semantic color variants (success, error, warning, info, neutral).
-- **Form Dialog**: A standardized dialog for all create/edit forms.
-- **Empty State**: Reusable component with illustrations, messaging, and an optional action button.
-- **Page Banner**: A full-width, branded banner with a 3D icon (WebP, 128×128, ~3KB each), title, description, and optional action button, used consistently across HR pages. Icon display size is `size-16` (64px).
-- **Document Preview Modal**: A modal for viewing mock document content (PDF, DOCX, XLSX, certificates) with navigation.
-- **Loading States**: Includes various spinners and skeleton components (TableSkeleton, CardSkeleton, StatsCardSkeleton) to provide clear feedback during data loading.
-- **Toast System**: A custom, module-level toast notification system with 4 semantic types (success, error, info, warning) displayed at the bottom-right.
-- **Animation System**: Leverages `motion/react` for smooth page transitions, element reveals (fade, scale, slide), staggered animations for lists, and micro-interactions.
+### Page Organization
+```
+client/src/pages/
+├── dashboard.tsx          # HR Dashboard
+├── employees.tsx          # HR
+├── candidates.tsx         # HR
+├── departments.tsx        # HR
+├── job-postings.tsx       # HR
+├── leave-management.tsx   # HR
+├── attendance.tsx         # HR
+├── documents.tsx          # HR
+├── payroll.tsx            # HR
+├── projects.tsx           # HR
+├── project-detail.tsx     # HR
+├── sales/
+│   ├── dashboard.tsx      # Sales Dashboard
+│   ├── leads.tsx          # Lead Management
+│   ├── pipeline.tsx       # Kanban Pipeline
+│   ├── tasks.tsx          # Sales Tasks
+│   ├── follow-ups.tsx     # Follow-ups
+│   └── performance.tsx    # Team Performance
+├── events/
+│   ├── dashboard.tsx      # Events Hub
+│   ├── events-list.tsx    # All Events
+│   ├── venues.tsx         # Venue Directory
+│   └── checkin.tsx        # Event Check-in
+├── admin/
+│   ├── dashboard.tsx      # System Overview
+│   ├── team.tsx           # Team Management
+│   ├── settings.tsx       # System Settings
+│   └── reports.tsx        # Reports & Analytics
+├── style-guide.tsx        # Dev: Style Guide
+├── components-guide.tsx   # Dev: Components
+├── icons-guide.tsx        # Dev: Icons
+└── not-found.tsx          # 404
+```
 
-### HR Modules and Features
-- **Dashboard**: Provides an overview with key statistics, recent activities, and summaries.
-- **Employee Management**: Comprehensive CRUD operations for employee records.
-- **Candidate Management**: Tools for managing the recruitment pipeline.
-- **Department Management**: Structure and organization of departments.
-- **Job Postings**: Management of open positions.
-- **Leave Management**: Workflow for leave requests and approvals.
-- **Attendance Tracking**: Daily check-in/out records.
-- **Document Management**: Organization and access to HR-related documents.
-- **Payroll**: Manages payroll runs, entries, and provides related statistics.
-- **Project Management**: Includes a project list with card view, detailed project view with Kanban and table layouts for tasks.
+### Mock Data Files
+- `client/src/lib/mock-data.ts` — HR entities (employees, candidates, departments, etc.)
+- `client/src/lib/mock-data-sales.ts` — Sales CRM (leads, tasks, follow-ups, reps, pipeline stages)
+- `client/src/lib/mock-data-events.ts` — Events (events, venues, attendees)
+- `client/src/lib/mock-data-admin.ts` — Admin (team members, activity logs, reports)
 
-### Backend Technology
-The backend is powered by Express.js (Node.js).
+### Core UI Components
+- **DataTable**: Generic reusable table with search, filters, sorting, pagination, row actions
+- **StatsCard**: Stats display with AnimatedNumber, sparklines, hover lift
+- **StatusBadge**: Semantic color variants (success, error, warning, info, neutral)
+- **PageBanner**: Branded banner with 3D WebP icon, title, description, action
+- **AnimatedNumber**: Spring-animated counter using motion/react
+- **RadialProgress**: SVG circular progress rings with animated fill
+- **FormDialog**: Standardized dialog for create/edit forms
+- **EmptyState**: Illustration + message + optional action
+- **Loading**: TableSkeleton, StatsCardSkeleton, Skeleton components
 
-### Data Model
-Data models for all HR entities (Employee, Candidate, Department, JobPosting, LeaveRequest, AttendanceRecord, HRDocument, PayrollRun, PayrollEntry, Project, ProjectTask) are defined using Zod for validation. Currently, the system uses in-memory mock data, with future plans for database integration.
+### Backend
+Express.js (Node.js) serving the Vite frontend on port 5000.
+
+### Image Assets
+All 3D icons and illustrations use WebP format (compressed from 1024×1024 PNGs):
+- Icons: 128×128 WebP (~3KB each) in `client/public/3d-icons/`
+- Illustrations: 256×256 WebP (~5KB each) in `client/src/assets/illustrations/`
 
 ## Component Registry References (shadcn-compatible)
-- **KokonutUI** (https://kokonutui.com): Cards (Spotlight, Bento Grid, Liquid Glass), Buttons (Particle, Gradient, Magnet), Inputs (Action Search Bar, Profile Dropdown), Text Effects (Shimmer, Typing, Dynamic), Navigation (Smooth Tab, Morphic Navbar), AI Components. Install: `npx shadcn@latest add @kokonutui/<name>`
-- **Cult-UI** (https://www.cult-ui.com): Cards (Expandable, Minimal, Texture, Shift), Navigation (Direction Aware Tabs, Floating Panel), Interactive (Dynamic Island, Timer), Typography (Animated Number, Gradient Heading, Typewriter), Media (Logo Carousel, 3D Carousel). Install: `npx shadcn@beta add @cult-ui/<name>`
-- **Aceternity UI** (https://ui.aceternity.com): 3D Card Effect, Animated Tooltip, Bento Grid, Card Hover Effect, Floating Dock, Moving Border, Sparkles, Text Generate Effect, Timeline, Card Spotlight, Animated Testimonials, Apple Cards Carousel, Infinite Moving Cards. Copy-paste from docs.
-- **Tool-UI** (https://www.tool-ui.com): Data Table (expandable), Chart, Stats Display, Approval Card, Progress Tracker, Code Block, Link Preview. Install: `npx assistant-ui add tool-ui <name>`
-- **AI SDK Elements** (https://elements.ai-sdk.dev): Attachments, Conversation, Message, Prompt Input, Code Block, File Tree, Terminal, Canvas, Workflow components. Install: `npx ai-elements@latest add <name>`
+- **KokonutUI** (https://kokonutui.com): Install: `npx shadcn@latest add @kokonutui/<name>`
+- **Cult-UI** (https://www.cult-ui.com): Install: `npx shadcn@beta add @cult-ui/<name>`
+- **Aceternity UI** (https://ui.aceternity.com): Copy-paste from docs
+- **Tool-UI** (https://www.tool-ui.com): Install: `npx assistant-ui add tool-ui <name>`
+- **AI SDK Elements** (https://elements.ai-sdk.dev): Install: `npx ai-elements@latest add <name>`
+
+## Reference Project
+Analysis of Suprans Team Portal saved in `.local/reference-project-analysis.md` — covers their 6 business verticals, team hierarchy, sidebar switcher pattern, and database schema.
 
 ## External Dependencies
-- **React**: Frontend library.
-- **TypeScript**: Superset of JavaScript for type safety.
-- **Tailwind CSS**: Utility-first CSS framework.
-- **Shadcn UI**: UI component library.
-- **Wouter**: React routing library.
-- **motion/react (Framer Motion)**: Animation library.
-- **Express.js**: Backend web framework.
-- **Google Fonts**: Plus Jakarta Sans (unified font for all UI text).
-- **Image Format**: All 3D icons and illustrations use WebP format (compressed from 1024×1024 PNGs). Icons: 128×128 WebP (~3KB). Illustrations: 256×256 WebP (~5KB).
-- **DiceBear**: For generating Micah (people) and Glass (entities) avatars.
-- **lucide-react**: Icon library.
-- **Zod**: Schema declaration and validation library.
+- React, TypeScript, Tailwind CSS, Shadcn UI, Wouter, motion/react, Express.js
+- Plus Jakarta Sans (Google Fonts), DiceBear (avatars), lucide-react (icons), Zod (validation)
