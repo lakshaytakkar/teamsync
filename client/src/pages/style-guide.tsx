@@ -55,7 +55,7 @@ function ColorSwatch({ name, hex, bg, palette }: { name: string; hex: string; bg
   const isDark = ["600", "700", "800", "900"].includes(name) || (palette === "primary" && ["400", "500"].includes(name));
   return (
     <div
-      className="overflow-hidden rounded-lg border border-border/60 shadow-[0px_1px_2px_rgba(9,25,72,0.13),0px_0px_0px_1px_rgba(18,55,105,0.08)]"
+      className="overflow-hidden rounded-lg border border-border/60 shadow-[0px_1px_2px_rgba(13,13,18,0.06)]"
       data-testid={`color-swatch-${palette}-${name}`}
     >
       <div className="h-[72px] w-full flex items-center justify-center" style={{ backgroundColor: bg }}>
@@ -75,12 +75,12 @@ function TypographyTab() {
   return (
     <div className="flex flex-col gap-16">
       <div className="flex flex-col gap-6">
-        <div className="relative rounded-2xl bg-[#F9FBFC] overflow-hidden" style={{ minHeight: "200px" }}>
+        <div className="relative rounded-2xl bg-[#F8F9FB] overflow-hidden" style={{ minHeight: "200px" }}>
           <div className="px-16 py-14 flex flex-col gap-4">
-            <p className="text-[48px] font-semibold text-[#121A26] leading-tight" data-testid="text-font-name">
+            <p className="text-[48px] font-semibold text-[#0D0D12] leading-tight" data-testid="text-font-name">
               Inter Tight
             </p>
-            <p className="text-lg text-[#667085]">
+            <p className="text-lg text-[#666D80]">
               Download Font:{" "}
               <a
                 href="https://fonts.google.com/specimen/Inter+Tight"
@@ -103,16 +103,16 @@ function TypographyTab() {
           ].map((item) => (
             <div
               key={item.weight}
-              className="rounded-2xl bg-[#F9FBFC] p-6"
+              className="rounded-2xl bg-[#F8F9FB] p-6"
               data-testid={`typeface-${item.weight.toLowerCase()}`}
             >
               <div className="flex items-center gap-8">
                 <div className="flex size-[92px] shrink-0 items-center justify-center rounded-xl bg-white shadow-[0px_12px_24px_0px_#f2f2f2]">
-                  <span className={`text-[48px] ${item.fontClass} text-[#121A26] leading-[1.25]`}>Aa</span>
+                  <span className={`text-[48px] ${item.fontClass} text-[#0D0D12] leading-[1.25]`}>Aa</span>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <p className="text-xl font-semibold text-[#121A26]">Inter Tight</p>
-                  <p className="text-base text-[#898D93]">{item.weight}</p>
+                  <p className="text-xl font-semibold text-[#0D0D12]">Inter Tight</p>
+                  <p className="text-base text-[#818898]">{item.weight}</p>
                 </div>
               </div>
             </div>
@@ -123,23 +123,23 @@ function TypographyTab() {
       <div className="h-px bg-border" />
 
       <div className="flex flex-col gap-10">
-        <p className="text-[32px] font-semibold text-[#121A26] leading-[1.4]">Display</p>
+        <p className="text-[32px] font-semibold text-[#0D0D12] leading-[1.4]">Display</p>
         <div className="flex flex-col gap-4" data-testid="heading-64px">
-          <p className="text-[64px] font-semibold text-[#121A26] leading-[80px] tracking-[-0.64px]">Display</p>
-          <p className="text-sm font-medium text-[#667085]">Display / Semibold / 64px / line-height 80px</p>
+          <p className="text-[64px] font-semibold text-[#0D0D12] leading-[80px] tracking-[-0.64px]">Display</p>
+          <p className="text-sm font-medium text-[#666D80]">Display / Semibold / 64px / line-height 80px</p>
         </div>
       </div>
 
       <div className="h-px bg-border" />
 
       <div className="flex flex-col gap-10">
-        <p className="text-[32px] font-semibold text-[#121A26] leading-[1.4]">Heading</p>
+        <p className="text-[32px] font-semibold text-[#0D0D12] leading-[1.4]">Heading</p>
         <div className="flex flex-col gap-14">
           <div className="grid grid-cols-4 gap-8 items-end">
             {headings.slice(0, 4).map((h) => (
               <div key={h.label} className="flex flex-col gap-4" data-testid={`heading-${h.size}`}>
-                <p className={`${h.className} text-[#121A26]`}>{h.label}</p>
-                <p className="text-sm font-medium text-[#667085]">
+                <p className={`${h.className} text-[#0D0D12]`}>{h.label}</p>
+                <p className="text-sm font-medium text-[#666D80]">
                   {h.label} / {h.weight} / {h.size}
                 </p>
               </div>
@@ -148,8 +148,8 @@ function TypographyTab() {
           <div className="grid grid-cols-4 gap-8 items-end">
             {headings.slice(4).map((h) => (
               <div key={h.label} className="flex flex-col gap-4" data-testid={`heading-${h.size}`}>
-                <p className={`${h.className} text-[#121A26]`}>{h.label}</p>
-                <p className="text-sm font-medium text-[#667085]">
+                <p className={`${h.className} text-[#0D0D12]`}>{h.label}</p>
+                <p className="text-sm font-medium text-[#666D80]">
                   {h.label} / {h.weight} / {h.size}
                 </p>
               </div>
@@ -161,24 +161,24 @@ function TypographyTab() {
       <div className="h-px bg-border" />
 
       <div className="flex flex-col gap-10">
-        <p className="text-[32px] font-semibold text-[#121A26] leading-[1.4]">Body</p>
+        <p className="text-[32px] font-semibold text-[#0D0D12] leading-[1.4]">Body</p>
         <div className="flex flex-col gap-10">
           {bodyStyles.map((b) => (
             <div key={b.label} className="flex flex-col gap-6" data-testid={`body-${b.size}`}>
               <div className="grid grid-cols-2 gap-8">
                 <div className="flex flex-col gap-3">
-                  <p className={`${b.className} font-normal text-[#121A26]`}>
+                  <p className={`${b.className} font-normal text-[#0D0D12]`}>
                     The quick brown fox jumps over the lazy dog
                   </p>
-                  <p className="text-sm font-medium text-[#667085]">
+                  <p className="text-sm font-medium text-[#666D80]">
                     {b.label} / Regular / {b.size}
                   </p>
                 </div>
                 <div className="flex flex-col gap-3">
-                  <p className={`${b.className} font-medium text-[#121A26]`}>
+                  <p className={`${b.className} font-medium text-[#0D0D12]`}>
                     The quick brown fox jumps over the lazy dog
                   </p>
-                  <p className="text-sm font-medium text-[#667085]">
+                  <p className="text-sm font-medium text-[#666D80]">
                     {b.label} / Medium / {b.size}
                   </p>
                 </div>

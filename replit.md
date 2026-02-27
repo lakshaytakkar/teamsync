@@ -52,6 +52,33 @@ client/src/
 
 ## Design System Foundation (LUMIN Tokens)
 
+### CSS Variable Mapping
+All LUMIN tokens are mapped to CSS custom properties in `client/src/index.css`. Shadcn components automatically use these via `hsl(var(--token))`.
+
+| CSS Variable | LUMIN Token | Hex |
+|---|---|---|
+| `--primary` | Primary 500 | #897EFA |
+| `--background` | Greyscale 0 | #F8F9FB |
+| `--foreground` | Greyscale 900 | #0D0D12 |
+| `--border` | Greyscale 100 | #DFE1E7 |
+| `--muted` | Greyscale 50 | #ECEFF3 |
+| `--muted-foreground` | Greyscale 400 | #818898 |
+| `--secondary` | Greyscale 50 | #ECEFF3 |
+| `--secondary-foreground` | Greyscale 600 | #36394A |
+| `--accent` | Greyscale 25 | #F6F8FA |
+| `--input` | Greyscale 200 | #C1C7D0 |
+| `--sidebar` | Greyscale 25 | #F6F8FA |
+
+Shadows use LUMIN tokens: `rgba(13,13,18,...)` base color (from `--shadow-xs` through `--shadow-2xl`).
+
+### Status Colors (Semantic — separate from brand palette)
+Status badges and change indicators use Tailwind semantic colors intentionally distinct from the LUMIN brand palette:
+- **Success**: `emerald` (Active, Present, Approved, Hired, Open)
+- **Error**: `red` (Inactive, Absent, Rejected, Closed)
+- **Warning**: `amber` (On Leave, Half Day, Pending)
+- **Info**: `blue` (Interview, Screening, Notice Period)
+- **Neutral**: `slate` (Contract, Archived, Late)
+
 ### Typography
 - **Font Family**: Inter Tight (Google Fonts)
 - **Weights**: Regular (400), Medium (500), Semibold (600)
@@ -106,12 +133,6 @@ client/src/
 | XLarge | 0px 24px 48px -12px rgba(13,13,18,0.12) |
 | XXLarge | 0px 24px 48px -12px rgba(13,13,18,0.18) |
 
-### Status Colors
-- **Success**: Emerald (Active, Present, Approved, Hired, Open)
-- **Error**: Red (Inactive, Absent, Rejected, Closed)
-- **Warning**: Amber (On Leave, Half Day, Pending)
-- **Info**: Blue (Interview, Screening, Notice Period)
-- **Neutral**: Slate (Contract, Archived, Late)
 
 ### Key Components
 - **DataTable**: Generic table with search, filters, sorting, pagination, checkboxes, row actions, empty state illustrations
