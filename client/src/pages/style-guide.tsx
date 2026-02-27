@@ -238,7 +238,7 @@ function ColorsTab() {
 
 function ShadowTab() {
   return (
-    <div className="rounded-2xl bg-[#F8FAFB] p-12">
+    <div className="rounded-2xl bg-[#F8F9FB] p-12">
       <div className="grid grid-cols-3 gap-8">
         {shadows.map((s) => (
           <div

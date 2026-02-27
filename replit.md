@@ -53,7 +53,7 @@ client/src/
 ## Design System Foundation (LUMIN Tokens)
 
 ### CSS Variable Mapping
-All LUMIN tokens are mapped to CSS custom properties in `client/src/index.css`. Shadcn components automatically use these via `hsl(var(--token))`.
+All LUMIN tokens are precisely mapped to CSS custom properties in `client/src/index.css`. Every Shadcn/Tailwind component automatically uses the correct LUMIN colors, shadows, and spacing via `hsl(var(--token))`. The style guide pages are the single source of truth for the design system.
 
 | CSS Variable | LUMIN Token | Hex |
 |---|---|---|
