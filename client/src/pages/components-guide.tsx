@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { getPersonAvatar, getThingAvatar } from "@/lib/avatars";
-import logoImg from "@/assets/logo.png";
+import { TeamSyncLogo } from "@/components/brand/teamsync-logo";
+import { TeamSyncMascot } from "@/components/brand/teamsync-mascot";
 import { Spinner, PageSpinner, InlineSpinner } from "@/components/ui/spinner";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { CardSkeleton, StatsCardSkeleton } from "@/components/ui/card-skeleton";
@@ -453,22 +454,78 @@ function LogosCursorsTab() {
         <div className="rounded-2xl bg-[#F8F9FC] p-8">
           <div className="grid grid-cols-3 gap-6">
             <div className="flex flex-col items-center gap-4 rounded-xl bg-white p-8 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-primary">
-              <div className="flex items-center gap-3">
-                <img src={logoImg} alt="TeamSync" className="size-10 object-contain" />
-                <span className="text-xl font-semibold tracking-tight">TeamSync</span>
-              </div>
+              <TeamSyncLogo size="lg" />
               <p className="text-xs text-[#5A6380]">Primary Logo</p>
             </div>
             <div className="flex flex-col items-center gap-4 rounded-xl bg-[#151E3A] p-8 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-dark">
-              <div className="flex items-center gap-3">
-                <img src={logoImg} alt="TeamSync" className="size-10 object-contain" />
-                <span className="text-xl font-semibold tracking-tight text-white">TeamSync</span>
-              </div>
+              <TeamSyncLogo size="lg" darkText={false} />
               <p className="text-xs text-[#7A8299]">Dark Background</p>
             </div>
             <div className="flex flex-col items-center gap-4 rounded-xl bg-white p-8 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-icon">
-              <img src={logoImg} alt="TeamSync" className="size-12 object-contain" />
+              <TeamSyncMascot size={48} />
               <p className="text-xs text-[#5A6380]">Icon Only</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <SectionTitle>Mascot</SectionTitle>
+        <div className="rounded-2xl bg-[#F8F9FC] p-8">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="flex flex-col items-center gap-6 rounded-xl bg-white p-10 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="mascot-large">
+              <TeamSyncMascot size={200} />
+              <div className="text-center">
+                <p className="text-base font-semibold font-heading text-[#151E3A]">TeamSync Mascot</p>
+                <p className="text-xs text-[#5A6380] mt-1">200 × 200px — Hero / Marketing</p>
+              </div>
+            </div>
+            <div className="flex flex-col items-center justify-between gap-6 rounded-xl bg-white p-10 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="mascot-sizes">
+              <div className="flex items-end gap-8">
+                <div className="flex flex-col items-center gap-2">
+                  <TeamSyncMascot size={96} />
+                  <p className="text-[10px] text-[#5A6380]">96px</p>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <TeamSyncMascot size={72} />
+                  <p className="text-[10px] text-[#5A6380]">72px</p>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <TeamSyncMascot size={48} />
+                  <p className="text-[10px] text-[#5A6380]">48px</p>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <TeamSyncMascot size={36} />
+                  <p className="text-[10px] text-[#5A6380]">36px</p>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <TeamSyncMascot size={24} />
+                  <p className="text-[10px] text-[#5A6380]">24px</p>
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-base font-semibold font-heading text-[#151E3A]">Size Scale</p>
+                <p className="text-xs text-[#5A6380] mt-1">24px compact to 96px feature</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-4 gap-4">
+            <div className="flex flex-col items-center gap-3 rounded-xl bg-white p-6 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-size-xl">
+              <TeamSyncLogo size="xl" />
+              <p className="text-[10px] text-[#5A6380]">XL — Marketing</p>
+            </div>
+            <div className="flex flex-col items-center gap-3 rounded-xl bg-white p-6 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-size-lg">
+              <TeamSyncLogo size="lg" />
+              <p className="text-[10px] text-[#5A6380]">LG — Page Header</p>
+            </div>
+            <div className="flex flex-col items-center gap-3 rounded-xl bg-white p-6 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-size-md">
+              <TeamSyncLogo size="md" />
+              <p className="text-[10px] text-[#5A6380]">MD — Sidebar</p>
+            </div>
+            <div className="flex flex-col items-center gap-3 rounded-xl bg-white p-6 shadow-[0px_1px_2px_rgba(21,30,58,0.06)]" data-testid="logo-size-sm">
+              <TeamSyncLogo size="sm" />
+              <p className="text-[10px] text-[#5A6380]">SM — Compact</p>
             </div>
           </div>
         </div>

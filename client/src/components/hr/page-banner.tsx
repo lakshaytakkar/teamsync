@@ -2,13 +2,13 @@ import { Button } from "@/components/ui/button";
 
 interface PageBannerProps {
   title: string;
-  description: string;
+  description?: string;
   iconSrc: string;
   actionLabel?: string;
   onAction?: () => void;
 }
 
-export function PageBanner({ title, description, iconSrc, actionLabel, onAction }: PageBannerProps) {
+export function PageBanner({ title, iconSrc, actionLabel, onAction }: PageBannerProps) {
   return (
     <div
       className="mb-5 flex items-center gap-4 rounded-xl bg-primary/90 px-5 py-4"
@@ -21,8 +21,7 @@ export function PageBanner({ title, description, iconSrc, actionLabel, onAction 
         draggable={false}
       />
       <div className="flex-1 min-w-0">
-        <h2 className="text-base font-semibold font-heading text-white" data-testid="banner-title">{title}</h2>
-        <p className="mt-0.5 text-xs text-white/80 leading-relaxed" data-testid="banner-description">{description}</p>
+        <h2 className="text-xl font-semibold font-heading text-white" data-testid="banner-title">{title}</h2>
       </div>
       {actionLabel && onAction && (
         <Button

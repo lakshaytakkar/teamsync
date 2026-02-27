@@ -12,7 +12,7 @@ import {
   Component,
   Grid3X3,
 } from "lucide-react";
-import logoImg from "@/assets/logo.png";
+import { TeamSyncMascot } from "@/components/brand/teamsync-mascot";
 import {
   Sidebar,
   SidebarContent,
@@ -52,12 +52,9 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
         <div className="flex items-center gap-3">
-          <img src={logoImg} alt="TeamSync" className="size-8 shrink-0 object-contain" />
+          <TeamSyncMascot size={36} className="shrink-0" />
           {!isCollapsed && (
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold font-heading tracking-tight" data-testid="text-brand-name">TeamSync</span>
-              <span className="text-[11px] text-muted-foreground">HR Portal</span>
-            </div>
+            <span className="text-xl font-bold font-heading tracking-tight" data-testid="text-brand-name">TeamSync</span>
           )}
         </div>
       </SidebarHeader>
