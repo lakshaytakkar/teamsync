@@ -32,6 +32,9 @@ import {
   Truck,
   FileSpreadsheet,
   MessageCircle,
+  UserRound,
+  FolderOpen,
+  ListChecks,
   type LucideIcon,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -85,6 +88,30 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
+        title: "Chat",
+        defaultUrl: "/hr/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/hr/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/hr/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/hr/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
         title: "Clients",
         defaultUrl: "/hr/clients",
         icon: Briefcase,
@@ -100,7 +127,7 @@ export const verticals: Vertical[] = [
         icon: GitBranch,
         items: [
           { title: "Formation Pipeline", url: "/hr/pipeline" },
-          { title: "Task Board", url: "/hr/tasks" },
+          { title: "Task Board", url: "/hr/task-board" },
           { title: "Escalations", url: "/hr/escalations" },
         ],
       },
@@ -147,6 +174,30 @@ export const verticals: Vertical[] = [
         title: "Dashboard",
         defaultUrl: "/sales",
         icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/sales/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/sales/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/sales/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/sales/tasks",
+        icon: ListChecks,
         items: [],
       },
       {
@@ -220,6 +271,30 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
+        title: "Chat",
+        defaultUrl: "/events/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/events/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/events/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/events/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
         title: "Events",
         defaultUrl: "/events/list",
         icon: CalendarCheck,
@@ -252,6 +327,30 @@ export const verticals: Vertical[] = [
         title: "Dashboard",
         defaultUrl: "/hub",
         icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/hub/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/hub/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/hub/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/hub/tasks",
+        icon: ListChecks,
         items: [],
       },
       {
@@ -311,12 +410,28 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
+        title: "Chat",
+        defaultUrl: "/admin/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
         title: "Team",
         defaultUrl: "/admin/team",
-        icon: Users,
-        items: [
-          { title: "Team Members", url: "/admin/team" },
-        ],
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/admin/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/admin/tasks",
+        icon: ListChecks,
+        items: [],
       },
       {
         title: "System",
@@ -346,6 +461,30 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
+        title: "Chat",
+        defaultUrl: "/dev/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/dev/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/dev/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/dev/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
         title: "Design System",
         defaultUrl: "/dev/style-guide",
         icon: Palette,
@@ -362,8 +501,8 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Resources",
-        defaultUrl: "/dev/resources",
+        title: "Knowledge Base",
+        defaultUrl: "/dev/knowledge-base",
         icon: BookOpen,
         items: [],
       },
@@ -376,8 +515,8 @@ export const verticals: Vertical[] = [
         ],
       },
       {
-        title: "Tasks",
-        defaultUrl: "/dev/tasks",
+        title: "Dev Board",
+        defaultUrl: "/dev/board",
         icon: CheckSquare,
         items: [],
       },
@@ -403,6 +542,30 @@ export const verticals: Vertical[] = [
         title: "Dashboard",
         defaultUrl: "/ets",
         icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/ets/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/ets/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/ets/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/ets/tasks",
+        icon: ListChecks,
         items: [],
       },
       {

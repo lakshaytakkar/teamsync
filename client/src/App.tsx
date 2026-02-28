@@ -78,17 +78,25 @@ import HubVenues from "@/pages/eventhub/venues";
 import HubVendors from "@/pages/eventhub/vendors";
 import HubBudget from "@/pages/eventhub/budget";
 import HubAnalytics from "@/pages/eventhub/analytics";
+import UniversalChat from "@/pages/universal/chat";
+import UniversalTeam from "@/pages/universal/team";
+import UniversalResources from "@/pages/universal/resources";
+import UniversalTasks from "@/pages/universal/tasks";
 
 function Router() {
   return (
     <Switch>
       <Route path="/hr" component={Dashboard} />
+      <Route path="/hr/chat" component={UniversalChat} />
+      <Route path="/hr/team" component={UniversalTeam} />
+      <Route path="/hr/resources" component={UniversalResources} />
+      <Route path="/hr/tasks" component={UniversalTasks} />
       <Route path="/hr/clients/:id" component={ClientDetail} />
       <Route path="/hr/clients" component={Clients} />
       <Route path="/hr/intake" component={ClientIntake} />
       <Route path="/hr/stages" component={StageOverview} />
       <Route path="/hr/pipeline" component={FormationPipeline} />
-      <Route path="/hr/tasks" component={TaskBoard} />
+      <Route path="/hr/task-board" component={TaskBoard} />
       <Route path="/hr/escalations" component={Escalations} />
       <Route path="/hr/documents" component={DocumentVault} />
       <Route path="/hr/templates" component={Templates} />
@@ -96,17 +104,11 @@ function Router() {
       <Route path="/hr/annual-reports" component={AnnualReports} />
       <Route path="/hr/analytics" component={FormationAnalytics} />
       <Route path="/hr/team-performance" component={TeamPerformance} />
-      <Route path="/dev" component={DevDashboard} />
-      <Route path="/dev/style-guide" component={StyleGuide} />
-      <Route path="/dev/components" component={ComponentsGuide} />
-      <Route path="/dev/icons" component={IconsGuide} />
-      <Route path="/dev/prompts" component={DevPrompts} />
-      <Route path="/dev/resources" component={DevResources} />
-      <Route path="/dev/toolkit" component={DevToolkit} />
-      <Route path="/dev/projects/:id" component={DevProjectBoard} />
-      <Route path="/dev/projects" component={DevProjects} />
-      <Route path="/dev/tasks" component={DevTasks} />
       <Route path="/sales" component={SalesDashboard} />
+      <Route path="/sales/chat" component={UniversalChat} />
+      <Route path="/sales/team" component={UniversalTeam} />
+      <Route path="/sales/resources" component={UniversalResources} />
+      <Route path="/sales/tasks" component={UniversalTasks} />
       <Route path="/sales/products" component={SalesProducts} />
       <Route path="/sales/categories" component={SalesCategories} />
       <Route path="/sales/suppliers" component={SalesSuppliers} />
@@ -125,14 +127,52 @@ function Router() {
       <Route path="/sales/user-analytics" component={SalesUserAnalytics} />
       <Route path="/sales/product-performance" component={SalesProductPerformance} />
       <Route path="/events" component={EventsDashboard} />
+      <Route path="/events/chat" component={UniversalChat} />
+      <Route path="/events/team" component={UniversalTeam} />
+      <Route path="/events/resources" component={UniversalResources} />
+      <Route path="/events/tasks" component={UniversalTasks} />
       <Route path="/events/list" component={EventsList} />
       <Route path="/events/venues" component={EventsVenues} />
       <Route path="/events/checkin" component={EventsCheckin} />
+      <Route path="/hub" component={HubDashboard} />
+      <Route path="/hub/chat" component={UniversalChat} />
+      <Route path="/hub/team" component={UniversalTeam} />
+      <Route path="/hub/resources" component={UniversalResources} />
+      <Route path="/hub/tasks" component={UniversalTasks} />
+      <Route path="/hub/events/:id" component={HubEventDetail} />
+      <Route path="/hub/events" component={HubEventsList} />
+      <Route path="/hub/attendees" component={HubAttendees} />
+      <Route path="/hub/checkin" component={HubCheckin} />
+      <Route path="/hub/venues" component={HubVenues} />
+      <Route path="/hub/vendors" component={HubVendors} />
+      <Route path="/hub/budget" component={HubBudget} />
+      <Route path="/hub/analytics" component={HubAnalytics} />
       <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/team" component={AdminTeam} />
+      <Route path="/admin/chat" component={UniversalChat} />
+      <Route path="/admin/team" component={UniversalTeam} />
+      <Route path="/admin/resources" component={UniversalResources} />
+      <Route path="/admin/tasks" component={UniversalTasks} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/reports" component={AdminReports} />
+      <Route path="/dev" component={DevDashboard} />
+      <Route path="/dev/chat" component={UniversalChat} />
+      <Route path="/dev/team" component={UniversalTeam} />
+      <Route path="/dev/resources" component={UniversalResources} />
+      <Route path="/dev/tasks" component={UniversalTasks} />
+      <Route path="/dev/style-guide" component={StyleGuide} />
+      <Route path="/dev/components" component={ComponentsGuide} />
+      <Route path="/dev/icons" component={IconsGuide} />
+      <Route path="/dev/prompts" component={DevPrompts} />
+      <Route path="/dev/knowledge-base" component={DevResources} />
+      <Route path="/dev/toolkit" component={DevToolkit} />
+      <Route path="/dev/projects/:id" component={DevProjectBoard} />
+      <Route path="/dev/projects" component={DevProjects} />
+      <Route path="/dev/board" component={DevTasks} />
       <Route path="/ets" component={EtsDashboard} />
+      <Route path="/ets/chat" component={UniversalChat} />
+      <Route path="/ets/team" component={UniversalTeam} />
+      <Route path="/ets/resources" component={UniversalResources} />
+      <Route path="/ets/tasks" component={UniversalTasks} />
       <Route path="/ets/pipeline" component={EtsPipeline} />
       <Route path="/ets/clients/:id" component={EtsClientDetail} />
       <Route path="/ets/products" component={EtsProducts} />
@@ -142,15 +182,6 @@ function Router() {
       <Route path="/ets/proposals" component={EtsProposals} />
       <Route path="/ets/templates" component={EtsTemplates} />
       <Route path="/ets/settings" component={EtsSettings} />
-      <Route path="/hub" component={HubDashboard} />
-      <Route path="/hub/events/:id" component={HubEventDetail} />
-      <Route path="/hub/events" component={HubEventsList} />
-      <Route path="/hub/attendees" component={HubAttendees} />
-      <Route path="/hub/checkin" component={HubCheckin} />
-      <Route path="/hub/venues" component={HubVenues} />
-      <Route path="/hub/vendors" component={HubVendors} />
-      <Route path="/hub/budget" component={HubBudget} />
-      <Route path="/hub/analytics" component={HubAnalytics} />
       <Route component={NotFound} />
     </Switch>
   );

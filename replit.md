@@ -18,22 +18,47 @@ The portal supports multiple business verticals, each with its own navigation, b
 - **Vertical Store** (`client/src/lib/vertical-store.ts`): React context for current vertical state, persisted to localStorage
 - **Vertical Switcher** (`client/src/components/layout/vertical-switcher.tsx`): Dropdown in topbar to switch between verticals, shows brand logos
 
+### Universal Sections (Cross-Vertical)
+4 universal pages exist under `client/src/pages/universal/` and are shared by all 7 verticals. Each page detects its vertical via `detectVerticalFromUrl(useLocation())` and filters mock data from `client/src/lib/mock-data-shared.ts` by `verticalId`.
+
+**Nav order (standardized for all verticals):** Dashboard → Chat → Team → Resources → Tasks → [vertical-specific sections]
+
+- **Chat** (`/[prefix]/chat`) — Two-panel layout: 380px sidebar (Channels/DMs tabs with unread badges) + full-width message area (message bubbles, phone/video icons, send input bar)
+- **Team** (`/[prefix]/team`) — Card grid of vertical team members with avatar, status dot, role, contact info, hover action row (Message/Call). "Invite Member" FormDialog header CTA. Search + department + status filters.
+- **Resources** (`/[prefix]/resources`) — File card grid with pinned strip, category filter pills, grid/list toggle. Type-colored file icons (pdf=red, excel=green, ppt=orange, doc=blue, link=violet). Detail dialog with metadata + Open Resource button. "Add Resource" FormDialog.
+- **Tasks** (`/[prefix]/tasks`) — Kanban board (5 columns: Backlog/Todo/In Progress/Review/Done) with task cards (priority badge, tags, due date, assignee avatar), List view, My Tasks tab. Task create dialog + Task detail dialog (subtask checklist, status select, comments). Stats row (Total/In Progress/Overdue/Done).
+
+**Shared mock data** (`client/src/lib/mock-data-shared.ts`): TypeScript interfaces + mock data for all 7 verticals:
+- `VerticalMember[]` — 4 members per vertical, with status (online/away/offline), skills, location
+- `ChatChannel[]` — channels + DMs per vertical, with unread counts, isPinned, lastMessage
+- `ChatMessage[]` — messages per channel, with isMe boolean for sender styling
+- `SharedResource[]` — 5-6 resources per vertical, categories: Brochure/Script/Spreadsheet/Link/Presentation/Document/Template
+- `SharedTask[]` — 8-9 tasks per vertical, across all 5 statuses and 4 priorities, with subtask arrays
+
+**Route renames** (3 existing routes moved to avoid conflicts with universal `/tasks` and `/resources`):
+- `/hr/tasks` (LegalNations Task Board) → `/hr/task-board`
+- `/dev/tasks` (Developer ClickUp-style board) → `/dev/board`
+- `/dev/resources` (Developer Knowledge Base) → `/dev/knowledge-base`
+
 ### Active Verticals (Branded Products)
 1. **LegalNations** (id: `hr`, color: #225AEA) — US Company Formation & Compliance Operations — Routes: `/hr/*`
    - Dashboard (operations overview: active formations, stuck/delayed, avg time, team load)
+   - **Universal**: Chat, Team, Resources, Tasks
    - Clients (All Clients, Client Detail with stage progression, Client Intake, Stage Overview)
-   - Operations (Formation Pipeline kanban, Task Board, Escalations)
+   - Operations (Formation Pipeline kanban, Task Board at `/hr/task-board`, Escalations)
    - Documents (Document Vault, Templates)
    - Compliance (Compliance Tracker, Annual Reports)
    - Analytics (Formation Analytics, Team Performance)
    - 7-stage workflow: Lead Converted → Intake → Formation Filed → EIN → BOI Filing → Bank/Stripe → Completion
 2. **USDrop AI** (id: `sales`, color: #F34147) — D2C Dropshipping SaaS Backoffice — Routes: `/sales/*`
-   - Dashboard, Products & Catalog (Products, Categories, Suppliers, Winning Products)
+   - Dashboard, **Universal**: Chat, Team, Resources, Tasks
+   - Products & Catalog (Products, Categories, Suppliers, Winning Products)
    - Users & Subscriptions (Users, Leads, Plans, Subscriptions)
    - Operations (Shopify Stores, Fulfillment, Competitor Stores)
    - Support & Learning (Support Tickets, Courses, Help Center)
    - Analytics (Revenue Analytics, User Analytics, Product Performance)
 3. **GoyoTours** (id: `events`, color: #E91E63) — China Tour & Travel Business — Routes: `/events/*`
+   - **Universal**: Chat, Team, Resources, Tasks
 4. **Event Hub** (id: `eventhub`, color: #7C3AED) — Networking Events & Engagement Platform — Routes: `/hub/*`
    - Dashboard (4 KPI cards: upcoming events, total attendees, active vendors, budget utilized; upcoming events grid, this week countdown, vendor status sidebar, organizers section, recently completed with check-in bars)
    - Events: All Events (DataTable with 10 events, status/type/city filters, Create Event dialog), Event Detail (5 tabs: Overview, Attendees, Vendors, Budget, Tasks checklist)
@@ -96,7 +121,7 @@ client/src/pages/
 ├── client-intake.tsx          # Client Intake Queue (route: /hr/intake)
 ├── stage-overview.tsx         # Stage Overview (route: /hr/stages)
 ├── formation-pipeline.tsx     # Formation Pipeline Kanban (route: /hr/pipeline)
-├── task-board.tsx             # Task Board (route: /hr/tasks)
+├── task-board.tsx             # Task Board (route: /hr/task-board)
 ├── escalations.tsx            # Escalation Flags (route: /hr/escalations)
 ├── document-vault.tsx         # Document Vault (route: /hr/documents)
 ├── templates.tsx              # Document Templates (route: /hr/templates)
@@ -110,10 +135,10 @@ client/src/pages/
 │   ├── components-guide.tsx   # Components Guide (route: /dev/components)
 │   ├── icons-guide.tsx        # Icons Guide (route: /dev/icons)
 │   ├── prompts.tsx            # AI Prompt Library (route: /dev/prompts)
-│   ├── resources.tsx          # Dev Resources & Processes (route: /dev/resources)
+│   ├── resources.tsx          # Dev Knowledge Base (route: /dev/knowledge-base)
 │   ├── projects.tsx           # All Projects (route: /dev/projects)
 │   ├── project-board.tsx      # Project Kanban/List Board (route: /dev/projects/:id)
-│   ├── tasks.tsx              # All Tasks DataTable (route: /dev/tasks)
+│   ├── tasks.tsx              # All Tasks DataTable (route: /dev/board)
 │   └── toolkit.tsx            # Apps, Credentials, Links & Quick Tools (route: /dev/toolkit)
 ├── sales/
 │   ├── dashboard.tsx           # USDrop AI Dashboard (route: /sales)
@@ -165,6 +190,11 @@ client/src/pages/
 │   ├── proposals.tsx      # Proposal Generator (route: /ets/proposals)
 │   ├── templates.tsx      # WhatsApp Templates (route: /ets/templates)
 │   └── settings.tsx       # Pricing & Config Settings (route: /ets/settings)
+├── universal/
+│   ├── chat.tsx           # Universal Chat (route: /[prefix]/chat for all 7 verticals)
+│   ├── team.tsx           # Universal Team Members (route: /[prefix]/team)
+│   ├── resources.tsx      # Universal Resources Library (route: /[prefix]/resources)
+│   └── tasks.tsx          # Universal Tasks Kanban (route: /[prefix]/tasks)
 └── not-found.tsx          # 404
 ```
 
@@ -173,6 +203,7 @@ client/src/pages/
 - **Data Types** (`shared/schema.ts`): FormationClient, StageChecklist, ClientDocument, ComplianceItem, FormationTask, Escalation, TeamMember, FormationMetric, StageDefinition, DocumentTemplate
 
 ### Mock Data Files
+- `client/src/lib/mock-data-shared.ts` — **Universal sections data** (all 7 verticals): `VerticalMember[]`, `ChatChannel[]`, `ChatMessage[]`, `SharedResource[]`, `SharedTask[]` with full mock data per vertical
 - `client/src/lib/mock-data.ts` — LegalNations entities (20 formation clients, 45+ checklist items, 25 documents, 15 compliance items, 25 tasks, 10 escalations, 6 team members, formation metrics, document templates)
 - `client/src/lib/mock-data-sales.ts` — USDrop AI entities (products, categories, suppliers, users, leads, subscriptions, stores, fulfillment, tickets, courses, plans, revenue metrics, help center articles)
 - `client/src/lib/mock-data-dev.ts` — Developer vertical entities:
