@@ -71,6 +71,15 @@ The portal supports multiple business verticals, each with its own navigation, b
 - `/dev/tasks` (Developer ClickUp-style board) → `/dev/board`
 - `/dev/resources` (Developer Knowledge Base) → `/dev/knowledge-base`
 
+### Universal Important Contacts (`/[prefix]/contacts`)
+- **Available on ALL 11 verticals**: hr, sales, events, hub, admin, dev, ets, faire, hrms, ats, social
+- Vertical-aware filtering: shows contacts scoped to the current vertical + shared contacts (`verticalIds: ["all"]`)
+- 3-per-row contact cards with priority dots, category badges, country flags, tags, action buttons (WhatsApp/Email/Phone/Copy)
+- Stats strip: Total, High Priority, Shared, Categories
+- Search + Category filter + Priority filter
+- "Add Contact" FormDialog
+- Mock data: `client/src/lib/mock-data-contacts.ts` — 40 contacts across all verticals
+
 ### Active Verticals (Branded Products)
 1. **FaireDesk** (id: `faire`, color: #1A6B45) — Faire B2B Wholesale Marketplace — Routes: `/faire/*`
    - Dashboard (gradient banner, store health strip, urgent actions widget, KPI cards, order state chips, recent orders + top products)
@@ -103,8 +112,18 @@ The portal supports multiple business verticals, each with its own navigation, b
    - Operations (Shopify Stores, Fulfillment, Competitor Stores)
    - Support & Learning (Support Tickets, Courses, Help Center)
    - Analytics (Revenue Analytics, User Analytics, Product Performance)
-3. **GoyoTours** (id: `events`, color: #E91E63) — China Tour & Travel Business — Routes: `/events/*`
-   - **Universal**: Chat, Team, Resources, Tasks
+3. **GoyoTours** (id: `events`, color: #E91E63) — China B2B Travel CRM for Mr. Suprans' delegation business — Routes: `/events/*`
+   - **Universal**: Chat, Team, Resources, Tasks, Important Contacts (`/events/contacts`)
+   - **Dashboard** — pink gradient welcome banner, 4 KPI cards (Revenue Collected, Bookings, Active Leads, Seats Available), horizontal package strip with progress bars, lead pipeline chips, payment summary, recent bookings table, urgent actions (overdue follow-ups + pending visas)
+   - **Packages** (`/events/packages`) — 7 real packages from suprans.in; status filter pills; 2-per-row cards with gradient headers, discount badges, seat progress bars, pricing with GST/TCS note, advance chip, highlights, View+Book CTAs
+   - **Package Detail** (`/events/packages/:id`) — day-by-day itinerary, inclusions/exclusions, pricing card (with GST breakdown), capacity widget, hotel info, Create Booking CTA, Copy Brochure Link, filtered bookings table
+   - **Leads** (`/events/leads`) — Kanban (New/Contacted/Interested/Booked/Cold/Lost columns) + Table view toggle; cards show business type, city, package badge, source badge, overdue follow-up warning (red), WhatsApp btn; stats (Total, New, Follow-ups Due, Conversion Rate); Add Lead FormDialog
+   - **Bookings** (`/events/bookings`) — DataTable: Booking ID, Client+phone, Package, Pax, Total, Advance, Balance, Payment Status, Visa, Travel Date; status + payment filter pills; stats strip; Row click → detail; Record Payment row action; New Booking FormDialog
+   - **Booking Detail** (`/events/bookings/:id`) — Client info, Package details (totals/advance/balance), Payment history timeline, Visa & Flight status; Actions: Record Payment, WhatsApp pre-filled reminder, Mark Visa Applied, Print Voucher; Travel countdown
+   - **Hotels** (`/events/hotels`) — China hotel directory; city + star filters; 3-per-row cards with rate (listed vs our), contact, amenities, packages used, status dot; Add Hotel FormDialog
+   - **Vendors** (`/events/vendors`) — Category pills; 3-per-row cards; ground partner "Guangzhou Connect Tours" pinned with KEY PARTNER badge; star ratings, services chips; Add Vendor FormDialog
+   - **Analytics** (`/events/analytics`) — 6 KPI cards, Revenue by Package bar chart, Lead Funnel, Bookings by Source, Top Cities table
+   - **Mock data**: `client/src/lib/mock-data-goyo.ts` — 7 packages (full itineraries), 18 leads, 12 bookings (with payments[]), 8 China hotels, 8 vendors
 4. **Event Hub** (id: `eventhub`, color: #7C3AED) — Networking Events & Engagement Platform — Routes: `/hub/*`
    - Dashboard (4 KPI cards: upcoming events, total attendees, active vendors, budget utilized; upcoming events grid, this week countdown, vendor status sidebar, organizers section, recently completed with check-in bars)
    - Events: All Events (DataTable with 10 events, status/type/city filters, Create Event dialog), Event Detail (5 tabs: Overview, Attendees, Vendors, Budget, Tasks checklist)

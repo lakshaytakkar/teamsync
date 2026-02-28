@@ -45,9 +45,15 @@ import SalesRevenue from "@/pages/sales/revenue";
 import SalesUserAnalytics from "@/pages/sales/user-analytics";
 import SalesProductPerformance from "@/pages/sales/product-performance";
 import EventsDashboard from "@/pages/events/dashboard";
-import EventsList from "@/pages/events/events-list";
-import EventsVenues from "@/pages/events/venues";
-import EventsCheckin from "@/pages/events/checkin";
+import EventsPackages from "@/pages/events/packages";
+import EventsPackageDetail from "@/pages/events/package-detail";
+import EventsLeads from "@/pages/events/leads";
+import EventsBookings from "@/pages/events/bookings";
+import EventsBookingDetail from "@/pages/events/booking-detail";
+import EventsHotels from "@/pages/events/hotels";
+import EventsVendors from "@/pages/events/vendors";
+import EventsAnalytics from "@/pages/events/analytics";
+import UniversalImportantContacts from "@/pages/universal/important-contacts";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminTeam from "@/pages/admin/team";
 import AdminSettings from "@/pages/admin/settings";
@@ -142,6 +148,7 @@ function Router() {
       <Route path="/hr/team" component={UniversalTeam} />
       <Route path="/hr/resources" component={UniversalResources} />
       <Route path="/hr/tasks" component={UniversalTasks} />
+      <Route path="/hr/contacts" component={UniversalImportantContacts} />
       <Route path="/hr/clients/:id" component={ClientDetail} />
       <Route path="/hr/clients" component={Clients} />
       <Route path="/hr/intake" component={ClientIntake} />
@@ -160,6 +167,7 @@ function Router() {
       <Route path="/sales/team" component={UniversalTeam} />
       <Route path="/sales/resources" component={UniversalResources} />
       <Route path="/sales/tasks" component={UniversalTasks} />
+      <Route path="/sales/contacts" component={UniversalImportantContacts} />
       <Route path="/sales/products" component={SalesProducts} />
       <Route path="/sales/categories" component={SalesCategories} />
       <Route path="/sales/suppliers" component={SalesSuppliers} />
@@ -182,14 +190,21 @@ function Router() {
       <Route path="/events/team" component={UniversalTeam} />
       <Route path="/events/resources" component={UniversalResources} />
       <Route path="/events/tasks" component={UniversalTasks} />
-      <Route path="/events/list" component={EventsList} />
-      <Route path="/events/venues" component={EventsVenues} />
-      <Route path="/events/checkin" component={EventsCheckin} />
+      <Route path="/events/packages/:id" component={EventsPackageDetail} />
+      <Route path="/events/packages" component={EventsPackages} />
+      <Route path="/events/leads" component={EventsLeads} />
+      <Route path="/events/bookings/:id" component={EventsBookingDetail} />
+      <Route path="/events/bookings" component={EventsBookings} />
+      <Route path="/events/hotels" component={EventsHotels} />
+      <Route path="/events/vendors" component={EventsVendors} />
+      <Route path="/events/analytics" component={EventsAnalytics} />
+      <Route path="/events/contacts" component={UniversalImportantContacts} />
       <Route path="/hub" component={HubDashboard} />
       <Route path="/hub/chat" component={UniversalChat} />
       <Route path="/hub/team" component={UniversalTeam} />
       <Route path="/hub/resources" component={UniversalResources} />
       <Route path="/hub/tasks" component={UniversalTasks} />
+      <Route path="/hub/contacts" component={UniversalImportantContacts} />
       <Route path="/hub/events/:id" component={HubEventDetail} />
       <Route path="/hub/events" component={HubEventsList} />
       <Route path="/hub/attendees" component={HubAttendees} />
@@ -203,6 +218,7 @@ function Router() {
       <Route path="/admin/team" component={UniversalTeam} />
       <Route path="/admin/resources" component={UniversalResources} />
       <Route path="/admin/tasks" component={UniversalTasks} />
+      <Route path="/admin/contacts" component={UniversalImportantContacts} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/reports" component={AdminReports} />
       <Route path="/dev" component={DevDashboard} />
@@ -210,6 +226,7 @@ function Router() {
       <Route path="/dev/team" component={UniversalTeam} />
       <Route path="/dev/resources" component={UniversalResources} />
       <Route path="/dev/tasks" component={UniversalTasks} />
+      <Route path="/dev/contacts" component={UniversalImportantContacts} />
       <Route path="/dev/style-guide" component={StyleGuide} />
       <Route path="/dev/components" component={ComponentsGuide} />
       <Route path="/dev/icons" component={IconsGuide} />
@@ -224,6 +241,7 @@ function Router() {
       <Route path="/ets/team" component={UniversalTeam} />
       <Route path="/ets/resources" component={UniversalResources} />
       <Route path="/ets/tasks" component={UniversalTasks} />
+      <Route path="/ets/contacts" component={UniversalImportantContacts} />
       <Route path="/ets/pipeline" component={EtsPipeline} />
       <Route path="/ets/clients/:id" component={EtsClientDetail} />
       <Route path="/ets/products" component={EtsProducts} />
@@ -238,6 +256,7 @@ function Router() {
       <Route path="/hrms/team" component={UniversalTeam} />
       <Route path="/hrms/resources" component={UniversalResources} />
       <Route path="/hrms/tasks" component={UniversalTasks} />
+      <Route path="/hrms/contacts" component={UniversalImportantContacts} />
       <Route path="/hrms/employees/:id" component={HrmsEmployeeDetail} />
       <Route path="/hrms/employees" component={HrmsEmployees} />
       <Route path="/hrms/onboarding" component={HrmsOnboarding} />
@@ -256,6 +275,7 @@ function Router() {
       <Route path="/ats/team" component={UniversalTeam} />
       <Route path="/ats/resources" component={UniversalResources} />
       <Route path="/ats/tasks" component={UniversalTasks} />
+      <Route path="/ats/contacts" component={UniversalImportantContacts} />
       <Route path="/ats/jobs/:id" component={AtsJobDetail} />
       <Route path="/ats/jobs" component={AtsJobs} />
       <Route path="/ats/candidates/:id" component={AtsCandidateDetail} />
@@ -271,6 +291,7 @@ function Router() {
       <Route path="/social/team" component={UniversalTeam} />
       <Route path="/social/resources" component={UniversalResources} />
       <Route path="/social/tasks" component={UniversalTasks} />
+      <Route path="/social/contacts" component={UniversalImportantContacts} />
       <Route path="/social/posts/:id" component={SocialPostDetail} />
       <Route path="/social/posts" component={SocialPosts} />
       <Route path="/social/composer" component={SocialComposer} />
@@ -286,6 +307,7 @@ function Router() {
       <Route path="/faire/team" component={UniversalTeam} />
       <Route path="/faire/resources" component={UniversalResources} />
       <Route path="/faire/tasks" component={UniversalTasks} />
+      <Route path="/faire/contacts" component={UniversalImportantContacts} />
       <Route path="/faire/stores" component={FaireStores} />
       <Route path="/faire/products/:id" component={FaireProductDetail} />
       <Route path="/faire/products" component={FaireProducts} />
