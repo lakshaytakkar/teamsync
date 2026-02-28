@@ -62,7 +62,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
-import { appCredentials, importantLinks, quickTools, type AppCredential, type ImportantLink, type QuickTool } from "@/lib/mock-data-dev";
+import { appCredentials, importantLinks, quickTools, projectCredentials, devProjects, type AppCredential, type ImportantLink, type QuickTool, type ProjectCredential } from "@/lib/mock-data-dev";
 import { useToast } from "@/hooks/use-toast";
 
 type IconComponent = LucideIcon | ((props: { className?: string }) => JSX.Element);
@@ -242,7 +242,21 @@ export default function ToolkitPage() {
   const [toolDialogOpen, setToolDialogOpen] = useState(false);
   const [linkCategoryFilter, setLinkCategoryFilter] = useState<string>("all");
   const [toolCategoryFilter, setToolCategoryFilter] = useState<string>("all");
+  const [credScopeFilter, setCredScopeFilter] = useState<"all" | "universal" | "project">("all");
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<Record<string, string>>({});
 
+  function startEditing(fieldId: string, currentValue: string) {
+    setEditingField(fieldId);
+    setEditValues((prev) => ({ ...prev, [fieldId]: currentValue }));
+  }
+
+  function commitEdit(fieldId: string) {
+    setEditingField(null);
+    toast({ title: "Updated", description: "Field saved (local only)" });
+  }
+
+  const allCredentials = appCredentials.length;
   const activeCount = appCredentials.filter((c) => c.status === "active").length;
   const expiredCount = appCredentials.filter((c) => c.status === "expired").length;
   const pendingCount = appCredentials.filter((c) => c.status === "pending").length;
@@ -274,20 +288,30 @@ export default function ToolkitPage() {
 
           <TabsContent value="credentials">
             {loading ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mt-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-4 mt-4">
+                <StatsCardSkeleton />
                 <StatsCardSkeleton />
                 <StatsCardSkeleton />
                 <StatsCardSkeleton />
               </div>
             ) : (
-              <Stagger staggerInterval={0.05} className="grid grid-cols-1 gap-4 sm:grid-cols-3 mt-4">
+              <Stagger staggerInterval={0.05} className="grid grid-cols-1 gap-4 sm:grid-cols-4 mt-4">
                 <StaggerItem>
                   <StatsCard
                     title="Active"
                     value={activeCount}
-                    change={`${appCredentials.length} total credentials`}
+                    change={`${allCredentials} universal`}
                     changeType="positive"
                     icon={<Shield className="size-5" />}
+                  />
+                </StaggerItem>
+                <StaggerItem>
+                  <StatsCard
+                    title="Project Keys"
+                    value={projectCredentials.length}
+                    change={`${devProjects.length} projects`}
+                    changeType="info"
+                    icon={<Globe className="size-5" />}
                   />
                 </StaggerItem>
                 <StaggerItem>
@@ -317,54 +341,179 @@ export default function ToolkitPage() {
               </div>
             ) : (
               <Fade direction="up" delay={0.15} className="mt-6">
-                <DataTable
-                  data={appCredentials}
-                  columns={credentialColumns}
-                  searchPlaceholder="Search credentials..."
-                  searchKey="appName"
-                  filters={[
-                    {
-                      label: "Category",
-                      key: "category",
-                      options: ["hosting", "database", "ai", "payment", "analytics", "other"],
-                    },
-                    {
-                      label: "Status",
-                      key: "status",
-                      options: ["active", "expired", "pending"],
-                    },
-                    {
-                      label: "Environment",
-                      key: "environment",
-                      options: ["production", "staging", "dev"],
-                    },
-                  ]}
-                  headerActions={
-                    <Button
-                      size="sm"
-                      onClick={() => setCredentialDialogOpen(true)}
-                      data-testid="button-add-credential"
-                    >
-                      <Plus className="mr-1.5 size-3.5" />
-                      Add Credential
-                    </Button>
-                  }
-                  rowActions={[
-                    {
-                      label: "Copy API Hint",
-                      onClick: (item) => {
-                        navigator.clipboard.writeText(item.apiKeyHint);
-                        toast({ title: "Copied", description: `API key hint for ${item.appName} copied` });
-                      },
-                    },
-                    {
-                      label: "Open URL",
-                      onClick: (item) => window.open(item.url, "_blank"),
-                    },
-                  ]}
-                  emptyTitle="No credentials found"
-                  emptyDescription="Add your first app credential to get started."
-                />
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-1 rounded-md border p-0.5">
+                    {(["all", "universal", "project"] as const).map((scope) => (
+                      <Button
+                        key={scope}
+                        size="sm"
+                        variant={credScopeFilter === scope ? "default" : "ghost"}
+                        onClick={() => setCredScopeFilter(scope)}
+                        className="text-xs"
+                        data-testid={`button-scope-${scope}`}
+                      >
+                        {scope === "all" ? "All" : scope === "universal" ? "Universal" : "Per-Project"}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {(credScopeFilter === "all" || credScopeFilter === "universal") && (
+                  <div className="mb-6">
+                    {credScopeFilter === "all" && (
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Universal Credentials</p>
+                    )}
+                    <DataTable
+                      data={appCredentials}
+                      columns={credentialColumns}
+                      searchPlaceholder="Search credentials..."
+                      searchKey="appName"
+                      filters={[
+                        {
+                          label: "Category",
+                          key: "category",
+                          options: ["hosting", "database", "ai", "payment", "analytics", "other"],
+                        },
+                        {
+                          label: "Status",
+                          key: "status",
+                          options: ["active", "expired", "pending"],
+                        },
+                        {
+                          label: "Environment",
+                          key: "environment",
+                          options: ["production", "staging", "dev"],
+                        },
+                      ]}
+                      headerActions={
+                        <Button
+                          size="sm"
+                          onClick={() => setCredentialDialogOpen(true)}
+                          data-testid="button-add-credential"
+                        >
+                          <Plus className="mr-1.5 size-3.5" />
+                          Add Credential
+                        </Button>
+                      }
+                      rowActions={[
+                        {
+                          label: "Copy API Hint",
+                          onClick: (item) => {
+                            navigator.clipboard.writeText(item.apiKeyHint);
+                            toast({ title: "Copied", description: `API key hint for ${item.appName} copied` });
+                          },
+                        },
+                        {
+                          label: "Open URL",
+                          onClick: (item) => window.open(item.url, "_blank"),
+                        },
+                      ]}
+                      emptyTitle="No credentials found"
+                      emptyDescription="Add your first app credential to get started."
+                    />
+                  </div>
+                )}
+
+                {(credScopeFilter === "all" || credScopeFilter === "project") && (
+                  <div>
+                    {credScopeFilter === "all" && (
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 mt-6">Per-Project Credentials</p>
+                    )}
+                    <div className="space-y-4">
+                      {devProjects.map((proj) => {
+                        const creds = projectCredentials.filter((c) => c.projectId === proj.id);
+                        if (creds.length === 0) return null;
+                        return (
+                          <div key={proj.id} className="rounded-lg border bg-background" data-testid={`section-project-creds-${proj.id}`}>
+                            <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/20">
+                              <div className="size-2.5 rounded-full" style={{ backgroundColor: proj.color }} />
+                              <Badge variant="secondary" className="border-0 text-[10px] font-mono" style={{ backgroundColor: `${proj.color}15`, color: proj.color }}>
+                                {proj.key}
+                              </Badge>
+                              <span className="text-sm font-semibold font-heading">{proj.name}</span>
+                              <Badge variant="secondary" className="border-0 text-[10px] ml-auto">
+                                {creds.length} key{creds.length !== 1 ? "s" : ""}
+                              </Badge>
+                            </div>
+                            <div className="overflow-hidden">
+                              <table className="w-full text-sm">
+                                <thead>
+                                  <tr className="border-b bg-muted/10">
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">App</th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Environment</th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">API Key</th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Status</th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Notes</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y">
+                                  {creds.map((cred) => {
+                                    const IconComp = getIconComponent(cred.iconName);
+                                    const notesKey = `tk-notes-${cred.id}`;
+                                    return (
+                                      <tr key={cred.id} className="transition-colors hover:bg-muted/20" data-testid={`row-proj-cred-${cred.id}`}>
+                                        <td className="px-4 py-2.5">
+                                          <div className="flex items-center gap-2">
+                                            <div className="flex size-7 items-center justify-center rounded-md bg-primary/10">
+                                              <IconComp className="size-3.5 text-primary" />
+                                            </div>
+                                            <div className="min-w-0">
+                                              <p className="font-medium text-sm">{cred.appName}</p>
+                                              <a href={cred.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                                {cred.url.replace("https://", "").split("/").slice(0, 2).join("/")}
+                                                <ExternalLink className="size-2.5 shrink-0" />
+                                              </a>
+                                            </div>
+                                          </div>
+                                        </td>
+                                        <td className="px-4 py-2.5">
+                                          <StatusBadge
+                                            status={cred.environment.charAt(0).toUpperCase() + cred.environment.slice(1)}
+                                            variant={envVariant[cred.environment]}
+                                          />
+                                        </td>
+                                        <td className="px-4 py-2.5">
+                                          <code className="rounded-md bg-muted px-2 py-1 text-xs font-mono">{cred.apiKeyHint}</code>
+                                        </td>
+                                        <td className="px-4 py-2.5">
+                                          <StatusBadge
+                                            status={cred.status.charAt(0).toUpperCase() + cred.status.slice(1)}
+                                            variant={statusVariant[cred.status]}
+                                          />
+                                        </td>
+                                        <td className="px-4 py-2.5 max-w-[220px]">
+                                          {editingField === notesKey ? (
+                                            <input
+                                              className="text-xs bg-transparent border-b border-primary outline-none w-full"
+                                              value={editValues[notesKey] ?? cred.notes}
+                                              onChange={(e) => setEditValues((prev) => ({ ...prev, [notesKey]: e.target.value }))}
+                                              onBlur={() => commitEdit(notesKey)}
+                                              onKeyDown={(e) => { if (e.key === "Enter") commitEdit(notesKey); }}
+                                              autoFocus
+                                              data-testid={`input-edit-notes-${cred.id}`}
+                                            />
+                                          ) : (
+                                            <p
+                                              className="text-xs text-muted-foreground truncate cursor-pointer hover:text-foreground"
+                                              onClick={() => startEditing(notesKey, cred.notes)}
+                                              data-testid={`text-notes-${cred.id}`}
+                                            >
+                                              {editValues[notesKey] ?? cred.notes}
+                                            </p>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </Fade>
             )}
           </TabsContent>

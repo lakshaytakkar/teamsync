@@ -32,6 +32,29 @@ export interface AppCredential {
   notes: string;
   addedDate: string;
   iconName: string;
+  scope: "universal" | "project";
+}
+
+export interface ProjectLink {
+  id: string;
+  projectId: string;
+  service: "github" | "replit" | "supabase" | "vercel" | "figma" | "notion" | "other";
+  url: string;
+  label: string;
+  iconName: string;
+}
+
+export interface ProjectCredential {
+  id: string;
+  projectId: string;
+  appName: string;
+  category: "hosting" | "database" | "ai" | "payment" | "analytics" | "other";
+  environment: "production" | "staging" | "dev";
+  apiKeyHint: string;
+  status: "active" | "expired" | "pending";
+  notes: string;
+  iconName: string;
+  url: string;
 }
 
 export interface ImportantLink {
@@ -148,16 +171,16 @@ export const devResources: DevResource[] = [
 ];
 
 export const appCredentials: AppCredential[] = [
-  { id: "CRD-001", appName: "Replit", url: "https://replit.com", category: "hosting", status: "active", environment: "production", apiKeyHint: "••••7x4f", notes: "Primary development and hosting platform. Hacker plan.", addedDate: "2025-12-10", iconName: "SiReplit" },
-  { id: "CRD-002", appName: "Supabase", url: "https://supabase.com", category: "database", status: "active", environment: "production", apiKeyHint: "••••kQ9m", notes: "PostgreSQL database, auth, and storage. Free tier.", addedDate: "2025-12-12", iconName: "SiSupabase" },
-  { id: "CRD-003", appName: "Claude API (Anthropic)", url: "https://console.anthropic.com", category: "ai", status: "active", environment: "production", apiKeyHint: "••••Wp3r", notes: "Claude 3.5 Sonnet for code generation and analysis.", addedDate: "2025-12-15", iconName: "SiAnthropic" },
-  { id: "CRD-004", appName: "Stripe", url: "https://dashboard.stripe.com", category: "payment", status: "pending", environment: "dev", apiKeyHint: "••••test", notes: "Payment processing — test mode only for now.", addedDate: "2026-02-01", iconName: "SiStripe" },
-  { id: "CRD-005", appName: "Vercel", url: "https://vercel.com", category: "hosting", status: "active", environment: "staging", apiKeyHint: "••••Nj8k", notes: "Staging deployments for client previews.", addedDate: "2025-12-20", iconName: "SiVercel" },
-  { id: "CRD-006", appName: "GitHub", url: "https://github.com", category: "other", status: "active", environment: "production", apiKeyHint: "••••ghp_", notes: "Source code repositories and CI/CD.", addedDate: "2025-12-10", iconName: "SiGithub" },
-  { id: "CRD-007", appName: "OpenAI", url: "https://platform.openai.com", category: "ai", status: "active", environment: "production", apiKeyHint: "••••sk-p", notes: "GPT-4o for content generation and embeddings.", addedDate: "2025-12-18", iconName: "SiOpenai" },
-  { id: "CRD-008", appName: "PostHog", url: "https://app.posthog.com", category: "analytics", status: "expired", environment: "production", apiKeyHint: "••••phc_", notes: "Product analytics — free tier expired, needs renewal.", addedDate: "2025-12-25", iconName: "SiPosthog" },
-  { id: "CRD-009", appName: "Resend", url: "https://resend.com", category: "other", status: "active", environment: "production", apiKeyHint: "••••re_l", notes: "Transactional email service for notifications.", addedDate: "2026-02-05", iconName: "SiResend" },
-  { id: "CRD-010", appName: "Cloudflare", url: "https://dash.cloudflare.com", category: "hosting", status: "active", environment: "production", apiKeyHint: "••••cf_x", notes: "DNS management and CDN for custom domains.", addedDate: "2026-02-10", iconName: "SiCloudflare" },
+  { id: "CRD-001", appName: "Replit", url: "https://replit.com", category: "hosting", status: "active", environment: "production", apiKeyHint: "••••7x4f", notes: "Primary development and hosting platform. Hacker plan.", addedDate: "2025-12-10", iconName: "SiReplit", scope: "universal" },
+  { id: "CRD-002", appName: "Supabase", url: "https://supabase.com", category: "database", status: "active", environment: "production", apiKeyHint: "••••kQ9m", notes: "PostgreSQL database, auth, and storage. Free tier.", addedDate: "2025-12-12", iconName: "SiSupabase", scope: "universal" },
+  { id: "CRD-003", appName: "Claude API (Anthropic)", url: "https://console.anthropic.com", category: "ai", status: "active", environment: "production", apiKeyHint: "••••Wp3r", notes: "Claude 3.5 Sonnet for code generation and analysis.", addedDate: "2025-12-15", iconName: "SiAnthropic", scope: "universal" },
+  { id: "CRD-004", appName: "Stripe", url: "https://dashboard.stripe.com", category: "payment", status: "pending", environment: "dev", apiKeyHint: "••••test", notes: "Payment processing — test mode only for now.", addedDate: "2026-02-01", iconName: "SiStripe", scope: "universal" },
+  { id: "CRD-005", appName: "Vercel", url: "https://vercel.com", category: "hosting", status: "active", environment: "staging", apiKeyHint: "••••Nj8k", notes: "Staging deployments for client previews.", addedDate: "2025-12-20", iconName: "SiVercel", scope: "universal" },
+  { id: "CRD-006", appName: "GitHub", url: "https://github.com", category: "other", status: "active", environment: "production", apiKeyHint: "••••ghp_", notes: "Source code repositories and CI/CD.", addedDate: "2025-12-10", iconName: "SiGithub", scope: "universal" },
+  { id: "CRD-007", appName: "OpenAI", url: "https://platform.openai.com", category: "ai", status: "active", environment: "production", apiKeyHint: "••••sk-p", notes: "GPT-4o for content generation and embeddings.", addedDate: "2025-12-18", iconName: "SiOpenai", scope: "universal" },
+  { id: "CRD-008", appName: "PostHog", url: "https://app.posthog.com", category: "analytics", status: "expired", environment: "production", apiKeyHint: "••••phc_", notes: "Product analytics — free tier expired, needs renewal.", addedDate: "2025-12-25", iconName: "SiPosthog", scope: "universal" },
+  { id: "CRD-009", appName: "Resend", url: "https://resend.com", category: "other", status: "active", environment: "production", apiKeyHint: "••••re_l", notes: "Transactional email service for notifications.", addedDate: "2026-02-05", iconName: "SiResend", scope: "universal" },
+  { id: "CRD-010", appName: "Cloudflare", url: "https://dash.cloudflare.com", category: "hosting", status: "active", environment: "production", apiKeyHint: "••••cf_x", notes: "DNS management and CDN for custom domains.", addedDate: "2026-02-10", iconName: "SiCloudflare", scope: "universal" },
 ];
 
 export const importantLinks: ImportantLink[] = [
@@ -186,6 +209,43 @@ export const quickTools: QuickTool[] = [
   { id: "QT-005", name: "GST Calculator", description: "Calculate GST breakup (CGST + SGST or IGST) for any amount. Supports reverse calculation and HSN lookup.", category: "utility", status: "ready", route: "/dev/tools/gst-calc", vertical: "dev", iconName: "Calculator" },
   { id: "QT-006", name: "Color Palette Generator", description: "Generate accessible color palettes from a base hex color. Outputs Tailwind config-ready HSL values.", category: "utility", status: "ready", route: "/dev/tools/color-palette", vertical: "dev", iconName: "Palette" },
   { id: "QT-007", name: "WhatsApp API Tester", description: "Test WhatsApp Business API message templates with variable substitution and preview.", category: "utility", status: "wip", route: "/dev/tools/whatsapp-tester", vertical: "ets", iconName: "MessageSquare" },
+];
+
+export const projectLinks: ProjectLink[] = [
+  { id: "PL-001", projectId: "proj-ts", service: "github", url: "https://github.com/team/teamsync-portal", label: "TeamSync Monorepo", iconName: "SiGithub" },
+  { id: "PL-002", projectId: "proj-ts", service: "replit", url: "https://replit.com/@lakshay/teamsync", label: "Replit Workspace", iconName: "SiReplit" },
+  { id: "PL-003", projectId: "proj-ts", service: "supabase", url: "https://supabase.com/dashboard/project/teamsync-prod", label: "Supabase (Prod)", iconName: "SiSupabase" },
+  { id: "PL-004", projectId: "proj-ts", service: "vercel", url: "https://vercel.com/team/teamsync", label: "Vercel Deploy", iconName: "SiVercel" },
+  { id: "PL-005", projectId: "proj-ln", service: "github", url: "https://github.com/team/legalnations-app", label: "LegalNations Repo", iconName: "SiGithub" },
+  { id: "PL-006", projectId: "proj-ln", service: "replit", url: "https://replit.com/@lakshay/legalnations", label: "Replit Workspace", iconName: "SiReplit" },
+  { id: "PL-007", projectId: "proj-ln", service: "supabase", url: "https://supabase.com/dashboard/project/ln-prod", label: "Supabase (Prod)", iconName: "SiSupabase" },
+  { id: "PL-008", projectId: "proj-ln", service: "vercel", url: "https://vercel.com/team/legalnations", label: "Vercel Deploy", iconName: "SiVercel" },
+  { id: "PL-009", projectId: "proj-ud", service: "github", url: "https://github.com/team/usdrop-ai", label: "USDrop AI Repo", iconName: "SiGithub" },
+  { id: "PL-010", projectId: "proj-ud", service: "replit", url: "https://replit.com/@lakshay/usdrop-ai", label: "Replit Workspace", iconName: "SiReplit" },
+  { id: "PL-011", projectId: "proj-ud", service: "figma", url: "https://figma.com/file/usdrop-ai-designs", label: "Figma Designs", iconName: "SiFigma" },
+  { id: "PL-012", projectId: "proj-gt", service: "github", url: "https://github.com/team/goyotours", label: "GoyoTours Repo", iconName: "SiGithub" },
+  { id: "PL-013", projectId: "proj-gt", service: "notion", url: "https://notion.so/team/goyotours-specs", label: "Notion Specs", iconName: "SiNotion" },
+  { id: "PL-014", projectId: "proj-ets", service: "github", url: "https://github.com/lakshaytakkar/Eazy-Sell", label: "EazyToSell Repo", iconName: "SiGithub" },
+  { id: "PL-015", projectId: "proj-ets", service: "replit", url: "https://replit.com/@lakshay/eazytosell", label: "Replit Workspace", iconName: "SiReplit" },
+  { id: "PL-016", projectId: "proj-ets", service: "supabase", url: "https://supabase.com/dashboard/project/ets-prod", label: "Supabase (Prod)", iconName: "SiSupabase" },
+  { id: "PL-017", projectId: "proj-ets", service: "figma", url: "https://figma.com/file/eazytosell-designs", label: "Figma Designs", iconName: "SiFigma" },
+  { id: "PL-018", projectId: "proj-int", service: "github", url: "https://github.com/team/internal-tools", label: "Internal Tools Repo", iconName: "SiGithub" },
+  { id: "PL-019", projectId: "proj-int", service: "replit", url: "https://replit.com/@lakshay/internal-tools", label: "Replit Workspace", iconName: "SiReplit" },
+];
+
+export const projectCredentials: ProjectCredential[] = [
+  { id: "PC-001", projectId: "proj-ts", appName: "Supabase", category: "database", environment: "production", apiKeyHint: "••••ts_anon", status: "active", notes: "TeamSync Supabase anon key for client-side queries", iconName: "SiSupabase", url: "https://supabase.com/dashboard/project/teamsync-prod" },
+  { id: "PC-002", projectId: "proj-ts", appName: "Supabase", category: "database", environment: "production", apiKeyHint: "••••ts_svc", status: "active", notes: "TeamSync Supabase service role key — server only", iconName: "SiSupabase", url: "https://supabase.com/dashboard/project/teamsync-prod" },
+  { id: "PC-003", projectId: "proj-ts", appName: "Vercel", category: "hosting", environment: "staging", apiKeyHint: "••••vc_ts", status: "active", notes: "Vercel deploy token for TeamSync staging", iconName: "SiVercel", url: "https://vercel.com/team/teamsync/settings" },
+  { id: "PC-004", projectId: "proj-ln", appName: "Stripe", category: "payment", environment: "production", apiKeyHint: "••••sk_live_ln", status: "active", notes: "LegalNations Stripe live key for formation payments", iconName: "SiStripe", url: "https://dashboard.stripe.com/apikeys" },
+  { id: "PC-005", projectId: "proj-ln", appName: "Stripe", category: "payment", environment: "dev", apiKeyHint: "••••sk_test_ln", status: "active", notes: "LegalNations Stripe test key for dev/staging", iconName: "SiStripe", url: "https://dashboard.stripe.com/test/apikeys" },
+  { id: "PC-006", projectId: "proj-ln", appName: "Supabase", category: "database", environment: "production", apiKeyHint: "••••ln_anon", status: "active", notes: "LegalNations Supabase anon key", iconName: "SiSupabase", url: "https://supabase.com/dashboard/project/ln-prod" },
+  { id: "PC-007", projectId: "proj-ud", appName: "OpenAI", category: "ai", environment: "production", apiKeyHint: "••••sk-ud", status: "active", notes: "USDrop AI product research GPT-4o key", iconName: "SiOpenai", url: "https://platform.openai.com/api-keys" },
+  { id: "PC-008", projectId: "proj-ud", appName: "Shopify", category: "other", environment: "dev", apiKeyHint: "••••shp_dev", status: "pending", notes: "Shopify partner API key for store automation — pending approval", iconName: "Globe", url: "https://partners.shopify.com" },
+  { id: "PC-009", projectId: "proj-ets", appName: "Razorpay", category: "payment", environment: "production", apiKeyHint: "••••rzp_live", status: "active", notes: "EazyToSell Razorpay live key for franchise payments", iconName: "Globe", url: "https://dashboard.razorpay.com/app/keys" },
+  { id: "PC-010", projectId: "proj-ets", appName: "Razorpay", category: "payment", environment: "dev", apiKeyHint: "••••rzp_test", status: "active", notes: "EazyToSell Razorpay test key for dev/staging", iconName: "Globe", url: "https://dashboard.razorpay.com/app/keys" },
+  { id: "PC-011", projectId: "proj-ets", appName: "Supabase", category: "database", environment: "production", apiKeyHint: "••••ets_anon", status: "active", notes: "EazyToSell Supabase anon key", iconName: "SiSupabase", url: "https://supabase.com/dashboard/project/ets-prod" },
+  { id: "PC-012", projectId: "proj-int", appName: "Resend", category: "other", environment: "dev", apiKeyHint: "••••re_int", status: "active", notes: "Internal tools Resend key for test email flows", iconName: "SiResend", url: "https://resend.com/api-keys" },
 ];
 
 export const devProjects: DevProject[] = [

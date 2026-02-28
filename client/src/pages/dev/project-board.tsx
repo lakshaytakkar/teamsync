@@ -25,8 +25,12 @@ import {
   devProjects,
   devTasks,
   devSprints,
+  projectLinks,
+  projectCredentials,
   type DevTask,
   type DevProject,
+  type ProjectLink as ProjectLinkType,
+  type ProjectCredential,
 } from "@/lib/mock-data-dev";
 import {
   ArrowLeft,
@@ -43,9 +47,44 @@ import {
   BookOpen,
   AlertCircle,
   CircleDot,
+  ChevronDown,
+  ChevronRight,
+  ExternalLink,
+  Globe,
+  type LucideIcon,
 } from "lucide-react";
+import {
+  SiReplit,
+  SiSupabase,
+  SiGithub,
+  SiStripe,
+  SiVercel,
+  SiOpenai,
+  SiFigma,
+  SiNotion,
+  SiResend,
+} from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 import { TaskDetailDialog } from "@/components/dev/task-detail-dialog";
+
+type IconComponent = LucideIcon | ((props: { className?: string }) => JSX.Element);
+
+const siIconMap: Record<string, IconComponent> = {
+  SiReplit: (props: { className?: string }) => <SiReplit className={props.className} />,
+  SiSupabase: (props: { className?: string }) => <SiSupabase className={props.className} />,
+  SiGithub: (props: { className?: string }) => <SiGithub className={props.className} />,
+  SiStripe: (props: { className?: string }) => <SiStripe className={props.className} />,
+  SiVercel: (props: { className?: string }) => <SiVercel className={props.className} />,
+  SiOpenai: (props: { className?: string }) => <SiOpenai className={props.className} />,
+  SiFigma: (props: { className?: string }) => <SiFigma className={props.className} />,
+  SiNotion: (props: { className?: string }) => <SiNotion className={props.className} />,
+  SiResend: (props: { className?: string }) => <SiResend className={props.className} />,
+};
+
+function getIconComponent(iconName: string): IconComponent {
+  if (siIconMap[iconName]) return siIconMap[iconName];
+  return Globe;
+}
 
 type TaskStatus = "backlog" | "todo" | "in-progress" | "in-review" | "done";
 
@@ -121,6 +160,28 @@ export default function DevProjectBoard() {
   const [addTaskOpen, setAddTaskOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<DevTask | null>(null);
   const [taskDetailOpen, setTaskDetailOpen] = useState(false);
+  const [linksExpanded, setLinksExpanded] = useState(true);
+
+  const projLinks = useMemo(
+    () => projectLinks.filter((l) => l.projectId === params.id),
+    [params.id]
+  );
+  const projCreds = useMemo(
+    () => projectCredentials.filter((c) => c.projectId === params.id),
+    [params.id]
+  );
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<Record<string, string>>({});
+
+  function startEditing(fieldId: string, currentValue: string) {
+    setEditingField(fieldId);
+    setEditValues((prev) => ({ ...prev, [fieldId]: currentValue }));
+  }
+
+  function commitEdit(fieldId: string) {
+    setEditingField(null);
+    toast({ title: "Updated", description: "Field saved (local only)" });
+  }
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -412,6 +473,150 @@ export default function DevProjectBoard() {
               </Card>
             </StaggerItem>
           </Stagger>
+        )}
+
+        {!loading && (projLinks.length > 0 || projCreds.length > 0) && (
+          <Fade direction="up" distance={10} delay={0.08}>
+            <div className="mb-5 rounded-lg border bg-background" data-testid="section-project-links-creds">
+              <button
+                onClick={() => setLinksExpanded(!linksExpanded)}
+                className="flex w-full items-center justify-between gap-2 px-5 py-3 text-left transition-colors hover:bg-muted/30"
+                data-testid="button-toggle-links-creds"
+              >
+                <div className="flex items-center gap-2">
+                  {linksExpanded ? <ChevronDown className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />}
+                  <span className="text-sm font-semibold font-heading">Links & Credentials</span>
+                  <Badge variant="secondary" className="border-0 text-[10px] px-1.5 py-0">
+                    {projLinks.length + projCreds.length}
+                  </Badge>
+                </div>
+              </button>
+              {linksExpanded && (
+                <div className="border-t px-5 py-4 space-y-4">
+                  {projLinks.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Quick Links</p>
+                      <div className="flex flex-wrap gap-2">
+                        {projLinks.map((link) => {
+                          const IconComp = getIconComponent(link.iconName);
+                          return (
+                            <a
+                              key={link.id}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-muted/50"
+                              data-testid={`link-project-${link.id}`}
+                            >
+                              <IconComp className="size-4 text-muted-foreground" />
+                              <span className="font-medium">{link.label}</span>
+                              <ExternalLink className="size-3 text-muted-foreground" />
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  {projCreds.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">API Keys & Credentials</p>
+                      <div className="rounded-md border overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b bg-muted/30">
+                              <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">App</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Environment</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">API Key</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Status</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Notes</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y">
+                            {projCreds.map((cred) => {
+                              const IconComp = getIconComponent(cred.iconName);
+                              const notesFieldId = `cred-notes-${cred.id}`;
+                              const urlFieldId = `cred-url-${cred.id}`;
+                              return (
+                                <tr key={cred.id} className="transition-colors hover:bg-muted/20" data-testid={`row-project-cred-${cred.id}`}>
+                                  <td className="px-3 py-2">
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex size-7 items-center justify-center rounded-md bg-primary/10">
+                                        <IconComp className="size-3.5 text-primary" />
+                                      </div>
+                                      <div className="min-w-0">
+                                        <p className="font-medium text-sm truncate">{cred.appName}</p>
+                                        {editingField === urlFieldId ? (
+                                          <input
+                                            className="text-xs text-muted-foreground bg-transparent border-b border-primary outline-none w-full"
+                                            value={editValues[urlFieldId] ?? cred.url}
+                                            onChange={(e) => setEditValues((prev) => ({ ...prev, [urlFieldId]: e.target.value }))}
+                                            onBlur={() => commitEdit(urlFieldId)}
+                                            onKeyDown={(e) => { if (e.key === "Enter") commitEdit(urlFieldId); }}
+                                            autoFocus
+                                            data-testid={`input-edit-cred-url-${cred.id}`}
+                                          />
+                                        ) : (
+                                          <p
+                                            className="text-xs text-muted-foreground truncate cursor-pointer hover:text-primary"
+                                            onClick={() => startEditing(urlFieldId, cred.url)}
+                                            data-testid={`text-cred-url-${cred.id}`}
+                                          >
+                                            {editValues[urlFieldId] ?? cred.url.replace("https://", "")}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-2">
+                                    <StatusBadge
+                                      status={cred.environment.charAt(0).toUpperCase() + cred.environment.slice(1)}
+                                      variant={cred.environment === "production" ? "success" : cred.environment === "staging" ? "warning" : "info"}
+                                    />
+                                  </td>
+                                  <td className="px-3 py-2">
+                                    <code className="rounded-md bg-muted px-2 py-1 text-xs font-mono" data-testid={`text-cred-key-${cred.id}`}>
+                                      {cred.apiKeyHint}
+                                    </code>
+                                  </td>
+                                  <td className="px-3 py-2">
+                                    <StatusBadge
+                                      status={cred.status.charAt(0).toUpperCase() + cred.status.slice(1)}
+                                      variant={cred.status === "active" ? "success" : cred.status === "expired" ? "error" : "warning"}
+                                    />
+                                  </td>
+                                  <td className="px-3 py-2 max-w-[200px]">
+                                    {editingField === notesFieldId ? (
+                                      <input
+                                        className="text-xs bg-transparent border-b border-primary outline-none w-full"
+                                        value={editValues[notesFieldId] ?? cred.notes}
+                                        onChange={(e) => setEditValues((prev) => ({ ...prev, [notesFieldId]: e.target.value }))}
+                                        onBlur={() => commitEdit(notesFieldId)}
+                                        onKeyDown={(e) => { if (e.key === "Enter") commitEdit(notesFieldId); }}
+                                        autoFocus
+                                        data-testid={`input-edit-cred-notes-${cred.id}`}
+                                      />
+                                    ) : (
+                                      <p
+                                        className="text-xs text-muted-foreground truncate cursor-pointer hover:text-foreground"
+                                        onClick={() => startEditing(notesFieldId, cred.notes)}
+                                        data-testid={`text-cred-notes-${cred.id}`}
+                                      >
+                                        {editValues[notesFieldId] ?? cred.notes}
+                                      </p>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </Fade>
         )}
 
         <Fade direction="up" distance={10} delay={0.1}>
