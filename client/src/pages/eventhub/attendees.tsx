@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Copy } from "lucide-react";
+import { Plus, Copy, Mail } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { useLocation } from "wouter";
 
 import { DataTable, type Column } from "@/components/hr/data-table";
@@ -66,6 +67,24 @@ const columns: Column<EventAttendee>[] = [
         status={item.checkedIn ? "Checked In" : "Pending"}
         variant={item.checkedIn ? "success" : "neutral"}
       />
+    ),
+  },
+  {
+    key: "_contact",
+    header: "",
+    render: (item) => (
+      <div className="flex items-center gap-1">
+        <a href={`https://wa.me/${item.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" data-testid={`btn-whatsapp-${item.id}`}>
+          <Button variant="ghost" size="icon" className="size-8 text-green-600 hover:text-green-700 hover:bg-green-50">
+            <SiWhatsapp className="size-4" />
+          </Button>
+        </a>
+        <a href={`mailto:${item.email}`} data-testid={`btn-email-${item.id}`}>
+          <Button variant="ghost" size="icon" className="size-8">
+            <Mail className="size-4" />
+          </Button>
+        </a>
+      </div>
     ),
   },
 ];

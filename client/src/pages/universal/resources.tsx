@@ -230,7 +230,7 @@ export default function UniversalResources() {
   if (!vertical) return null;
 
   return (
-    <PageTransition className="flex flex-col gap-6 p-6 overflow-y-auto h-full">
+    <PageTransition className="flex flex-col gap-6 px-16 py-6 lg:px-24 overflow-y-auto h-full">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold font-heading">Resources</h1>

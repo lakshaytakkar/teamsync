@@ -96,7 +96,7 @@ export default function UniversalTeam() {
   if (!vertical) return null;
 
   return (
-    <PageTransition className="p-6 space-y-6">
+    <PageTransition className="px-16 py-6 lg:px-24 space-y-6">
       <PageHeader
         title="Team Members"
         description={`Manage and connect with the ${vertical.name} team.`}

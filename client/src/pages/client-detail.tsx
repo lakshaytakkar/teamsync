@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useRoute, useLocation } from "wouter";
 import { ArrowLeft, Mail, Phone, Calendar, User, Building2, MapPin, Clock } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -225,7 +226,17 @@ export default function ClientDetailPage() {
                 {client.clientName} &middot; {client.companyType} &middot; {client.state}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <a href={`https://wa.me/${client.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
+                <Button variant="outline" size="sm" className="gap-1.5 text-green-600 border-green-200 hover:bg-green-50">
+                  <SiWhatsapp className="size-3.5" /> WhatsApp
+                </Button>
+              </a>
+              <a href={`mailto:${client.email}`}>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <Mail className="size-3.5" /> Email
+                </Button>
+              </a>
               <StatusBadge
                 status={client.riskFlag === "on-track" ? "On Track" : client.riskFlag === "at-risk" ? "At Risk" : "Delayed"}
                 variant={riskVariantMap[client.riskFlag]}

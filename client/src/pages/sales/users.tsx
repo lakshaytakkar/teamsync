@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { Mail } from "lucide-react";
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { Button } from "@/components/ui/button";
 import { externalUsers, type ExternalUser } from "@/lib/mock-data-sales";
 import { getPersonAvatar } from "@/lib/avatars";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
@@ -88,6 +90,17 @@ export default function UsersPage() {
         <span className="text-sm font-medium" data-testid={`text-revenue-${item.id}`}>
           {formatCurrency(item.revenue)}
         </span>
+      ),
+    },
+    {
+      key: "_contact",
+      header: "",
+      render: (item) => (
+        <a href={`mailto:${item.email}`} data-testid={`btn-email-${item.id}`}>
+          <Button variant="ghost" size="icon" className="size-8">
+            <Mail className="size-4" />
+          </Button>
+        </a>
       ),
     },
   ];

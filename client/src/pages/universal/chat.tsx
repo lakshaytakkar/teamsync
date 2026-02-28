@@ -103,7 +103,7 @@ export default function UniversalChat() {
   if (!vertical) return <div>Vertical not found</div>;
 
   return (
-    <PageTransition className="h-full p-6 flex gap-6 overflow-hidden">
+    <PageTransition className="h-full px-16 py-6 lg:px-24 flex gap-6 overflow-hidden">
       {/* Left Sidebar */}
       <aside 
         className="w-[380px] shrink-0 flex flex-col bg-card border rounded-xl shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] dark:shadow-none overflow-hidden"

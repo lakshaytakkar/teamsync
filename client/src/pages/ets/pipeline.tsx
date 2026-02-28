@@ -42,6 +42,7 @@ import {
   FileText,
   Eye,
 } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 
 const tierColors: Record<EtsPackageTier, string> = {
@@ -223,6 +224,17 @@ export default function EtsPipeline() {
         <span className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]" title={item.lastNote}>
           {item.lastNote}
         </span>
+      ),
+    },
+    {
+      key: "_contact",
+      header: "",
+      render: (item) => (
+        <a href={`https://wa.me/${item.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" data-testid={`btn-whatsapp-${item.id}`}>
+          <Button variant="ghost" size="icon" className="size-8 text-green-600 hover:text-green-700 hover:bg-green-50">
+            <SiWhatsapp className="size-4" />
+          </Button>
+        </a>
       ),
     },
   ];

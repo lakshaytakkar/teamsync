@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Plus } from "lucide-react";
+import { Plus, Mail } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -112,6 +113,24 @@ export default function ClientsPage() {
       header: "Start Date",
       sortable: true,
       render: (item) => <span className="text-sm text-muted-foreground">{item.startDate}</span>,
+    },
+    {
+      key: "_contact",
+      header: "",
+      render: (item) => (
+        <div className="flex items-center gap-1">
+          <a href={`https://wa.me/${item.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" data-testid={`btn-whatsapp-${item.id}`}>
+            <Button variant="ghost" size="icon" className="size-8 text-green-600 hover:text-green-700 hover:bg-green-50">
+              <SiWhatsapp className="size-4" />
+            </Button>
+          </a>
+          <a href={`mailto:${item.email}`} data-testid={`btn-email-${item.id}`}>
+            <Button variant="ghost" size="icon" className="size-8">
+              <Mail className="size-4" />
+            </Button>
+          </a>
+        </div>
+      ),
     },
   ];
 

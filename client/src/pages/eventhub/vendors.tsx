@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Star, Plus, Copy, ExternalLink } from "lucide-react";
+import { Star, Plus, Copy, ExternalLink, Mail } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -116,6 +117,24 @@ export default function HubVendors() {
       key: "status",
       header: "Status",
       render: (item) => <StatusBadge status={item.status} variant={statusVariantMap[item.status]} />,
+    },
+    {
+      key: "_contact",
+      header: "",
+      render: (item) => (
+        <div className="flex items-center gap-1">
+          <a href={`https://wa.me/${item.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" data-testid={`btn-whatsapp-${item.id}`}>
+            <Button variant="ghost" size="icon" className="size-8 text-green-600 hover:text-green-700 hover:bg-green-50">
+              <SiWhatsapp className="size-4" />
+            </Button>
+          </a>
+          <a href={`mailto:${item.contactEmail}`} data-testid={`btn-email-${item.id}`}>
+            <Button variant="ghost" size="icon" className="size-8">
+              <Mail className="size-4" />
+            </Button>
+          </a>
+        </div>
+      ),
     },
   ];
 

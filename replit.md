@@ -253,3 +253,34 @@ Analysis of Suprans Team Portal saved in `.local/reference-project-analysis.md` 
 ## External Dependencies
 - React, TypeScript, Tailwind CSS, Shadcn UI, Wouter, motion/react, Express.js
 - Plus Jakarta Sans (Google Fonts), DiceBear (avatars), lucide-react (icons), react-icons/si (company logos), Zod (validation)
+
+## UI Rules (Enforced)
+
+These rules apply to every page and must never be violated when adding or editing pages:
+
+### 1. Page Padding Standard
+All page root wrappers must use `<div className="px-16 py-6 lg:px-24">`. Never use `p-6`, `px-6`, `px-6 lg:px-12`, or any narrower wrapper as the outermost container of a page.
+
+### 2. Full-Height App Layouts (Tasks, Chat)
+For pages with a fixed-height layout (scroll area fills remaining height), do NOT wrap the whole page in `px-16`. Instead:
+- Sticky bars (header bar, filter bar, stats strip): apply `px-16 lg:px-24` horizontally on each bar individually
+- Scrollable content area (`<ScrollArea>`): apply `px-16 py-6 lg:px-24`
+- Stats strip first/last cells: first cell uses `pl-16 lg:pl-24 pr-5`, last cell uses `pl-5 pr-16 lg:pr-24`
+
+### 3. Stats / Metrics Rule
+Only show stats cards on dashboards and list pages where the data is a meaningful operational KPI (e.g. active clients, revenue, pipeline count). Do NOT add stats to library or directory pages such as Resources.
+
+### 4. Search Bar Rule
+Only include a search bar when there are 6 or more items in a list to filter. Do not add search to small static lists.
+
+### 5. Detail Pages Rule
+Every entity with a list page must also have a dedicated detail page or detail dialog. This applies to: clients, leads, products, events, attendees, vendors, etc.
+
+### 6. Contact Actions Rule
+Every page that lists or shows details for a person (client, lead, user, attendee, vendor) must include actionable contact buttons:
+- **List pages**: WhatsApp and/or Email as inline icon-only ghost buttons in a "Contact" column (not in the dropdown menu)
+- **Detail pages**: WhatsApp and Email as outline buttons in the header/profile action bar
+- **WhatsApp** link: `https://wa.me/{phone.replace(/\D/g,'')}` — open in `target="_blank"` — icon: `SiWhatsapp` from `react-icons/si`, colored `text-green-600`
+- **Email** link: `mailto:{email}` — icon: `Mail` from `lucide-react`
+- Add `data-testid="btn-whatsapp-{id}"` and `data-testid="btn-email-{id}"` to every link
+- Only add WhatsApp if the entity has a `phone` field in its type; only add Email if it has an `email` field

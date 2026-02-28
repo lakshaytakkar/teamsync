@@ -138,7 +138,7 @@ export default function UniversalTasks() {
   return (
     <PageTransition className="flex flex-col h-full bg-background overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-4 border-b shrink-0 flex items-center justify-between bg-card">
+      <div className="px-16 py-4 lg:px-24 border-b shrink-0 flex items-center justify-between bg-card">
         <div>
           <h1 className="text-xl font-semibold text-foreground">Tasks</h1>
           <p className="text-sm text-muted-foreground">Manage and track team responsibilities</p>
@@ -184,7 +184,7 @@ export default function UniversalTasks() {
           { label: "Overdue",     value: stats.overdue, red: true },
           { label: "Completed",   value: stats.done,    green: true },
         ] as { label: string; value: number; red?: boolean; green?: boolean }[]).map((s, i) => (
-          <div key={i} className="flex-1 px-5 py-3 flex flex-col justify-center border-r last:border-r-0">
+          <div key={i} className={cn("flex-1 py-3 flex flex-col justify-center border-r last:border-r-0", i === 0 ? "pl-16 lg:pl-24 pr-5" : i === 3 ? "pl-5 pr-16 lg:pr-24" : "px-5")}>
             <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{s.label}</span>
             <span className={cn("text-lg font-semibold", s.red && "text-red-500", s.green && "text-emerald-600")}>{s.value}</span>
           </div>
@@ -192,7 +192,7 @@ export default function UniversalTasks() {
       </div>
 
       {/* Filter Bar */}
-      <div className="px-6 py-4 border-b flex items-center justify-between bg-card shrink-0 gap-4">
+      <div className="px-16 py-4 lg:px-24 border-b flex items-center justify-between bg-card shrink-0 gap-4">
         <div className="flex items-center gap-4 flex-1">
           <div className="relative w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -226,7 +226,7 @@ export default function UniversalTasks() {
       </div>
 
       {/* Main Content Area */}
-      <ScrollArea className="flex-1 p-6 bg-muted/30">
+      <ScrollArea className="flex-1 px-16 py-6 lg:px-24 bg-muted/30">
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

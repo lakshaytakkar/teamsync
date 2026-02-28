@@ -19,6 +19,7 @@ import {
   Thermometer,
   Snowflake,
 } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -358,7 +359,7 @@ export default function EtsClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="px-6 py-6 lg:px-16">
+      <div className="px-16 py-6 lg:px-24">
         <div className="flex flex-col gap-4">
           <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
           <div className="h-16 w-full animate-pulse rounded-md bg-muted" />
@@ -370,7 +371,7 @@ export default function EtsClientDetailPage() {
 
   if (!client) {
     return (
-      <div className="px-6 py-6 lg:px-16">
+      <div className="px-16 py-6 lg:px-24">
         <PageTransition>
           <div className="flex flex-col items-center gap-4 py-12">
             <p className="text-sm font-medium" data-testid="text-not-found">Client not found</p>
@@ -390,7 +391,7 @@ export default function EtsClientDetailPage() {
   const completedChecks = checklist.filter((c) => c.completed).length;
 
   return (
-    <div className="px-6 py-6 lg:px-16">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
         <div className="mb-4">
           <Button
@@ -463,6 +464,11 @@ export default function EtsClientDetailPage() {
                 <Plus className="size-3.5" />
                 Add Note
               </Button>
+              <a href={`https://wa.me/${client.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
+                <Button variant="outline" size="sm" className="gap-1.5 text-green-600 border-green-200 hover:bg-green-50" data-testid={`btn-whatsapp-${client.id}`}>
+                  <SiWhatsapp className="size-3.5" /> WhatsApp
+                </Button>
+              </a>
             </div>
 
             <EtsStageStepper currentStage={client.stage} />

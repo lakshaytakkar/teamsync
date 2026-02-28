@@ -165,7 +165,7 @@ export default function EtsProposals() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="px-16 py-6 lg:px-24 space-y-6">
         <Skeleton className="h-20 w-full rounded-xl" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Skeleton className="h-96" />
@@ -179,7 +179,7 @@ export default function EtsProposals() {
   }
 
   return (
-    <PageTransition className="p-6 space-y-6">
+    <PageTransition className="px-16 py-6 lg:px-24 space-y-6">
 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Fade direction="left" distance={10} duration={0.3}>
           <Card data-testid="card-proposal-inputs">

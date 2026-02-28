@@ -105,7 +105,7 @@ export default function EtsTemplates() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="px-16 py-6 lg:px-24 space-y-6">
         <Skeleton className="h-20 w-full rounded-xl" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -117,7 +117,7 @@ export default function EtsTemplates() {
   }
 
   return (
-    <PageTransition className="p-6 space-y-6">
+    <PageTransition className="px-16 py-6 lg:px-24 space-y-6">
 <Fade direction="up" distance={8} duration={0.3}>
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px] max-w-sm">

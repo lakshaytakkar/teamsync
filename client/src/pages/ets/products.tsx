@@ -248,7 +248,7 @@ export default function EtsProductsPage() {
 
   if (loading) {
     return (
-      <div className="px-6 py-6 lg:px-12">
+      <div className="px-16 py-6 lg:px-24">
         <PageTransition>
           <TableSkeleton rows={8} columns={7} />
         </PageTransition>
@@ -257,7 +257,7 @@ export default function EtsProductsPage() {
   }
 
   return (
-    <div className="px-6 py-6 lg:px-12">
+    <div className="px-16 py-6 lg:px-24">
       <PageTransition>
         <Stagger className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
           <StaggerItem>
