@@ -55,7 +55,7 @@ export function Topbar({ title, subtitle }: TopbarProps) {
               <img src={getPersonAvatar("Sneha Patel", 28)} alt="SP" className="size-7 rounded-full" />
               <div className="hidden flex-col items-start md:flex">
                 <span className="text-sm font-medium">Sneha Patel</span>
-                <span className="text-xs text-muted-foreground">HR Manager</span>
+                <span className="text-xs text-muted-foreground">Operations Manager</span>
               </div>
               <ChevronDown className="size-3 text-muted-foreground" />
             </Button>

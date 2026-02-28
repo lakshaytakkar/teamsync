@@ -100,7 +100,7 @@ export function TopNavigation() {
                 <img src={getPersonAvatar("Sneha Patel", 32)} alt="SP" className="size-8 rounded-full" />
                 <div className="hidden flex-col items-start md:flex">
                   <span className="text-sm font-medium">Sneha Patel</span>
-                  <span className="text-[13px] text-muted-foreground">HR Manager</span>
+                  <span className="text-[13px] text-muted-foreground">Operations Manager</span>
                 </div>
                 <ChevronDown className="size-3.5 text-muted-foreground" />
               </Button>

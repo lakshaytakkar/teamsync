@@ -135,65 +135,72 @@ const eventhubTemplates: ReportTemplate[] = [
   }
 ];
 
-const generateReports = (vertical: string, templates: ReportTemplate[]): SubmittedReport[] => {
+const fmt = (dateStr: string) =>
+  new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+const generateReports = (
+  vertical: string,
+  templates: ReportTemplate[],
+  names: [string, string]
+): SubmittedReport[] => {
   const reports: SubmittedReport[] = [];
   const baseDate = new Date("2026-02-28");
-  
+
   for (let i = 0; i < 10; i++) {
     const date = new Date(baseDate);
     date.setDate(baseDate.getDate() - i);
     const dateStr = date.toISOString().split("T")[0];
-    
-    // Mix of templates
+    const friendlyDate = fmt(dateStr);
+
     const template = templates[i % 2];
-    const isSubmitted = i < 7; // 7 submitted, 2 pending, 1 late
+    const isSubmitted = i < 7;
     const isLate = i === 9;
-    
+
     const report: SubmittedReport = {
       id: `${vertical}-report-${i}`,
       templateId: template.id,
       templateName: template.name,
-      submittedBy: i % 2 === 0 ? "John Doe" : "Jane Smith",
+      submittedBy: i % 2 === 0 ? names[0] : names[1],
       submittedByRole: template.assignedRole,
       scope: template.scope,
       frequency: template.frequency,
       period: dateStr,
-      periodLabel: template.frequency === "daily" ? dateStr : `Week of ${dateStr}`,
+      periodLabel: template.frequency === "daily" ? friendlyDate : `Week of ${friendlyDate}`,
       submittedAt: isSubmitted ? new Date(date.getTime() + 8 * 3600000).toISOString() : null,
       status: isSubmitted ? "submitted" : (isLate ? "late" : "pending"),
       data: isSubmitted ? template.fields.reduce((acc, field) => {
         if (field.type === "number") {
           acc[field.id] = Math.floor(Math.random() * 50) + 5;
         } else if (field.type === "textarea") {
-          acc[field.id] = `Mock progress and details for ${field.label} on ${dateStr}. Everything is on track.`;
+          acc[field.id] = `Progress update for ${field.label} on ${friendlyDate}. All on track.`;
         } else {
           acc[field.id] = "Regular Status";
         }
         return acc;
       }, {} as Record<string, string | number>) : {}
     };
-    
+
     reports.push(report);
   }
-  
+
   return reports;
 };
 
 export const group1ReportConfig: Record<string, VerticalReportConfig> = {
   hr: {
     templates: hrTemplates,
-    submittedReports: generateReports("hr", hrTemplates)
+    submittedReports: generateReports("hr", hrTemplates, ["Priya Sharma", "Arjun Mehta"])
   },
   sales: {
     templates: salesTemplates,
-    submittedReports: generateReports("sales", salesTemplates)
+    submittedReports: generateReports("sales", salesTemplates, ["Rahul Verma", "Neha Kapoor"])
   },
   events: {
     templates: eventsTemplates,
-    submittedReports: generateReports("events", eventsTemplates)
+    submittedReports: generateReports("events", eventsTemplates, ["Aditya Singh", "Pooja Nair"])
   },
   eventhub: {
     templates: eventhubTemplates,
-    submittedReports: generateReports("eventhub", eventhubTemplates)
+    submittedReports: generateReports("eventhub", eventhubTemplates, ["Karan Malhotra", "Sana Sheikh"])
   }
 };

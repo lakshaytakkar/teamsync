@@ -96,8 +96,8 @@ export default function Dashboard() {
           >
             <div className="relative z-10">
               <p className="text-white/75 text-sm font-medium mb-2">👋 {greeting}, Sneha Patel</p>
-              <h1 className="text-3xl font-bold text-white font-heading tracking-tight">LegalNations HR Portal</h1>
-              <p className="text-white/70 text-sm mt-1.5 max-w-2xl">US company formation, HR compliance & team management portal</p>
+              <h1 className="text-3xl font-bold text-white font-heading tracking-tight">LegalNations</h1>
+              <p className="text-white/70 text-sm mt-1.5 max-w-2xl">US company formation, compliance & team operations portal</p>
             </div>
           </div>
         </Fade>

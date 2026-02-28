@@ -527,7 +527,7 @@ export const verticals: Vertical[] = [
         ],
       },
       {
-        title: "Reports",
+        title: "Team Reports",
         defaultUrl: "/admin/team-reports",
         icon: FileText,
         items: [],
