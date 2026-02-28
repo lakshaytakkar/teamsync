@@ -1,7 +1,38 @@
 # TeamSync - Multi-Vertical Team Portal
 
 ## Overview
-TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the Dropship.io design system. It supports 7 branded products — LegalNations (HR), USDrop AI (Sales), GoyoTours (Events), Event Hub (Networking), LBM Lifestyle (Admin), Developer (Internal), EazyToSell (Retail Franchise) — with a config-driven navigation system. Each vertical has its own dashboard, pages, brand logo, and workflows. Built with React, TypeScript, Tailwind CSS, and Shadcn UI.
+TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the Dropship.io design system. It supports 7 branded business products — LegalNations (HR), USDrop AI (Sales), GoyoTours (Events), Event Hub (Networking), LBM Lifestyle (Admin), Developer (Internal), EazyToSell (Retail Franchise) — PLUS 2 cross-business departments: **HRMS** (People & Culture, `/hrms`) and **ATS** (Recruitment, `/ats`). The vertical switcher shows two labeled groups: "Business Products" and "Departments". Each vertical/department has its own dashboard, pages, brand logo, and workflows. Built with React, TypeScript, Tailwind CSS, and Shadcn UI.
+
+## Department Pages
+
+### HRMS (`/hrms/*`) — sky-blue #0EA5E9
+- **Dashboard** `/hrms` — welcome banner, stats (employees/active/leave/positions), dept headcount bars, recent joiners, birthday reminders, pending leave approvals
+- **Employees** `/hrms/employees` — searchable DataTable with dept/status/type filters, Add Employee dialog
+- **Employee Detail** `/hrms/employees/:id` — profile header, WhatsApp+Email actions, 5-tab layout (Overview/Attendance/Leaves/Payroll/Performance)
+- **Onboarding** `/hrms/onboarding` — new joiners with 6-step checklist progress bars
+- **Org Chart** `/hrms/org` — recursive CSS flexbox tree with expand/collapse, dept color stripes
+- **Departments** `/hrms/departments` — card grid with member expansion
+- **Attendance** `/hrms/attendance` — table + calendar grid toggle, present/absent/wfh/half-day stats
+- **Leaves** `/hrms/leaves` — approve/reject actions, type/status filters, Request Leave dialog
+- **Holidays** `/hrms/holidays` — national/optional/company holiday lists
+- **Payroll** `/hrms/payroll` — salary DataTable, Run Payroll confirmation dialog
+- **Payslips** `/hrms/payslips` — processed slips with breakdown dialog (earnings/deductions/net)
+- **Performance** `/hrms/performance` — review DataTable with star ratings, Start Review Cycle dialog
+- **Goals** `/hrms/goals` — OKR card grid with progress bars, status badges
+- **Policies** `/hrms/policies` — category filter pills, view dialog with download
+
+### ATS (`/ats/*`) — violet #8B5CF6
+- **Dashboard** `/ats` — funnel visualization, stats, active jobs list, latest candidates
+- **Jobs** `/ats/jobs` — DataTable with status/priority/type filters, Create Job Opening dialog
+- **Job Detail** `/ats/jobs/:id` — two-column (description+stats left, applicants right), pause/share actions
+- **Candidates** `/ats/candidates` — kanban board (6 stages) + table toggle, Add Candidate dialog
+- **Candidate Detail** `/ats/candidates/:id` — 4-tab layout (Profile/Applications/Interviews/Evaluations), WhatsApp+Email, activity timeline
+- **Talent Pool** `/ats/pool` — passive candidates with card grid, experience level filters
+- **Applications** `/ats/applications` — full DataTable with job/stage/interviewer filters, WhatsApp+Email+Schedule actions
+- **Interviews** `/ats/interviews` — stats (today/week/completed/cancelled), Schedule Interview dialog, meet links
+- **Evaluations** `/ats/evaluations` — completed/pending tabs, scorecard detail dialog with criteria table
+- **Offers** `/ats/offers` — offer management with preview dialog (formatted offer letter), send/accept/decline actions
+- **Analytics** `/ats/analytics` — funnel, source mix bars, time-to-hire by dept, top jobs, interviewer load
 
 ## User Preferences
 - Single font: Plus Jakarta Sans only (Inter fully removed)

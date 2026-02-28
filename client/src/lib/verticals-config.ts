@@ -35,6 +35,11 @@ import {
   UserRound,
   FolderOpen,
   ListChecks,
+  Building2,
+  UserCheck,
+  Award,
+  ClipboardList,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -45,6 +50,8 @@ import { LbmLifestyleLogo } from "@/components/brand/lbm-lifestyle-logo";
 import { DeveloperLogo } from "@/components/brand/developer-logo";
 import { EazyToSellLogo } from "@/components/brand/eazytosell-logo";
 import { EventHubLogo } from "@/components/brand/eventhub-logo";
+import { HrmsLogo } from "@/components/brand/hrms-logo";
+import { AtsLogo } from "@/components/brand/ats-logo";
 
 export interface NavItem {
   title: string;
@@ -68,6 +75,7 @@ export interface Vertical {
   tagline: string;
   description: string;
   navCategories: NavCategory[];
+  isDepartment?: boolean;
 }
 
 export const verticals: Vertical[] = [
@@ -155,7 +163,6 @@ export const verticals: Vertical[] = [
         icon: BarChart3,
         items: [
           { title: "Formation Analytics", url: "/hr/analytics" },
-          { title: "Team Performance", url: "/hr/team-performance" },
         ],
       },
     ],
@@ -611,6 +618,191 @@ export const verticals: Vertical[] = [
       },
     ],
   },
+  {
+    id: "hrms",
+    name: "HR / HRMS",
+    shortName: "HRMS",
+    icon: UserCheck,
+    logo: HrmsLogo,
+    color: "#0EA5E9",
+    tagline: "People & Culture",
+    description: "Employee management, payroll, attendance & performance",
+    isDepartment: true,
+    navCategories: [
+      {
+        title: "Dashboard",
+        defaultUrl: "/hrms",
+        icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/hrms/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/hrms/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/hrms/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/hrms/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
+        title: "Employees",
+        defaultUrl: "/hrms/employees",
+        icon: Users,
+        items: [
+          { title: "All Employees", url: "/hrms/employees" },
+          { title: "Onboarding", url: "/hrms/onboarding" },
+        ],
+      },
+      {
+        title: "Organization",
+        defaultUrl: "/hrms/org",
+        icon: Building2,
+        items: [
+          { title: "Org Chart", url: "/hrms/org" },
+          { title: "Departments", url: "/hrms/departments" },
+        ],
+      },
+      {
+        title: "Attendance",
+        defaultUrl: "/hrms/attendance",
+        icon: Clock,
+        items: [
+          { title: "Attendance Log", url: "/hrms/attendance" },
+          { title: "Leave Requests", url: "/hrms/leaves" },
+          { title: "Holidays", url: "/hrms/holidays" },
+        ],
+      },
+      {
+        title: "Payroll",
+        defaultUrl: "/hrms/payroll",
+        icon: DollarSign,
+        items: [
+          { title: "Payroll Run", url: "/hrms/payroll" },
+          { title: "Payslips", url: "/hrms/payslips" },
+        ],
+      },
+      {
+        title: "Performance",
+        defaultUrl: "/hrms/performance",
+        icon: Award,
+        items: [
+          { title: "Reviews", url: "/hrms/performance" },
+          { title: "Goals & OKRs", url: "/hrms/goals" },
+        ],
+      },
+      {
+        title: "Policies",
+        defaultUrl: "/hrms/policies",
+        icon: Shield,
+        items: [],
+      },
+    ],
+  },
+  {
+    id: "ats",
+    name: "ATS / Recruitment",
+    shortName: "ATS",
+    icon: ClipboardList,
+    logo: AtsLogo,
+    color: "#8B5CF6",
+    tagline: "Recruitment",
+    description: "Candidates, openings, interviews, evaluations & offers",
+    isDepartment: true,
+    navCategories: [
+      {
+        title: "Dashboard",
+        defaultUrl: "/ats",
+        icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/ats/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/ats/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/ats/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/ats/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
+        title: "Jobs",
+        defaultUrl: "/ats/jobs",
+        icon: Briefcase,
+        items: [
+          { title: "All Openings", url: "/ats/jobs" },
+        ],
+      },
+      {
+        title: "Candidates",
+        defaultUrl: "/ats/candidates",
+        icon: UserPlus,
+        items: [
+          { title: "Pipeline", url: "/ats/candidates" },
+          { title: "Talent Pool", url: "/ats/pool" },
+        ],
+      },
+      {
+        title: "Applications",
+        defaultUrl: "/ats/applications",
+        icon: ClipboardList,
+        items: [],
+      },
+      {
+        title: "Interviews",
+        defaultUrl: "/ats/interviews",
+        icon: CalendarCheck,
+        items: [],
+      },
+      {
+        title: "Evaluations",
+        defaultUrl: "/ats/evaluations",
+        icon: Star,
+        items: [],
+      },
+      {
+        title: "Offers",
+        defaultUrl: "/ats/offers",
+        icon: FileText,
+        items: [],
+      },
+      {
+        title: "Analytics",
+        defaultUrl: "/ats/analytics",
+        icon: BarChart3,
+        items: [],
+      },
+    ],
+  },
 ];
 
 export function getVerticalById(id: string): Vertical | undefined {
@@ -633,6 +825,8 @@ export function getAllNavUrls(vertical: Vertical): string[] {
 }
 
 export function detectVerticalFromUrl(location: string): Vertical | undefined {
+  if (location.startsWith("/hrms")) return getVerticalById("hrms");
+  if (location.startsWith("/ats")) return getVerticalById("ats");
   if (location.startsWith("/hr")) return getVerticalById("hr");
   if (location.startsWith("/sales")) return getVerticalById("sales");
   if (location.startsWith("/events")) return getVerticalById("events");

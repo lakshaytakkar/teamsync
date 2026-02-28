@@ -82,6 +82,31 @@ import UniversalChat from "@/pages/universal/chat";
 import UniversalTeam from "@/pages/universal/team";
 import UniversalResources from "@/pages/universal/resources";
 import UniversalTasks from "@/pages/universal/tasks";
+import HrmsDashboard from "@/pages/hrms/dashboard";
+import HrmsEmployees from "@/pages/hrms/employees";
+import HrmsEmployeeDetail from "@/pages/hrms/employee-detail";
+import HrmsOnboarding from "@/pages/hrms/onboarding";
+import HrmsOrgChart from "@/pages/hrms/org-chart";
+import HrmsDepartments from "@/pages/hrms/departments";
+import HrmsAttendance from "@/pages/hrms/attendance";
+import HrmsLeaves from "@/pages/hrms/leaves";
+import HrmsHolidays from "@/pages/hrms/holidays";
+import HrmsPayroll from "@/pages/hrms/payroll";
+import HrmsPayslips from "@/pages/hrms/payslips";
+import HrmsPerformance from "@/pages/hrms/performance";
+import HrmsGoals from "@/pages/hrms/goals";
+import HrmsPolicies from "@/pages/hrms/policies";
+import AtsDashboard from "@/pages/ats/dashboard";
+import AtsJobs from "@/pages/ats/jobs";
+import AtsJobDetail from "@/pages/ats/job-detail";
+import AtsCandidates from "@/pages/ats/candidates";
+import AtsCandidateDetail from "@/pages/ats/candidate-detail";
+import AtsPool from "@/pages/ats/pool";
+import AtsApplications from "@/pages/ats/applications";
+import AtsInterviews from "@/pages/ats/interviews";
+import AtsEvaluations from "@/pages/ats/evaluations";
+import AtsOffers from "@/pages/ats/offers";
+import AtsAnalytics from "@/pages/ats/analytics";
 
 function Router() {
   return (
@@ -182,6 +207,39 @@ function Router() {
       <Route path="/ets/proposals" component={EtsProposals} />
       <Route path="/ets/templates" component={EtsTemplates} />
       <Route path="/ets/settings" component={EtsSettings} />
+      <Route path="/hrms" component={HrmsDashboard} />
+      <Route path="/hrms/chat" component={UniversalChat} />
+      <Route path="/hrms/team" component={UniversalTeam} />
+      <Route path="/hrms/resources" component={UniversalResources} />
+      <Route path="/hrms/tasks" component={UniversalTasks} />
+      <Route path="/hrms/employees/:id" component={HrmsEmployeeDetail} />
+      <Route path="/hrms/employees" component={HrmsEmployees} />
+      <Route path="/hrms/onboarding" component={HrmsOnboarding} />
+      <Route path="/hrms/org" component={HrmsOrgChart} />
+      <Route path="/hrms/departments" component={HrmsDepartments} />
+      <Route path="/hrms/attendance" component={HrmsAttendance} />
+      <Route path="/hrms/leaves" component={HrmsLeaves} />
+      <Route path="/hrms/holidays" component={HrmsHolidays} />
+      <Route path="/hrms/payroll" component={HrmsPayroll} />
+      <Route path="/hrms/payslips" component={HrmsPayslips} />
+      <Route path="/hrms/performance" component={HrmsPerformance} />
+      <Route path="/hrms/goals" component={HrmsGoals} />
+      <Route path="/hrms/policies" component={HrmsPolicies} />
+      <Route path="/ats" component={AtsDashboard} />
+      <Route path="/ats/chat" component={UniversalChat} />
+      <Route path="/ats/team" component={UniversalTeam} />
+      <Route path="/ats/resources" component={UniversalResources} />
+      <Route path="/ats/tasks" component={UniversalTasks} />
+      <Route path="/ats/jobs/:id" component={AtsJobDetail} />
+      <Route path="/ats/jobs" component={AtsJobs} />
+      <Route path="/ats/candidates/:id" component={AtsCandidateDetail} />
+      <Route path="/ats/candidates" component={AtsCandidates} />
+      <Route path="/ats/pool" component={AtsPool} />
+      <Route path="/ats/applications" component={AtsApplications} />
+      <Route path="/ats/interviews" component={AtsInterviews} />
+      <Route path="/ats/evaluations" component={AtsEvaluations} />
+      <Route path="/ats/offers" component={AtsOffers} />
+      <Route path="/ats/analytics" component={AtsAnalytics} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Building2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { verticals } from "@/lib/verticals-config";
 import { useVertical } from "@/lib/vertical-store";
@@ -11,6 +11,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+
+const businessProducts = verticals.filter((v) => !v.isDepartment);
+const departments = verticals.filter((v) => v.isDepartment);
 
 export function VerticalSwitcher() {
   const { currentVertical, setCurrentVertical } = useVertical();
@@ -45,12 +48,11 @@ export function VerticalSwitcher() {
           <ChevronsUpDown className="size-3.5 text-muted-foreground hidden sm:block" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-64" data-testid="vertical-switcher-menu">
-        <DropdownMenuLabel className="text-xs text-muted-foreground font-medium">
-          Switch Product
+      <DropdownMenuContent align="start" className="w-72" data-testid="vertical-switcher-menu">
+        <DropdownMenuLabel className="text-xs text-muted-foreground font-medium uppercase tracking-wider px-2 py-1.5">
+          Business Products
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {verticals.map((v) => {
+        {businessProducts.map((v) => {
           const isActive = currentVertical.id === v.id;
           const LogoComponent = v.logo;
           return (
@@ -58,15 +60,44 @@ export function VerticalSwitcher() {
               key={v.id}
               onClick={() => handleSwitch(v.id)}
               className={cn(
-                "flex items-center gap-3 py-2.5 cursor-pointer",
+                "flex items-center gap-3 py-2 cursor-pointer",
                 isActive && "bg-accent"
               )}
               data-testid={`vertical-option-${v.id}`}
             >
-              <LogoComponent size={42} />
+              <LogoComponent size={36} />
               <div className="flex-1 min-w-0">
-                <p className="text-base font-medium truncate">{v.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{v.tagline} · {v.description}</p>
+                <p className="text-sm font-semibold truncate">{v.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{v.tagline}</p>
+              </div>
+              {isActive && <Check className="size-4 text-primary shrink-0" />}
+            </DropdownMenuItem>
+          );
+        })}
+
+        <DropdownMenuSeparator className="my-1" />
+
+        <DropdownMenuLabel className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wider px-2 py-1.5">
+          <Building2 className="size-3" />
+          Departments
+        </DropdownMenuLabel>
+        {departments.map((v) => {
+          const isActive = currentVertical.id === v.id;
+          const LogoComponent = v.logo;
+          return (
+            <DropdownMenuItem
+              key={v.id}
+              onClick={() => handleSwitch(v.id)}
+              className={cn(
+                "flex items-center gap-3 py-2 cursor-pointer",
+                isActive && "bg-accent"
+              )}
+              data-testid={`vertical-option-${v.id}`}
+            >
+              <LogoComponent size={36} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">{v.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{v.description}</p>
               </div>
               {isActive && <Check className="size-4 text-primary shrink-0" />}
             </DropdownMenuItem>

@@ -1,0 +1,226 @@
+import { useState } from "react";
+import { useLocation } from "wouter";
+import { List, LayoutGrid, Plus, Search } from "lucide-react";
+import { PageTransition, Fade } from "@/components/ui/animated";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
+import { getPersonAvatar } from "@/lib/avatars";
+import { FormDialog } from "@/components/hr/form-dialog";
+import { candidates, jobOpenings } from "@/lib/mock-data-ats";
+
+const pipelineStages = ["applied", "screening", "interview", "evaluation", "offer", "hired"] as const;
+
+const stageConfig: Record<string, { label: string; color: string; bg: string }> = {
+  applied: { label: "Applied", color: "text-slate-700", bg: "bg-slate-50 border-slate-200" },
+  screening: { label: "Screening", color: "text-sky-700", bg: "bg-sky-50 border-sky-200" },
+  interview: { label: "Interview", color: "text-violet-700", bg: "bg-violet-50 border-violet-200" },
+  evaluation: { label: "Evaluation", color: "text-amber-700", bg: "bg-amber-50 border-amber-200" },
+  offer: { label: "Offer", color: "text-orange-700", bg: "bg-orange-50 border-orange-200" },
+  hired: { label: "Hired", color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200" },
+};
+
+const sourceColors: Record<string, string> = {
+  linkedin: "bg-sky-100 text-sky-700",
+  referral: "bg-violet-100 text-violet-700",
+  website: "bg-emerald-100 text-emerald-700",
+  "job-board": "bg-amber-100 text-amber-700",
+  direct: "bg-orange-100 text-orange-700",
+};
+
+export default function AtsCandidates() {
+  const [, setLocation] = useLocation();
+  const isLoading = useSimulatedLoading(700);
+  const [view, setView] = useState<"kanban" | "table">("kanban");
+  const [search, setSearch] = useState("");
+  const [jobFilter, setJobFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [addOpen, setAddOpen] = useState(false);
+
+  const activeCandidates = candidates.filter(c => c.stage !== "rejected");
+  const sources = [...new Set(candidates.map(c => c.source))];
+
+  const filtered = activeCandidates.filter(c => {
+    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) || c.currentRole.toLowerCase().includes(search.toLowerCase());
+    const matchJob = jobFilter === "all" || c.appliedJobId === jobFilter;
+    const matchSource = sourceFilter === "all" || c.source === sourceFilter;
+    return matchSearch && matchJob && matchSource;
+  });
+
+  if (isLoading) {
+    return (
+      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+        <div className="h-10 bg-muted rounded w-48" />
+        <div className="flex gap-4">{[...Array(6)].map((_, i) => <div key={i} className="flex-1 h-64 bg-muted rounded-xl" />)}</div>
+      </div>
+    );
+  }
+
+  return (
+    <PageTransition className="px-16 py-6 lg:px-24 space-y-5">
+      <Fade>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Candidates</h1>
+            <p className="text-sm text-muted-foreground">{activeCandidates.length} candidates in pipeline</p>
+          </div>
+          <div className="flex gap-2">
+            <div className="flex gap-1 bg-muted rounded-lg p-1">
+              <Button variant={view === "kanban" ? "default" : "ghost"} size="sm" onClick={() => setView("kanban")} data-testid="kanban-view-btn"><LayoutGrid className="size-4" /></Button>
+              <Button variant={view === "table" ? "default" : "ghost"} size="sm" onClick={() => setView("table")} data-testid="table-view-btn"><List className="size-4" /></Button>
+            </div>
+            <Button onClick={() => setAddOpen(true)} className="bg-violet-600 hover:bg-violet-700" data-testid="add-candidate-btn">
+              <Plus className="size-4 mr-2" /> Add Candidate
+            </Button>
+          </div>
+        </div>
+      </Fade>
+
+      <Fade>
+        <div className="flex flex-wrap gap-3">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input placeholder="Search candidates..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} data-testid="candidate-search" />
+          </div>
+          <Select value={jobFilter} onValueChange={setJobFilter}>
+            <SelectTrigger className="w-52" data-testid="job-filter"><SelectValue placeholder="All Jobs" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Jobs</SelectItem>
+              {jobOpenings.filter(j => j.status !== "closed").map(j => <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <SelectTrigger className="w-36" data-testid="source-filter"><SelectValue placeholder="Source" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sources</SelectItem>
+              {sources.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      </Fade>
+
+      {view === "kanban" ? (
+        <Fade>
+          <div className="flex gap-4 overflow-x-auto pb-4">
+            {pipelineStages.map((stage) => {
+              const stageCandidates = filtered.filter(c => c.stage === stage);
+              const config = stageConfig[stage];
+              return (
+                <div key={stage} className="flex-shrink-0 w-52" data-testid={`kanban-col-${stage}`}>
+                  <div className={`rounded-t-lg px-3 py-2 border ${config.bg}`}>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs font-semibold ${config.color}`}>{config.label}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium bg-white/80 ${config.color}`}>{stageCandidates.length}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2 mt-2">
+                    {stageCandidates.map(c => (
+                      <Card
+                        key={c.id}
+                        className="border shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => setLocation(`/ats/candidates/${c.id}`)}
+                        data-testid={`candidate-card-${c.id}`}
+                      >
+                        <CardContent className="p-3 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Avatar className="size-7 shrink-0">
+                              <AvatarImage src={getPersonAvatar(c.name, 28)} alt={c.name} />
+                              <AvatarFallback className="text-[9px]">{c.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold truncate">{c.name}</p>
+                              <p className="text-[10px] text-muted-foreground truncate">{c.currentRole}</p>
+                            </div>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground truncate">{c.currentCompany}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">{c.experience}y exp</span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${sourceColors[c.source]}`}>{c.source}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    {stageCandidates.length === 0 && (
+                      <div className="text-center py-6 text-xs text-muted-foreground border-2 border-dashed rounded-lg">Empty</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Fade>
+      ) : (
+        <Fade>
+          <Card className="border-0 shadow-sm overflow-hidden">
+            <CardContent className="p-0">
+              <table className="w-full">
+                <thead className="border-b bg-muted/30">
+                  <tr>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Candidate</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Current Role</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Job Applied</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Exp</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Source</th>
+                    <th className="text-left text-xs font-semibold text-muted-foreground px-4 py-3">Stage</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {filtered.map(c => (
+                    <tr key={c.id} className="hover:bg-muted/30 cursor-pointer" onClick={() => setLocation(`/ats/candidates/${c.id}`)} data-testid={`candidate-row-${c.id}`}>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <Avatar className="size-8"><AvatarImage src={getPersonAvatar(c.name, 32)} /><AvatarFallback className="text-xs">{c.name.split(" ").map(n => n[0]).join("")}</AvatarFallback></Avatar>
+                          <div>
+                            <p className="text-sm font-medium">{c.name}</p>
+                            <p className="text-xs text-muted-foreground">{c.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{c.currentRole} · {c.currentCompany}</td>
+                      <td className="px-4 py-3 text-sm">{c.appliedJobTitle}</td>
+                      <td className="px-4 py-3 text-sm">{c.experience}y</td>
+                      <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sourceColors[c.source]}`}>{c.source}</span></td>
+                      <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${stageConfig[c.stage]?.bg || "bg-muted"} ${stageConfig[c.stage]?.color || "text-muted-foreground"}`}>{c.stage}</span></td>
+                    </tr>
+                  ))}
+                  {filtered.length === 0 && <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground text-sm">No candidates found</td></tr>}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </Fade>
+      )}
+
+      <FormDialog title="Add Candidate" description="Add a new candidate to the recruitment pipeline" open={addOpen} onOpenChange={setAddOpen}>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5"><label className="text-sm font-medium">Full Name</label><Input placeholder="e.g. Aarav Sharma" /></div>
+          <div className="space-y-1.5"><label className="text-sm font-medium">Email</label><Input type="email" placeholder="aarav@email.com" /></div>
+          <div className="space-y-1.5"><label className="text-sm font-medium">Phone</label><Input placeholder="+91 98765 43210" /></div>
+          <div className="space-y-1.5"><label className="text-sm font-medium">Current Role</label><Input placeholder="e.g. Backend Engineer" /></div>
+          <div className="space-y-1.5"><label className="text-sm font-medium">Current Company</label><Input placeholder="e.g. Swiggy" /></div>
+          <div className="space-y-1.5"><label className="text-sm font-medium">Experience (years)</label><Input type="number" placeholder="e.g. 4" /></div>
+          <div className="space-y-1.5"><label className="text-sm font-medium">Applying For</label>
+            <Select><SelectTrigger><SelectValue placeholder="Select job opening" /></SelectTrigger>
+              <SelectContent>{jobOpenings.filter(j => j.status === "active").map(j => <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5"><label className="text-sm font-medium">Source</label>
+            <Select><SelectTrigger><SelectValue placeholder="How did they apply?" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="linkedin">LinkedIn</SelectItem>
+                <SelectItem value="referral">Referral</SelectItem>
+                <SelectItem value="website">Website</SelectItem>
+                <SelectItem value="job-board">Job Board</SelectItem>
+                <SelectItem value="direct">Direct</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <Button className="w-full mt-4 bg-violet-600 hover:bg-violet-700" data-testid="submit-candidate">Add Candidate</Button>
+      </FormDialog>
+    </PageTransition>
+  );
+}
