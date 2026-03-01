@@ -1,7 +1,41 @@
 # TeamSync - Multi-Vertical Team Portal
 
 ## Overview
-TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the Dropship.io design system. It supports 7 branded business products — LegalNations (HR), USDrop AI (Sales), GoyoTours (Events), Event Hub (Networking), LBM Lifestyle (Admin), Developer (Internal), EazyToSell (Retail Franchise) — PLUS 2 cross-business departments: **HRMS** (People & Culture, `/hrms`) and **ATS** (Recruitment, `/ats`). The vertical switcher shows two labeled groups: "Business Products" and "Departments". Each vertical/department has its own dashboard, pages, brand logo, and workflows. Built with React, TypeScript, Tailwind CSS, and Shadcn UI.
+TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the Dropship.io design system. It supports 7 branded business products — LegalNations (HR), USDrop AI (Sales), GoyoTours (Events), Event Hub (Networking), LBM Lifestyle (Admin), Developer (Internal), EazyToSell (Retail Franchise) — PLUS 4 cross-business departments: **HRMS** (People & Culture, `/hrms`), **ATS** (Recruitment, `/ats`), **Sales CRM** (`/crm`, #0369A1), and **Finance & Accounts** (`/finance`, #B45309). The vertical switcher shows two labeled groups: "Business Products" and "Departments". Each vertical/department has its own dashboard, pages, brand logo, and workflows. Built with React, TypeScript, Tailwind CSS, and Shadcn UI.
+
+## Finance & Accounts Department (`/finance/*`) — amber #B45309
+
+### 4 Legal Entities
+| Entity | Type | Jurisdiction | Currency |
+|---|---|---|---|
+| Neom International LLC | Multi-member LLC | Wyoming, USA | USD |
+| Cloudnest LLC | Multi-member LLC | Wyoming, USA | USD |
+| Startup Squad Pvt. Ltd. | Private Limited | Haryana, India | INR |
+| Lumbee International Pvt. Ltd. | Private Limited | Haryana, India | INR |
+
+### Pages
+- **Dashboard** `/finance` — amber gradient hero, 4-company cash position cards, 6 KPI stats, monthly P&L bars, inter-company mini-table, compliance countdown, recent transactions feed
+- **Ledger** `/finance/ledger` — collapsible account tree (Assets/Liabilities/Equity/Revenue/Expenses), Dr/Cr running balance per account, closing balance row, company filter
+- **Transactions** `/finance/transactions` — 60 transactions, list/day-grouped toggle, company+type+gateway+search filters, EOD net totals, footer summary
+- **Journal Entries** `/finance/journal` — 20 double-entry JE records, Dr=Cr balance validation, IC/SE badges, draft "Post Journal" action, left-list + right-detail panel layout
+- **Inter-Company** `/finance/intercompany` — 4×4 balance matrix (open positions), explainer callout, active balances table, exchange rate bar (₹83.20/USD), settlement history
+- **Payments** `/finance/payments` — Razorpay (INR) + Stripe (USD) gateway cards, 25 gateway transactions, reconciliation progress bar, unreconciled row highlighting
+- **Shared Expenses** `/finance/shared-expenses` — 5 allocation rules with stacked % bars, 3 months of history table, context callout (LIPL 60% / SSPL 40% rent split)
+- **Cash Book** `/finance/cashbook` — 20 petty cash entries, day-grouped with running balance, period toggle (week/month/all), category badges
+- **Compliance** `/finance/compliance` — 20 filings (India GST/TDS/ROC + US IRS/Wyoming), days-countdown pills, overdue rows in red-50, collapsible rules reference, Mark Filed action
+- **Reports** `/finance/reports` — P&L / Balance Sheet / Cash Flow / Trial Balance tabs, consolidated 4-company view with INR conversion, PDF/Excel export buttons
+
+### Mock Data (`client/src/lib/mock-data-finance.ts`)
+- 4 company profiles, 40 chart of accounts, 60 transactions, 20 journal entries (with lines), 12 inter-company balances, 25 gateway transactions, 5 shared expense rules, 15 monthly history entries, 20 cash book entries, 20 compliance filings, 10 exchange rates
+- Multi-currency: INR (SSPL, LIPL) + USD (NEOM, CLOUD) at ₹83.20/USD
+
+### Company Color Coding
+| Company | Short | Tailwind Badge |
+|---|---|---|
+| Neom International LLC | NEOM | bg-sky-100 text-sky-700 |
+| Cloudnest LLC | CLOUD | bg-violet-100 text-violet-700 |
+| Startup Squad Pvt. Ltd. | SSPL | bg-emerald-100 text-emerald-700 |
+| Lumbee International Pvt. Ltd. | LIPL | bg-amber-100 text-amber-700 |
 
 ## Department Pages
 

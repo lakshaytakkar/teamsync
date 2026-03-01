@@ -124,6 +124,16 @@ import CrmDeals from "@/pages/crm/deals";
 import CrmActivities from "@/pages/crm/activities";
 import CrmPerformance from "@/pages/crm/performance";
 import CrmTemplates from "@/pages/crm/templates";
+import FinanceDashboard from "@/pages/finance/dashboard";
+import FinanceLedger from "@/pages/finance/ledger";
+import FinanceTransactions from "@/pages/finance/transactions";
+import FinanceJournal from "@/pages/finance/journal";
+import FinanceIntercompany from "@/pages/finance/intercompany";
+import FinancePayments from "@/pages/finance/payments";
+import FinanceSharedExpenses from "@/pages/finance/shared-expenses";
+import FinanceCashBook from "@/pages/finance/cashbook";
+import FinanceCompliance from "@/pages/finance/compliance";
+import FinanceReports from "@/pages/finance/reports";
 import SocialDashboard from "@/pages/social/dashboard";
 import SocialPosts from "@/pages/social/posts";
 import SocialPostDetail from "@/pages/social/post-detail";
@@ -321,6 +331,21 @@ function Router() {
       <Route path="/crm/activities" component={CrmActivities} />
       <Route path="/crm/performance" component={CrmPerformance} />
       <Route path="/crm/templates" component={CrmTemplates} />
+      <Route path="/finance" component={FinanceDashboard} />
+      <Route path="/finance/chat" component={UniversalChat} />
+      <Route path="/finance/team" component={UniversalTeam} />
+      <Route path="/finance/resources" component={UniversalResources} />
+      <Route path="/finance/tasks" component={UniversalTasks} />
+      <Route path="/finance/contacts-important" component={UniversalImportantContacts} />
+      <Route path="/finance/ledger" component={FinanceLedger} />
+      <Route path="/finance/transactions" component={FinanceTransactions} />
+      <Route path="/finance/journal" component={FinanceJournal} />
+      <Route path="/finance/intercompany" component={FinanceIntercompany} />
+      <Route path="/finance/payments" component={FinancePayments} />
+      <Route path="/finance/shared-expenses" component={FinanceSharedExpenses} />
+      <Route path="/finance/cashbook" component={FinanceCashBook} />
+      <Route path="/finance/compliance" component={FinanceCompliance} />
+      <Route path="/finance/reports" component={FinanceReports} />
       <Route path="/social" component={SocialDashboard} />
       <Route path="/social/chat" component={UniversalChat} />
       <Route path="/social/team" component={UniversalTeam} />

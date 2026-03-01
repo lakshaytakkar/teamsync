@@ -44,6 +44,10 @@ import {
   ShieldCheck,
   FileImage,
   AlertTriangle,
+  Landmark,
+  Receipt,
+  CreditCard,
+  BookMarked,
   type LucideIcon,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -57,6 +61,7 @@ import { EventHubLogo } from "@/components/brand/eventhub-logo";
 import { HrmsLogo } from "@/components/brand/hrms-logo";
 import { AtsLogo } from "@/components/brand/ats-logo";
 import { CrmLogo } from "@/components/brand/crm-logo";
+import { FinanceLogo } from "@/components/brand/finance-logo";
 import { SocialLogo } from "@/components/brand/social-logo";
 import { FaireLogo } from "@/components/brand/faire-logo";
 
@@ -1150,6 +1155,109 @@ export const verticals: Vertical[] = [
     ],
   },
   {
+    id: "finance",
+    name: "Finance & Accounts",
+    shortName: "Finance",
+    icon: Landmark,
+    logo: FinanceLogo,
+    color: "#B45309",
+    tagline: "Multi-Entity Accounting",
+    description: "Ledgers, compliance, payments & reports across 4 legal entities",
+    isDepartment: true,
+    navCategories: [
+      {
+        title: "Dashboard",
+        defaultUrl: "/finance",
+        icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/finance/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/finance/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/finance/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/finance/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
+        title: "Ledger",
+        defaultUrl: "/finance/ledger",
+        icon: BookMarked,
+        items: [],
+      },
+      {
+        title: "Transactions",
+        defaultUrl: "/finance/transactions",
+        icon: Receipt,
+        items: [],
+      },
+      {
+        title: "Journal Entries",
+        defaultUrl: "/finance/journal",
+        icon: BookOpen,
+        items: [],
+      },
+      {
+        title: "Inter-Company",
+        defaultUrl: "/finance/intercompany",
+        icon: GitBranch,
+        items: [],
+      },
+      {
+        title: "Payments",
+        defaultUrl: "/finance/payments",
+        icon: CreditCard,
+        items: [],
+      },
+      {
+        title: "Shared Expenses",
+        defaultUrl: "/finance/shared-expenses",
+        icon: Calculator,
+        items: [],
+      },
+      {
+        title: "Cash Book",
+        defaultUrl: "/finance/cashbook",
+        icon: DollarSign,
+        items: [],
+      },
+      {
+        title: "Compliance",
+        defaultUrl: "/finance/compliance",
+        icon: ShieldCheck,
+        items: [],
+      },
+      {
+        title: "Reports",
+        defaultUrl: "/finance/reports",
+        icon: BarChart3,
+        items: [],
+      },
+      {
+        title: "Important Contacts",
+        defaultUrl: "/finance/contacts-important",
+        icon: Phone,
+        items: [],
+      },
+    ],
+  },
+  {
     id: "social",
     name: "SocialDesk",
     shortName: "SocialDesk",
@@ -1265,6 +1373,7 @@ export function detectVerticalFromUrl(location: string): Vertical | undefined {
   if (location.startsWith("/hrms")) return getVerticalById("hrms");
   if (location.startsWith("/ats")) return getVerticalById("ats");
   if (location.startsWith("/crm")) return getVerticalById("crm");
+  if (location.startsWith("/finance")) return getVerticalById("finance");
   if (location.startsWith("/social")) return getVerticalById("social");
   if (location.startsWith("/hr")) return getVerticalById("hr");
   if (location.startsWith("/sales")) return getVerticalById("sales");
