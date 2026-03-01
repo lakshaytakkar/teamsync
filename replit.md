@@ -44,10 +44,20 @@ Complete end-to-end order operations pipeline with 5 new pages:
 - **Bank Transactions** `/faire/bank-transactions` — Reconciliation table; 3 stat cards; unreconciled rows amber-highlighted; Map to Order dialog; Add Transaction dialog
 
 **Real Faire API integration (server/routes.ts):**
+- `GET /api/faire/stores` — lists all active stores (id + name only, credentials never leave server)
 - `POST /api/faire/orders/:id/accept` → `POST faire.com/external-api/v2/orders/:id/processing`
 - `POST /api/faire/orders/:id/cancel` → `POST faire.com/external-api/v2/orders/:id/cancel`
 - `POST /api/faire/orders/:id/shipments` → `POST faire.com/external-api/v2/orders/:id/shipments`
-- Mock mode auto-detected when token absent or contains "mock"
+- Routes now accept `storeId` (UUID) instead of raw token — credentials fetched server-side from Supabase
+- Mock mode when no `storeId` provided
+
+**Supabase Integration (server/supabase.ts):**
+- Project: `ngvrnwjisntjmqrtnume` (teamsync), region: ap-southeast-1
+- `faire` schema with 6 tables: `stores`, `products`, `orders`, `order_items`, `shipments`
+- 6 active stores: Toyarina, Holiday Farm, Super Santa, Buddha Ayurveda, Buddha Yoga, Gullee Gadgets
+- Credentials stored in `faire.stores` (app_credentials + oauth_access_token per store)
+- Server queries via public RPC functions (`faire_list_stores`, `faire_get_store_credentials`) with SECURITY DEFINER
+- Env vars: `SUPABASE_URL` (shared), `SUPABASE_SERVICE_ROLE_KEY` (secret), `SUPABASE_ANON_KEY` (secret)
 
 **Updated existing pages:**
 - **orders.tsx** — Added "Quote" column with linked quotation status badges; "Request Quote" inline button for NEW/PROCESSING orders; Accept/Cancel buttons now call real API routes

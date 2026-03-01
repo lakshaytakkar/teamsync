@@ -15,25 +15,27 @@ export async function getStoreCredentials(storeId: string): Promise<{
   app_credentials: string;
   oauth_access_token: string;
 } | null> {
-  const { data, error } = await supabase
-    .schema("faire")
-    .from("stores")
-    .select("app_credentials, oauth_access_token")
-    .eq("id", storeId)
-    .eq("active", true)
-    .single();
+  const { data, error } = await supabase.rpc("faire_get_store_credentials", {
+    p_store_id: storeId,
+  });
 
-  if (error || !data) return null;
-  return data as { app_credentials: string; oauth_access_token: string };
+  if (error) {
+    console.error("[supabase] getStoreCredentials error:", error.message);
+    return null;
+  }
+
+  const rows = data as { app_credentials: string; oauth_access_token: string }[] | null;
+  if (!rows || rows.length === 0) return null;
+  return rows[0];
 }
 
 export async function listStores(): Promise<{ id: string; name: string; active: boolean }[]> {
-  const { data, error } = await supabase
-    .schema("faire")
-    .from("stores")
-    .select("id, name, active")
-    .order("name");
+  const { data, error } = await supabase.rpc("faire_list_stores");
 
-  if (error || !data) return [];
-  return data as { id: string; name: string; active: boolean }[];
+  if (error) {
+    console.error("[supabase] listStores error:", error.message);
+    return [];
+  }
+
+  return (data as { id: string; name: string; active: boolean }[]) ?? [];
 }
