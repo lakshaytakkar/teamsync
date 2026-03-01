@@ -5,7 +5,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { omsOrders, OmsOrderStatus, OmsOrderType, OmsChannel } from "@/lib/mock-data-oms";
+import { omsOrders } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -17,8 +17,6 @@ const STATUS_COLORS: Record<string, string> = {
   delivered: "bg-emerald-100 text-emerald-700",
   cancelled: "bg-red-100 text-red-700",
   "on-hold": "bg-orange-100 text-orange-700",
-  "in-transit": "bg-blue-100 text-blue-700",
-  packing: "bg-cyan-100 text-cyan-700",
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -70,22 +68,25 @@ export default function OmsOrders() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
-        <div className="h-10 w-48 bg-muted rounded-lg animate-pulse" />
-        <div className="h-12 bg-muted rounded-xl animate-pulse" />
-        <div className="h-96 bg-muted rounded-xl animate-pulse" />
+      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+        <div className="h-12 w-64 bg-muted rounded-lg" />
+        <div className="h-10 bg-muted rounded-xl" />
+        <div className="h-96 bg-muted rounded-xl" />
       </div>
     );
   }
 
   return (
     <PageTransition>
-      <div className="p-6 space-y-5">
+      <div className="px-16 py-6 lg:px-24 space-y-5">
         <Fade>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold" data-testid="orders-heading">Orders</h1>
-              <span className="text-sm bg-cyan-100 text-cyan-700 font-semibold px-2.5 py-0.5 rounded-full">{filtered.length}</span>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold" data-testid="orders-heading">Orders</h1>
+                <span className="text-sm bg-cyan-100 text-cyan-700 font-semibold px-2.5 py-0.5 rounded-full">{omsOrders.length}</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-0.5">{omsOrders.length} orders across B2B, B2C and dropship channels</p>
             </div>
             <Button style={{ backgroundColor: "#0891B2" }} className="text-white hover:opacity-90" data-testid="btn-new-order">
               + New Order
@@ -149,13 +150,13 @@ export default function OmsOrders() {
                 <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground">Amount</th>
                 <th className="text-left py-3 px-3 text-xs font-medium text-muted-foreground">Payment</th>
                 <th className="text-left py-3 px-3 text-xs font-medium text-muted-foreground">Status</th>
+                <th className="text-left py-3 px-3 text-xs font-medium text-muted-foreground">Assigned To</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((order) => (
                 <Fragment key={order.id}>
                   <tr
-                    key={order.id}
                     className="border-b border-border/50 hover:bg-muted/20 cursor-pointer"
                     onClick={() => setExpanded(expanded === order.id ? null : order.id)}
                     data-testid={`row-order-${order.id}`}
@@ -185,10 +186,11 @@ export default function OmsOrders() {
                     <td className="py-3 px-3">
                       <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize", STATUS_COLORS[order.status])}>{order.status}</span>
                     </td>
+                    <td className="py-3 px-3 text-xs text-muted-foreground">{order.assignedTo || "—"}</td>
                   </tr>
                   {expanded === order.id && (
                     <tr key={`${order.id}-detail`} className="bg-muted/10">
-                      <td colSpan={10} className="px-6 py-4">
+                      <td colSpan={11} className="px-6 py-4">
                         <div className="grid grid-cols-3 gap-6">
                           <div className="col-span-2">
                             <p className="text-xs font-semibold text-muted-foreground mb-2">LINE ITEMS</p>
@@ -231,6 +233,13 @@ export default function OmsOrders() {
                               <p className="text-xs font-semibold text-muted-foreground mb-1.5">SHIP TO</p>
                               <p className="text-xs leading-relaxed">{order.shippingAddress}, {order.city}, {order.state} — {order.pincode}</p>
                               <p className="text-xs text-muted-foreground mt-1">{order.customerPhone}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-muted-foreground mb-1.5">PAYMENT</p>
+                              <div className="flex items-center gap-2">
+                                <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase", PAY_COLORS[order.paymentMode])}>{order.paymentMode}</span>
+                                <span className={cn("text-[10px] font-medium capitalize", order.paymentStatus === "paid" ? "text-emerald-600" : order.paymentStatus === "failed" ? "text-red-600" : "text-amber-600")}>{order.paymentStatus}</span>
+                              </div>
                             </div>
                             <div>
                               <p className="text-xs font-semibold text-muted-foreground mb-2">STATUS TIMELINE</p>

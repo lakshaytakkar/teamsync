@@ -1,6 +1,6 @@
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { useState, useMemo, Fragment } from "react";
-import { ChevronDown, ChevronRight, Search } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, FileText, Truck, ClipboardList, CheckCircle2 } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -60,20 +60,25 @@ export default function OmsReturns() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
-        <div className="h-10 w-48 bg-muted rounded-lg animate-pulse" />
-        <div className="h-20 bg-muted rounded-xl animate-pulse" />
-        <div className="h-96 bg-muted rounded-xl animate-pulse" />
+      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+        <div className="h-14 w-72 bg-muted rounded-lg" />
+        <div className="grid grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-muted rounded-xl" />)}
+        </div>
+        <div className="h-96 bg-muted rounded-xl" />
       </div>
     );
   }
 
   return (
     <PageTransition>
-      <div className="p-6 space-y-5">
+      <div className="px-16 py-6 lg:px-24 space-y-5">
         <Fade>
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold" data-testid="returns-heading">Returns & RMA</h1>
+            <div>
+              <h1 className="text-2xl font-bold" data-testid="returns-heading">Returns & RMA</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">RMA tracking with QC workflow and resolution management</p>
+            </div>
             <Button style={{ backgroundColor: "#0891B2" }} className="text-white hover:opacity-90" data-testid="btn-log-return">
               + Log Return
             </Button>
@@ -81,14 +86,17 @@ export default function OmsReturns() {
 
           <div className="grid grid-cols-4 gap-4">
             {[
-              { label: "Requested", value: summary.requested, color: "text-slate-700", bg: "bg-slate-50" },
-              { label: "Picked Up", value: summary.pickedUp, color: "text-blue-600", bg: "bg-blue-50" },
-              { label: "QC Pending", value: summary.qcPending, color: "text-amber-600", bg: "bg-amber-50" },
-              { label: "Resolved", value: summary.resolved, color: "text-emerald-600", bg: "bg-emerald-50" },
+              { label: "Requested", value: summary.requested, icon: FileText, bg: "bg-slate-50", color: "text-slate-600", valueColor: "" },
+              { label: "Picked Up", value: summary.pickedUp, icon: Truck, bg: "bg-blue-50", color: "text-blue-600", valueColor: "" },
+              { label: "QC Pending", value: summary.qcPending, icon: ClipboardList, bg: "bg-amber-50", color: "text-amber-600", valueColor: "text-amber-600" },
+              { label: "Resolved", value: summary.resolved, icon: CheckCircle2, bg: "bg-emerald-50", color: "text-emerald-600", valueColor: "text-emerald-600" },
             ].map((s, i) => (
-              <div key={i} className={cn("rounded-xl p-3 text-center border border-border", s.bg)}>
-                <p className={cn("text-2xl font-bold", s.color)}>{s.value}</p>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
+              <div key={i} className="border border-border rounded-xl p-4 bg-background">
+                <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center mb-3", s.bg)}>
+                  <s.icon className={cn("size-4", s.color)} />
+                </div>
+                <p className={cn("text-2xl font-bold", s.valueColor)}>{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -146,7 +154,6 @@ export default function OmsReturns() {
               {filtered.map((ret) => (
                 <Fragment key={ret.id}>
                   <tr
-                    key={ret.id}
                     className={cn(
                       "border-b border-border/50 hover:bg-muted/20 cursor-pointer",
                       ret.status === "qc-fail" && "bg-red-50"
@@ -206,7 +213,7 @@ export default function OmsReturns() {
                             </div>
                             {ret.status === "qc-fail" && (
                               <div className="mt-2 p-2 bg-red-100 rounded-lg">
-                                <p className="text-xs text-red-700 font-medium">⚠ Write-off required — units cannot be restocked</p>
+                                <p className="text-xs text-red-700 font-medium">Write-off required — units cannot be restocked</p>
                               </div>
                             )}
                           </div>
@@ -215,8 +222,6 @@ export default function OmsReturns() {
                             <div className="space-y-2 text-xs">
                               <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span className="font-medium capitalize">{ret.resolutionType}</span></div>
                               <div className="flex justify-between"><span className="text-muted-foreground">Handled By</span><span className="font-medium">{ret.handledBy}</span></div>
-                              {ret.pickedDate && <div className="flex justify-between"><span className="text-muted-foreground">Picked Up</span><span className="font-medium">{ret.pickedDate}</span></div>}
-                              {ret.receivedDate && <div className="flex justify-between"><span className="text-muted-foreground">Received</span><span className="font-medium">{ret.receivedDate}</span></div>}
                             </div>
                             {ret.status === "qc-pass" && (
                               <Button className="mt-3 w-full text-xs" style={{ backgroundColor: "#059669" }} data-testid={`btn-restock-${ret.id}`}>

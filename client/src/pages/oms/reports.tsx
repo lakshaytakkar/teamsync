@@ -106,20 +106,23 @@ export default function OmsReports() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
-        <div className="h-10 w-48 bg-muted rounded-lg animate-pulse" />
-        <div className="h-12 bg-muted rounded-xl animate-pulse" />
-        <div className="h-96 bg-muted rounded-xl animate-pulse" />
+      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+        <div className="h-14 w-72 bg-muted rounded-lg" />
+        <div className="h-10 bg-muted rounded-xl" />
+        <div className="h-96 bg-muted rounded-xl" />
       </div>
     );
   }
 
   return (
     <PageTransition>
-      <div className="p-6 space-y-5">
+      <div className="px-16 py-6 lg:px-24 space-y-5">
         <Fade>
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold" data-testid="reports-heading">Reports</h1>
+            <div>
+              <h1 className="text-2xl font-bold" data-testid="reports-heading">Reports</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Fulfillment, inventory, shipping and returns analytics</p>
+            </div>
             <div className="flex items-center gap-2">
               <Select value={period} onValueChange={setPeriod}>
                 <SelectTrigger className="w-36 h-9" data-testid="select-period">
@@ -157,15 +160,15 @@ export default function OmsReports() {
             <div className="grid grid-cols-3 gap-4 mb-4">
               <div className="border border-border rounded-xl p-4 bg-background text-center">
                 <p className="text-3xl font-bold text-emerald-600">{fulfillmentStats.fillRate}%</p>
-                <p className="text-xs text-muted-foreground">Fulfillment Rate</p>
+                <p className="text-xs text-muted-foreground mt-1">Fulfillment Rate</p>
               </div>
               <div className="border border-border rounded-xl p-4 bg-background text-center">
                 <p className="text-3xl font-bold">{omsOrders.length}</p>
-                <p className="text-xs text-muted-foreground">Total Orders</p>
+                <p className="text-xs text-muted-foreground mt-1">Total Orders</p>
               </div>
               <div className="border border-border rounded-xl p-4 bg-background text-center">
                 <p className="text-3xl font-bold text-cyan-600">~4.2 hrs</p>
-                <p className="text-xs text-muted-foreground">Avg Processing Time</p>
+                <p className="text-xs text-muted-foreground mt-1">Avg Processing Time</p>
               </div>
             </div>
 
@@ -228,15 +231,15 @@ export default function OmsReports() {
             <div className="grid grid-cols-3 gap-4 mb-4">
               <div className="border border-border rounded-xl p-4 bg-background text-center">
                 <p className="text-3xl font-bold">₹{(inventoryStats.totalValue / 100000).toFixed(1)}L</p>
-                <p className="text-xs text-muted-foreground">Inventory Value (at cost)</p>
+                <p className="text-xs text-muted-foreground mt-1">Inventory Value (at cost)</p>
               </div>
               <div className="border border-border rounded-xl p-4 bg-background text-center">
                 <p className="text-3xl font-bold text-amber-600">{inventoryStats.slowMoving.length}</p>
-                <p className="text-xs text-muted-foreground">Slow-Moving SKUs (&gt;14 days)</p>
+                <p className="text-xs text-muted-foreground mt-1">Slow-Moving SKUs (&gt;14 days)</p>
               </div>
               <div className="border border-border rounded-xl p-4 bg-background text-center">
                 <p className="text-3xl font-bold">{omsInventory.reduce((s, i) => s + i.qtyOnHand, 0).toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Total Units on Hand</p>
+                <p className="text-xs text-muted-foreground mt-1">Total Units on Hand</p>
               </div>
             </div>
 
@@ -338,7 +341,7 @@ export default function OmsReports() {
                           <td className="py-2.5 px-4 text-right text-xs font-semibold">{count}</td>
                           <td className="py-2.5 px-4 w-24">
                             <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                              <div className="h-full rounded-full bg-cyan-500" style={{ width: `${share * 4}%` }} />
+                              <div className="h-full rounded-full bg-cyan-500" style={{ width: `${Math.min(share * 4, 100)}%` }} />
                             </div>
                           </td>
                         </tr>
@@ -356,15 +359,15 @@ export default function OmsReports() {
             <div className="grid grid-cols-3 gap-4 mb-4">
               <div className="border border-border rounded-xl p-4 bg-background text-center">
                 <p className="text-3xl font-bold text-amber-600">{returnStats.returnRate}%</p>
-                <p className="text-xs text-muted-foreground">Return Rate</p>
+                <p className="text-xs text-muted-foreground mt-1">Return Rate</p>
               </div>
               <div className="border border-border rounded-xl p-4 bg-background text-center">
                 <p className="text-3xl font-bold">{omsReturns.length}</p>
-                <p className="text-xs text-muted-foreground">Total Returns</p>
+                <p className="text-xs text-muted-foreground mt-1">Total Returns</p>
               </div>
               <div className="border border-border rounded-xl p-4 bg-background text-center">
                 <p className="text-3xl font-bold text-cyan-600">~5.2 days</p>
-                <p className="text-xs text-muted-foreground">Avg Resolution Time</p>
+                <p className="text-xs text-muted-foreground mt-1">Avg Resolution Time</p>
               </div>
             </div>
 
@@ -386,7 +389,7 @@ export default function OmsReports() {
                           <td className="py-2 px-4 text-right text-xs font-semibold">{count}</td>
                           <td className="py-2 px-4 w-28">
                             <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                              <div className="h-full rounded-full bg-amber-500" style={{ width: `${pct * 3}%` }} />
+                              <div className="h-full rounded-full bg-amber-500" style={{ width: `${Math.min(pct * 3, 100)}%` }} />
                             </div>
                           </td>
                         </tr>
@@ -406,7 +409,7 @@ export default function OmsReports() {
                     return (
                       <div key={type}>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="font-medium">{labels[type]}</span>
+                          <span className="font-medium">{labels[type] || type}</span>
                           <span className="text-muted-foreground">{count} ({pct}%)</span>
                         </div>
                         <div className="h-2 rounded-full bg-muted overflow-hidden">

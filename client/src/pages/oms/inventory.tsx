@@ -1,11 +1,11 @@
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { useState, useMemo } from "react";
-import { Search, ChevronDown, ChevronRight } from "lucide-react";
+import { Search, ChevronDown, ChevronRight, Package, AlertTriangle, TrendingDown, ArrowUpCircle, Layers } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { omsInventory, omsLocations } from "@/lib/mock-data-oms";
+import { omsInventory, omsLocations, omsProducts } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, { badge: string; row: string }> = {
@@ -29,13 +29,17 @@ export default function OmsInventory() {
   const filtered = useMemo(() => {
     let list = [...omsInventory];
     if (statusFilter !== "all") list = list.filter(i => i.status === statusFilter);
+    if (categoryFilter !== "all") list = list.filter(i => {
+      const p = omsProducts.find(pr => pr.id === i.productId);
+      return p?.category === categoryFilter;
+    });
     if (locationFilter !== "all") list = list.filter(i => i.locationId === locationFilter);
     if (search) list = list.filter(i =>
       i.sku.toLowerCase().includes(search.toLowerCase()) ||
       i.productName.toLowerCase().includes(search.toLowerCase())
     );
     return list;
-  }, [statusFilter, locationFilter, search]);
+  }, [statusFilter, categoryFilter, locationFilter, search]);
 
   const summary = useMemo(() => ({
     total: omsInventory.length,
@@ -56,36 +60,42 @@ export default function OmsInventory() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
-        <div className="h-10 w-48 bg-muted rounded-lg animate-pulse" />
+      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+        <div className="h-14 w-72 bg-muted rounded-lg" />
         <div className="grid grid-cols-5 gap-3">
-          {[...Array(5)].map((_, i) => <div key={i} className="h-16 bg-muted rounded-xl animate-pulse" />)}
+          {[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-muted rounded-xl" />)}
         </div>
-        <div className="h-96 bg-muted rounded-xl animate-pulse" />
+        <div className="h-96 bg-muted rounded-xl" />
       </div>
     );
   }
 
   return (
     <PageTransition>
-      <div className="p-6 space-y-5">
+      <div className="px-16 py-6 lg:px-24 space-y-5">
         <Fade>
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold" data-testid="inventory-heading">Inventory</h1>
+            <div>
+              <h1 className="text-2xl font-bold" data-testid="inventory-heading">Inventory</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">{omsInventory.length} SKUs · live stock levels and reorder alerts</p>
+            </div>
             <Button variant="outline" data-testid="btn-stock-adjustment">Stock Adjustment</Button>
           </div>
 
           <div className="grid grid-cols-5 gap-3">
             {[
-              { label: "Total SKUs", value: summary.total, color: "text-foreground" },
-              { label: "Total Units", value: summary.units.toLocaleString(), color: "text-foreground" },
-              { label: "Critical", value: summary.critical, color: "text-red-600" },
-              { label: "Low Stock", value: summary.low, color: "text-amber-600" },
-              { label: "Overstock", value: summary.overstock, color: "text-blue-600" },
+              { label: "Total SKUs", value: summary.total, icon: Package, bg: "bg-cyan-50", color: "text-cyan-600", valueColor: "" },
+              { label: "Total Units", value: summary.units.toLocaleString(), icon: Layers, bg: "bg-blue-50", color: "text-blue-600", valueColor: "" },
+              { label: "Critical", value: summary.critical, icon: AlertTriangle, bg: "bg-red-50", color: "text-red-600", valueColor: "text-red-600" },
+              { label: "Low Stock", value: summary.low, icon: TrendingDown, bg: "bg-amber-50", color: "text-amber-600", valueColor: "text-amber-600" },
+              { label: "Overstock", value: summary.overstock, icon: ArrowUpCircle, bg: "bg-violet-50", color: "text-violet-600", valueColor: "text-blue-600" },
             ].map((s, i) => (
-              <div key={i} className="border border-border rounded-xl p-3 bg-background text-center">
-                <p className={cn("text-xl font-bold", s.color)}>{s.value}</p>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
+              <div key={i} className="border border-border rounded-xl p-4 bg-background">
+                <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center mb-3", s.bg)}>
+                  <s.icon className={cn("size-4", s.color)} />
+                </div>
+                <p className={cn("text-2xl font-bold", s.valueColor)}>{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -104,6 +114,15 @@ export default function OmsInventory() {
               </button>
             ))}
             <div className="flex-1" />
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-44 h-9" data-testid="select-category">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
             <Select value={locationFilter} onValueChange={setLocationFilter}>
               <SelectTrigger className="w-44 h-9" data-testid="select-location">
                 <SelectValue placeholder="Location" />
@@ -118,8 +137,8 @@ export default function OmsInventory() {
               <Input className="pl-8 h-9 w-44" placeholder="Search SKU..." value={search} onChange={e => setSearch(e.target.value)} data-testid="input-search-inventory" />
             </div>
             <div className="flex rounded-lg border border-border overflow-hidden">
-              <button onClick={() => setViewMode("table")} data-testid="btn-view-table" className={cn("px-3 py-1.5 text-xs font-medium", viewMode === "table" ? "bg-cyan-600 text-white" : "bg-background text-muted-foreground hover:bg-muted")}>Table</button>
-              <button onClick={() => setViewMode("location")} data-testid="btn-view-location" className={cn("px-3 py-1.5 text-xs font-medium", viewMode === "location" ? "bg-cyan-600 text-white" : "bg-background text-muted-foreground hover:bg-muted")}>By Location</button>
+              <button onClick={() => setViewMode("table")} data-testid="btn-view-table" className={cn("px-3 py-1.5 text-xs font-medium transition-colors", viewMode === "table" ? "bg-cyan-600 text-white" : "bg-background text-muted-foreground hover:bg-muted")}>Table</button>
+              <button onClick={() => setViewMode("location")} data-testid="btn-view-location" className={cn("px-3 py-1.5 text-xs font-medium transition-colors", viewMode === "location" ? "bg-cyan-600 text-white" : "bg-background text-muted-foreground hover:bg-muted")}>By Location</button>
             </div>
           </div>
         </Fade>
@@ -138,6 +157,7 @@ export default function OmsInventory() {
                   <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground">Reorder Pt.</th>
                   <th className="text-center py-3 px-4 text-xs font-medium text-muted-foreground">Status</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Updated</th>
+                  <th className="py-3 px-4 text-xs font-medium text-muted-foreground">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -156,6 +176,9 @@ export default function OmsInventory() {
                       </span>
                     </td>
                     <td className="py-2.5 px-4 text-xs text-muted-foreground">{inv.lastUpdated}</td>
+                    <td className="py-2.5 px-3">
+                      <Button variant="outline" className="h-6 text-[10px] px-2" data-testid={`btn-reorder-${inv.id}`}>Reorder</Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

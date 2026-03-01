@@ -53,22 +53,25 @@ export default function OmsLocations() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
-        <div className="h-10 w-48 bg-muted rounded-lg animate-pulse" />
+      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+        <div className="h-14 w-72 bg-muted rounded-lg" />
         <div className="grid grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-muted rounded-xl animate-pulse" />)}
+          {[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-muted rounded-xl" />)}
         </div>
-        <div className="h-96 bg-muted rounded-xl animate-pulse" />
+        <div className="h-96 bg-muted rounded-xl" />
       </div>
     );
   }
 
   return (
     <PageTransition>
-      <div className="p-6 space-y-5">
+      <div className="px-16 py-6 lg:px-24 space-y-5">
         <Fade>
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold" data-testid="locations-heading">Storage Locations</h1>
+            <div>
+              <h1 className="text-2xl font-bold" data-testid="locations-heading">Storage Locations</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">{omsLocations.length} storage locations across 4 warehouse zones</p>
+            </div>
             <Button style={{ backgroundColor: "#0891B2" }} className="text-white hover:opacity-90" data-testid="btn-add-location">
               + Add Location
             </Button>
@@ -104,9 +107,14 @@ export default function OmsLocations() {
 
         <Fade>
           <div className="border border-border rounded-xl overflow-hidden bg-background">
+            <div className="p-4 border-b border-border">
+              <p className="text-sm font-semibold">All Locations</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Click a row to see stored inventory</p>
+            </div>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
+                  <th className="w-6 py-3 px-2" />
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Code</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Name</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Zone</th>
@@ -129,6 +137,9 @@ export default function OmsLocations() {
                         onClick={() => setSelectedLocation(isSelected ? null : loc.id)}
                         data-testid={`row-location-${loc.id}`}
                       >
+                        <td className="py-2.5 px-2 text-center">
+                          {isSelected ? <ChevronDown className="size-3.5 text-muted-foreground" /> : <ChevronRight className="size-3.5 text-muted-foreground" />}
+                        </td>
                         <td className="py-2.5 px-4 font-mono text-xs font-semibold text-cyan-700">{loc.code}</td>
                         <td className="py-2.5 px-4 text-xs font-medium">{loc.name}</td>
                         <td className="py-2.5 px-4 text-xs text-muted-foreground">{loc.zone}</td>
@@ -142,9 +153,9 @@ export default function OmsLocations() {
                       </tr>
                       {isSelected && locationInventory.length > 0 && (
                         <tr key={`${loc.id}-inv`} className="bg-cyan-50/50">
-                          <td colSpan={8} className="px-6 py-3">
+                          <td colSpan={9} className="px-6 py-3">
                             <p className="text-xs font-semibold text-muted-foreground mb-2">STORED AT {loc.code}</p>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-4 gap-2">
                               {locationInventory.map(inv => (
                                 <div key={inv.id} className="border border-cyan-200 rounded-lg p-2.5 bg-white">
                                   <p className="font-mono text-[10px] text-muted-foreground">{inv.sku}</p>

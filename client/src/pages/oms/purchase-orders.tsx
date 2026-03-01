@@ -39,11 +39,11 @@ export default function OmsPurchaseOrders() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
-        <div className="h-10 w-48 bg-muted rounded-lg animate-pulse" />
+      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+        <div className="h-14 w-72 bg-muted rounded-lg" />
         <div className="flex gap-4 h-96">
-          <div className="w-64 bg-muted rounded-xl animate-pulse" />
-          <div className="flex-1 bg-muted rounded-xl animate-pulse" />
+          <div className="w-64 bg-muted rounded-xl" />
+          <div className="flex-1 bg-muted rounded-xl" />
         </div>
       </div>
     );
@@ -51,12 +51,15 @@ export default function OmsPurchaseOrders() {
 
   return (
     <PageTransition>
-      <div className="p-6 space-y-5">
+      <div className="px-16 py-6 lg:px-24 space-y-5">
         <Fade>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold" data-testid="po-heading">Purchase Orders</h1>
-              <span className="text-sm bg-cyan-100 text-cyan-700 font-semibold px-2.5 py-0.5 rounded-full">{filtered.length}</span>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold" data-testid="po-heading">Purchase Orders</h1>
+                <span className="text-sm bg-cyan-100 text-cyan-700 font-semibold px-2.5 py-0.5 rounded-full">{filtered.length}</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-0.5">Manage supplier POs and inbound stock receiving</p>
             </div>
             <Button style={{ backgroundColor: "#0891B2" }} className="text-white hover:opacity-90" data-testid="btn-new-po">
               + New PO
@@ -169,7 +172,7 @@ export default function OmsPurchaseOrders() {
                               </span>
                               {isPartial && <span className="text-[10px] text-amber-600 ml-1">(partial)</span>}
                             </td>
-                            <td className="py-2.5 px-5 text-right text-xs text-muted-foreground">₹{line.unitCost}</td>
+                            <td className="py-2.5 px-5 text-right text-xs text-muted-foreground">₹{line.unitCost.toLocaleString()}</td>
                             <td className="py-2.5 px-5 text-right text-xs font-semibold">₹{line.totalCost.toLocaleString()}</td>
                           </tr>
                         );
@@ -197,7 +200,10 @@ export default function OmsPurchaseOrders() {
               </div>
             ) : (
               <div className="border border-border rounded-xl bg-background h-80 flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Select a Purchase Order to view details</p>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-muted-foreground">No purchase order selected</p>
+                  <p className="text-xs text-muted-foreground mt-1">Click a PO from the list to view details</p>
+                </div>
               </div>
             )}
           </div>

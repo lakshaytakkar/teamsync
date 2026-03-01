@@ -4,10 +4,10 @@ import { Search, AlertTriangle } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { omsShipments, OmsCourier, OmsShipmentStatus } from "@/lib/mock-data-oms";
+import { omsShipments, omsOrders } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
 
-const COURIERS: OmsCourier[] = ["Delhivery", "Shiprocket", "DTDC", "BlueDart", "Ekart"];
+const COURIERS = ["Delhivery", "Shiprocket", "DTDC", "BlueDart", "Ekart"] as const;
 
 const COURIER_STYLES: Record<string, { bg: string; badge: string; abbr: string }> = {
   Delhivery: { bg: "from-blue-50 to-blue-100/50 border-blue-200", badge: "bg-blue-100 text-blue-700", abbr: "DLV" },
@@ -34,6 +34,10 @@ export default function OmsShipments() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
 
+  const customerMap = useMemo(() =>
+    omsOrders.reduce<Record<string, string>>((acc, o) => { acc[o.id] = o.customerName; return acc; }, {}),
+  []);
+
   const courierStats = useMemo(() =>
     COURIERS.map(c => ({
       courier: c,
@@ -54,31 +58,35 @@ export default function OmsShipments() {
     if (search) list = list.filter(s =>
       s.awbNumber.toLowerCase().includes(search.toLowerCase()) ||
       s.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
-      s.city.toLowerCase().includes(search.toLowerCase())
+      s.city.toLowerCase().includes(search.toLowerCase()) ||
+      (customerMap[s.orderId] || "").toLowerCase().includes(search.toLowerCase())
     );
     return list;
-  }, [courierFilter, statusFilter, search]);
+  }, [courierFilter, statusFilter, search, customerMap]);
 
   const rtoShipments = omsShipments.filter(s => s.status === "rto");
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
-        <div className="h-10 w-48 bg-muted rounded-lg animate-pulse" />
+      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+        <div className="h-14 w-72 bg-muted rounded-lg" />
         <div className="grid grid-cols-5 gap-4">
-          {[...Array(5)].map((_, i) => <div key={i} className="h-32 bg-muted rounded-xl animate-pulse" />)}
+          {[...Array(5)].map((_, i) => <div key={i} className="h-32 bg-muted rounded-xl" />)}
         </div>
-        <div className="h-96 bg-muted rounded-xl animate-pulse" />
+        <div className="h-96 bg-muted rounded-xl" />
       </div>
     );
   }
 
   return (
     <PageTransition>
-      <div className="p-6 space-y-5">
+      <div className="px-16 py-6 lg:px-24 space-y-5">
         <Fade>
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold" data-testid="shipments-heading">Shipments</h1>
+            <div>
+              <h1 className="text-2xl font-bold" data-testid="shipments-heading">Shipments</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Track shipments across Delhivery, Shiprocket, DTDC, BlueDart and Ekart</p>
+            </div>
             <Button style={{ backgroundColor: "#0891B2" }} className="text-white hover:opacity-90" data-testid="btn-book-shipment">
               + Book Shipment
             </Button>
@@ -154,7 +162,7 @@ export default function OmsShipments() {
                   key={s}
                   onClick={() => setStatusFilter(s)}
                   data-testid={`filter-shipstatus-${s}`}
-                  className={cn("px-3 py-1.5 text-xs font-medium capitalize",
+                  className={cn("px-3 py-1.5 text-xs font-medium capitalize transition-colors",
                     statusFilter === s ? "bg-cyan-600 text-white" : "bg-background text-muted-foreground hover:bg-muted"
                   )}
                 >
@@ -175,6 +183,7 @@ export default function OmsShipments() {
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">AWB #</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Order #</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Courier</th>
+                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Customer</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">City / State</th>
                   <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground">Weight</th>
                   <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground">COD ₹</th>
@@ -198,6 +207,9 @@ export default function OmsShipments() {
                     <td className="py-2.5 px-4 font-mono text-xs text-muted-foreground">{s.orderNumber}</td>
                     <td className="py-2.5 px-4">
                       <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded", COURIER_STYLES[s.courier]?.badge || "bg-slate-100 text-slate-600")}>{COURIER_STYLES[s.courier]?.abbr || s.courier}</span>
+                    </td>
+                    <td className="py-2.5 px-4">
+                      <p className="text-xs font-medium truncate max-w-[120px]">{customerMap[s.orderId] || "—"}</p>
                     </td>
                     <td className="py-2.5 px-4">
                       <p className="text-xs font-medium">{s.city}</p>

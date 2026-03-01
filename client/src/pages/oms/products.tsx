@@ -9,6 +9,15 @@ import { cn } from "@/lib/utils";
 
 const CATEGORIES = ["Fashion", "Electronics", "Homeware", "Stationery", "Personal Care", "Food"];
 
+const CATEGORY_EMOJI: Record<string, string> = {
+  Fashion: "👗",
+  Electronics: "📱",
+  Homeware: "🏠",
+  Stationery: "📚",
+  "Personal Care": "🧴",
+  Food: "🍵",
+};
+
 export default function OmsProducts() {
   const loading = useSimulatedLoading(600);
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -32,11 +41,11 @@ export default function OmsProducts() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
-        <div className="h-10 w-48 bg-muted rounded-lg animate-pulse" />
-        <div className="h-12 bg-muted rounded-xl animate-pulse" />
+      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+        <div className="h-14 w-72 bg-muted rounded-lg" />
+        <div className="h-10 bg-muted rounded-xl" />
         <div className="grid grid-cols-4 gap-4">
-          {[...Array(8)].map((_, i) => <div key={i} className="h-48 bg-muted rounded-xl animate-pulse" />)}
+          {[...Array(8)].map((_, i) => <div key={i} className="h-48 bg-muted rounded-xl" />)}
         </div>
       </div>
     );
@@ -44,12 +53,15 @@ export default function OmsProducts() {
 
   return (
     <PageTransition>
-      <div className="p-6 space-y-5">
+      <div className="px-16 py-6 lg:px-24 space-y-5">
         <Fade>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold" data-testid="products-heading">Products / SKUs</h1>
-              <span className="text-sm bg-cyan-100 text-cyan-700 font-semibold px-2.5 py-0.5 rounded-full">{filtered.length}</span>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold" data-testid="products-heading">Products / SKUs</h1>
+                <span className="text-sm bg-cyan-100 text-cyan-700 font-semibold px-2.5 py-0.5 rounded-full">{filtered.length}</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-0.5">{omsProducts.length} products · inventory and dropship catalog</p>
             </div>
             <Button style={{ backgroundColor: "#0891B2" }} className="text-white hover:opacity-90" data-testid="btn-add-product">
               + Add Product
@@ -90,8 +102,8 @@ export default function OmsProducts() {
               <Input className="pl-8 h-9 w-48" placeholder="Search SKU..." value={search} onChange={e => setSearch(e.target.value)} data-testid="input-search-products" />
             </div>
             <div className="flex rounded-lg border border-border overflow-hidden">
-              <button onClick={() => setViewMode("grid")} className={cn("px-3 py-1.5 text-xs font-medium", viewMode === "grid" ? "bg-cyan-600 text-white" : "bg-background text-muted-foreground")}>Grid</button>
-              <button onClick={() => setViewMode("table")} className={cn("px-3 py-1.5 text-xs font-medium", viewMode === "table" ? "bg-cyan-600 text-white" : "bg-background text-muted-foreground")}>Table</button>
+              <button onClick={() => setViewMode("grid")} className={cn("px-3 py-1.5 text-xs font-medium transition-colors", viewMode === "grid" ? "bg-cyan-600 text-white" : "bg-background text-muted-foreground hover:bg-muted")}>Grid</button>
+              <button onClick={() => setViewMode("table")} className={cn("px-3 py-1.5 text-xs font-medium transition-colors", viewMode === "table" ? "bg-cyan-600 text-white" : "bg-background text-muted-foreground hover:bg-muted")}>Table</button>
             </div>
           </div>
         </Fade>
@@ -109,9 +121,7 @@ export default function OmsProducts() {
                         data-testid={`card-product-${p.id}`}
                       >
                         <div className="h-28 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                          <span className="text-2xl">
-                            {p.category === "Fashion" ? "👗" : p.category === "Electronics" ? "📱" : p.category === "Homeware" ? "🏠" : p.category === "Stationery" ? "📚" : p.category === "Personal Care" ? "🧴" : "🍵"}
-                          </span>
+                          <span className="text-2xl">{CATEGORY_EMOJI[p.category] || "📦"}</span>
                         </div>
                         <div className="p-3">
                           <div className="flex items-start justify-between gap-1 mb-1.5">
@@ -124,7 +134,7 @@ export default function OmsProducts() {
                           </div>
                           <p className="text-xs font-semibold leading-tight mb-2 line-clamp-2">{p.name}</p>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold">₹{p.mrp}</span>
+                            <span className="text-xs font-bold">₹{p.mrp.toLocaleString()}</span>
                             <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium",
                               p.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
                             )}>
@@ -161,8 +171,8 @@ export default function OmsProducts() {
                         <td className="py-2.5 px-4 text-xs font-medium">{p.name}</td>
                         <td className="py-2.5 px-4 text-xs text-muted-foreground">{p.category}</td>
                         <td className="py-2.5 px-4 font-mono text-xs text-muted-foreground">{p.hsnCode}</td>
-                        <td className="py-2.5 px-4 text-right font-semibold text-xs">₹{p.mrp}</td>
-                        <td className="py-2.5 px-4 text-right text-xs text-muted-foreground">₹{p.costPrice}</td>
+                        <td className="py-2.5 px-4 text-right font-semibold text-xs">₹{p.mrp.toLocaleString()}</td>
+                        <td className="py-2.5 px-4 text-right text-xs text-muted-foreground">₹{p.costPrice.toLocaleString()}</td>
                         <td className="py-2.5 px-4 text-right text-xs text-muted-foreground">{p.weightGrams}g</td>
                         <td className="py-2.5 px-4 text-center">
                           <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", p.fulfillmentType === "dropship" ? "bg-violet-100 text-violet-700" : "bg-cyan-100 text-cyan-700")}>
@@ -189,7 +199,7 @@ export default function OmsProducts() {
                 <button onClick={() => setSelected(null)} data-testid="btn-close-detail"><X className="size-4 text-muted-foreground" /></button>
               </div>
               <div className="h-32 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center text-4xl">
-                {selectedProduct.category === "Fashion" ? "👗" : selectedProduct.category === "Electronics" ? "📱" : selectedProduct.category === "Homeware" ? "🏠" : selectedProduct.category === "Stationery" ? "📚" : selectedProduct.category === "Personal Care" ? "🧴" : "🍵"}
+                {CATEGORY_EMOJI[selectedProduct.category] || "📦"}
               </div>
               <div className="p-4 space-y-3">
                 <div>
@@ -197,20 +207,29 @@ export default function OmsProducts() {
                   <p className="font-bold text-sm leading-tight mt-0.5">{selectedProduct.name}</p>
                   <p className="text-xs text-muted-foreground">{selectedProduct.brand}</p>
                 </div>
-                {[
-                  ["Category", selectedProduct.category],
-                  ["HSN Code", selectedProduct.hsnCode],
-                  ["MRP", `₹${selectedProduct.mrp}`],
-                  ["Cost Price", `₹${selectedProduct.costPrice}`],
-                  ["Weight", `${selectedProduct.weightGrams} g`],
-                  ["Dimensions", `${selectedProduct.dimensions.l}×${selectedProduct.dimensions.w}×${selectedProduct.dimensions.h} cm`],
-                  ["Fulfillment", selectedProduct.fulfillmentType],
-                ].map(([label, value]) => (
-                  <div key={label} className="flex justify-between">
-                    <span className="text-xs text-muted-foreground">{label}</span>
-                    <span className="text-xs font-medium">{value}</span>
-                  </div>
-                ))}
+                <div className="flex gap-1">
+                  <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                    selectedProduct.fulfillmentType === "dropship" ? "bg-violet-100 text-violet-700" : "bg-cyan-100 text-cyan-700"
+                  )}>{selectedProduct.fulfillmentType}</span>
+                  <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                    selectedProduct.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+                  )}>{selectedProduct.isActive ? "Active" : "Inactive"}</span>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    ["Category", selectedProduct.category],
+                    ["HSN Code", selectedProduct.hsnCode],
+                    ["MRP", `₹${selectedProduct.mrp.toLocaleString()}`],
+                    ["Cost Price", `₹${selectedProduct.costPrice.toLocaleString()}`],
+                    ["Weight", `${selectedProduct.weightGrams} g`],
+                    ["Dimensions", `${selectedProduct.dimensions.l}×${selectedProduct.dimensions.w}×${selectedProduct.dimensions.h} cm`],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex justify-between">
+                      <span className="text-xs text-muted-foreground">{label}</span>
+                      <span className="text-xs font-medium">{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
