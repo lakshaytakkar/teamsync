@@ -16,7 +16,7 @@ export function VerticalSwitcher() {
 
   const handleSwitch = (verticalId: string) => {
     const target = verticals.find((v) => v.id === verticalId);
-    if (target && target.id !== currentVertical.id) {
+    if (target) {
       setCurrentVertical(verticalId);
       setLocation(target.navCategories[0].defaultUrl);
     }

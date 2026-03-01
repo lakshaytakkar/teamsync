@@ -2,15 +2,13 @@ import { useState, useMemo } from "react";
 import {
   FileText, User, Users, Crown, ChevronDown,
   Clock, CheckCircle2, AlertCircle, TrendingUp, Eye,
-  Plus, Calendar, File,
+  Plus, Calendar, File, Search,
 } from "lucide-react";
 import { useLocation } from "wouter";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -19,6 +17,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade } from "@/components/ui/animated";
@@ -310,21 +309,30 @@ export default function UniversalReports() {
 
   const [reports, setReports] = useState<SubmittedReport[]>(() => config?.submittedReports ?? []);
   const [filter, setFilter] = useState<FilterType>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [viewReport, setViewReport] = useState<SubmittedReport | null>(null);
   const [submitDialog, setSubmitDialog] = useState<{ open: boolean; template: ReportTemplate | null; replacingId?: string }>({ open: false, template: null });
 
   const today = todayStr();
 
   const filtered = useMemo(() => reports.filter((r) => {
-    if (filter === "all") return true;
-    if (filter === "daily") return r.frequency === "daily";
-    if (filter === "weekly") return r.frequency === "weekly";
-    if (filter === "employee") return r.scope === "employee";
-    if (filter === "department") return r.scope === "department";
-    if (filter === "executive") return r.scope === "executive";
-    if (filter === "pending") return r.status === "pending" || r.status === "late";
+    const matchesFilter = (() => {
+      if (filter === "all") return true;
+      if (filter === "daily") return r.frequency === "daily";
+      if (filter === "weekly") return r.frequency === "weekly";
+      if (filter === "employee") return r.scope === "employee";
+      if (filter === "department") return r.scope === "department";
+      if (filter === "executive") return r.scope === "executive";
+      if (filter === "pending") return r.status === "pending" || r.status === "late";
+      return true;
+    })();
+    if (!matchesFilter) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      return r.templateName.toLowerCase().includes(q) || r.submittedBy.toLowerCase().includes(q);
+    }
     return true;
-  }), [reports, filter]);
+  }), [reports, filter, searchQuery]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, SubmittedReport[]>();
@@ -375,13 +383,6 @@ export default function UniversalReports() {
     { key: "pending", label: "Pending" },
   ];
 
-  const stats = [
-    { label: "Submitted", value: submitted, icon: CheckCircle2, iconClass: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" },
-    { label: "Pending", value: pendingCount, icon: Clock, iconClass: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" },
-    { label: "Overdue", value: lateCount, icon: AlertCircle, iconClass: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
-    { label: "Completion", value: `${completion}%`, icon: TrendingUp, iconClass: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" },
-  ];
-
   if (!vertical) return null;
 
   return (
@@ -396,7 +397,7 @@ export default function UniversalReports() {
         {templates.length > 0 && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="gap-2" style={{ backgroundColor: color, color: "#fff" }}
+              <Button className="gap-2 shrink-0" style={{ backgroundColor: color, color: "#fff" }}
                 data-testid="button-submit-report-dropdown">
                 <Calendar className="size-4" />
                 Submit Report
@@ -416,52 +417,70 @@ export default function UniversalReports() {
         )}
       </div>
 
-      {/* Stats */}
-      {isLoading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[...Array(4)].map((_, i) => <Card key={i} className="animate-pulse h-20 bg-muted" />)}
+      {/* Search bar */}
+      <div className="flex flex-col gap-4">
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search reports..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            data-testid="input-search-reports"
+          />
         </div>
-      ) : (
+
+        {/* Filter pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+          {filterLabels.map(({ key, label }) => (
+            <button
+              key={key}
+              className={cn(
+                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors shrink-0 cursor-pointer",
+                filter === key ? "text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+              style={filter === key ? { backgroundColor: color } : {}}
+              onClick={() => setFilter(key)}
+              data-testid={`filter-${key}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Inline stat summary */}
+      {!isLoading && (
         <Fade>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {stats.map((s) => (
-              <Card key={s.label} data-testid={`stat-${s.label.toLowerCase()}`}>
-                <CardContent className="flex items-center gap-3 p-4">
-                  <div className={cn("size-10 rounded-lg flex items-center justify-center shrink-0", s.iconClass)}>
-                    <s.icon className="size-5" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold leading-none">{s.value}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="size-3.5 text-emerald-500" />
+              <span className="font-medium text-foreground">{submitted}</span> Submitted
+            </span>
+            <span className="text-border">·</span>
+            <span className="flex items-center gap-1.5">
+              <Clock className="size-3.5 text-amber-500" />
+              <span className="font-medium text-foreground">{pendingCount}</span> Pending
+            </span>
+            {lateCount > 0 && (
+              <>
+                <span className="text-border">·</span>
+                <span className="flex items-center gap-1.5">
+                  <AlertCircle className="size-3.5 text-red-500" />
+                  <span className="font-medium text-foreground">{lateCount}</span> Overdue
+                </span>
+              </>
+            )}
+            <span className="text-border">·</span>
+            <span className="flex items-center gap-1.5">
+              <TrendingUp className="size-3.5 text-blue-500" />
+              <span className="font-medium text-foreground">{completion}%</span> Completion
+            </span>
           </div>
         </Fade>
       )}
 
-      {/* Filter pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-        {filterLabels.map(({ key, label }) => (
-          <Button
-            key={key}
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "rounded-full px-4 py-1.5 h-auto text-sm font-medium transition-colors shrink-0",
-              filter === key ? "text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"
-            )}
-            style={filter === key ? { backgroundColor: color } : {}}
-            onClick={() => setFilter(key)}
-            data-testid={`filter-${key}`}
-          >
-            {label}
-          </Button>
-        ))}
-      </div>
-
-      {/* File browser list */}
+      {/* Report list */}
       {isLoading ? (
         <div className="flex flex-col gap-2">
           {[...Array(6)].map((_, i) => <Card key={i} className="animate-pulse h-16 bg-muted" />)}

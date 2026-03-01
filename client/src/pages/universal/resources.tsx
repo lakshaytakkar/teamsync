@@ -283,14 +283,12 @@ export default function UniversalResources() {
 
         <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
           {categories.map(cat => (
-            <Button
+            <button
               key={cat}
-              variant="ghost"
-              size="sm"
               className={cn(
-                "rounded-full px-4 py-1.5 h-auto text-sm font-medium transition-colors",
-                categoryFilter === cat 
-                  ? "text-white" 
+                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors shrink-0 cursor-pointer",
+                categoryFilter === cat
+                  ? "text-white"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               )}
               style={categoryFilter === cat ? { backgroundColor: vertical.color } : {}}
@@ -298,7 +296,7 @@ export default function UniversalResources() {
               data-testid={cat === "All" ? "pill-all" : `pill-${cat}`}
             >
               {cat}
-            </Button>
+            </button>
           ))}
         </div>
       </div>
