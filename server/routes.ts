@@ -19,6 +19,9 @@ import {
 } from "./supabase";
 import { fetchAllOrders, fetchAllProducts, fetchBrandProfile, fetchRetailerProfile, updateVariantInventory } from "./faire-api";
 
+const productCache: { data: unknown[] | null; ts: number } = { data: null, ts: 0 };
+const PRODUCT_CACHE_TTL = 5 * 60 * 1000;
+
 const FAIRE_API_BASE = "https://www.faire.com/external-api/v2";
 
 async function faireRequest(
@@ -73,11 +76,20 @@ export async function registerRoutes(
   });
 
   app.get("/api/faire/products", async (req, res) => {
-    const limit = parseInt(req.query.limit as string) || 5000;
-    const offset = parseInt(req.query.offset as string) || 0;
+    const hasLimit = req.query.limit !== undefined;
+    const hasOffset = req.query.offset !== undefined;
     const slim = req.query.slim !== undefined;
     try {
-      const products = await getAllProducts({ limit, offset });
+      let products: unknown[];
+      if (hasLimit || hasOffset) {
+        products = await getAllProducts({ limit: parseInt(req.query.limit as string) || 5000, offset: parseInt(req.query.offset as string) || 0 });
+      } else if (productCache.data && Date.now() - productCache.ts < PRODUCT_CACHE_TTL) {
+        products = productCache.data;
+      } else {
+        products = await getAllProducts();
+        productCache.data = products;
+        productCache.ts = Date.now();
+      }
       if (slim) {
         const slimProducts = products.map((p: Record<string, unknown>) => {
           const images = (p.images as { url: string }[]) ?? [];
@@ -156,6 +168,7 @@ export async function registerRoutes(
 
       const products = await fetchAllProducts(creds);
       const productsSynced = await syncProducts(storeId, products);
+      productCache.data = null;
 
       const allStoreOrders = await getStoreOrders(storeId, { limit: 5000 });
       const retailersSynced = await extractAndUpsertRetailersFromOrders(allStoreOrders);

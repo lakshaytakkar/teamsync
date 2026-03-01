@@ -74,7 +74,7 @@ Complete end-to-end order operations pipeline with 5 new pages:
 **All 18 Faire frontend pages migrated to real API data via TanStack Query (zero mock-data-faire imports):**
 - **dashboard.tsx** — stores + orders + products via useQuery; computes revenue, pending fulfillment, unique retailers from real data; store cards with per-store stats grouped by `_storeId`; recent orders + top products sections
 - **orders.tsx** — all orders from `/api/faire/orders`; per-store filtering; Accept/Cancel use `order._storeId`; quotation cross-references from mock-data-faire-ops
-- **products.tsx** — slim endpoint `/api/faire/products?slim` (~500KB vs 3.3MB full); product thumbnail images from CDN; store filter; bulk inventory update
+- **products.tsx** — slim endpoint `/api/faire/products?slim` (~1.9MB); all 3022 products across 4 stores; SKU column; product thumbnail images from CDN; store/lifecycle/sale-state filters; search by name or SKU; pagination 50/page; bulk inventory update
 - **order-detail.tsx** — full order data; Accept/Cancel/Add Shipment call real Faire API; quotation/fulfiller/ledger panels from mock-data-faire-ops
 - **product-detail.tsx** — full product data with image gallery; category from `taxonomy_type.name`; reviews fallback
 - **inventory.tsx** — slim products; variant-level inventory with store filter
@@ -88,8 +88,9 @@ Complete end-to-end order operations pipeline with 5 new pages:
 - **quotations.tsx, quotation-detail.tsx, partner-portal.tsx, ledger.tsx, bank-transactions.tsx** — orders/stores from real API; operational mock data from mock-data-faire-ops retained
 
 **Slim products endpoint (`/api/faire/products?slim`):**
-- Strips `images[]`, `description`, `short_description` from products; includes `thumb_url` (first image CDN URL)
-- Reduces payload from ~3.3MB to ~500KB for list views
+- Strips `images[]`, `description`, `short_description` from products; includes `thumb_url` (first image CDN URL) and `sku` per variant
+- Server-side in-memory cache (5min TTL) — first load ~5s, cached loads ~0.2s
+- Backend paginates Supabase RPC in 1000-row batches to fetch all 3022 products (RPC has 1000 row default)
 
 **Mock data (client/src/lib/mock-data-faire-ops.ts):**
 - 4 fulfillers: ShipFast Logistics, GlobalPack Co, QuickFulfill EU, AsiaDirect Supply

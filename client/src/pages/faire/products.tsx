@@ -27,6 +27,7 @@ type ProductSaleState = "FOR_SALE" | "SALES_PAUSED";
 interface FaireStore { id: string; name: string; active: boolean; last_synced_at: string | null }
 interface ProductVariant {
   id: string;
+  sku?: string;
   wholesale_price_cents: number;
   retail_price_cents: number;
   available_quantity: number;
@@ -82,7 +83,7 @@ export default function FaireProducts() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const PAGE_SIZE = 25;
+  const PAGE_SIZE = 50;
 
   const { data: storesData } = useQuery<{ stores: FaireStore[] }>({
     queryKey: ["/api/faire/stores"],
@@ -106,7 +107,12 @@ export default function FaireProducts() {
   const filtered = allProducts.filter(p => {
     if (lifecycle !== "all" && p.lifecycle_state !== lifecycle) return false;
     if (saleState !== "all" && p.sale_state !== saleState) return false;
-    if (search && !(p.name ?? "").toLowerCase().includes(search.toLowerCase())) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const nameMatch = (p.name ?? "").toLowerCase().includes(q);
+      const skuMatch = (p.variants ?? []).some(v => (v.sku ?? "").toLowerCase().includes(q));
+      if (!nameMatch && !skuMatch) return false;
+    }
     return true;
   });
 
@@ -132,6 +138,7 @@ export default function FaireProducts() {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: [`/api/faire/stores/${selectedStore}/products`] });
         queryClient.invalidateQueries({ queryKey: ["/api/faire/products"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/faire/products?slim"] });
         queryClient.invalidateQueries({ queryKey: ["/api/faire/stores"] });
         toast({ title: "Sync Complete", description: `${data.products_synced} products · ${data.orders_synced} orders synced` });
       } else {
@@ -156,6 +163,7 @@ export default function FaireProducts() {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: [`/api/faire/stores/${selectedStore}/products`] });
         queryClient.invalidateQueries({ queryKey: ["/api/faire/products"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/faire/products?slim"] });
         toast({ title: "Inventory Updated", description: `${data.updated} variants set to 10,000 · ${data.failed} failed` });
       } else {
         toast({ title: "Failed", description: data.error ?? "Unknown error", variant: "destructive" });
@@ -189,7 +197,7 @@ export default function FaireProducts() {
             <div className="flex items-center gap-2">
               <select
                 value={selectedStore}
-                onChange={e => { setSelectedStore(e.target.value); setSelectedIds([]); }}
+                onChange={e => { setSelectedStore(e.target.value); setSelectedIds([]); setCurrentPage(1); }}
                 className="h-9 text-sm border rounded-lg px-3 bg-background"
                 data-testid="select-store-filter"
               >
@@ -229,8 +237,8 @@ export default function FaireProducts() {
       <Fade>
         <IndexToolbar
           search={search}
-          onSearch={setSearch}
-          placeholder="Search products..."
+          onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
+          placeholder="Search products or SKU..."
           color={BRAND_COLOR}
           filters={[
             { value: "all", label: "All Lifecycle" },
@@ -240,13 +248,13 @@ export default function FaireProducts() {
             { value: "DELETED", label: "Deleted" },
           ]}
           activeFilter={lifecycle}
-          onFilter={(v) => setLifecycle(v as any)}
+          onFilter={(v) => { setLifecycle(v as any); setCurrentPage(1); }}
           extra={
             <div className="flex gap-1 ml-auto">
               {(["all", "FOR_SALE", "SALES_PAUSED"] as const).map(s => (
                 <button
                   key={s}
-                  onClick={() => setSaleState(s)}
+                  onClick={() => { setSaleState(s); setCurrentPage(1); }}
                   className={`px-3 py-1 text-xs rounded-full border transition-colors ${saleState === s ? "text-white border-transparent" : "bg-background hover:bg-muted"}`}
                   style={saleState === s ? { background: BRAND_COLOR } : {}}
                   data-testid={`filter-sale-${s}`}
@@ -284,6 +292,7 @@ export default function FaireProducts() {
                     />
                   </th>
                   <DataTH>Product</DataTH>
+                  <DataTH>SKU</DataTH>
                   <DataTH>Store</DataTH>
                   <DataTH align="center">Variants</DataTH>
                   <DataTH>Wholesale</DataTH>
@@ -339,6 +348,16 @@ export default function FaireProducts() {
                           </div>
                         </div>
                       </DataTD>
+                      <DataTD>
+                        <div className="text-xs font-mono text-muted-foreground">
+                          {variants.length === 1 ? (variants[0].sku || "—") : (
+                            <span title={variants.map(v => v.sku).filter(Boolean).join(", ")}>
+                              {variants[0]?.sku || "—"}
+                              {variants.length > 1 && <span className="text-[10px] text-muted-foreground/60 ml-1">+{variants.length - 1}</span>}
+                            </span>
+                          )}
+                        </div>
+                      </DataTD>
                       <DataTD><Badge variant="outline" className="text-[10px]">{storeName(product._storeId).split(" ")[0]}</Badge></DataTD>
                       <DataTD align="center" className="font-medium">{variants.length}</DataTD>
                       <DataTD className="text-foreground/80 font-medium">
@@ -385,7 +404,7 @@ export default function FaireProducts() {
                 })}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="p-8 text-center text-sm text-muted-foreground font-medium">
+                    <td colSpan={10} className="p-8 text-center text-sm text-muted-foreground font-medium">
                       {allProducts.length === 0
                         ? "No products synced yet. Select a store and click Sync."
                         : "No products match your filters."}
@@ -396,6 +415,41 @@ export default function FaireProducts() {
             </table>
         </DataTableContainer>
       </Fade>
+
+      {filtered.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground" data-testid="text-pagination-info">
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+              Previous
+            </Button>
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              let page: number;
+              if (totalPages <= 7) page = i + 1;
+              else if (safePage <= 4) page = i + 1;
+              else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+              else page = safePage - 3 + i;
+              return (
+                <Button
+                  key={page} size="sm"
+                  variant={page === safePage ? "default" : "outline"}
+                  className="h-8 w-8 p-0"
+                  style={page === safePage ? { background: BRAND_COLOR } : {}}
+                  onClick={() => setCurrentPage(page)}
+                  data-testid={`btn-page-${page}`}
+                >
+                  {page}
+                </Button>
+              );
+            })}
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       <DetailModal
         open={!!deleteId}
