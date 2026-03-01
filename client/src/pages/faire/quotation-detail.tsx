@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, Star, CheckCircle, AlertTriangle, XCircle, Send,
   ExternalLink, Package, Truck, MessageSquare,
@@ -13,7 +14,6 @@ import { useToast } from "@/hooks/use-toast";
 import {
   faireQuotations, faireFulfillers, type FaireQuotation, type QuotationStatus,
 } from "@/lib/mock-data-faire-ops";
-import { faireOrders } from "@/lib/mock-data-faire";
 import { DetailModal } from "@/components/layout";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -108,6 +108,9 @@ export default function FaireQuotationDetail() {
   const { toast } = useToast();
   const id = params?.id ?? "";
 
+  const { data: ordersData } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const allOrders = ordersData?.orders ?? [];
+
   const [quotations, setQuotations] = useState(faireQuotations);
   const quotation = quotations.find(q => q.id === id);
 
@@ -128,11 +131,11 @@ export default function FaireQuotationDetail() {
     );
   }
 
-  const order = faireOrders.find(o => o.id === quotation.order_id);
+  const order = allOrders.find((o: any) => o.id === quotation.order_id);
   const fulfiller = faireFulfillers.find(f => f.id === quotation.fulfiller_id);
 
-  const grossOrderValue = order ? order.items.reduce((s, i) => s + i.price_cents * i.quantity, 0) : 0;
-  const commission = order?.payout_costs.commission_cents ?? 0;
+  const grossOrderValue = order ? order.items.reduce((s: number, i: any) => s + i.price_cents * i.quantity, 0) : 0;
+  const commission = order?.payout_costs?.commission_cents ?? 0;
   const fairePayout = grossOrderValue - commission;
 
   const itemsCost = quotation.items.reduce((s, i) => s + i.fulfiller_unit_cost_cents * i.ordered_quantity, 0);
@@ -218,7 +221,7 @@ export default function FaireQuotationDetail() {
 
                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Items Ordered</div>
                 <div className="space-y-3">
-                  {order.items.map(oi => {
+                  {order.items.map((oi: any) => {
                     const qi = quotation.items.find(i => i.order_item_id === oi.id);
                     return (
                       <div key={oi.id} className="flex gap-2">

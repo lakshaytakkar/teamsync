@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Bell, TrendingUp, Package, Users, RefreshCw, AlertTriangle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Bell, TrendingUp, Package, Users, AlertTriangle } from "lucide-react";
 import { Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import {
   PageShell,
@@ -10,10 +11,10 @@ import {
   SectionCard,
 } from "@/components/layout";
 import { Button } from "@/components/ui/button";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
-import { faireStores, faireOrders, faireProducts, faireRetailers, type OrderState } from "@/lib/mock-data-faire";
 import { Badge } from "@/components/ui/badge";
+
+type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
 const BRAND_COLOR = "#1A6B45";
 
@@ -32,24 +33,59 @@ const ORDER_STATES: OrderState[] = ["NEW", "PROCESSING", "PRE_TRANSIT", "IN_TRAN
 
 export default function FaireDashboard() {
   const [, setLocation] = useLocation();
-  const isLoading = useSimulatedLoading(700);
   const { toast } = useToast();
   const [selectedStore, setSelectedStore] = useState("all");
 
-  const filteredOrders = selectedStore === "all" ? faireOrders : faireOrders.filter(o => o.storeId === selectedStore);
+  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
+    queryKey: ["/api/faire/stores"],
+  });
 
-  const totalRevenueMTD = faireStores.reduce((s, st) => s + st.monthlyRevenue, 0);
-  const newOrdersToday = faireStores.reduce((s, st) => s + st.todayOrders, 0);
-  const pendingFulfillment = faireOrders.filter(o => o.state === "NEW" || o.state === "PROCESSING").length;
-  const activeRetailers = faireStores.reduce((s, st) => s + st.activeRetailers, 0);
+  const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
+    queryKey: ["/api/faire/orders"],
+  });
 
-  const recentOrders = [...faireOrders]
-    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+  const { data: productsData } = useQuery<{ products: any[] }>({
+    queryKey: ["/api/faire/products"],
+  });
+
+  const isLoading = storesLoading || ordersLoading;
+
+  const stores = storesData?.stores ?? [];
+  const orders = ordersData?.orders ?? [];
+  const products = productsData?.products ?? [];
+
+  const filteredOrders = selectedStore === "all" ? orders : orders.filter((o: any) => o._storeId === selectedStore);
+
+  const totalRevenueMTD = orders.reduce((sum: number, order: any) => {
+    const orderTotal = (order.items ?? []).reduce((s: number, item: any) => s + (item.price_cents ?? 0) * (item.quantity ?? 0), 0);
+    return sum + orderTotal;
+  }, 0);
+
+  const newOrdersToday = orders.filter((o: any) => {
+    const today = new Date().toISOString().slice(0, 10);
+    return o.created_at?.startsWith(today);
+  }).length;
+
+  const pendingFulfillment = orders.filter((o: any) => o.state === "NEW" || o.state === "PROCESSING").length;
+
+  const activeRetailers = new Set(orders.map((o: any) => o.retailer_id)).size;
+
+  const recentOrders = [...orders]
+    .sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
     .slice(0, 6);
 
-  const topProducts = [...faireProducts]
-    .sort((a, b) => b.variants.length - a.variants.length)
+  const topProducts = [...products]
+    .sort((a: any, b: any) => (b.variants?.length ?? 0) - (a.variants?.length ?? 0))
     .slice(0, 5);
+
+  const ordersByStore = orders.reduce((acc: Record<string, any[]>, order: any) => {
+    const sid = order._storeId;
+    if (sid) {
+      if (!acc[sid]) acc[sid] = [];
+      acc[sid].push(order);
+    }
+    return acc;
+  }, {});
 
   const handleSync = () => {
     toast({ title: "Syncing Orders", description: "Fetching latest orders from Faire API..." });
@@ -70,9 +106,9 @@ export default function FaireDashboard() {
   return (
     <PageShell>
       <HeroBanner
-        eyebrow="👋 Good morning, Ananya"
+        eyebrow="Faire Marketplace"
         headline="Faire Marketplace"
-        tagline="Managing 6 brand storefronts · Last synced 14 min ago"
+        tagline={`Managing ${stores.length} brand storefronts`}
         color={BRAND_COLOR}
         colorDark="#2D8A60"
         actions={
@@ -83,7 +119,7 @@ export default function FaireDashboard() {
             data-testid="select-store"
           >
             <option value="all" className="text-foreground">All Stores</option>
-            {faireStores.map(s => <option key={s.id} value={s.id} className="text-foreground">{s.name}</option>)}
+            {stores.map((s: any) => <option key={s.id} value={s.id} className="text-foreground">{s.name}</option>)}
           </select>
         }
       />
@@ -97,10 +133,10 @@ export default function FaireDashboard() {
             <div className="flex-1 space-y-1">
               <button onClick={() => setLocation("/faire/fulfillment")} className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-300 hover:underline" data-testid="link-fulfillment">
                 <span className="font-semibold">{pendingFulfillment} orders need fulfillment</span>
-                <span className="text-amber-600">→</span>
+                <span className="text-amber-600">&rarr;</span>
               </button>
             </div>
-            <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white shrink-0" onClick={() => setLocation("/faire/fulfillment")} data-testid="btn-urgent-action">
+            <Button size="sm" className="bg-amber-500 text-white shrink-0" onClick={() => setLocation("/faire/fulfillment")} data-testid="btn-urgent-action">
               Take Action
             </Button>
           </div>
@@ -112,7 +148,7 @@ export default function FaireDashboard() {
           <StaggerItem>
             <StatCard
               label="Total Revenue MTD"
-              value={`$${(totalRevenueMTD / 1000).toFixed(0)}K`}
+              value={`$${(totalRevenueMTD / 100000).toFixed(0)}K`}
               icon={TrendingUp}
               iconBg="rgba(5, 150, 105, 0.1)"
               iconColor="#059669"
@@ -155,21 +191,29 @@ export default function FaireDashboard() {
           onViewAll={handleSync}
         >
           <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
-            {faireStores.map(store => (
-              <div
-                key={store.id}
-                className="min-w-[160px] shrink-0 rounded-xl border bg-card p-3 cursor-pointer hover:bg-muted/20 transition-colors"
-                onClick={() => setLocation("/faire/stores")}
-                data-testid={`store-mini-card-${store.id}`}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <div className={`size-2 rounded-full ${store.status === "connected" ? "bg-emerald-500" : store.status === "error" ? "bg-red-500" : "bg-gray-400"}`} />
-                  <p className="text-xs font-semibold truncate">{store.name}</p>
+            {stores.map((store: any) => {
+              const storeOrders = ordersByStore[store.id] ?? [];
+              const todayStr = new Date().toISOString().slice(0, 10);
+              const todayOrders = storeOrders.filter((o: any) => o.created_at?.startsWith(todayStr)).length;
+              const storeRevenue = storeOrders.reduce((sum: number, o: any) => {
+                return sum + (o.items ?? []).reduce((s: number, item: any) => s + (item.price_cents ?? 0) * (item.quantity ?? 0), 0);
+              }, 0);
+              return (
+                <div
+                  key={store.id}
+                  className="min-w-[160px] shrink-0 rounded-xl border bg-card p-3 cursor-pointer hover:bg-muted/20 transition-colors"
+                  onClick={() => setLocation("/faire/stores")}
+                  data-testid={`store-mini-card-${store.id}`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`size-2 rounded-full ${store.active ? "bg-emerald-500" : "bg-gray-400"}`} />
+                    <p className="text-xs font-semibold truncate">{store.name}</p>
+                  </div>
+                  <p className="text-base font-bold">{todayOrders} <span className="text-[10px] text-muted-foreground font-normal">orders today</span></p>
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">${(storeRevenue / 100000).toFixed(0)}K <span className="text-muted-foreground font-normal">MTD</span></p>
                 </div>
-                <p className="text-base font-bold">{store.todayOrders} <span className="text-[10px] text-muted-foreground font-normal">orders today</span></p>
-                <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">${(store.monthlyRevenue / 1000).toFixed(0)}K <span className="text-muted-foreground font-normal">MTD</span></p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </SectionCard>
       </Fade>
@@ -178,7 +222,7 @@ export default function FaireDashboard() {
         <div className="flex gap-2 flex-wrap">
           {ORDER_STATES.map(state => {
             const cfg = stateConfig[state];
-            const count = filteredOrders.filter(o => o.state === state).length;
+            const count = filteredOrders.filter((o: any) => o.state === state).length;
             return (
               <div key={state} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium" style={{ background: cfg.bg, color: cfg.color }} data-testid={`state-chip-${state}`}>
                 <span className="text-base font-bold">{count}</span>
@@ -193,11 +237,10 @@ export default function FaireDashboard() {
         <Fade>
           <SectionCard title="Recent Orders" noPadding>
             <div className="space-y-1 p-2">
-              {recentOrders.map(order => {
-                const store = faireStores.find(s => s.id === order.storeId);
-                const retailer = faireRetailers.find(r => r.id === order.retailer_id);
-                const cfg = stateConfig[order.state];
-                const itemsTotal = order.items.reduce((s, i) => s + i.price_cents * i.quantity, 0);
+              {recentOrders.map((order: any) => {
+                const store = stores.find((s: any) => s.id === order._storeId);
+                const cfg = stateConfig[order.state as OrderState] ?? stateConfig.NEW;
+                const itemsTotal = (order.items ?? []).reduce((s: number, i: any) => s + (i.price_cents ?? 0) * (i.quantity ?? 0), 0);
                 return (
                   <div
                     key={order.id}
@@ -207,10 +250,10 @@ export default function FaireDashboard() {
                   >
                     <Badge variant="outline" className="text-[9px] font-mono shrink-0">{order.display_id}</Badge>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate">{retailer?.store_name ?? order.retailer_id}</p>
-                      <p className="text-[10px] text-muted-foreground">{retailer?.city}, {retailer?.state}</p>
+                      <p className="text-xs font-medium truncate">{order.address?.company_name ?? order.retailer_id}</p>
+                      <p className="text-[10px] text-muted-foreground">{order.address?.city}{order.address?.state ? `, ${order.address.state}` : ""}</p>
                     </div>
-                    <Badge variant="outline" className="text-[9px] shrink-0" style={{ color: BRAND_COLOR, borderColor: `${BRAND_COLOR}40` }}>{store?.name.split(" ")[0]}</Badge>
+                    <Badge variant="outline" className="text-[9px] shrink-0" style={{ color: BRAND_COLOR, borderColor: `${BRAND_COLOR}40` }}>{store?.name?.split(" ")[0] ?? "Store"}</Badge>
                     <p className="text-xs font-semibold shrink-0">${(itemsTotal / 100).toFixed(0)}</p>
                     <span className="text-[9px] px-1.5 py-0.5 rounded font-medium shrink-0" style={{ background: cfg.bg, color: cfg.color }}>{cfg.label}</span>
                   </div>
@@ -223,20 +266,20 @@ export default function FaireDashboard() {
         <Fade>
           <SectionCard title="Top Products This Month" noPadding>
             <div className="space-y-1 p-2">
-              {topProducts.map((product, i) => {
-                const store = faireStores.find(s => s.id === product.storeId);
+              {topProducts.map((product: any, i: number) => {
+                const store = stores.find((s: any) => s.id === product._storeId);
                 return (
                   <div key={product.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/20 cursor-pointer transition-colors" onClick={() => setLocation(`/faire/products/${product.id}`)} data-testid={`top-product-${product.id}`}>
                     <div className="size-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style={{ background: BRAND_COLOR }}>{i + 1}</div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{product.name}</p>
                       <div className="flex gap-1 mt-0.5">
-                        <Badge variant="outline" className="text-[9px]">{store?.name.split(" ")[0]}</Badge>
-                        <span className="text-[10px] text-muted-foreground">{product.variants.length} variants</span>
+                        <Badge variant="outline" className="text-[9px]">{store?.name?.split(" ")[0] ?? "Store"}</Badge>
+                        <span className="text-[10px] text-muted-foreground">{product.variants?.length ?? 0} variants</span>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-xs font-bold">{product.variants.length}</p>
+                      <p className="text-xs font-bold">{product.variants?.length ?? 0}</p>
                       <p className="text-[10px] text-muted-foreground">variants</p>
                     </div>
                   </div>

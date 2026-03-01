@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft, Printer, Truck, CheckCircle, XCircle, Zap, AlertTriangle,
+  ArrowLeft, Printer, CheckCircle, XCircle, Zap, AlertTriangle,
   FileText, BookOpen, ExternalLink,
 } from "lucide-react";
 import { PageTransition, Fade } from "@/components/ui/animated";
@@ -11,12 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
-import { faireOrders, faireStores, faireRetailers, type OrderState } from "@/lib/mock-data-faire";
 import {
   faireQuotations, faireFulfillers, faireLedgerEntries,
 } from "@/lib/mock-data-faire-ops";
+
+type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
 const BRAND_COLOR = "#1A6B45";
 const CARRIERS = ["UPS", "FedEx", "USPS", "DHL"];
@@ -73,16 +74,21 @@ function cents(n: number) { return `$${(n / 100).toFixed(2)}`; }
 export default function FaireOrderDetail() {
   const [, setLocation] = useLocation();
   const [, params] = useRoute("/faire/orders/:id");
-  const isLoading = useSimulatedLoading(600);
   const { toast } = useToast();
 
-  const order = faireOrders.find(o => o.id === params?.id) ?? faireOrders[0];
-  const store = faireStores.find(s => s.id === order.storeId);
-  const retailer = faireRetailers.find(r => r.id === order.retailer_id);
+  const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({ queryKey: ['/api/faire/stores'] });
 
-  const linkedQuote = faireQuotations.find(q => q.order_id === order.id);
+  const isLoading = ordersLoading || storesLoading;
+  const orders = ordersData?.orders ?? [];
+  const stores = storesData?.stores ?? [];
+
+  const order = orders.find((o: any) => o.id === params?.id) ?? orders[0];
+  const store = order ? stores.find((s: any) => s.id === order._storeId) : undefined;
+
+  const linkedQuote = order ? faireQuotations.find(q => q.order_id === order.id) : undefined;
   const linkedFulfiller = linkedQuote ? faireFulfillers.find(f => f.id === linkedQuote.fulfiller_id) : null;
-  const linkedLedger = faireLedgerEntries.find(e => e.order_id === order.id);
+  const linkedLedger = order ? faireLedgerEntries.find(e => e.order_id === order.id) : undefined;
 
   const [addShipOpen, setAddShipOpen] = useState(false);
   const [carrier, setCarrier] = useState("UPS");
@@ -98,11 +104,11 @@ export default function FaireOrderDetail() {
 
   const [acceptLoading, setAcceptLoading] = useState(false);
 
-  const cfg = stateConfig[order.state];
-  const timelineIdx = TIMELINE_STATES.indexOf(order.state as OrderState);
-  const itemsTotal = order.items.reduce((sum, i) => sum + i.price_cents * i.quantity, 0);
-  const commissionAmt = order.payout_costs.commission_cents;
-  const payout = itemsTotal - commissionAmt - order.payout_costs.payout_fee_cents;
+  const cfg = order ? stateConfig[order.state as OrderState] : stateConfig.NEW;
+  const timelineIdx = order ? TIMELINE_STATES.indexOf(order.state as OrderState) : -1;
+  const itemsTotal = order ? (order.items ?? []).reduce((sum: number, i: any) => sum + i.price_cents * i.quantity, 0) : 0;
+  const commissionAmt = order?.payout_costs?.commission_cents ?? 0;
+  const payout = itemsTotal - commissionAmt - (order?.payout_costs?.payout_fee_cents ?? 0);
 
   async function handleAccept() {
     setAcceptLoading(true);
@@ -110,7 +116,7 @@ export default function FaireOrderDetail() {
       const res = await fetch(`/api/faire/orders/${order.id}/accept`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brandToken: store?.brandToken }),
+        body: JSON.stringify({ storeId: order._storeId }),
       });
       const data = await res.json() as { success: boolean; state?: string; mock?: boolean; error?: string };
       if (data.success) {
@@ -134,7 +140,7 @@ export default function FaireOrderDetail() {
       const res = await fetch(`/api/faire/orders/${order.id}/cancel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brandToken: store?.brandToken, reason: cancelReason }),
+        body: JSON.stringify({ storeId: order._storeId, reason: cancelReason }),
       });
       const data = await res.json() as { success: boolean; state?: string; mock?: boolean; error?: string };
       if (data.success) {
@@ -165,7 +171,7 @@ export default function FaireOrderDetail() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          brandToken: store?.brandToken,
+          storeId: order._storeId,
           carrier,
           tracking_code: tracking,
           maker_cost_cents: Math.round(parseFloat(makerCostDollars || "0") * 100),
@@ -206,6 +212,19 @@ export default function FaireOrderDetail() {
           </div>
         </div>
       </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <PageTransition className="px-16 py-6 lg:px-24">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => setLocation("/faire/orders")} data-testid="btn-back-not-found">
+            <ArrowLeft size={15} className="mr-1.5" /> Orders
+          </Button>
+          <p className="text-sm text-muted-foreground">Order not found.</p>
+        </div>
+      </PageTransition>
     );
   }
 
@@ -283,7 +302,7 @@ export default function FaireOrderDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {order.items.map(item => {
+                    {(order.items ?? []).map((item: any) => {
                       const isBackordered = item.state === "BACKORDERED";
                       const lineTotal = (item.price_cents * item.quantity / 100).toFixed(2);
                       return (
@@ -292,9 +311,9 @@ export default function FaireOrderDetail() {
                             <p className="text-xs font-medium">{item.product_name}</p>
                             <p className="text-[10px] text-muted-foreground">{item.variant_name}</p>
                             {item.includes_tester && <span className="text-[9px] bg-blue-50 text-blue-600 rounded px-1 font-medium">Tester</span>}
-                            {item.discounts.length > 0 && (
+                            {(item.discounts ?? []).length > 0 && (
                               <div className="mt-0.5">
-                                {item.discounts.map(d => (
+                                {(item.discounts ?? []).map((d: any) => (
                                   <span key={d.id} className="text-[9px] bg-emerald-50 text-emerald-600 rounded px-1 font-medium mr-1">{d.code}</span>
                                 ))}
                               </div>
@@ -337,8 +356,8 @@ export default function FaireOrderDetail() {
                 <div className="space-y-1.5">
                   {[
                     { label: "Items Total", value: `$${(itemsTotal / 100).toFixed(2)}` },
-                    { label: `Commission (${(order.payout_costs.commission_bps / 100).toFixed(0)}%)`, value: `-$${(commissionAmt / 100).toFixed(2)}` },
-                    { label: "Platform Fee", value: order.payout_costs.payout_fee_cents > 0 ? `-$${(order.payout_costs.payout_fee_cents / 100).toFixed(2)}` : "—" },
+                    { label: `Commission${order.payout_costs?.commission_bps ? ` (${(order.payout_costs.commission_bps / 100).toFixed(0)}%)` : ""}`, value: `-$${(commissionAmt / 100).toFixed(2)}` },
+                    { label: "Platform Fee", value: (order.payout_costs?.payout_fee_cents ?? 0) > 0 ? `-$${(order.payout_costs.payout_fee_cents / 100).toFixed(2)}` : "—" },
                   ].map(row => (
                     <div key={row.label} className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">{row.label}</span>
@@ -357,12 +376,12 @@ export default function FaireOrderDetail() {
             </Card>
           </Fade>
 
-          {order.brand_discounts.length > 0 && (
+          {(order.brand_discounts ?? []).length > 0 && (
             <Fade>
               <Card>
                 <CardHeader className="pb-2"><CardTitle className="text-sm">Brand Discounts</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
-                  {order.brand_discounts.map(d => (
+                  {(order.brand_discounts ?? []).map((d: any) => (
                     <div key={d.id} className="flex items-center justify-between text-sm">
                       <span className="font-mono text-xs bg-muted rounded px-1.5 py-0.5">{d.code}</span>
                       <span className="text-xs text-muted-foreground">
@@ -383,25 +402,27 @@ export default function FaireOrderDetail() {
             <Card>
               <CardHeader className="pb-2"><CardTitle className="text-sm">Retailer</CardTitle></CardHeader>
               <CardContent>
-                {retailer ? (
-                  <>
-                    <p className="text-sm font-semibold">{retailer.store_name}</p>
-                    <p className="text-xs text-muted-foreground">{retailer.city}, {retailer.state}</p>
+                <p className="text-sm font-semibold">{order.retailer_id}</p>
+                {order.address?.city && (
+                  <p className="text-xs text-muted-foreground">{order.address.city}{order.address.state_code ? `, ${order.address.state_code}` : order.address.state ? `, ${order.address.state}` : ""}</p>
+                )}
+                {(() => {
+                  const retailerOrders = orders.filter((o: any) => o.retailer_id === order.retailer_id);
+                  const totalSpent = retailerOrders.reduce((sum: number, o: any) => sum + (o.items ?? []).reduce((s: number, i: any) => s + i.price_cents * i.quantity, 0), 0);
+                  return (
                     <div className="mt-2 grid grid-cols-2 gap-2">
                       <div className="bg-muted/40 rounded p-2 text-center">
-                        <p className="text-sm font-bold">{retailer.total_orders}</p>
-                        <p className="text-[10px] text-muted-foreground">Lifetime Orders</p>
+                        <p className="text-sm font-bold">{retailerOrders.length}</p>
+                        <p className="text-[10px] text-muted-foreground">Orders</p>
                       </div>
                       <div className="bg-muted/40 rounded p-2 text-center">
-                        <p className="text-sm font-bold">${(retailer.total_spent / 1000).toFixed(1)}K</p>
+                        <p className="text-sm font-bold">${(totalSpent / 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                         <p className="text-[10px] text-muted-foreground">Total Spent</p>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" className="w-full mt-2 text-xs" onClick={() => setLocation(`/faire/retailers/${retailer.id}`)} data-testid="btn-view-retailer">View Retailer Profile</Button>
-                  </>
-                ) : (
-                  <p className="text-xs text-muted-foreground">{order.retailer_id}</p>
-                )}
+                  );
+                })()}
+                <Button size="sm" variant="outline" className="w-full mt-2 text-xs" onClick={() => setLocation(`/faire/retailers/${order.retailer_id}`)} data-testid="btn-view-retailer">View Retailer Profile</Button>
               </CardContent>
             </Card>
           </Fade>
@@ -568,11 +589,11 @@ export default function FaireOrderDetail() {
                     <CheckCircle size={11} className="inline mr-1" />{shipFaireResult}
                   </div>
                 )}
-                {order.shipments.length === 0 ? (
+                {(order.shipments ?? []).length === 0 ? (
                   <p className="text-xs text-muted-foreground">No shipments yet.</p>
                 ) : (
                   <div className="space-y-2">
-                    {order.shipments.map(ship => (
+                    {(order.shipments ?? []).map((ship: any) => (
                       <div key={ship.id} className="rounded-lg bg-muted/40 p-2 text-xs">
                         <div className="flex items-center gap-1.5">
                           <span className="font-medium">{ship.carrier}</span>

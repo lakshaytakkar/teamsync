@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Plus, FileText, Eye, AlertCircle } from "lucide-react";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import {
   faireQuotations, faireFulfillers, type FaireQuotation, type QuotationStatus,
 } from "@/lib/mock-data-faire-ops";
-import { faireOrders } from "@/lib/mock-data-faire";
 import {
   PageShell, PageHeader, StatGrid, StatCard, IndexToolbar, DataTableContainer,
   DataTH, DataTD, DataTR, DetailModal,
@@ -45,15 +44,15 @@ function quotationFulfillerTotal(q: FaireQuotation): number {
   return q.items.reduce((s, i) => s + i.fulfiller_unit_cost_cents * i.ordered_quantity, 0) + q.fulfiller_shipping_cost_cents;
 }
 
-function orderFairePayout(orderId: string): number {
-  const o = faireOrders.find(x => x.id === orderId);
+function orderFairePayout(orderId: string, orders: any[]): number {
+  const o = orders.find((x: any) => x.id === orderId);
   if (!o) return 0;
-  const gross = o.items.reduce((s, i) => s + i.price_cents * i.quantity, 0);
-  return gross - o.payout_costs.commission_cents;
+  const gross = o.items.reduce((s: number, i: any) => s + i.price_cents * i.quantity, 0);
+  return gross - (o.payout_costs?.commission_cents ?? 0);
 }
 
-function marginPct(q: FaireQuotation): number | null {
-  const payout = orderFairePayout(q.order_id);
+function marginPct(q: FaireQuotation, orders: any[]): number | null {
+  const payout = orderFairePayout(q.order_id, orders);
   if (!payout) return null;
   const cost = quotationFulfillerTotal(q);
   return Math.round(((payout - cost) / payout) * 100);
@@ -61,8 +60,10 @@ function marginPct(q: FaireQuotation): number | null {
 
 export default function FaireQuotations() {
   const [, setLocation] = useLocation();
-  const isLoading = useSimulatedLoading(600);
   const { toast } = useToast();
+
+  const { data: ordersData, isLoading } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const allOrders = ordersData?.orders ?? [];
   const [statusFilter, setStatusFilter] = useState<QuotationStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [quotations, setQuotations] = useState(faireQuotations);
@@ -73,11 +74,11 @@ export default function FaireQuotations() {
 
   const filtered = quotations.filter(q => {
     if (statusFilter !== "all" && q.status !== statusFilter) return false;
-    const order = faireOrders.find(o => o.id === q.order_id);
+    const order = allOrders.find((o: any) => o.id === q.order_id);
     if (search) {
       const s = search.toLowerCase();
       const fulfiller = faireFulfillers.find(f => f.id === q.fulfiller_id);
-      if (!q.id.includes(s) && !order?.display_id.toLowerCase().includes(s) && !fulfiller?.name.toLowerCase().includes(s)) return false;
+      if (!q.id.includes(s) && !String(order?.display_id ?? "").toLowerCase().includes(s) && !fulfiller?.name.toLowerCase().includes(s)) return false;
     }
     return true;
   });
@@ -87,7 +88,7 @@ export default function FaireQuotations() {
   const accepted = quotations.filter(q => q.status === "ACCEPTED").length;
   const acceptedMargins = quotations
     .filter(q => q.status === "ACCEPTED")
-    .map(q => marginPct(q))
+    .map(q => marginPct(q, allOrders))
     .filter((m): m is number => m !== null);
   const avgMargin = acceptedMargins.length ? Math.round(acceptedMargins.reduce((a, b) => a + b, 0) / acceptedMargins.length) : 0;
 
@@ -96,11 +97,11 @@ export default function FaireQuotations() {
       toast({ title: "Select an order and fulfiller", variant: "destructive" });
       return;
     }
-    const order = faireOrders.find(o => o.id === newOrderId)!;
+    const order = allOrders.find((o: any) => o.id === newOrderId)!;
     const id = `q_new_${Date.now()}`;
     const newQ: FaireQuotation = {
-      id, order_id: newOrderId, store_id: order.storeId, fulfiller_id: newFulfillerId,
-      status: "DRAFT", items: order.items.map((oi, idx) => ({
+      id, order_id: newOrderId, store_id: order._storeId ?? order.storeId ?? "", fulfiller_id: newFulfillerId,
+      status: "DRAFT", items: order.items.map((oi: any, idx: number) => ({
         id: `qi_new_${idx}`, quotation_id: id, order_item_id: oi.id,
         variant_id: oi.variant_id, product_id: oi.product_id,
         product_name: oi.product_name,
@@ -118,7 +119,7 @@ export default function FaireQuotations() {
     setLocation(`/faire/quotations/${id}`);
   }
 
-  const newOrProcOrders = faireOrders.filter(o => o.state === "NEW" || o.state === "PROCESSING");
+  const newOrProcOrders = allOrders.filter((o: any) => o.state === "NEW" || o.state === "PROCESSING");
 
   return (
     <PageShell>
@@ -175,11 +176,11 @@ export default function FaireQuotations() {
             </thead>
             <tbody>
               {filtered.map(q => {
-                const order = faireOrders.find(o => o.id === q.order_id);
+                const order = allOrders.find((o: any) => o.id === q.order_id);
                 const fulfiller = faireFulfillers.find(f => f.id === q.fulfiller_id);
                 const ftotal = quotationFulfillerTotal(q);
-                const fpayout = orderFairePayout(q.order_id);
-                const mp = marginPct(q);
+                const fpayout = orderFairePayout(q.order_id, allOrders);
+                const mp = marginPct(q, allOrders);
                 const sc = STATUS_CONFIG[q.status];
                 const marginColor = mp === null ? "#6B7280" : mp > 30 ? "#059669" : mp >= 15 ? "#D97706" : "#DC2626";
                 return (
@@ -268,7 +269,7 @@ export default function FaireQuotations() {
               </SelectTrigger>
               <SelectContent>
                 {newOrProcOrders.map(o => (
-                  <SelectItem key={o.id} value={o.id}>#{o.display_id} — {o.storeId} ({o.state})</SelectItem>
+                  <SelectItem key={o.id} value={o.id}>#{o.display_id} — {o._storeId ?? o.storeId ?? "unknown"} ({o.state})</SelectItem>
                 ))}
               </SelectContent>
             </Select>

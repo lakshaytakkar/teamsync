@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Star, Pencil, Trash2, Tag } from "lucide-react";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
-import { faireProducts, faireStores, type ProductLifecycleState, type ProductSaleState } from "@/lib/mock-data-faire";
 
 const BRAND_COLOR = "#1A6B45";
+
+type ProductLifecycleState = "PUBLISHED" | "DRAFT" | "UNPUBLISHED" | "DELETED";
+type ProductSaleState = "FOR_SALE" | "SALES_PAUSED";
 
 const lifecycleBadge: Record<ProductLifecycleState, { bg: string; color: string; label: string }> = {
   PUBLISHED: { bg: "#ECFDF5", color: "#059669", label: "Published" },
@@ -29,11 +31,21 @@ const saleBadge: Record<ProductSaleState, { bg: string; color: string; label: st
 export default function FaireProductDetail() {
   const [, setLocation] = useLocation();
   const [, params] = useRoute("/faire/products/:id");
-  const isLoading = useSimulatedLoading(600);
   const { toast } = useToast();
 
-  const product = faireProducts.find(p => p.id === params?.id) ?? faireProducts[0];
-  const store = faireStores.find(s => s.id === product.storeId);
+  const { data: productsData, isLoading } = useQuery<{ products: any[] }>({
+    queryKey: ['/api/faire/products'],
+  });
+
+  const { data: storesData } = useQuery<{ stores: any[] }>({
+    queryKey: ['/api/faire/stores'],
+  });
+
+  const products = productsData?.products ?? [];
+  const stores = storesData?.stores ?? [];
+
+  const product = products.find(p => p.id === params?.id) ?? products[0];
+  const store = product ? stores.find(s => s.id === product._storeId) : undefined;
 
   const [editOpen, setEditOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(false);
@@ -44,14 +56,7 @@ export default function FaireProductDetail() {
   const [editRetail, setEditRetail] = useState("");
   const [editQty, setEditQty] = useState("");
 
-  const selectedVariant = product.variants.find(v => v.id === selectedVariantId);
-  const lc = lifecycleBadge[product.lifecycle_state];
-  const sl = saleBadge[product.sale_state];
-  const avgRating = product.reviews.length > 0
-    ? product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length
-    : null;
-
-  if (isLoading) {
+  if (isLoading || !product) {
     return (
       <div className="px-16 py-6 lg:px-24 space-y-5 animate-pulse">
         <div className="h-8 bg-muted rounded w-48" />
@@ -60,6 +65,15 @@ export default function FaireProductDetail() {
       </div>
     );
   }
+
+  const selectedVariant = (product.variants ?? []).find((v: any) => v.id === selectedVariantId);
+  const reviews = product.reviews ?? [];
+  const category = product.taxonomy_type?.name ?? "Uncategorized";
+  const lc = lifecycleBadge[product.lifecycle_state as ProductLifecycleState] ?? lifecycleBadge.DRAFT;
+  const sl = saleBadge[product.sale_state as ProductSaleState] ?? saleBadge.FOR_SALE;
+  const avgRating = reviews.length > 0
+    ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length
+    : null;
 
   return (
     <PageTransition className="px-16 py-6 lg:px-24 space-y-5">
@@ -82,13 +96,13 @@ export default function FaireProductDetail() {
 
       <Fade>
         <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">{store?.name}</Badge>
-          <Badge variant="outline">{product.category}</Badge>
-          <Badge variant="outline">Made in: {product.made_in_country}</Badge>
-          <Badge variant="outline">MOQ: {product.minimum_order_quantity}</Badge>
-          <Badge variant="outline">Units/Case: {product.units_per_case}</Badge>
+          <Badge variant="outline">{store?.name ?? "Unknown Store"}</Badge>
+          <Badge variant="outline">{category}</Badge>
+          <Badge variant="outline">Made in: {product.made_in_country ?? "N/A"}</Badge>
+          <Badge variant="outline">MOQ: {product.minimum_order_quantity ?? 1}</Badge>
+          <Badge variant="outline">Units/Case: {product.units_per_case ?? 1}</Badge>
           {product.preorderable && <Badge variant="outline">Pre-orderable</Badge>}
-          {product.tags.map(tag => (
+          {(product.tags ?? []).map((tag: string) => (
             <div key={tag} className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-xs">
               <Tag size={9} /> {tag}
             </div>
@@ -110,7 +124,7 @@ export default function FaireProductDetail() {
               {[...Array(5)].map((_, i) => <Star key={i} size={14} className={i < Math.floor(avgRating) ? "text-amber-400 fill-amber-400" : "text-muted-foreground"} />)}
               <span className="text-sm font-semibold ml-1">{avgRating.toFixed(1)}</span>
             </div>
-            <span className="text-sm text-muted-foreground">{product.reviews.length} review{product.reviews.length !== 1 ? "s" : ""}</span>
+            <span className="text-sm text-muted-foreground">{reviews.length} review{reviews.length !== 1 ? "s" : ""}</span>
           </div>
         </Fade>
       )}
@@ -132,15 +146,15 @@ export default function FaireProductDetail() {
                 </tr>
               </thead>
               <tbody>
-                {product.variants.map(variant => {
+                {(product.variants ?? []).map((variant: any) => {
                   const isLow = variant.available_quantity > 0 && variant.available_quantity < 5;
                   const isOut = variant.available_quantity === 0;
-                  const vlc = lifecycleBadge[variant.lifecycle_state];
+                  const vlc = lifecycleBadge[(variant.lifecycle_state as ProductLifecycleState)] ?? lifecycleBadge.DRAFT;
                   return (
                     <tr key={variant.id} className={`border-b ${isOut ? "bg-red-50/40 dark:bg-red-950/10" : isLow ? "bg-amber-50/40 dark:bg-amber-950/10" : ""}`} data-testid={`variant-row-${variant.id}`}>
                       <td className="p-3 text-xs font-mono">{variant.sku}</td>
                       <td className="p-3">
-                        {variant.options.map(o => (
+                        {(variant.options ?? []).map((o: any) => (
                           <Badge key={o.name} variant="outline" className="text-[9px] mr-1">{o.name}: {o.value}</Badge>
                         ))}
                       </td>
@@ -166,12 +180,12 @@ export default function FaireProductDetail() {
         </Card>
       </Fade>
 
-      {product.reviews.length > 0 && (
+      {reviews.length > 0 && (
         <Fade>
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm">Product Reviews</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              {product.reviews.slice(0, 5).map(review => (
+              {reviews.slice(0, 5).map((review: any) => (
                 <div key={review.id} className="rounded-lg border p-3" data-testid={`review-${review.id}`}>
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-xs font-semibold">{review.retailer_name}</p>

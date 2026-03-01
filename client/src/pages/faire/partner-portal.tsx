@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Package, Send, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import {
   faireFulfillers, faireQuotations, type FaireQuotation, type FaireQuotationItem,
 } from "@/lib/mock-data-faire-ops";
-import { faireOrders } from "@/lib/mock-data-faire";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -32,7 +32,9 @@ function QuoteCard({
   const [expanded, setExpanded] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
-  const order = faireOrders.find(o => o.id === quotation.order_id);
+  const { data: ordersData } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const allOrders = ordersData?.orders ?? [];
+  const order = allOrders.find((o: any) => o.id === quotation.order_id);
   const [form, setForm] = useState<QuoteForm>({
     itemCosts: Object.fromEntries(quotation.items.map(i => [i.id, ""])),
     shippingCost: "",

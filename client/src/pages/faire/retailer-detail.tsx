@@ -1,14 +1,14 @@
 import { useRoute, useLocation } from "wouter";
-import { ArrowLeft, Mail, Globe, Instagram } from "lucide-react";
-import { SiWhatsapp } from "react-icons/si";
+import { ArrowLeft, Mail } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { faireRetailers, faireOrders, faireStores, type OrderState } from "@/lib/mock-data-faire";
 
 const BRAND_COLOR = "#1A6B45";
+
+type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
 const stateConfig: Record<OrderState, { label: string; color: string; bg: string }> = {
   NEW: { label: "New", color: "#2563EB", bg: "#EFF6FF" },
@@ -24,10 +24,22 @@ const stateConfig: Record<OrderState, { label: string; color: string; bg: string
 export default function FaireRetailerDetail() {
   const [, setLocation] = useLocation();
   const [, params] = useRoute("/faire/retailers/:id");
-  const isLoading = useSimulatedLoading(600);
+  const retailerId = params?.id;
 
-  const retailer = faireRetailers.find(r => r.id === params?.id) ?? faireRetailers[0];
-  const retailerOrders = faireOrders.filter(o => o.retailer_id === retailer.id);
+  const { data: retailerData, isLoading: retailerLoading } = useQuery<{ id: string; name: string; city?: string; state?: string; country?: string }>({
+    queryKey: ['/api/faire/retailers', retailerId],
+    enabled: !!retailerId,
+  });
+
+  const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
+    queryKey: ['/api/faire/orders'],
+  });
+
+  const { data: storesData } = useQuery<{ stores: { id: string; name: string; active: boolean; last_synced_at: string }[] }>({
+    queryKey: ['/api/faire/stores'],
+  });
+
+  const isLoading = retailerLoading || ordersLoading;
 
   if (isLoading) {
     return (
@@ -39,36 +51,55 @@ export default function FaireRetailerDetail() {
     );
   }
 
-  const avgOrderValue = retailer.total_orders > 0 ? Math.round(retailer.total_spent / retailer.total_orders) : 0;
-  const firstOrder = retailerOrders.length > 0 ? retailerOrders.reduce((a, b) => a.created_at < b.created_at ? a : b) : null;
+  const retailer = retailerData;
+  const allOrders = ordersData?.orders ?? [];
+  const stores = storesData?.stores ?? [];
+
+  const retailerOrders = allOrders.filter((o: any) => o.retailer_id === retailerId);
+
+  const totalOrders = retailerOrders.length;
+  const totalSpent = retailerOrders.reduce((sum: number, o: any) => {
+    const orderTotal = (o.items ?? []).reduce((s: number, i: any) => s + (i.price_cents ?? 0) * (i.quantity ?? 0), 0);
+    return sum + orderTotal;
+  }, 0);
+  const totalSpentDollars = totalSpent / 100;
+  const avgOrderValue = totalOrders > 0 ? Math.round(totalSpentDollars / totalOrders) : 0;
+
+  const sortedByDate = [...retailerOrders].sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  const firstOrder = sortedByDate.length > 0 ? sortedByDate[0] : null;
+  const lastOrder = sortedByDate.length > 0 ? sortedByDate[sortedByDate.length - 1] : null;
+
+  const storeIdsSet = new Set(retailerOrders.map((o: any) => o._storeId).filter(Boolean));
+
+  const lastOrderDate = lastOrder ? new Date(lastOrder.created_at) : null;
+  const isActive = lastOrderDate ? (Date.now() - lastOrderDate.getTime()) < 90 * 24 * 60 * 60 * 1000 : false;
+
+  const retailerName = retailer?.name ?? retailerId ?? "Unknown Retailer";
+  const retailerCity = retailer?.city ?? "";
+  const retailerState = retailer?.state ?? "";
+  const retailerCountry = retailer?.country ?? "";
+  const locationParts = [retailerCity, retailerState, retailerCountry].filter(Boolean).join(", ");
 
   return (
     <PageTransition className="px-16 py-6 lg:px-24 space-y-5">
       <Fade>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-3 flex-wrap">
             <Button variant="ghost" size="sm" onClick={() => setLocation("/faire/retailers")} data-testid="btn-back">
               <ArrowLeft size={15} className="mr-1.5" /> Retailers
             </Button>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold font-heading">{retailer.store_name}</h1>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${retailer.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>{retailer.status}</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl font-bold font-heading" data-testid="text-retailer-name">{retailerName}</h1>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${isActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"}`} data-testid="text-retailer-status">{isActive ? "active" : "inactive"}</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">{retailer.name} · {retailer.city}, {retailer.state}</p>
+              {locationParts && <p className="text-xs text-muted-foreground mt-0.5" data-testid="text-retailer-location">{locationParts}</p>}
             </div>
           </div>
-          <div className="flex gap-2">
-            <a href={`https://wa.me/?text=Hello+${encodeURIComponent(retailer.store_name)}`} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50" data-testid="btn-whatsapp">
-                <SiWhatsapp size={13} className="mr-1.5" /> WhatsApp
-              </Button>
-            </a>
-            <a href={`mailto:${retailer.email}`}>
-              <Button size="sm" variant="outline" data-testid="btn-email">
-                <Mail size={13} className="mr-1.5" /> Email
-              </Button>
-            </a>
+          <div className="flex gap-2 flex-wrap">
+            <Button size="sm" variant="outline" onClick={() => setLocation("/faire/retailers")} data-testid="btn-back-alt">
+              <Mail size={13} className="mr-1.5" /> Contact
+            </Button>
           </div>
         </div>
       </Fade>
@@ -80,17 +111,10 @@ export default function FaireRetailerDetail() {
               <CardHeader className="pb-2"><CardTitle className="text-sm">Retailer Info</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Store Name</p><p className="text-sm">{retailer.store_name}</p></div>
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Contact</p><p className="text-sm">{retailer.name}</p></div>
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Email</p><p className="text-sm">{retailer.email}</p></div>
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Location</p><p className="text-sm">{retailer.city}, {retailer.state}, {retailer.country}</p></div>
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Member Since</p><p className="text-sm">{new Date(retailer.created_at).toLocaleDateString()}</p></div>
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Retailer Token</p><p className="text-xs font-mono text-muted-foreground truncate">{retailer.retailer_token}</p></div>
-                </div>
-                {retailer.description && <p className="text-xs text-muted-foreground mt-2 pt-2 border-t">{retailer.description}</p>}
-                <div className="flex gap-2 mt-2">
-                  {retailer.website && <a href={retailer.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-blue-600 hover:underline"><Globe size={11} /> Website</a>}
-                  {retailer.instagram && <a href={`https://instagram.com/${retailer.instagram.replace("@", "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-pink-600 hover:underline"><Instagram size={11} /> {retailer.instagram}</a>}
+                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Name</p><p className="text-sm" data-testid="text-info-name">{retailerName}</p></div>
+                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Retailer ID</p><p className="text-xs font-mono text-muted-foreground truncate" data-testid="text-info-id">{retailerId}</p></div>
+                  {locationParts && <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Location</p><p className="text-sm" data-testid="text-info-location">{locationParts}</p></div>}
+                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Status</p><p className="text-sm" data-testid="text-info-status">{isActive ? "Active" : "Inactive"}</p></div>
                 </div>
               </CardContent>
             </Card>
@@ -101,7 +125,7 @@ export default function FaireRetailerDetail() {
               <CardHeader className="pb-2"><CardTitle className="text-sm">Order History</CardTitle></CardHeader>
               <CardContent className="p-0">
                 {retailerOrders.length === 0 ? (
-                  <div className="p-4 text-sm text-muted-foreground">No orders from this retailer yet.</div>
+                  <div className="p-4 text-sm text-muted-foreground" data-testid="text-no-orders">No orders from this retailer yet.</div>
                 ) : (
                   <table className="w-full text-sm">
                     <thead>
@@ -114,14 +138,14 @@ export default function FaireRetailerDetail() {
                       </tr>
                     </thead>
                     <tbody>
-                      {retailerOrders.map(order => {
-                        const store = faireStores.find(s => s.id === order.storeId);
-                        const cfg = stateConfig[order.state];
-                        const itemsTotal = order.items.reduce((s, i) => s + i.price_cents * i.quantity, 0);
+                      {retailerOrders.map((order: any) => {
+                        const store = stores.find(s => s.id === order._storeId);
+                        const cfg = stateConfig[order.state as OrderState] ?? stateConfig.NEW;
+                        const itemsTotal = (order.items ?? []).reduce((s: number, i: any) => s + (i.price_cents ?? 0) * (i.quantity ?? 0), 0);
                         return (
                           <tr key={order.id} className="border-b hover:bg-accent/30 cursor-pointer" onClick={() => setLocation(`/faire/orders/${order.id}`)} data-testid={`order-history-row-${order.id}`}>
                             <td className="p-3"><Badge variant="outline" className="text-[9px] font-mono">{order.display_id}</Badge></td>
-                            <td className="p-3"><Badge variant="outline" className="text-[10px]">{store?.name.split(" ")[0]}</Badge></td>
+                            <td className="p-3"><Badge variant="outline" className="text-[10px]">{store?.name?.split(" ")[0] ?? "Store"}</Badge></td>
                             <td className="p-3 text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</td>
                             <td className="p-3 text-xs font-semibold">${(itemsTotal / 100).toFixed(2)}</td>
                             <td className="p-3"><span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ background: cfg.bg, color: cfg.color }}>{cfg.label}</span></td>
@@ -142,15 +166,15 @@ export default function FaireRetailerDetail() {
               <CardHeader className="pb-2"><CardTitle className="text-sm">Lifetime Stats</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 {[
-                  { label: "Total Orders", value: retailer.total_orders },
-                  { label: "Total Spent", value: `$${retailer.total_spent.toLocaleString()}` },
+                  { label: "Total Orders", value: totalOrders },
+                  { label: "Total Spent", value: `$${totalSpentDollars.toLocaleString()}` },
                   { label: "Avg Order Value", value: `$${avgOrderValue}` },
-                  { label: "First Order", value: firstOrder ? new Date(firstOrder.created_at).toLocaleDateString() : "—" },
-                  { label: "Last Order", value: retailer.last_ordered ? new Date(retailer.last_ordered).toLocaleDateString() : "—" },
+                  { label: "First Order", value: firstOrder ? new Date(firstOrder.created_at).toLocaleDateString() : "\u2014" },
+                  { label: "Last Order", value: lastOrder ? new Date(lastOrder.created_at).toLocaleDateString() : "\u2014" },
                 ].map((stat, i) => (
-                  <div key={i} className="flex items-center justify-between">
+                  <div key={i} className="flex items-center justify-between gap-2">
                     <span className="text-xs text-muted-foreground">{stat.label}</span>
-                    <span className="text-sm font-semibold">{stat.value}</span>
+                    <span className="text-sm font-semibold" data-testid={`text-stat-${stat.label.toLowerCase().replace(/\s+/g, "-")}`}>{stat.value}</span>
                   </div>
                 ))}
               </CardContent>
@@ -162,10 +186,11 @@ export default function FaireRetailerDetail() {
               <CardHeader className="pb-2"><CardTitle className="text-sm">Orders From</CardTitle></CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-1.5">
-                  {retailer.storeIds.map(sid => {
-                    const store = faireStores.find(s => s.id === sid);
-                    return <Badge key={sid} variant="outline" style={{ borderColor: `${BRAND_COLOR}40`, color: BRAND_COLOR }}>{store?.name}</Badge>;
+                  {Array.from(storeIdsSet).map((sid) => {
+                    const store = stores.find(s => s.id === sid);
+                    return <Badge key={sid as string} variant="outline" style={{ borderColor: `${BRAND_COLOR}40`, color: BRAND_COLOR }} data-testid={`badge-store-${sid}`}>{store?.name ?? "Unknown Store"}</Badge>;
                   })}
+                  {storeIdsSet.size === 0 && <span className="text-xs text-muted-foreground">No store data</span>}
                 </div>
               </CardContent>
             </Card>

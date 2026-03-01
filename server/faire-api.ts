@@ -97,3 +97,16 @@ export async function fetchAllProducts(creds: FaireStoreCreds): Promise<unknown[
 
   return all;
 }
+
+export async function fetchRetailerProfile(
+  creds: FaireStoreCreds,
+  retailerId: string
+): Promise<unknown | null> {
+  const result = await faireGet(`/retailers/${retailerId}`, creds);
+  if (!result.ok) {
+    if (result.status === 404) return null;
+    console.error(`[faire-api] fetchRetailer ${retailerId} error ${result.status}`);
+    return null;
+  }
+  return result.data;
+}

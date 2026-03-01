@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Copy } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
-import { faireShipments, faireOrders, faireStores, faireRetailers, type OrderState } from "@/lib/mock-data-faire";
+
+type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "BACKORDERED" | "CANCELED";
 
 const orderStateConfig: Record<string, { label: string; color: string; bg: string }> = {
   PRE_TRANSIT: { label: "Pre-Transit", color: "#9333EA", bg: "#FAF5FF" },
@@ -20,21 +21,38 @@ const shipTypeLabels: Record<string, string> = {
 };
 
 export default function FaireShipments() {
-  const isLoading = useSimulatedLoading(600);
   const { toast } = useToast();
   const [selectedStore, setSelectedStore] = useState("all");
   const [stateFilter, setStateFilter] = useState<"all" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED">("all");
 
-  const enriched = faireShipments.map(ship => {
-    const order = faireOrders.find(o => o.id === ship.orderId);
-    const store = order ? faireStores.find(s => s.id === order.storeId) : null;
-    const retailer = order ? faireRetailers.find(r => r.id === order.retailer_id) : null;
-    return { ...ship, order, store, retailer };
-  }).filter(s => {
-    if (selectedStore !== "all" && s.store?.id !== selectedStore) return false;
-    if (stateFilter !== "all" && s.order?.state !== stateFilter) return false;
-    return true;
+  const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
+    queryKey: ["/api/faire/orders"],
   });
+
+  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
+    queryKey: ["/api/faire/stores"],
+  });
+
+  const isLoading = ordersLoading || storesLoading;
+  const orders = ordersData?.orders ?? [];
+  const stores = storesData?.stores ?? [];
+
+  const enriched = orders
+    .filter(order => order.shipments && order.shipments.length > 0)
+    .flatMap(order => {
+      const store = stores.find(s => s.id === order._storeId);
+      return (order.shipments as any[]).map((ship: any) => ({
+        ...ship,
+        order,
+        store,
+        retailerId: order.retailer_id,
+      }));
+    })
+    .filter(s => {
+      if (selectedStore !== "all" && s.store?.id !== selectedStore) return false;
+      if (stateFilter !== "all" && s.order?.state !== stateFilter) return false;
+      return true;
+    });
 
   const copyTracking = (code: string) => {
     navigator.clipboard.writeText(code).then(() => toast({ title: "Copied", description: code }));
@@ -60,7 +78,7 @@ export default function FaireShipments() {
           <div className="flex items-center gap-2">
             <select value={selectedStore} onChange={e => setSelectedStore(e.target.value)} className="h-8 text-xs border rounded-lg px-2" data-testid="select-store">
               <option value="all">All Stores</option>
-              {faireStores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
             <div className="flex gap-1">
               {(["all", "PRE_TRANSIT", "IN_TRANSIT", "DELIVERED"] as const).map(s => (
@@ -103,9 +121,9 @@ export default function FaireShipments() {
                           <Badge variant="outline" className="text-[9px] font-mono">{ship.order?.display_id}</Badge>
                         </td>
                         <td className="p-3">
-                          <Badge variant="outline" className="text-[10px]">{ship.store?.name.split(" ")[0]}</Badge>
+                          <Badge variant="outline" className="text-[10px]">{ship.store?.name?.split(" ")[0] ?? "—"}</Badge>
                         </td>
-                        <td className="p-3 text-xs">{ship.retailer?.store_name ?? "—"}</td>
+                        <td className="p-3 text-xs">{ship.retailerId ?? "—"}</td>
                         <td className="p-3 text-xs font-medium">{ship.carrier}</td>
                         <td className="p-3">
                           <div className="flex items-center gap-1">
@@ -113,10 +131,10 @@ export default function FaireShipments() {
                             <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => copyTracking(ship.tracking_code)} data-testid={`btn-copy-tracking-${ship.id}`}><Copy size={10} /></Button>
                           </div>
                         </td>
-                        <td className="p-3 text-xs">{new Date(ship.shipped_at).toLocaleDateString()}</td>
-                        <td className="p-3 text-xs font-medium">${(ship.maker_cost_cents / 100).toFixed(2)}</td>
+                        <td className="p-3 text-xs">{ship.shipped_at ? new Date(ship.shipped_at).toLocaleDateString() : "—"}</td>
+                        <td className="p-3 text-xs font-medium">{ship.maker_cost_cents != null ? `$${(ship.maker_cost_cents / 100).toFixed(2)}` : "—"}</td>
                         <td className="p-3">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">{shipTypeLabels[ship.shipping_type] ?? ship.shipping_type}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">{shipTypeLabels[ship.shipping_type] ?? ship.shipping_type ?? "—"}</span>
                         </td>
                         <td className="p-3">
                           <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: cfg.bg, color: cfg.color }}>{cfg.label}</span>

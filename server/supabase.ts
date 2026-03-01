@@ -127,6 +127,51 @@ export async function getStoreProducts(
   return rows.map((r) => ({ ...(r.raw_data as object), _storeId: storeId }));
 }
 
+export async function getAllProducts(
+  opts: { limit?: number; offset?: number } = {}
+): Promise<unknown[]> {
+  const { data, error } = await supabase.rpc("faire_get_all_products", {
+    p_limit: opts.limit ?? 1000,
+    p_offset: opts.offset ?? 0,
+  });
+  if (error) {
+    console.error("[supabase] getAllProducts error:", error.message);
+    return [];
+  }
+  const rows = (data as { raw_data: unknown; store_id: string }[]) ?? [];
+  return rows.map((r) => ({ ...(r.raw_data as object), _storeId: r.store_id }));
+}
+
+export async function upsertRetailer(faireRetailerId: string, rawData: unknown): Promise<void> {
+  const { error } = await supabase.rpc("faire_upsert_retailer", {
+    p_faire_retailer_id: faireRetailerId,
+    p_raw_data: rawData,
+  });
+  if (error) console.error("[supabase] upsertRetailer error:", error.message);
+}
+
+export async function getAllRetailers(): Promise<unknown[]> {
+  const { data, error } = await supabase.rpc("faire_get_all_retailers");
+  if (error) {
+    console.error("[supabase] getAllRetailers error:", error.message);
+    return [];
+  }
+  const rows = (data as { raw_data: unknown; faire_retailer_id: string }[]) ?? [];
+  return rows.map((r) => r.raw_data);
+}
+
+export async function getRetailer(faireRetailerId: string): Promise<unknown | null> {
+  const { data, error } = await supabase.rpc("faire_get_retailer", {
+    p_faire_retailer_id: faireRetailerId,
+  });
+  if (error) {
+    console.error("[supabase] getRetailer error:", error.message);
+    return null;
+  }
+  const rows = (data as { raw_data: unknown }[]) ?? [];
+  return rows.length > 0 ? rows[0].raw_data : null;
+}
+
 export async function getStoreCounts(storeId: string): Promise<{
   total_orders: number;
   total_products: number;

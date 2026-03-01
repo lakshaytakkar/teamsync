@@ -10,9 +10,13 @@ import {
   getStoreOrders,
   getAllOrders,
   getStoreProducts,
+  getAllProducts,
   getStoreCounts,
+  upsertRetailer,
+  getAllRetailers,
+  getRetailer,
 } from "./supabase";
-import { fetchAllOrders, fetchAllProducts, fetchBrandProfile } from "./faire-api";
+import { fetchAllOrders, fetchAllProducts, fetchBrandProfile, fetchRetailerProfile } from "./faire-api";
 
 const FAIRE_API_BASE = "https://www.faire.com/external-api/v2";
 
@@ -42,7 +46,6 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
 
-  // ── List stores (id + name + last_synced_at — credentials never leave the server) ─
   app.get("/api/faire/stores", async (_req, res) => {
     try {
       const stores = await listStores();
@@ -52,7 +55,6 @@ export async function registerRoutes(
     }
   });
 
-  // ── All orders across all stores (no storeId filter) ─────────────────────
   app.get("/api/faire/orders", async (req, res) => {
     const state = req.query.state as string | undefined;
     const limit = parseInt(req.query.limit as string) || 500;
@@ -69,7 +71,37 @@ export async function registerRoutes(
     }
   });
 
-  // ── Full sync for a store (orders + products + brand profile) ──────────────
+  app.get("/api/faire/products", async (req, res) => {
+    const limit = parseInt(req.query.limit as string) || 1000;
+    const offset = parseInt(req.query.offset as string) || 0;
+    try {
+      const products = await getAllProducts({ limit, offset });
+      return res.json({ products });
+    } catch {
+      return res.status(500).json({ error: "Failed to fetch all products" });
+    }
+  });
+
+  app.get("/api/faire/retailers", async (_req, res) => {
+    try {
+      const retailers = await getAllRetailers();
+      return res.json({ retailers });
+    } catch {
+      return res.status(500).json({ error: "Failed to fetch retailers" });
+    }
+  });
+
+  app.get("/api/faire/retailers/:retailerId", async (req, res) => {
+    const { retailerId } = req.params;
+    try {
+      const retailer = await getRetailer(retailerId);
+      if (!retailer) return res.status(404).json({ error: "Retailer not found" });
+      return res.json(retailer);
+    } catch {
+      return res.status(500).json({ error: "Failed to fetch retailer" });
+    }
+  });
+
   app.post("/api/faire/stores/:storeId/sync", async (req, res) => {
     const { storeId } = req.params;
 
@@ -79,7 +111,6 @@ export async function registerRoutes(
     }
 
     try {
-      // Fetch brand profile
       let profileSynced = false;
       try {
         const profile = await fetchBrandProfile(creds);
@@ -89,18 +120,38 @@ export async function registerRoutes(
         console.error(`[sync] brand profile error for ${storeId}:`, err);
       }
 
-      // Fetch + sync orders
       const orders = await fetchAllOrders(creds);
       const ordersSynced = await syncOrders(storeId, orders);
 
-      // Fetch + sync products
       const products = await fetchAllProducts(creds);
       const productsSynced = await syncProducts(storeId, products);
+
+      const retailerIds = new Set<string>();
+      for (const order of orders) {
+        const rid = (order as Record<string, unknown>).retailer_id as string | undefined;
+        if (rid) retailerIds.add(rid);
+      }
+      let retailersSynced = 0;
+      for (const rid of retailerIds) {
+        try {
+          const existing = await getRetailer(rid);
+          if (!existing) {
+            const profile = await fetchRetailerProfile(creds, rid);
+            if (profile) {
+              await upsertRetailer(rid, profile);
+              retailersSynced++;
+            }
+          }
+        } catch {
+          // skip individual retailer errors
+        }
+      }
 
       return res.json({
         success: true,
         orders_synced: ordersSynced,
         products_synced: productsSynced,
+        retailers_synced: retailersSynced,
         profile_synced: profileSynced,
       });
     } catch (err) {
@@ -109,13 +160,42 @@ export async function registerRoutes(
     }
   });
 
-  // ── Read synced orders from Supabase ─────────────────────────────────────
+  app.post("/api/faire/stores/:storeId/sync-retailers", async (req, res) => {
+    const { storeId } = req.params;
+    const creds = await getStoreCredentials(storeId);
+    if (!creds) return res.status(404).json({ success: false, error: "Store not found" });
+
+    try {
+      const orders = await getStoreOrders(storeId, { limit: 5000 });
+      const retailerIds = new Set<string>();
+      for (const order of orders) {
+        const rid = (order as Record<string, unknown>).retailer_id as string | undefined;
+        if (rid) retailerIds.add(rid);
+      }
+
+      let synced = 0;
+      for (const rid of retailerIds) {
+        const existing = await getRetailer(rid);
+        if (!existing) {
+          const profile = await fetchRetailerProfile(creds, rid);
+          if (profile) {
+            await upsertRetailer(rid, profile);
+            synced++;
+          }
+        }
+      }
+      return res.json({ success: true, retailers_synced: synced, total_unique: retailerIds.size });
+    } catch (err) {
+      console.error(`[sync-retailers] error:`, err);
+      return res.status(502).json({ success: false, error: "Retailer sync failed" });
+    }
+  });
+
   app.get("/api/faire/stores/:storeId/orders", async (req, res) => {
     const { storeId } = req.params;
     const state = req.query.state as string | undefined;
     const limit = parseInt(req.query.limit as string) || 200;
     const offset = parseInt(req.query.offset as string) || 0;
-
     try {
       const orders = await getStoreOrders(storeId, {
         state: state && state !== "all" ? state : undefined,
@@ -128,12 +208,10 @@ export async function registerRoutes(
     }
   });
 
-  // ── Read synced products from Supabase ────────────────────────────────────
   app.get("/api/faire/stores/:storeId/products", async (req, res) => {
     const { storeId } = req.params;
     const limit = parseInt(req.query.limit as string) || 200;
     const offset = parseInt(req.query.offset as string) || 0;
-
     try {
       const products = await getStoreProducts(storeId, { limit, offset });
       return res.json({ products, store_id: storeId });
@@ -142,7 +220,6 @@ export async function registerRoutes(
     }
   });
 
-  // ── Store counts (for dashboard / store cards) ────────────────────────────
   app.get("/api/faire/stores/:storeId/counts", async (req, res) => {
     const { storeId } = req.params;
     try {
@@ -153,21 +230,15 @@ export async function registerRoutes(
     }
   });
 
-  // ── Accept order → PROCESSING ──────────────────────────────────────────────
   app.post("/api/faire/orders/:orderId/accept", async (req, res) => {
     const { orderId } = req.params;
     const { storeId } = req.body as { storeId?: string };
-
     if (!storeId) {
       return res.json({ success: true, state: "PROCESSING", mock: true,
         message: "Order accepted (mock mode — no store selected)" });
     }
-
     const creds = await getStoreCredentials(storeId);
-    if (!creds) {
-      return res.status(404).json({ success: false, error: "Store not found or inactive" });
-    }
-
+    if (!creds) return res.status(404).json({ success: false, error: "Store not found or inactive" });
     try {
       const result = await faireRequest("POST", `/orders/${orderId}/processing`,
         creds.oauth_access_token, creds.app_credentials);
@@ -184,12 +255,10 @@ export async function registerRoutes(
     }
   });
 
-  // ── Add shipment → PRE_TRANSIT ─────────────────────────────────────────────
   app.post("/api/faire/orders/:orderId/shipments", async (req, res) => {
     const { orderId } = req.params;
     const { storeId, carrier, tracking_code, maker_cost_cents, shipping_type } =
       req.body as { storeId?: string; carrier?: string; tracking_code?: string; maker_cost_cents?: number; shipping_type?: string };
-
     if (!storeId) {
       return res.json({
         success: true,
@@ -199,12 +268,8 @@ export async function registerRoutes(
         mock: true,
       });
     }
-
     const creds = await getStoreCredentials(storeId);
-    if (!creds) {
-      return res.status(404).json({ success: false, error: "Store not found or inactive" });
-    }
-
+    if (!creds) return res.status(404).json({ success: false, error: "Store not found or inactive" });
     try {
       const result = await faireRequest("POST", `/orders/${orderId}/shipments`,
         creds.oauth_access_token, creds.app_credentials,
@@ -223,21 +288,15 @@ export async function registerRoutes(
     }
   });
 
-  // ── Cancel order ───────────────────────────────────────────────────────────
   app.post("/api/faire/orders/:orderId/cancel", async (req, res) => {
     const { orderId } = req.params;
     const { storeId, reason } = req.body as { storeId?: string; reason?: string };
-
     if (!storeId) {
       return res.json({ success: true, state: "CANCELED", mock: true,
         message: "Order canceled (mock mode — no store selected)" });
     }
-
     const creds = await getStoreCredentials(storeId);
-    if (!creds) {
-      return res.status(404).json({ success: false, error: "Store not found or inactive" });
-    }
-
+    if (!creds) return res.status(404).json({ success: false, error: "Store not found or inactive" });
     try {
       const result = await faireRequest("POST", `/orders/${orderId}/cancel`,
         creds.oauth_access_token, creds.app_credentials, { reason });

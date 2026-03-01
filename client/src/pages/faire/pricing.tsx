@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,9 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
-import { faireProducts, faireStores } from "@/lib/mock-data-faire";
 
 const BRAND_COLOR = "#1A6B45";
 
@@ -26,7 +25,6 @@ const mockPrepacks = [
 ];
 
 export default function FairePricing() {
-  const isLoading = useSimulatedLoading(600);
   const { toast } = useToast();
   const [selectedStore, setSelectedStore] = useState("all");
   const [search, setSearch] = useState("");
@@ -39,15 +37,27 @@ export default function FairePricing() {
   const [prepackName, setPrepackName] = useState("");
   const [prepackPrice, setPrepackPrice] = useState("");
 
-  const rows = faireProducts.flatMap(p =>
-    p.variants.map(v => ({
+  const { data: productsData, isLoading: productsLoading } = useQuery<{ products: any[] }>({
+    queryKey: ['/api/faire/products'],
+  });
+
+  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
+    queryKey: ['/api/faire/stores'],
+  });
+
+  const isLoading = productsLoading || storesLoading;
+  const products = productsData?.products ?? [];
+  const stores = storesData?.stores ?? [];
+
+  const rows = products.flatMap((p: any) =>
+    (p.variants ?? []).map((v: any) => ({
       ...v,
       productName: p.name,
-      storeId: p.storeId,
+      storeId: p._storeId,
       moq: p.minimum_order_quantity,
-      store: faireStores.find(s => s.id === p.storeId),
+      store: stores.find((s: any) => s.id === p._storeId),
     }))
-  ).filter(r => {
+  ).filter((r: any) => {
     if (selectedStore !== "all" && r.storeId !== selectedStore) return false;
     if (search && !r.productName.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -76,7 +86,7 @@ export default function FairePricing() {
           <div className="flex gap-2">
             <select value={selectedStore} onChange={e => setSelectedStore(e.target.value)} className="h-8 text-xs border rounded-lg px-2" data-testid="select-store">
               <option value="all">All Stores</option>
-              {faireStores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              {stores.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
             <Input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-xs h-8 text-sm" data-testid="input-search" />
           </div>
@@ -101,7 +111,7 @@ export default function FairePricing() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-3 w-8"><input type="checkbox" className="rounded" onChange={e => setSelectedRows(e.target.checked ? rows.map(r => r.id) : [])} /></th>
+                    <th className="text-left p-3 w-8"><input type="checkbox" className="rounded" onChange={e => setSelectedRows(e.target.checked ? rows.map((r: any) => r.id) : [])} /></th>
                     <th className="text-left p-3 font-medium text-muted-foreground text-xs">Product</th>
                     <th className="text-left p-3 font-medium text-muted-foreground text-xs">Store</th>
                     <th className="text-left p-3 font-medium text-muted-foreground text-xs">SKU</th>
@@ -112,8 +122,10 @@ export default function FairePricing() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map(r => {
-                    const margin = Math.round(((r.retail_price_cents - r.wholesale_price_cents) / r.retail_price_cents) * 100);
+                  {rows.map((r: any) => {
+                    const wholesaleCents = r.wholesale_price_cents ?? 0;
+                    const retailCents = r.retail_price_cents ?? 0;
+                    const margin = retailCents > 0 ? Math.round(((retailCents - wholesaleCents) / retailCents) * 100) : 0;
                     const mc = marginColor(margin);
                     return (
                       <tr key={r.id} className="border-b hover:bg-accent/20" data-testid={`pricing-row-${r.id}`}>
@@ -122,12 +134,12 @@ export default function FairePricing() {
                         </td>
                         <td className="p-3">
                           <p className="text-xs font-medium">{r.productName}</p>
-                          <p className="text-[10px] text-muted-foreground">{r.options.map(o => o.value).join(" / ")}</p>
+                          <p className="text-[10px] text-muted-foreground">{(r.options ?? []).map((o: any) => o.value).join(" / ")}</p>
                         </td>
-                        <td className="p-3"><Badge variant="outline" className="text-[10px]">{r.store?.name.split(" ")[0]}</Badge></td>
+                        <td className="p-3"><Badge variant="outline" className="text-[10px]">{r.store?.name?.split(" ")[0] ?? "—"}</Badge></td>
                         <td className="p-3 text-xs font-mono text-muted-foreground">{r.sku}</td>
-                        <td className="p-3 text-xs font-semibold">${(r.wholesale_price_cents / 100).toFixed(2)}</td>
-                        <td className="p-3 text-xs">${(r.retail_price_cents / 100).toFixed(2)}</td>
+                        <td className="p-3 text-xs font-semibold">${(wholesaleCents / 100).toFixed(2)}</td>
+                        <td className="p-3 text-xs">${(retailCents / 100).toFixed(2)}</td>
                         <td className="p-3">
                           <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: mc.bg, color: mc.text }}>{margin}%</span>
                         </td>
@@ -168,7 +180,7 @@ export default function FairePricing() {
                     <td className="p-2 text-xs text-muted-foreground">{pp.products.join(", ")}</td>
                     <td className="p-2 text-xs">{pp.units}</td>
                     <td className="p-2 text-xs font-semibold">${(pp.wholesale_price_cents / 100).toFixed(2)}</td>
-                    <td className="p-2"><Badge variant="outline" className="text-[10px]">{faireStores.find(s => s.id === pp.storeId)?.name.split(" ")[0]}</Badge></td>
+                    <td className="p-2"><Badge variant="outline" className="text-[10px]">{stores.find((s: any) => s.id === pp.storeId)?.name?.split(" ")[0] ?? "—"}</Badge></td>
                   </tr>
                 ))}
               </tbody>

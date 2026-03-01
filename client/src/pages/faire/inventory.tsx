@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Download, Package2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
-import { faireProducts, faireStores } from "@/lib/mock-data-faire";
 import {
   PageShell,
   PageHeader,
@@ -24,7 +23,6 @@ import {
 const BRAND_COLOR = "#1A6B45";
 
 export default function FaireInventory() {
-  const isLoading = useSimulatedLoading(600);
   const { toast } = useToast();
   const [selectedStore, setSelectedStore] = useState("all");
   const [search, setSearch] = useState("");
@@ -33,25 +31,36 @@ export default function FaireInventory() {
   const [editQty, setEditQty] = useState("");
   const [backorderDate, setBackorderDate] = useState("");
 
-  const allVariants = faireProducts.flatMap(product =>
-    product.variants.map(variant => ({
+  const { data: productsData, isLoading } = useQuery<{ products: any[] }>({
+    queryKey: ["/api/faire/products"],
+  });
+
+  const { data: storesData } = useQuery<{ stores: any[] }>({
+    queryKey: ["/api/faire/stores"],
+  });
+
+  const products = productsData?.products ?? [];
+  const stores = storesData?.stores ?? [];
+
+  const allVariants = products.flatMap(product =>
+    (product.variants ?? []).map((variant: any) => ({
       ...variant,
       product,
-      store: faireStores.find(s => s.id === product.storeId),
+      store: stores.find(s => s.id === product._storeId),
     }))
-  ).filter(v => {
+  ).filter((v: any) => {
     if (selectedStore !== "all" && v.store?.id !== selectedStore) return false;
-    if (search && !v.product.name.toLowerCase().includes(search.toLowerCase()) && !v.sku.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search && !v.product.name.toLowerCase().includes(search.toLowerCase()) && !v.sku?.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
   const totalSKUs = allVariants.length;
-  const outOfStock = allVariants.filter(v => v.available_quantity === 0).length;
-  const lowStock = allVariants.filter(v => v.available_quantity > 0 && v.available_quantity < 5).length;
-  const backordered = allVariants.filter(v => v.backordered_until).length;
+  const outOfStock = allVariants.filter((v: any) => v.available_quantity === 0).length;
+  const lowStock = allVariants.filter((v: any) => v.available_quantity > 0 && v.available_quantity < 5).length;
+  const backordered = allVariants.filter((v: any) => v.backordered_until).length;
 
-  const qtyVariant = allVariants.find(v => v.id === qtyVariantId);
-  const backorderVariant = allVariants.find(v => v.id === backorderVariantId);
+  const qtyVariant = allVariants.find((v: any) => v.id === qtyVariantId);
+  const backorderVariant = allVariants.find((v: any) => v.id === backorderVariantId);
 
   if (isLoading) {
     return (
@@ -80,7 +89,7 @@ export default function FaireInventory() {
                 data-testid="select-store"
               >
                 <option value="all">All Stores</option>
-                {faireStores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
               <Button variant="outline" className="h-9" onClick={() => toast({ title: "Exporting inventory CSV..." })} data-testid="btn-export">
                 <Download size={14} className="mr-2" /> Export CSV
@@ -135,22 +144,22 @@ export default function FaireInventory() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {allVariants.map(v => {
+              {allVariants.map((v: any) => {
                 const isOut = v.available_quantity === 0;
                 const isLow = v.available_quantity > 0 && v.available_quantity < 5;
                 return (
                   <DataTR key={v.id} className={isOut ? "bg-red-50/30 dark:bg-red-950/5" : isLow ? "bg-amber-50/30 dark:bg-amber-950/5" : ""} data-testid={`inv-row-${v.id}`}>
                     <DataTD className="font-semibold text-xs">{v.product.name}</DataTD>
-                    <DataTD><Badge variant="outline" className="text-[10px] font-medium">{v.store?.name.split(" ")[0]}</Badge></DataTD>
+                    <DataTD><Badge variant="outline" className="text-[10px] font-medium">{v.store?.name?.split(" ")[0] ?? "—"}</Badge></DataTD>
                     <DataTD className="font-mono text-[10px] text-muted-foreground">{v.sku}</DataTD>
                     <DataTD>
                       <div className="flex flex-wrap gap-1">
-                        {v.options.map(o => (
+                        {(v.options ?? []).map((o: any) => (
                           <span key={o.name} className="text-[10px] bg-muted/80 rounded px-1.5 py-0.5 font-medium border border-muted-foreground/10">{o.value}</span>
                         ))}
                       </div>
                     </DataTD>
-                    <DataTD className="font-medium">${(v.wholesale_price_cents / 100).toFixed(2)}</DataTD>
+                    <DataTD className="font-medium">${((v.wholesale_price_cents ?? 0) / 100).toFixed(2)}</DataTD>
                     <DataTD>
                       <div className="flex items-center gap-1.5">
                         <span className={`text-sm font-bold ${isOut ? "text-red-600" : isLow ? "text-amber-600" : "text-foreground"}`}>

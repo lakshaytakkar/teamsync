@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { faireStores, faireOrders, faireProducts, faireRetailers, type OrderState } from "@/lib/mock-data-faire";
 
 const BRAND_COLOR = "#1A6B45";
+
+type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
 const stateConfig: Record<OrderState, { label: string; color: string; bg: string }> = {
   NEW: { label: "New", color: "#2563EB", bg: "#EFF6FF" },
@@ -20,59 +21,90 @@ const stateConfig: Record<OrderState, { label: string; color: string; bg: string
 
 const ALL_ORDER_STATES: OrderState[] = ["NEW", "PROCESSING", "PRE_TRANSIT", "IN_TRANSIT", "DELIVERED", "PENDING_RETAILER_CONFIRMATION", "BACKORDERED", "CANCELED"];
 
-const MONTHS = ["Sep '25", "Oct '25", "Nov '25", "Dec '25", "Jan '26", "Feb '26"];
-const MONTHLY_REVENUE = [98400, 112600, 156800, 189200, 134500, 174800];
-
-const GEO_DATA = [
-  { state: "TX", retailers: 12, orders: 28, revenue: 42600 },
-  { state: "CA", retailers: 18, orders: 42, revenue: 68400 },
-  { state: "NY", retailers: 9, orders: 19, revenue: 31200 },
-  { state: "CO", retailers: 7, orders: 14, revenue: 22800 },
-  { state: "WA", retailers: 6, orders: 11, revenue: 16400 },
-  { state: "IL", retailers: 8, orders: 18, revenue: 24600 },
-  { state: "FL", retailers: 5, orders: 10, revenue: 14800 },
-  { state: "AZ", retailers: 5, orders: 9, revenue: 13800 },
-];
-
 export default function FaireAnalytics() {
-  const isLoading = useSimulatedLoading(700);
   const [selectedStore, setSelectedStore] = useState("all");
   const [timeFilter, setTimeFilter] = useState<"7d" | "30d" | "month" | "3m">("month");
 
-  const storeOrders = selectedStore === "all" ? faireOrders : faireOrders.filter(o => o.storeId === selectedStore);
-  const storeProducts = selectedStore === "all" ? faireProducts : faireProducts.filter(p => p.storeId === selectedStore);
+  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({ queryKey: ["/api/faire/stores"] });
+  const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({ queryKey: ["/api/faire/orders"] });
+  const { data: productsData, isLoading: productsLoading } = useQuery<{ products: any[] }>({ queryKey: ["/api/faire/products"] });
 
-  const totalRevenue = selectedStore === "all"
-    ? faireStores.reduce((s, st) => s + st.monthlyRevenue, 0)
-    : (faireStores.find(s => s.id === selectedStore)?.monthlyRevenue ?? 0);
+  const isLoading = storesLoading || ordersLoading || productsLoading;
+  const stores = storesData?.stores ?? [];
+  const allOrders = ordersData?.orders ?? [];
+  const allProducts = productsData?.products ?? [];
+
+  const storeOrders = selectedStore === "all" ? allOrders : allOrders.filter((o: any) => o._storeId === selectedStore);
+  const storeProducts = selectedStore === "all" ? allProducts : allProducts.filter((p: any) => p._storeId === selectedStore);
+
+  const computeOrderRevenue = (order: any) =>
+    (order.items ?? []).reduce((s: number, i: any) => s + (i.price_cents ?? 0) * (i.quantity ?? 0), 0);
+
+  const totalRevenueCents = storeOrders.reduce((s: number, o: any) => s + computeOrderRevenue(o), 0);
+  const totalRevenue = totalRevenueCents / 100;
 
   const totalOrders = storeOrders.length;
-  const uniqueRetailers = new Set(storeOrders.map(o => o.retailer_id)).size;
-  const totalItemsCents = storeOrders.reduce((s, o) => s + o.items.reduce((si, i) => si + i.price_cents * i.quantity, 0), 0);
+  const uniqueRetailers = new Set(storeOrders.map((o: any) => o.retailer_id)).size;
+  const totalItemsCents = storeOrders.reduce((s: number, o: any) => s + computeOrderRevenue(o), 0);
   const avgOrderValueCents = totalOrders > 0 ? Math.round(totalItemsCents / totalOrders) : 0;
-  const unitsSold = storeOrders.reduce((s, o) => s + o.items.reduce((si, i) => si + i.quantity, 0), 0);
-  const canceledOrders = storeOrders.filter(o => o.state === "CANCELED").length;
+  const unitsSold = storeOrders.reduce((s: number, o: any) => s + (o.items ?? []).reduce((si: number, i: any) => si + (i.quantity ?? 0), 0), 0);
+  const canceledOrders = storeOrders.filter((o: any) => o.state === "CANCELED").length;
   const cancelRate = totalOrders > 0 ? ((canceledOrders / totalOrders) * 100).toFixed(1) : "0.0";
 
-  const maxRevenue = Math.max(...faireStores.map(s => s.monthlyRevenue));
+  const storeRevenues = stores.map((store: any) => {
+    const rev = allOrders
+      .filter((o: any) => o._storeId === store.id)
+      .reduce((s: number, o: any) => s + computeOrderRevenue(o), 0);
+    return { ...store, revenue: rev / 100 };
+  });
+  const maxRevenue = Math.max(...storeRevenues.map((s: any) => s.revenue), 1);
 
   const topProducts = [...storeProducts]
-    .sort((a, b) => b.variants.length - a.variants.length)
+    .map((p: any) => {
+      const store = stores.find((s: any) => s.id === p._storeId);
+      const reviews = p.reviews ?? [];
+      const avgRating = reviews.length > 0
+        ? (reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length).toFixed(1)
+        : "\u2014";
+      const totalQty = (p.variants ?? []).reduce((s: number, v: any) => s + (v.available_quantity ?? 0), 0);
+      return { name: p.name, store, totalQty, rating: avgRating };
+    })
+    .sort((a, b) => b.totalQty - a.totalQty)
     .slice(0, 10)
-    .map((p, i) => {
-      const store = faireStores.find(s => s.id === p.storeId);
-      const avgRating = p.reviews.length > 0
-        ? (p.reviews.reduce((s, r) => s + r.rating, 0) / p.reviews.length).toFixed(1)
-        : "—";
-      const unitsSold = p.variants.reduce((s, v) => s + v.available_quantity, 0);
-      return { rank: i + 1, name: p.name, store, unitsSold, rating: avgRating };
-    });
+    .map((p, i) => ({ ...p, rank: i + 1 }));
 
-  const monthPct = (i: number) => {
-    if (i === 0) return null;
-    const pct = ((MONTHLY_REVENUE[i] - MONTHLY_REVENUE[i - 1]) / MONTHLY_REVENUE[i - 1] * 100).toFixed(1);
-    return parseFloat(pct);
-  };
+  const monthlyData = (() => {
+    const buckets: Record<string, number> = {};
+    storeOrders.forEach((o: any) => {
+      if (!o.created_at) return;
+      const d = new Date(o.created_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      buckets[key] = (buckets[key] ?? 0) + computeOrderRevenue(o);
+    });
+    const sorted = Object.entries(buckets).sort((a, b) => a[0].localeCompare(b[0])).slice(-6);
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return sorted.map(([key, cents]) => {
+      const [year, month] = key.split("-");
+      return { label: `${monthNames[parseInt(month) - 1]} '${year.slice(2)}`, revenue: cents / 100 };
+    });
+  })();
+
+  const maxMonthlyRevenue = Math.max(...monthlyData.map(m => m.revenue), 1);
+
+  const geoData = (() => {
+    const buckets: Record<string, { retailers: Set<string>; orders: number; revenue: number }> = {};
+    storeOrders.forEach((o: any) => {
+      const stateCode = o.address?.state_code || o.address?.state || "Unknown";
+      if (!buckets[stateCode]) buckets[stateCode] = { retailers: new Set(), orders: 0, revenue: 0 };
+      buckets[stateCode].retailers.add(o.retailer_id);
+      buckets[stateCode].orders += 1;
+      buckets[stateCode].revenue += computeOrderRevenue(o) / 100;
+    });
+    return Object.entries(buckets)
+      .map(([state, data]) => ({ state, retailers: data.retailers.size, orders: data.orders, revenue: Math.round(data.revenue) }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+  })();
 
   if (isLoading) {
     return (
@@ -109,7 +141,7 @@ export default function FaireAnalytics() {
           <button onClick={() => setSelectedStore("all")} className={`px-4 py-1.5 text-xs rounded-lg border shrink-0 transition-colors font-medium ${selectedStore === "all" ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={selectedStore === "all" ? { background: BRAND_COLOR } : {}} data-testid="tab-all-stores">
             All Stores
           </button>
-          {faireStores.map(s => (
+          {stores.map((s: any) => (
             <button key={s.id} onClick={() => setSelectedStore(s.id)} className={`px-4 py-1.5 text-xs rounded-lg border shrink-0 transition-colors font-medium ${selectedStore === s.id ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={selectedStore === s.id ? { background: BRAND_COLOR } : {}} data-testid={`tab-store-${s.id}`}>
               {s.name.split(" ")[0]}
             </button>
@@ -120,7 +152,7 @@ export default function FaireAnalytics() {
       <Fade>
         <div className="grid grid-cols-6 gap-3">
           {[
-            { label: "Revenue MTD", value: `$${(totalRevenue / 1000).toFixed(0)}K` },
+            { label: "Total Revenue", value: `$${totalRevenue >= 1000 ? `${(totalRevenue / 1000).toFixed(0)}K` : totalRevenue.toFixed(0)}` },
             { label: "Total Orders", value: totalOrders },
             { label: "Avg Order Value", value: `$${(avgOrderValueCents / 100).toFixed(0)}` },
             { label: "Unique Retailers", value: uniqueRetailers },
@@ -138,15 +170,15 @@ export default function FaireAnalytics() {
       <div className="grid grid-cols-2 gap-5">
         <Fade>
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm">Revenue by Store (MTD)</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm">Revenue by Store</CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              {faireStores.map(store => {
-                const barWidth = Math.round((store.monthlyRevenue / maxRevenue) * 100);
+              {storeRevenues.map((store: any) => {
+                const barWidth = Math.round((store.revenue / maxRevenue) * 100);
                 return (
                   <div key={store.id} data-testid={`bar-store-${store.id}`}>
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between gap-1 mb-1">
                       <p className="text-xs font-medium truncate">{store.name}</p>
-                      <p className="text-xs font-bold">${(store.monthlyRevenue / 1000).toFixed(0)}K</p>
+                      <p className="text-xs font-bold">${store.revenue >= 1000 ? `${(store.revenue / 1000).toFixed(0)}K` : store.revenue.toFixed(0)}</p>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all" style={{ width: `${barWidth}%`, background: BRAND_COLOR }} />
@@ -165,7 +197,7 @@ export default function FaireAnalytics() {
               <div className="flex flex-wrap gap-2">
                 {ALL_ORDER_STATES.map(state => {
                   const cfg = stateConfig[state];
-                  const count = storeOrders.filter(o => o.state === state).length;
+                  const count = storeOrders.filter((o: any) => o.state === state).length;
                   return (
                     <div key={state} className="flex items-center gap-1.5 px-3 py-2 rounded-lg" style={{ background: cfg.bg }} data-testid={`state-chip-${state}`}>
                       <span className="text-lg font-bold" style={{ color: cfg.color }}>{count}</span>
@@ -189,7 +221,7 @@ export default function FaireAnalytics() {
                     <th className="text-left p-2.5 font-medium text-muted-foreground text-xs">Product</th>
                     <th className="text-left p-2.5 font-medium text-muted-foreground text-xs">Store</th>
                     <th className="text-left p-2.5 font-medium text-muted-foreground text-xs">Qty in Stock</th>
-                    <th className="text-left p-2.5 font-medium text-muted-foreground text-xs">Avg ⭐</th>
+                    <th className="text-left p-2.5 font-medium text-muted-foreground text-xs">Avg Rating</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -197,8 +229,8 @@ export default function FaireAnalytics() {
                     <tr key={p.rank} className="border-b hover:bg-accent/20" data-testid={`top-product-row-${p.rank}`}>
                       <td className="p-2.5 text-xs font-bold text-muted-foreground">{p.rank}</td>
                       <td className="p-2.5 text-xs font-medium">{p.name}</td>
-                      <td className="p-2.5 text-xs text-muted-foreground">{p.store?.name.split(" ")[0]}</td>
-                      <td className="p-2.5 text-xs font-semibold">{p.unitsSold}</td>
+                      <td className="p-2.5 text-xs text-muted-foreground">{p.store?.name?.split(" ")[0] ?? "\u2014"}</td>
+                      <td className="p-2.5 text-xs font-semibold">{p.totalQty}</td>
                       <td className="p-2.5 text-xs">{p.rating}</td>
                     </tr>
                   ))}
@@ -222,7 +254,7 @@ export default function FaireAnalytics() {
                   </tr>
                 </thead>
                 <tbody>
-                  {GEO_DATA.sort((a, b) => b.revenue - a.revenue).map(row => (
+                  {geoData.map(row => (
                     <tr key={row.state} className="border-b hover:bg-accent/20" data-testid={`geo-row-${row.state}`}>
                       <td className="p-2.5 text-xs font-semibold">{row.state}</td>
                       <td className="p-2.5 text-xs">{row.retailers}</td>
@@ -230,6 +262,9 @@ export default function FaireAnalytics() {
                       <td className="p-2.5 text-xs font-semibold">${row.revenue.toLocaleString()}</td>
                     </tr>
                   ))}
+                  {geoData.length === 0 && (
+                    <tr><td colSpan={4} className="p-4 text-center text-xs text-muted-foreground">No geographic data available</td></tr>
+                  )}
                 </tbody>
               </table>
             </CardContent>
@@ -239,33 +274,37 @@ export default function FaireAnalytics() {
 
       <Fade>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm">6-Month Revenue Trend</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm">Revenue Trend</CardTitle></CardHeader>
           <CardContent>
-            <div className="flex gap-0">
-              {MONTHS.map((month, i) => {
-                const revenue = MONTHLY_REVENUE[i];
-                const pct = monthPct(i);
-                const maxR = Math.max(...MONTHLY_REVENUE);
-                const barH = Math.round((revenue / maxR) * 100);
-                return (
-                  <div key={month} className="flex-1 flex flex-col items-center gap-2" data-testid={`month-bar-${i}`}>
-                    <div className="flex items-end h-20 w-full px-1">
-                      <div className="w-full rounded-t-md transition-all" style={{ height: `${barH}%`, background: BRAND_COLOR, opacity: i === MONTHS.length - 1 ? 1 : 0.7 }} />
+            {monthlyData.length > 0 ? (
+              <div className="flex gap-0">
+                {monthlyData.map((month, i) => {
+                  const barH = Math.round((month.revenue / maxMonthlyRevenue) * 100);
+                  const pct = i > 0 && monthlyData[i - 1].revenue > 0
+                    ? parseFloat(((month.revenue - monthlyData[i - 1].revenue) / monthlyData[i - 1].revenue * 100).toFixed(1))
+                    : null;
+                  return (
+                    <div key={month.label} className="flex-1 flex flex-col items-center gap-2" data-testid={`month-bar-${i}`}>
+                      <div className="flex items-end h-20 w-full px-1">
+                        <div className="w-full rounded-t-md transition-all" style={{ height: `${barH}%`, background: BRAND_COLOR, opacity: i === monthlyData.length - 1 ? 1 : 0.7 }} />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-[9px] font-bold">${month.revenue >= 1000 ? `${(month.revenue / 1000).toFixed(0)}K` : month.revenue.toFixed(0)}</p>
+                        {pct !== null && (
+                          <div className={`flex items-center gap-0.5 text-[9px] font-medium ${pct >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                            {pct >= 0 ? <TrendingUp size={8} /> : <TrendingDown size={8} />}
+                            {Math.abs(pct)}%
+                          </div>
+                        )}
+                        <p className="text-[9px] text-muted-foreground">{month.label}</p>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <p className="text-[9px] font-bold">${(revenue / 1000).toFixed(0)}K</p>
-                      {pct !== null && (
-                        <div className={`flex items-center gap-0.5 text-[9px] font-medium ${pct >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-                          {pct >= 0 ? <TrendingUp size={8} /> : <TrendingDown size={8} />}
-                          {Math.abs(pct)}%
-                        </div>
-                      )}
-                      <p className="text-[9px] text-muted-foreground">{month}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-6">No revenue data to display</p>
+            )}
           </CardContent>
         </Card>
       </Fade>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { BookOpen, CheckCircle, ExternalLink } from "lucide-react";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
@@ -7,12 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import {
   faireLedgerEntries, faireBankTransactions, type FaireLedgerEntry, type LedgerPaymentStatus,
 } from "@/lib/mock-data-faire-ops";
-import { faireOrders, faireStores } from "@/lib/mock-data-faire";
 import {
   PageShell, PageHeader, StatGrid, StatCard, IndexToolbar,
   DataTableContainer, DataTH, DataTD, DataTR, DetailModal,
@@ -35,8 +34,12 @@ function cents(n: number) { return `$${(n / 100).toFixed(2)}`; }
 
 export default function FaireLedger() {
   const [, setLocation] = useLocation();
-  const isLoading = useSimulatedLoading(600);
   const { toast } = useToast();
+
+  const { data: ordersData, isLoading } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const allOrders = ordersData?.orders ?? [];
+  const { data: storesData } = useQuery<{ stores: any[] }>({ queryKey: ['/api/faire/stores'] });
+  const allStores = storesData?.stores ?? [];
   const [statusFilter, setStatusFilter] = useState<LedgerPaymentStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [ledger, setLedger] = useState(faireLedgerEntries);
@@ -47,8 +50,8 @@ export default function FaireLedger() {
   const filtered = ledger.filter(e => {
     if (statusFilter !== "all" && e.payment_status !== statusFilter) return false;
     if (search) {
-      const o = faireOrders.find(x => x.id === e.order_id);
-      if (!o?.display_id.toLowerCase().includes(search.toLowerCase())) return false;
+      const o = allOrders.find((x: any) => x.id === e.order_id);
+      if (!String(o?.display_id ?? "").toLowerCase().includes(search.toLowerCase())) return false;
     }
     return true;
   });
@@ -127,8 +130,8 @@ export default function FaireLedger() {
             </thead>
             <tbody>
               {filtered.map(e => {
-                const order = faireOrders.find(o => o.id === e.order_id);
-                const store = faireStores.find(s => s.id === e.store_id);
+                const order = allOrders.find((o: any) => o.id === e.order_id);
+                const store = allStores.find((s: any) => s.id === e.store_id);
                 const sc = STATUS_CONFIG[e.payment_status];
                 const marginPct = e.faire_payout_cents ? Math.round((e.net_margin_cents / e.faire_payout_cents) * 100) : 0;
                 const marginColor = marginPct > 30 ? "#059669" : marginPct >= 15 ? "#D97706" : "#DC2626";
@@ -204,7 +207,7 @@ export default function FaireLedger() {
         open={!!clearModal}
         onClose={() => setClearModal(null)}
         title="Mark as Cleared"
-        subtitle={`Mark ledger entry for order ${faireOrders.find(o => o.id === clearModal?.order_id)?.display_id ?? "—"} as fully cleared.`}
+        subtitle={`Mark ledger entry for order ${allOrders.find((o: any) => o.id === clearModal?.order_id)?.display_id ?? "—"} as fully cleared.`}
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setClearModal(null)}>Cancel</Button>

@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Plus, CreditCard, CheckCircle, Link2 } from "lucide-react";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import {
   faireBankTransactions, type FaireBankTransaction, type BankTransactionType,
 } from "@/lib/mock-data-faire-ops";
-import { faireOrders } from "@/lib/mock-data-faire";
 import {
   PageShell, PageHeader, StatGrid, StatCard, IndexToolbar,
   DataTableContainer, DataTH, DataTD, DataTR, DetailModal,
@@ -28,8 +27,10 @@ type TabFilter = "all" | "CREDIT" | "DEBIT" | "unreconciled";
 
 export default function FaireBankTransactions() {
   const [, setLocation] = useLocation();
-  const isLoading = useSimulatedLoading(600);
   const { toast } = useToast();
+
+  const { data: ordersData, isLoading } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const allOrders = ordersData?.orders ?? [];
   const [filter, setFilter] = useState<TabFilter>("all");
   const [search, setSearch] = useState("");
   const [transactions, setTransactions] = useState(faireBankTransactions);
@@ -61,8 +62,8 @@ export default function FaireBankTransactions() {
   const totalDebits = transactions.filter(t => t.type === "DEBIT").reduce((s, t) => s + t.amount_cents, 0);
   const unreconciledCount = transactions.filter(t => !t.reconciled).length;
 
-  const mapSearchResults = faireOrders.filter(o =>
-    mapSearch.length > 1 && o.display_id.toLowerCase().includes(mapSearch.toLowerCase())
+  const mapSearchResults = allOrders.filter((o: any) =>
+    mapSearch.length > 1 && String(o.display_id ?? "").toLowerCase().includes(mapSearch.toLowerCase())
   );
 
   function confirmMap() {
@@ -197,7 +198,7 @@ export default function FaireBankTransactions() {
                     {t.mapped_order_ids.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
                         {t.mapped_order_ids.map(oid => {
-                          const o = faireOrders.find(x => x.id === oid);
+                          const o = allOrders.find((x: any) => x.id === oid);
                           return o ? (
                             <button
                               key={oid}
@@ -290,7 +291,7 @@ export default function FaireBankTransactions() {
                     <span className="font-mono font-bold">#{o.display_id}</span>
                     <span className="text-slate-500 ml-2">{o.state}</span>
                     <span className="text-slate-400 ml-2">
-                      {cents(o.items.reduce((s, i) => s + i.price_cents * i.quantity, 0))}
+                      {cents(o.items.reduce((s: number, i: any) => s + i.price_cents * i.quantity, 0))}
                     </span>
                   </div>
                 </label>
