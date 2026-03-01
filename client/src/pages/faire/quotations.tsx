@@ -193,7 +193,7 @@ export default function FaireQuotations() {
                 return (
                   <DataTR key={q.id} data-testid={`row-quotation-${q.id}`}>
                     <DataTD>
-                      <span className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded">{q.id}</span>
+                      <span className="font-mono text-muted-foreground">{q.id}</span>
                     </DataTD>
                     <DataTD>
                       {order ? (

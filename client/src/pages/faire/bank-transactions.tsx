@@ -201,7 +201,7 @@ export default function FaireBankTransactions() {
                     </span>
                   </DataTD>
                   <DataTD>
-                    <span className="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded">{t.reference}</span>
+                    <span className="font-mono text-muted-foreground">{t.reference}</span>
                   </DataTD>
                   <DataTD>
                     {t.mapped_order_ids.length > 0 ? (
