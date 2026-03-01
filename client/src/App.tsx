@@ -58,7 +58,7 @@ import UniversalImportantContacts from "@/pages/universal/important-contacts";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminTeam from "@/pages/admin/team";
 import AdminSettings from "@/pages/admin/settings";
-import AdminReports from "@/pages/admin/reports";
+
 import DevDashboard from "@/pages/dev/dashboard";
 import DevPrompts from "@/pages/dev/prompts";
 import DevResources from "@/pages/dev/resources";
@@ -133,7 +133,7 @@ import FinancePayments from "@/pages/finance/payments";
 import FinanceSharedExpenses from "@/pages/finance/shared-expenses";
 import FinanceCashBook from "@/pages/finance/cashbook";
 import FinanceCompliance from "@/pages/finance/compliance";
-import FinanceReports from "@/pages/finance/reports";
+
 import OmsDashboard from "@/pages/oms/dashboard";
 import OmsOrders from "@/pages/oms/orders";
 import OmsInventory from "@/pages/oms/inventory";
@@ -143,7 +143,7 @@ import OmsPurchaseOrders from "@/pages/oms/purchase-orders";
 import OmsSuppliers from "@/pages/oms/suppliers";
 import OmsReturns from "@/pages/oms/returns";
 import OmsLocations from "@/pages/oms/locations";
-import OmsReports from "@/pages/oms/reports";
+
 import SocialDashboard from "@/pages/social/dashboard";
 import SocialPosts from "@/pages/social/posts";
 import SocialPostDetail from "@/pages/social/post-detail";
@@ -256,7 +256,7 @@ function Router() {
       <Route path="/admin/contacts" component={UniversalImportantContacts} />
       <Route path="/admin/team-reports" component={UniversalReports} />
       <Route path="/admin/settings" component={AdminSettings} />
-      <Route path="/admin/reports" component={AdminReports} />
+      <Route path="/admin/reports" component={UniversalReports} />
       <Route path="/dev" component={DevDashboard} />
       <Route path="/dev/chat" component={UniversalChat} />
       <Route path="/dev/team" component={UniversalTeam} />
@@ -355,7 +355,7 @@ function Router() {
       <Route path="/finance/shared-expenses" component={FinanceSharedExpenses} />
       <Route path="/finance/cashbook" component={FinanceCashBook} />
       <Route path="/finance/compliance" component={FinanceCompliance} />
-      <Route path="/finance/reports" component={FinanceReports} />
+      <Route path="/finance/reports" component={UniversalReports} />
       <Route path="/oms" component={OmsDashboard} />
       <Route path="/oms/chat" component={UniversalChat} />
       <Route path="/oms/team" component={UniversalTeam} />
@@ -370,7 +370,7 @@ function Router() {
       <Route path="/oms/suppliers" component={OmsSuppliers} />
       <Route path="/oms/returns" component={OmsReturns} />
       <Route path="/oms/locations" component={OmsLocations} />
-      <Route path="/oms/reports" component={OmsReports} />
+      <Route path="/oms/reports" component={UniversalReports} />
       <Route path="/social" component={SocialDashboard} />
       <Route path="/social/chat" component={UniversalChat} />
       <Route path="/social/team" component={UniversalTeam} />
