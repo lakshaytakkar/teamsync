@@ -2,20 +2,22 @@ import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft, Printer, CheckCircle, XCircle, Zap, AlertTriangle,
-  FileText, BookOpen, ExternalLink,
+  ArrowLeft, Printer, CheckCircle, XCircle, AlertTriangle,
+  FileText, BookOpen, ExternalLink, Truck, MapPin, Package,
 } from "lucide-react";
-import { PageTransition, Fade } from "@/components/ui/animated";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   faireQuotations, faireFulfillers, faireLedgerEntries,
 } from "@/lib/mock-data-faire-ops";
+import {
+  PageShell, SectionCard, DetailModal, DetailSection,
+  DataTableContainer, DataTH, DataTD,
+} from "@/components/layout";
 
 type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
@@ -71,13 +73,36 @@ const SOURCE_LABELS: Record<string, string> = {
 
 function cents(n: number) { return `$${(n / 100).toFixed(2)}`; }
 
+function InfoRow({ label, value, children }: { label: string; value?: string | number; children?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between py-1.5">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      {children ?? <span className="text-sm font-medium">{value}</span>}
+    </div>
+  );
+}
+
 export default function FaireOrderDetail() {
   const [, setLocation] = useLocation();
   const [, params] = useRoute("/faire/orders/:id");
   const { toast } = useToast();
 
-  const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
-  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({ queryKey: ['/api/faire/stores'] });
+  const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
+    queryKey: ['/api/faire/orders'],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/orders", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
+  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
+    queryKey: ['/api/faire/stores'],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
 
   const isLoading = ordersLoading || storesLoading;
   const orders = ordersData?.orders ?? [];
@@ -110,6 +135,8 @@ export default function FaireOrderDetail() {
   const commissionAmt = order?.payout_costs?.commission_cents ?? 0;
   const payout = itemsTotal - commissionAmt - (order?.payout_costs?.payout_fee_cents ?? 0);
 
+  const retailerDisplayName = order?.address?.company_name || order?.address?.name || order?.retailer_id || "Unknown";
+
   async function handleAccept() {
     setAcceptLoading(true);
     try {
@@ -118,12 +145,9 @@ export default function FaireOrderDetail() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ storeId: order._storeId }),
       });
-      const data = await res.json() as { success: boolean; state?: string; mock?: boolean; error?: string };
+      const data = await res.json() as { success: boolean; error?: string };
       if (data.success) {
-        toast({
-          title: "Order Accepted",
-          description: `Moved to Processing${data.mock ? " (mock — no live Faire API key)" : ""}`,
-        });
+        toast({ title: "Order Accepted", description: "Moved to Processing" });
       } else {
         toast({ title: "Faire API Error", description: data.error ?? "Unknown error", variant: "destructive" });
       }
@@ -142,12 +166,9 @@ export default function FaireOrderDetail() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ storeId: order._storeId, reason: cancelReason }),
       });
-      const data = await res.json() as { success: boolean; state?: string; mock?: boolean; error?: string };
+      const data = await res.json() as { success: boolean; error?: string };
       if (data.success) {
-        toast({
-          title: "Order Canceled",
-          description: `${CANCEL_REASONS.find(r => r.value === cancelReason)?.label}${data.mock ? " (mock)" : ""}`,
-        });
+        toast({ title: "Order Canceled", description: `${CANCEL_REASONS.find(r => r.value === cancelReason)?.label}` });
         setCancelOpen(false);
       } else {
         toast({ title: "Faire API Error", description: data.error ?? "Unknown error", variant: "destructive" });
@@ -178,14 +199,11 @@ export default function FaireOrderDetail() {
           shipping_type: shipType,
         }),
       });
-      const data = await res.json() as { success: boolean; shipment?: object; mock?: boolean; error?: string };
+      const data = await res.json() as { success: boolean; mock?: boolean; error?: string };
       if (data.success) {
-        const mockNote = data.mock ? " (mock — tracking pushed to local, not Faire)" : " — Pushed to Faire ✓";
-        setShipFaireResult(`${carrier} ${tracking}${mockNote}`);
-        toast({
-          title: "Shipment Added",
-          description: `${carrier} — ${tracking}${data.mock ? " (mock mode)" : " — pushed to Faire"}`,
-        });
+        const note = data.mock ? " (mock mode)" : " — pushed to Faire";
+        setShipFaireResult(`${carrier} ${tracking}${note}`);
+        toast({ title: "Shipment Added", description: `${carrier} — ${tracking}` });
       } else {
         toast({ title: "Error", description: data.error ?? "Failed to add shipment", variant: "destructive" });
       }
@@ -198,71 +216,93 @@ export default function FaireOrderDetail() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-5 animate-pulse">
+      <PageShell className="animate-pulse">
         <div className="h-8 bg-muted rounded w-48" />
         <div className="h-16 bg-muted rounded-xl" />
         <div className="grid grid-cols-5 gap-5">
-          <div className="col-span-3 space-y-3">
+          <div className="col-span-3 space-y-4">
             <div className="h-48 bg-muted rounded-xl" />
             <div className="h-32 bg-muted rounded-xl" />
           </div>
-          <div className="col-span-2 space-y-3">
+          <div className="col-span-2 space-y-4">
             <div className="h-32 bg-muted rounded-xl" />
             <div className="h-24 bg-muted rounded-xl" />
           </div>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   if (!order) {
     return (
-      <PageTransition className="px-16 py-6 lg:px-24">
+      <PageShell>
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => setLocation("/faire/orders")} data-testid="btn-back-not-found">
             <ArrowLeft size={15} className="mr-1.5" /> Orders
           </Button>
           <p className="text-sm text-muted-foreground">Order not found.</p>
         </div>
-      </PageTransition>
+      </PageShell>
     );
   }
 
   return (
-    <PageTransition className="px-16 py-6 lg:px-24 space-y-5">
+    <PageShell>
       {order.has_pending_retailer_cancellation_request && (
         <Fade>
-          <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-300 rounded-xl px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
-            <AlertTriangle size={15} className="shrink-0" />
-            <span className="font-medium">Retailer has requested cancellation of this order.</span>
+          <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-300 rounded-xl px-4 py-3">
+            <AlertTriangle size={16} className="shrink-0 text-amber-600" />
+            <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Retailer has requested cancellation of this order.</span>
           </div>
         </Fade>
       )}
 
       <Fade>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setLocation("/faire/orders")} data-testid="btn-back">
-              <ArrowLeft size={15} className="mr-1.5" /> Orders
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-4">
+            <Button variant="ghost" size="sm" className="mt-0.5" onClick={() => setLocation("/faire/orders")} data-testid="btn-back">
+              <ArrowLeft size={15} />
             </Button>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold font-heading font-mono">#{order.display_id}</h1>
-                <span className="text-sm px-2.5 py-0.5 rounded-full font-semibold" style={{ background: cfg.bg, color: cfg.color }}>{cfg.label}</span>
-                <Badge variant="outline" className="text-xs">{store?.name}</Badge>
-                <Badge variant="outline" className="text-xs">{SOURCE_LABELS[order.source]}</Badge>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold font-heading">Order #{order.display_id}</h1>
+                <span className="text-sm px-2.5 py-0.5 rounded-full font-medium" style={{ background: cfg.bg, color: cfg.color }}>{cfg.label}</span>
+              </div>
+              <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                <span>{new Date(order.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+                <span>·</span>
+                <button className="hover:underline hover:text-primary" onClick={() => setLocation("/faire/stores")} data-testid="link-store-header">{store?.name ?? "Store"}</button>
+                <span>·</span>
+                <span>{SOURCE_LABELS[order.source] ?? order.source}</span>
                 {order.is_free_shipping && (
-                  <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-medium"><Zap size={10} /> Free Ship</span>
+                  <>
+                    <span>·</span>
+                    <span className="text-emerald-600 font-medium">Free Shipping</span>
+                  </>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">Placed {new Date(order.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => toast({ title: "Printing Packing Slip..." })} data-testid="btn-print">
+              <Printer size={14} className="mr-2" /> Print Slip
+            </Button>
+            {order.state === "NEW" && (
+              <Button size="sm" style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={handleAccept} disabled={acceptLoading} data-testid="btn-accept">
+                <CheckCircle size={14} className="mr-2" /> {acceptLoading ? "Accepting…" : "Accept Order"}
+              </Button>
+            )}
+            {(order.state === "NEW" || order.state === "PROCESSING" || order.state === "PRE_TRANSIT") && (
+              <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600 border-red-200" onClick={() => setCancelOpen(true)} data-testid="btn-cancel">
+                <XCircle size={14} className="mr-2" /> Cancel
+              </Button>
+            )}
           </div>
         </div>
       </Fade>
 
       <Fade>
-        <div className="flex items-center gap-0">
+        <div className="flex items-center gap-0 py-2">
           {TIMELINE_STATES.map((state, i) => {
             const stateCfg = stateConfig[state];
             const isActive = i <= timelineIdx && timelineIdx >= 0;
@@ -270,13 +310,16 @@ export default function FaireOrderDetail() {
             return (
               <div key={state} className="flex items-center flex-1">
                 <div className="flex flex-col items-center flex-1">
-                  <div className={`size-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${isActive ? "text-white border-transparent" : "text-muted-foreground border-muted"}`} style={isActive ? { background: BRAND_COLOR } : {}}>
+                  <div
+                    className={`size-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${isActive ? "text-white border-transparent" : "text-muted-foreground border-muted"}`}
+                    style={isActive ? { background: BRAND_COLOR } : {}}
+                  >
                     {i + 1}
                   </div>
-                  <p className={`text-[10px] mt-1 font-medium ${isCurrent ? "text-foreground" : "text-muted-foreground"}`}>{stateCfg.label}</p>
+                  <p className={`text-xs mt-1.5 font-medium ${isCurrent ? "text-foreground" : "text-muted-foreground"}`}>{stateCfg.label}</p>
                 </div>
                 {i < TIMELINE_STATES.length - 1 && (
-                  <div className={`flex-1 h-0.5 mb-4 ${i < timelineIdx && timelineIdx >= 0 ? "" : "bg-muted"}`} style={i < timelineIdx && timelineIdx >= 0 ? { background: BRAND_COLOR } : {}} />
+                  <div className={`flex-1 h-0.5 mb-5 ${i < timelineIdx && timelineIdx >= 0 ? "" : "bg-muted"}`} style={i < timelineIdx && timelineIdx >= 0 ? { background: BRAND_COLOR } : {}} />
                 )}
               </div>
             );
@@ -284,403 +327,351 @@ export default function FaireOrderDetail() {
         </div>
       </Fade>
 
-      <div className="grid grid-cols-5 gap-5">
-        <div className="col-span-3 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        <div className="lg:col-span-3 space-y-5">
           <Fade>
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Order Items</CardTitle></CardHeader>
-              <CardContent className="p-0">
+            <SectionCard title="Order Items" noPadding>
+              <DataTableContainer>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs">Product</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs">SKU</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs">Qty</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs">Unit Price</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs">Line Total</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground text-xs">State</th>
+                    <tr className="border-b bg-muted/30">
+                      <DataTH>Product</DataTH>
+                      <DataTH>SKU</DataTH>
+                      <DataTH align="center">Qty</DataTH>
+                      <DataTH>Unit Price</DataTH>
+                      <DataTH>Line Total</DataTH>
+                      <DataTH>Status</DataTH>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y">
                     {(order.items ?? []).map((item: any) => {
                       const isBackordered = item.state === "BACKORDERED";
                       const lineTotal = (item.price_cents * item.quantity / 100).toFixed(2);
                       return (
-                        <tr key={item.id} className={`border-b ${isBackordered ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`} data-testid={`item-row-${item.id}`}>
-                          <td className="p-3">
-                            <p className="text-xs font-medium">{item.product_name}</p>
-                            <p className="text-[10px] text-muted-foreground">{item.variant_name}</p>
-                            {item.includes_tester && <span className="text-[9px] bg-blue-50 text-blue-600 rounded px-1 font-medium">Tester</span>}
+                        <tr key={item.id} className={isBackordered ? "bg-amber-50/50 dark:bg-amber-950/10" : ""} data-testid={`item-row-${item.id}`}>
+                          <DataTD>
+                            <p className="font-medium">{item.product_name}</p>
+                            <p className="text-sm text-muted-foreground">{item.variant_name}</p>
+                            {item.includes_tester && <Badge variant="outline" className="text-xs mt-1">Tester</Badge>}
                             {(item.discounts ?? []).length > 0 && (
-                              <div className="mt-0.5">
+                              <div className="flex gap-1 mt-1">
                                 {(item.discounts ?? []).map((d: any) => (
-                                  <span key={d.id} className="text-[9px] bg-emerald-50 text-emerald-600 rounded px-1 font-medium mr-1">{d.code}</span>
+                                  <Badge key={d.id} variant="outline" className="text-xs text-emerald-600 border-emerald-200">{d.code}</Badge>
                                 ))}
                               </div>
                             )}
-                          </td>
-                          <td className="p-3 text-xs font-mono text-muted-foreground">{item.sku}</td>
-                          <td className="p-3 text-xs">{item.quantity}</td>
-                          <td className="p-3 text-xs">${(item.price_cents / 100).toFixed(2)}</td>
-                          <td className="p-3 text-xs font-semibold">${lineTotal}</td>
-                          <td className="p-3">
-                            <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${isBackordered ? "bg-amber-100 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{item.state}</span>
-                          </td>
+                          </DataTD>
+                          <DataTD className="text-muted-foreground font-mono">{item.sku}</DataTD>
+                          <DataTD align="center">{item.quantity}</DataTD>
+                          <DataTD>{cents(item.price_cents)}</DataTD>
+                          <DataTD className="font-semibold">${lineTotal}</DataTD>
+                          <DataTD>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${isBackordered ? "bg-amber-100 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>
+                              {item.state}
+                            </span>
+                          </DataTD>
                         </tr>
                       );
                     })}
                   </tbody>
                 </table>
-              </CardContent>
-            </Card>
+              </DataTableContainer>
+            </SectionCard>
           </Fade>
 
           <Fade>
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Delivery Address</CardTitle></CardHeader>
-              <CardContent>
-                <p className="text-sm font-medium">{order.address.name}</p>
-                {order.address.company_name && <p className="text-sm text-muted-foreground">{order.address.company_name}</p>}
-                <p className="text-sm text-muted-foreground">{order.address.address1}</p>
-                {order.address.address2 && <p className="text-sm text-muted-foreground">{order.address.address2}</p>}
-                <p className="text-sm text-muted-foreground">{order.address.city}, {order.address.state_code ?? order.address.state} {order.address.postal_code}</p>
-                <p className="text-sm text-muted-foreground">{order.address.country}</p>
-              </CardContent>
-            </Card>
-          </Fade>
-
-          <Fade>
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Payout Costs</CardTitle></CardHeader>
-              <CardContent>
-                <div className="space-y-1.5">
-                  {[
-                    { label: "Items Total", value: `$${(itemsTotal / 100).toFixed(2)}` },
-                    { label: `Commission${order.payout_costs?.commission_bps ? ` (${(order.payout_costs.commission_bps / 100).toFixed(0)}%)` : ""}`, value: `-$${(commissionAmt / 100).toFixed(2)}` },
-                    { label: "Platform Fee", value: (order.payout_costs?.payout_fee_cents ?? 0) > 0 ? `-$${(order.payout_costs.payout_fee_cents / 100).toFixed(2)}` : "—" },
-                  ].map(row => (
-                    <div key={row.label} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{row.label}</span>
-                      <span>{row.value}</span>
-                    </div>
-                  ))}
-                  <div className="border-t pt-1.5 flex items-center justify-between">
-                    <span className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">Estimated Payout</span>
-                    <span className="font-bold text-sm text-emerald-700 dark:text-emerald-400">${(payout / 100).toFixed(2)}</span>
-                  </div>
-                  {order.is_free_shipping && order.free_shipping_reason && (
-                    <div className="text-[10px] text-muted-foreground">Free shipping: {order.free_shipping_reason.replace(/_/g, " ")}</div>
-                  )}
+            <SectionCard title="Payout Breakdown">
+              <div className="space-y-2">
+                <InfoRow label="Items Total" value={cents(itemsTotal)} />
+                <InfoRow label={`Commission${order.payout_costs?.commission_bps ? ` (${(order.payout_costs.commission_bps / 100).toFixed(0)}%)` : ""}`} value={commissionAmt > 0 ? `-${cents(commissionAmt)}` : "—"} />
+                <InfoRow label="Platform Fee" value={(order.payout_costs?.payout_fee_cents ?? 0) > 0 ? `-${cents(order.payout_costs.payout_fee_cents)}` : "—"} />
+                <div className="border-t pt-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Estimated Payout</span>
+                  <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400">{cents(payout)}</span>
                 </div>
-              </CardContent>
-            </Card>
+                {order.is_free_shipping && order.free_shipping_reason && (
+                  <p className="text-xs text-muted-foreground pt-1">Free shipping: {order.free_shipping_reason.replace(/_/g, " ")}</p>
+                )}
+              </div>
+            </SectionCard>
+          </Fade>
+
+          <Fade>
+            <SectionCard title="Delivery Address">
+              <div className="flex items-start gap-3">
+                <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(26, 107, 69, 0.1)" }}>
+                  <MapPin size={16} style={{ color: BRAND_COLOR }} />
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">{order.address?.name}</p>
+                  {order.address?.company_name && <p className="text-sm text-muted-foreground">{order.address.company_name}</p>}
+                  <p className="text-sm text-muted-foreground">{order.address?.address1}</p>
+                  {order.address?.address2 && <p className="text-sm text-muted-foreground">{order.address.address2}</p>}
+                  <p className="text-sm text-muted-foreground">{order.address?.city}, {order.address?.state_code ?? order.address?.state} {order.address?.postal_code}</p>
+                  <p className="text-sm text-muted-foreground">{order.address?.country}</p>
+                  {order.address?.phone_number && <p className="text-sm text-muted-foreground">{order.address.phone_number}</p>}
+                </div>
+              </div>
+            </SectionCard>
           </Fade>
 
           {(order.brand_discounts ?? []).length > 0 && (
             <Fade>
-              <Card>
-                <CardHeader className="pb-2"><CardTitle className="text-sm">Brand Discounts</CardTitle></CardHeader>
-                <CardContent className="space-y-2">
+              <SectionCard title="Brand Discounts">
+                <div className="space-y-2">
                   {(order.brand_discounts ?? []).map((d: any) => (
-                    <div key={d.id} className="flex items-center justify-between text-sm">
-                      <span className="font-mono text-xs bg-muted rounded px-1.5 py-0.5">{d.code}</span>
-                      <span className="text-xs text-muted-foreground">
+                    <div key={d.id} className="flex items-center justify-between">
+                      <Badge variant="outline" className="font-mono">{d.code}</Badge>
+                      <span className="text-sm text-muted-foreground">
                         {d.discount_type === "PERCENTAGE" ? `${d.discount_percentage}% off` : "Flat discount"}
-                        {d.includes_free_shipping && " + Free ship"}
+                        {d.includes_free_shipping && " + Free shipping"}
                       </span>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </SectionCard>
             </Fade>
           )}
         </div>
 
-        <div className="col-span-2 space-y-4">
-          {/* Retailer */}
+        <div className="lg:col-span-2 space-y-5">
           <Fade>
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Retailer</CardTitle></CardHeader>
-              <CardContent>
-                <p className="text-sm font-semibold">{order.retailer_id}</p>
-                {order.address?.city && (
-                  <p className="text-xs text-muted-foreground">{order.address.city}{order.address.state_code ? `, ${order.address.state_code}` : order.address.state ? `, ${order.address.state}` : ""}</p>
-                )}
+            <SectionCard title="Retailer">
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0 bg-primary/10">
+                    <Package size={16} className="text-primary" />
+                  </div>
+                  <div>
+                    <button className="text-sm font-semibold hover:underline hover:text-primary" onClick={() => setLocation(`/faire/retailers/${order.retailer_id}`)} data-testid="link-retailer-name">
+                      {retailerDisplayName}
+                    </button>
+                    {order.address?.city && (
+                      <p className="text-sm text-muted-foreground">{order.address.city}{order.address.state_code ? `, ${order.address.state_code}` : order.address.state ? `, ${order.address.state}` : ""}</p>
+                    )}
+                  </div>
+                </div>
                 {(() => {
                   const retailerOrders = orders.filter((o: any) => o.retailer_id === order.retailer_id);
                   const totalSpent = retailerOrders.reduce((sum: number, o: any) => sum + (o.items ?? []).reduce((s: number, i: any) => s + i.price_cents * i.quantity, 0), 0);
                   return (
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      <div className="bg-muted/40 rounded p-2 text-center">
-                        <p className="text-sm font-bold">{retailerOrders.length}</p>
-                        <p className="text-[10px] text-muted-foreground">Orders</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-muted/40 rounded-lg p-3 text-center">
+                        <p className="text-lg font-bold">{retailerOrders.length}</p>
+                        <p className="text-xs text-muted-foreground">Total Orders</p>
                       </div>
-                      <div className="bg-muted/40 rounded p-2 text-center">
-                        <p className="text-sm font-bold">${(totalSpent / 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-                        <p className="text-[10px] text-muted-foreground">Total Spent</p>
+                      <div className="bg-muted/40 rounded-lg p-3 text-center">
+                        <p className="text-lg font-bold">${(totalSpent / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                        <p className="text-xs text-muted-foreground">Total Spent</p>
                       </div>
                     </div>
                   );
                 })()}
-                <Button size="sm" variant="outline" className="w-full mt-2 text-xs" onClick={() => setLocation(`/faire/retailers/${order.retailer_id}`)} data-testid="btn-view-retailer">View Retailer Profile</Button>
-              </CardContent>
-            </Card>
+                <Button size="sm" variant="outline" className="w-full" onClick={() => setLocation(`/faire/retailers/${order.retailer_id}`)} data-testid="btn-view-retailer">
+                  View Retailer Profile
+                </Button>
+              </div>
+            </SectionCard>
           </Fade>
 
-          {/* Quotation panel */}
           <Fade>
-            <Card>
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-1.5">
-                  <FileText size={13} className="text-muted-foreground" />
-                  <CardTitle className="text-sm">Quotation</CardTitle>
+            <SectionCard title="Quotation">
+              {linkedQuote ? (
+                <div className="space-y-2">
+                  <InfoRow label="Fulfiller" value={linkedFulfiller?.name ?? linkedQuote.fulfiller_id} />
+                  <InfoRow label="Status">
+                    {(() => {
+                      const qsc = QUOT_STATUS_CONFIG[linkedQuote.status];
+                      return <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: qsc.bg, color: qsc.color }}>{qsc.label}</span>;
+                    })()}
+                  </InfoRow>
+                  {linkedQuote.status !== "DRAFT" && linkedQuote.status !== "SENT" && (
+                    <>
+                      <InfoRow label="Fulfiller Total" value={cents(linkedQuote.items.reduce((s, i) => s + i.fulfiller_unit_cost_cents * i.ordered_quantity, 0) + linkedQuote.fulfiller_shipping_cost_cents)} />
+                      <InfoRow label="Est. Margin">
+                        <span className="text-sm font-semibold text-emerald-600">
+                          {(() => {
+                            const ftotal = linkedQuote.items.reduce((s, i) => s + i.fulfiller_unit_cost_cents * i.ordered_quantity, 0) + linkedQuote.fulfiller_shipping_cost_cents;
+                            return payout > 0 ? `${Math.round(((payout - ftotal) / payout) * 100)}%` : "—";
+                          })()}
+                        </span>
+                      </InfoRow>
+                    </>
+                  )}
+                  <Button size="sm" variant="outline" className="w-full" onClick={() => setLocation(`/faire/quotations/${linkedQuote.id}`)} data-testid="btn-view-quotation">
+                    <ExternalLink size={13} className="mr-2" /> View Quotation
+                  </Button>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {linkedQuote ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Fulfiller</span>
-                      <span className="text-xs font-medium">{linkedFulfiller?.name ?? linkedQuote.fulfiller_id}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Status</span>
-                      {(() => {
-                        const qsc = QUOT_STATUS_CONFIG[linkedQuote.status];
-                        return <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: qsc.bg, color: qsc.color }}>{qsc.label}</span>;
-                      })()}
-                    </div>
-                    {linkedQuote.status !== "DRAFT" && linkedQuote.status !== "SENT" && (
-                      <>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">Fulfiller Total</span>
-                          <span className="text-xs font-semibold">
-                            {cents(linkedQuote.items.reduce((s, i) => s + i.fulfiller_unit_cost_cents * i.ordered_quantity, 0) + linkedQuote.fulfiller_shipping_cost_cents)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">Est. Margin</span>
-                          <span className="text-xs font-semibold text-emerald-600">
-                            {(() => {
-                              const ftotal = linkedQuote.items.reduce((s, i) => s + i.fulfiller_unit_cost_cents * i.ordered_quantity, 0) + linkedQuote.fulfiller_shipping_cost_cents;
-                              const mp = payout > 0 ? Math.round(((payout - ftotal) / payout) * 100) : 0;
-                              return `${mp}%`;
-                            })()}
-                          </span>
-                        </div>
-                      </>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full text-xs mt-1"
-                      onClick={() => setLocation(`/faire/quotations/${linkedQuote.id}`)}
-                      data-testid="btn-view-quotation"
-                    >
-                      <ExternalLink size={11} className="mr-1" /> View Quotation
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center py-2">
-                    <p className="text-xs text-muted-foreground mb-2">No quotation yet</p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs"
-                      onClick={() => setLocation("/faire/quotations")}
-                      data-testid="btn-request-quote-from-detail"
-                    >
-                      Request Quote
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              ) : (
+                <div className="text-center py-3">
+                  <FileText size={20} className="mx-auto mb-2 text-muted-foreground/40" />
+                  <p className="text-sm text-muted-foreground mb-3">No quotation yet</p>
+                  <Button size="sm" variant="outline" onClick={() => setLocation("/faire/quotations")} data-testid="btn-request-quote-from-detail">
+                    Request Quote
+                  </Button>
+                </div>
+              )}
+            </SectionCard>
           </Fade>
 
-          {/* Financials panel */}
           <Fade>
-            <Card>
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-1.5">
-                  <BookOpen size={13} className="text-muted-foreground" />
-                  <CardTitle className="text-sm">Financials</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {linkedLedger ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Faire Payout</span>
-                      <span className="text-xs font-semibold text-emerald-600">{cents(linkedLedger.faire_payout_cents)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Fulfiller Cost</span>
-                      <span className="text-xs font-medium">{cents(linkedLedger.fulfiller_cost_cents + linkedLedger.shipping_cost_cents)}</span>
-                    </div>
-                    <div className="flex items-center justify-between border-t pt-1.5">
-                      <span className="text-xs text-muted-foreground">Net Margin</span>
-                      <span className="text-xs font-bold" style={{ color: linkedLedger.net_margin_cents > 0 ? "#059669" : "#DC2626" }}>
+            <SectionCard title="Financials">
+              {linkedLedger ? (
+                <div className="space-y-2">
+                  <InfoRow label="Faire Payout">
+                    <span className="text-sm font-semibold text-emerald-600">{cents(linkedLedger.faire_payout_cents)}</span>
+                  </InfoRow>
+                  <InfoRow label="Fulfiller Cost" value={cents(linkedLedger.fulfiller_cost_cents + linkedLedger.shipping_cost_cents)} />
+                  <div className="border-t pt-2">
+                    <InfoRow label="Net Margin">
+                      <span className="text-sm font-bold" style={{ color: linkedLedger.net_margin_cents > 0 ? "#059669" : "#DC2626" }}>
                         {cents(linkedLedger.net_margin_cents)}
                       </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Payment</span>
-                      {(() => {
-                        const lsc = LED_STATUS_CONFIG[linkedLedger.payment_status];
-                        return <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: lsc.bg, color: lsc.color }}>{lsc.label}</span>;
-                      })()}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full text-xs mt-1"
-                      onClick={() => setLocation("/faire/ledger")}
-                      data-testid="btn-view-ledger"
-                    >
-                      <ExternalLink size={11} className="mr-1" /> View in Ledger
-                    </Button>
+                    </InfoRow>
                   </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground text-center py-1">No ledger entry</p>
-                )}
-              </CardContent>
-            </Card>
-          </Fade>
-
-          {/* Order Details */}
-          <Fade>
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Order Details</CardTitle></CardHeader>
-              <CardContent className="space-y-1.5 text-xs">
-                {[
-                  { label: "Source", value: SOURCE_LABELS[order.source] },
-                  ...(order.purchase_order_number ? [{ label: "PO Number", value: order.purchase_order_number }] : []),
-                  ...(order.sales_rep_name ? [{ label: "Sales Rep", value: order.sales_rep_name }] : []),
-                  ...(order.ship_after ? [{ label: "Ship After", value: new Date(order.ship_after).toLocaleDateString() }] : []),
-                  ...(order.estimated_payout_at ? [{ label: "Est. Payout", value: new Date(order.estimated_payout_at).toLocaleDateString() }] : []),
-                ].map(row => (
-                  <div key={row.label} className="flex items-center justify-between">
-                    <span className="text-muted-foreground">{row.label}</span>
-                    <span className="font-medium">{row.value}</span>
-                  </div>
-                ))}
-                {order.notes && (
-                  <div className="mt-2 p-2 bg-muted/40 rounded text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground">Notes: </span>{order.notes}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </Fade>
-
-          {/* Shipments */}
-          <Fade>
-            <Card>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Shipments</CardTitle>
-                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => { setAddShipOpen(true); setCarrier("UPS"); setTracking(""); setMakerCostDollars(""); setShipType("SHIP_ON_YOUR_OWN"); setShipFaireResult(null); }} data-testid="btn-add-shipment">+ Add</Button>
+                  <InfoRow label="Payment">
+                    {(() => {
+                      const lsc = LED_STATUS_CONFIG[linkedLedger.payment_status];
+                      return <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: lsc.bg, color: lsc.color }}>{lsc.label}</span>;
+                    })()}
+                  </InfoRow>
+                  <Button size="sm" variant="outline" className="w-full" onClick={() => setLocation("/faire/ledger")} data-testid="btn-view-ledger">
+                    <ExternalLink size={13} className="mr-2" /> View in Ledger
+                  </Button>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {shipFaireResult && (
-                  <div className="mb-2 p-2 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-700">
-                    <CheckCircle size={11} className="inline mr-1" />{shipFaireResult}
-                  </div>
-                )}
-                {(order.shipments ?? []).length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No shipments yet.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {(order.shipments ?? []).map((ship: any) => (
-                      <div key={ship.id} className="rounded-lg bg-muted/40 p-2 text-xs">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-medium">{ship.carrier}</span>
-                          <span className="text-muted-foreground font-mono text-[10px]">{ship.tracking_code}</span>
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5 text-muted-foreground">
-                          <span>Shipped {new Date(ship.shipped_at).toLocaleDateString()}</span>
-                          <span>·</span>
-                          <span className="font-medium text-foreground">${(ship.maker_cost_cents / 100).toFixed(2)}</span>
-                          <span>·</span>
-                          <span>{ship.shipping_type === "SHIP_ON_YOUR_OWN" ? "Own Label" : "Faire Label"}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              ) : (
+                <div className="text-center py-3">
+                  <BookOpen size={20} className="mx-auto mb-2 text-muted-foreground/40" />
+                  <p className="text-sm text-muted-foreground">No ledger entry linked</p>
+                </div>
+              )}
+            </SectionCard>
           </Fade>
 
-          {/* Actions */}
           <Fade>
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Actions</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                {order.state === "NEW" && (
-                  <Button className="w-full text-sm text-white" style={{ background: BRAND_COLOR }} onClick={handleAccept} disabled={acceptLoading} data-testid="btn-accept">
-                    <CheckCircle size={14} className="mr-2" /> {acceptLoading ? "Accepting…" : "Accept → Processing"}
-                  </Button>
+            <SectionCard title="Order Details">
+              <div className="space-y-1">
+                <InfoRow label="Source" value={SOURCE_LABELS[order.source]} />
+                {order.purchase_order_number && <InfoRow label="PO Number" value={order.purchase_order_number} />}
+                {order.sales_rep_name && <InfoRow label="Sales Rep" value={order.sales_rep_name} />}
+                {order.ship_after && <InfoRow label="Ship After" value={new Date(order.ship_after).toLocaleDateString()} />}
+                {order.estimated_payout_at && <InfoRow label="Est. Payout" value={new Date(order.estimated_payout_at).toLocaleDateString()} />}
+                {order.notes && (
+                  <div className="mt-3 p-3 bg-muted/40 rounded-lg">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Notes</p>
+                    <p className="text-sm">{order.notes}</p>
+                  </div>
                 )}
-                <Button variant="outline" className="w-full text-sm" onClick={() => toast({ title: "Printing Packing Slip..." })} data-testid="btn-print">
-                  <Printer size={14} className="mr-2" /> Print Packing Slip
-                </Button>
-                {(order.state === "NEW" || order.state === "PROCESSING" || order.state === "PRE_TRANSIT") && (
-                  <Button variant="outline" className="w-full text-sm text-red-500 hover:text-red-600" onClick={() => setCancelOpen(true)} data-testid="btn-cancel">
-                    <XCircle size={14} className="mr-2" /> Cancel Order
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+            </SectionCard>
+          </Fade>
+
+          <Fade>
+            <SectionCard
+              title="Shipments"
+              viewAllLabel="+ Add"
+              onViewAll={() => { setAddShipOpen(true); setCarrier("UPS"); setTracking(""); setMakerCostDollars(""); setShipType("SHIP_ON_YOUR_OWN"); setShipFaireResult(null); }}
+            >
+              {shipFaireResult && (
+                <div className="mb-3 p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-sm text-emerald-700 flex items-center gap-2">
+                  <CheckCircle size={14} /> {shipFaireResult}
+                </div>
+              )}
+              {(order.shipments ?? []).length === 0 ? (
+                <div className="text-center py-3">
+                  <Truck size={20} className="mx-auto mb-2 text-muted-foreground/40" />
+                  <p className="text-sm text-muted-foreground">No shipments yet</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {(order.shipments ?? []).map((ship: any) => (
+                    <div key={ship.id} className="rounded-lg bg-muted/40 p-3">
+                      <div className="flex items-center gap-2">
+                        <Truck size={14} className="text-muted-foreground shrink-0" />
+                        <span className="text-sm font-medium">{ship.carrier}</span>
+                        <span className="text-sm text-muted-foreground font-mono">{ship.tracking_code}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground ml-6">
+                        <span>{ship.shipped_at ? new Date(ship.shipped_at).toLocaleDateString() : "—"}</span>
+                        <span>·</span>
+                        <span className="font-medium text-foreground">{ship.maker_cost_cents != null ? cents(ship.maker_cost_cents) : "—"}</span>
+                        <span>·</span>
+                        <span>{ship.shipping_type === "SHIP_ON_YOUR_OWN" ? "Own Label" : "Faire Label"}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
           </Fade>
         </div>
       </div>
 
-      {/* Add Shipment dialog */}
-      <Dialog open={addShipOpen} onOpenChange={() => setAddShipOpen(false)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Shipment</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="space-y-1.5"><Label>Carrier</Label><select value={carrier} onChange={e => setCarrier(e.target.value)} className="w-full h-9 border rounded-lg px-3 text-sm" data-testid="select-carrier">{CARRIERS.map(c => <option key={c}>{c}</option>)}</select></div>
-            <div className="space-y-1.5"><Label>Tracking Code</Label><Input value={tracking} onChange={e => setTracking(e.target.value)} placeholder="Enter tracking code..." data-testid="input-tracking" /></div>
-            <div className="space-y-1.5"><Label>Shipping Cost ($)</Label><Input type="number" value={makerCostDollars} onChange={e => setMakerCostDollars(e.target.value)} placeholder="e.g. 18.50" data-testid="input-maker-cost" /></div>
-            <div className="space-y-1.5"><Label>Shipping Type</Label><select value={shipType} onChange={e => setShipType(e.target.value)} className="w-full h-9 border rounded-lg px-3 text-sm" data-testid="select-ship-type">{SHIP_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
-            <p className="text-xs text-slate-400">Tracking will be pushed to the Faire API (mock mode if no API key configured).</p>
-          </div>
-          <DialogFooter>
+      <DetailModal
+        open={addShipOpen}
+        onClose={() => setAddShipOpen(false)}
+        title="Add Shipment"
+        subtitle="Record tracking and shipping cost for this order"
+        footer={
+          <>
             <Button variant="outline" onClick={() => setAddShipOpen(false)}>Cancel</Button>
             <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={handleAddShipment} disabled={shipLoading} data-testid="btn-save-shipment">
               {shipLoading ? "Pushing…" : "Add Shipment"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Cancel dialog */}
-      <Dialog open={cancelOpen} onOpenChange={() => setCancelOpen(false)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Cancel Order #{order.display_id}?</DialogTitle></DialogHeader>
-          <div className="space-y-3 py-2">
-            <p className="text-sm text-muted-foreground">This action will cancel the order and notify the retailer. It cannot be undone.</p>
+          </>
+        }
+      >
+        <DetailSection title="Shipment Details">
+          <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label>Cancellation Reason</Label>
-              <select value={cancelReason} onChange={e => setCancelReason(e.target.value)} className="w-full h-9 border rounded-lg px-3 text-sm" data-testid="select-cancel-reason">
+              <Label className="text-sm font-medium">Carrier</Label>
+              <select value={carrier} onChange={e => setCarrier(e.target.value)} className="w-full h-10 border rounded-lg px-3 text-sm bg-background" data-testid="select-carrier">
+                {CARRIERS.map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Tracking Code</Label>
+              <Input value={tracking} onChange={e => setTracking(e.target.value)} placeholder="Enter tracking code..." data-testid="input-tracking" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Shipping Cost ($)</Label>
+              <Input type="number" value={makerCostDollars} onChange={e => setMakerCostDollars(e.target.value)} placeholder="e.g. 18.50" data-testid="input-maker-cost" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Shipping Type</Label>
+              <select value={shipType} onChange={e => setShipType(e.target.value)} className="w-full h-10 border rounded-lg px-3 text-sm bg-background" data-testid="select-ship-type">
+                {SHIP_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+          </div>
+        </DetailSection>
+      </DetailModal>
+
+      <DetailModal
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        title="Cancel Order"
+        subtitle="Select a reason for cancellation"
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setCancelOpen(false)} disabled={cancelLoading}>Back</Button>
+            <Button variant="destructive" onClick={handleCancel} disabled={cancelLoading} data-testid="btn-confirm-cancel">
+              {cancelLoading ? "Canceling…" : "Cancel Order"}
+            </Button>
+          </>
+        }
+      >
+        <DetailSection title="Cancellation">
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">Reason</Label>
+              <select value={cancelReason} onChange={e => setCancelReason(e.target.value)} className="w-full h-10 border rounded-lg px-3 text-sm bg-background" data-testid="select-cancel-reason">
                 {CANCEL_REASONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCancelOpen(false)}>Keep Order</Button>
-            <Button variant="destructive" onClick={handleCancel} disabled={cancelLoading} data-testid="btn-confirm-cancel">
-              {cancelLoading ? "Canceling…" : "Cancel Order"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </PageTransition>
+        </DetailSection>
+      </DetailModal>
+    </PageShell>
   );
 }

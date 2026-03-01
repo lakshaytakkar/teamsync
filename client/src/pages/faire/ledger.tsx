@@ -36,9 +36,23 @@ export default function FaireLedger() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const { data: ordersData, isLoading } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const { data: ordersData, isLoading } = useQuery<{ orders: any[] }>({
+    queryKey: ['/api/faire/orders'],
+    queryFn: async () => {
+      const res = await fetch('/api/faire/orders', { headers: { 'Cache-Control': 'no-cache' } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
   const allOrders = ordersData?.orders ?? [];
-  const { data: storesData } = useQuery<{ stores: any[] }>({ queryKey: ['/api/faire/stores'] });
+  const { data: storesData } = useQuery<{ stores: any[] }>({
+    queryKey: ['/api/faire/stores'],
+    queryFn: async () => {
+      const res = await fetch('/api/faire/stores', { headers: { 'Cache-Control': 'no-cache' } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
   const allStores = storesData?.stores ?? [];
   const [statusFilter, setStatusFilter] = useState<LedgerPaymentStatus | "all">("all");
   const [search, setSearch] = useState("");
@@ -46,6 +60,8 @@ export default function FaireLedger() {
   const [clearModal, setClearModal] = useState<FaireLedgerEntry | null>(null);
   const [selectedTxIds, setSelectedTxIds] = useState<string[]>([]);
   const [clearNotes, setClearNotes] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   const filtered = ledger.filter(e => {
     if (statusFilter !== "all" && e.payment_status !== statusFilter) return false;

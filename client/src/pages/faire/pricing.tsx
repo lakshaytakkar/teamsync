@@ -36,13 +36,25 @@ export default function FairePricing() {
   const [addPrepackOpen, setAddPrepackOpen] = useState(false);
   const [prepackName, setPrepackName] = useState("");
   const [prepackPrice, setPrepackPrice] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   const { data: productsData, isLoading: productsLoading } = useQuery<{ products: any[] }>({
-    queryKey: ['/api/faire/products'],
+    queryKey: ["/api/faire/products?slim"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/products?slim", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
-    queryKey: ['/api/faire/stores'],
+    queryKey: ["/api/faire/stores"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const isLoading = productsLoading || storesLoading;

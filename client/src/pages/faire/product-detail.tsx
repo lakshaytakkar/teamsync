@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Star, Pencil, Trash2, Tag } from "lucide-react";
+import { ArrowLeft, Star, Pencil, Trash2, Tag, ImageIcon } from "lucide-react";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,11 +34,21 @@ export default function FaireProductDetail() {
   const { toast } = useToast();
 
   const { data: productsData, isLoading } = useQuery<{ products: any[] }>({
-    queryKey: ['/api/faire/products'],
+    queryKey: ["/api/faire/products"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/products", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const { data: storesData } = useQuery<{ stores: any[] }>({
-    queryKey: ['/api/faire/stores'],
+    queryKey: ["/api/faire/stores"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const products = productsData?.products ?? [];
@@ -55,6 +65,7 @@ export default function FaireProductDetail() {
   const [editWholesale, setEditWholesale] = useState("");
   const [editRetail, setEditRetail] = useState("");
   const [editQty, setEditQty] = useState("");
+  const [selectedImageIdx, setSelectedImageIdx] = useState(0);
 
   if (isLoading || !product) {
     return (
@@ -116,6 +127,64 @@ export default function FaireProductDetail() {
           <CardContent><p className="text-sm text-muted-foreground">{product.description}</p></CardContent>
         </Card>
       </Fade>
+
+      {(product.images ?? []).length > 0 && (
+        <Fade>
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between gap-2">
+              <CardTitle className="text-sm">Product Images</CardTitle>
+              <span className="text-xs text-muted-foreground">{product.images.length} image{product.images.length !== 1 ? "s" : ""}</span>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-4">
+                <div className="relative w-full overflow-hidden rounded-md border bg-muted/30" style={{ maxHeight: 400 }}>
+                  <img
+                    src={product.images[selectedImageIdx]?.url}
+                    alt={product.name}
+                    className="mx-auto object-contain"
+                    style={{ maxHeight: 400 }}
+                    data-testid="img-product-hero"
+                  />
+                  {(product.images[selectedImageIdx]?.tags ?? []).length > 0 && (
+                    <div className="absolute top-2 left-2 flex gap-1">
+                      {product.images[selectedImageIdx].tags.map((t: string) => (
+                        <Badge key={t} variant="secondary" className="text-[9px]">{t}</Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {product.images.length > 1 && (
+                  <div className="flex flex-wrap gap-2">
+                    {product.images
+                      .sort((a: any, b: any) => (a.sequence ?? 0) - (b.sequence ?? 0))
+                      .map((img: any, idx: number) => (
+                        <button
+                          key={img.id}
+                          onClick={() => setSelectedImageIdx(idx)}
+                          className={`relative w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${idx === selectedImageIdx ? "border-primary" : "border-transparent"}`}
+                          data-testid={`btn-image-thumb-${idx}`}
+                        >
+                          <img src={img.url} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </Fade>
+      )}
+
+      {(product.images ?? []).length === 0 && (
+        <Fade>
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+              <ImageIcon size={32} className="mb-2 opacity-40" />
+              <p className="text-sm">No product images available</p>
+            </CardContent>
+          </Card>
+        </Fade>
+      )}
 
       {avgRating !== null && (
         <Fade>

@@ -131,7 +131,7 @@ export async function getAllProducts(
   opts: { limit?: number; offset?: number } = {}
 ): Promise<unknown[]> {
   const { data, error } = await supabase.rpc("faire_get_all_products", {
-    p_limit: opts.limit ?? 1000,
+    p_limit: opts.limit ?? 5000,
     p_offset: opts.offset ?? 0,
   });
   if (error) {

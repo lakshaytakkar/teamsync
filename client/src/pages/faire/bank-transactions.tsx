@@ -29,7 +29,14 @@ export default function FaireBankTransactions() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const { data: ordersData, isLoading } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const { data: ordersData, isLoading } = useQuery<{ orders: any[] }>({
+    queryKey: ['/api/faire/orders'],
+    queryFn: async () => {
+      const res = await fetch('/api/faire/orders', { headers: { 'Cache-Control': 'no-cache' } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
   const allOrders = ordersData?.orders ?? [];
   const [filter, setFilter] = useState<TabFilter>("all");
   const [search, setSearch] = useState("");
@@ -46,6 +53,8 @@ export default function FaireBankTransactions() {
   const [addRef, setAddRef] = useState("");
   const [addDesc, setAddDesc] = useState("");
   const [addBank, setAddBank] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   const filtered = transactions.filter(t => {
     if (filter === "CREDIT" && t.type !== "CREDIT") return false;

@@ -30,13 +30,25 @@ export default function FaireInventory() {
   const [backorderVariantId, setBackorderVariantId] = useState<string | null>(null);
   const [editQty, setEditQty] = useState("");
   const [backorderDate, setBackorderDate] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   const { data: productsData, isLoading } = useQuery<{ products: any[] }>({
-    queryKey: ["/api/faire/products"],
+    queryKey: ["/api/faire/products?slim"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/products?slim", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const { data: storesData } = useQuery<{ stores: any[] }>({
     queryKey: ["/api/faire/stores"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const products = productsData?.products ?? [];

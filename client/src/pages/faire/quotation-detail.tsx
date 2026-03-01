@@ -108,7 +108,14 @@ export default function FaireQuotationDetail() {
   const { toast } = useToast();
   const id = params?.id ?? "";
 
-  const { data: ordersData } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const { data: ordersData } = useQuery<{ orders: any[] }>({
+    queryKey: ['/api/faire/orders'],
+    queryFn: async () => {
+      const res = await fetch('/api/faire/orders', { headers: { 'Cache-Control': 'no-cache' } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
   const allOrders = ordersData?.orders ?? [];
 
   const [quotations, setQuotations] = useState(faireQuotations);

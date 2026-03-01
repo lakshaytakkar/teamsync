@@ -33,11 +33,21 @@ export default function FaireFulfillment() {
   const [shipType, setShipType] = useState("SHIP_ON_YOUR_OWN");
 
   const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
-    queryKey: ['/api/faire/stores'],
+    queryKey: ["/api/faire/stores"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
-    queryKey: ['/api/faire/orders'],
+    queryKey: ["/api/faire/orders"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/orders", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const isLoading = storesLoading || ordersLoading;

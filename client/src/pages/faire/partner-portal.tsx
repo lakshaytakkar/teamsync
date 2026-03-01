@@ -32,7 +32,14 @@ function QuoteCard({
   const [expanded, setExpanded] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
-  const { data: ordersData } = useQuery<{ orders: any[] }>({ queryKey: ['/api/faire/orders'] });
+  const { data: ordersData } = useQuery<{ orders: any[] }>({
+    queryKey: ['/api/faire/orders'],
+    queryFn: async () => {
+      const res = await fetch('/api/faire/orders', { headers: { 'Cache-Control': 'no-cache' } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
   const allOrders = ordersData?.orders ?? [];
   const order = allOrders.find((o: any) => o.id === quotation.order_id);
   const [form, setForm] = useState<QuoteForm>({

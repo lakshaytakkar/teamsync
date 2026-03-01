@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, TrendingUp, Package, Users, AlertTriangle } from "lucide-react";
+import { Bell, TrendingUp, Package, Users, AlertTriangle, ShoppingCart, DollarSign, Clock } from "lucide-react";
 import { Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import {
   PageShell,
@@ -29,8 +29,6 @@ const stateConfig: Record<OrderState, { label: string; color: string; bg: string
   CANCELED: { label: "Canceled", color: "#6B7280", bg: "#F9FAFB" },
 };
 
-const ORDER_STATES: OrderState[] = ["NEW", "PROCESSING", "PRE_TRANSIT", "IN_TRANSIT", "DELIVERED"];
-
 export default function FaireDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -38,54 +36,82 @@ export default function FaireDashboard() {
 
   const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
     queryKey: ["/api/faire/stores"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
+  const stores = storesData?.stores ?? [];
 
   const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
     queryKey: ["/api/faire/orders"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/orders", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
+  const allOrders = ordersData?.orders ?? [];
 
-  const { data: productsData } = useQuery<{ products: any[] }>({
-    queryKey: ["/api/faire/products"],
+  const { data: productsData, isLoading: productsLoading } = useQuery<{ products: any[] }>({
+    queryKey: ["/api/faire/products?slim"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/products?slim", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
+  const allProducts = productsData?.products ?? [];
 
-  const isLoading = storesLoading || ordersLoading;
+  const isLoading = storesLoading;
 
-  const stores = storesData?.stores ?? [];
-  const orders = ordersData?.orders ?? [];
-  const products = productsData?.products ?? [];
+  const filteredOrders = selectedStore === "all"
+    ? allOrders
+    : allOrders.filter((o: any) => o._storeId === selectedStore);
 
-  const filteredOrders = selectedStore === "all" ? orders : orders.filter((o: any) => o._storeId === selectedStore);
+  const filteredProducts = selectedStore === "all"
+    ? allProducts
+    : allProducts.filter((p: any) => p._storeId === selectedStore);
 
-  const totalRevenueMTD = orders.reduce((sum: number, order: any) => {
-    const orderTotal = (order.items ?? []).reduce((s: number, item: any) => s + (item.price_cents ?? 0) * (item.quantity ?? 0), 0);
+  const totalOrders = filteredOrders.length;
+  const totalProducts = filteredProducts.length;
+  const totalNewOrders = filteredOrders.filter((o: any) => o.state === "NEW").length;
+  const pendingFulfillment = filteredOrders.filter((o: any) => o.state === "NEW" || o.state === "PROCESSING").length;
+
+  const totalRevenueCents = filteredOrders.reduce((sum: number, order: any) => {
+    const orderTotal = (order.items ?? []).reduce((itemSum: number, item: any) => {
+      return itemSum + (item.price_cents ?? 0) * (item.quantity ?? 0);
+    }, 0);
     return sum + orderTotal;
   }, 0);
+  const totalRevenue = totalRevenueCents / 100;
 
-  const newOrdersToday = orders.filter((o: any) => {
-    const today = new Date().toISOString().slice(0, 10);
-    return o.created_at?.startsWith(today);
-  }).length;
+  const uniqueRetailers = new Set(filteredOrders.map((o: any) => o.retailer_id)).size;
 
-  const pendingFulfillment = orders.filter((o: any) => o.state === "NEW" || o.state === "PROCESSING").length;
+  const storeOrderMap: Record<string, any[]> = {};
+  allOrders.forEach((o: any) => {
+    if (!storeOrderMap[o._storeId]) storeOrderMap[o._storeId] = [];
+    storeOrderMap[o._storeId].push(o);
+  });
 
-  const activeRetailers = new Set(orders.map((o: any) => o.retailer_id)).size;
+  const storeProductMap: Record<string, any[]> = {};
+  allProducts.forEach((p: any) => {
+    if (!storeProductMap[p._storeId]) storeProductMap[p._storeId] = [];
+    storeProductMap[p._storeId].push(p);
+  });
 
-  const recentOrders = [...orders]
-    .sort((a: any, b: any) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
-    .slice(0, 6);
-
-  const topProducts = [...products]
-    .sort((a: any, b: any) => (b.variants?.length ?? 0) - (a.variants?.length ?? 0))
+  const recentOrders = [...filteredOrders]
+    .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5);
 
-  const ordersByStore = orders.reduce((acc: Record<string, any[]>, order: any) => {
-    const sid = order._storeId;
-    if (sid) {
-      if (!acc[sid]) acc[sid] = [];
-      acc[sid].push(order);
-    }
-    return acc;
-  }, {});
+  const topProducts = [...filteredProducts]
+    .map((p: any) => {
+      const totalQty = (p.variants ?? []).reduce((s: number, v: any) => s + (v.available_quantity ?? 0), 0);
+      return { ...p, totalQty, variantCount: (p.variants ?? []).length };
+    })
+    .sort((a: any, b: any) => b.variantCount - a.variantCount || b.totalQty - a.totalQty)
+    .slice(0, 5);
 
   const handleSync = () => {
     toast({ title: "Syncing Orders", description: "Fetching latest orders from Faire API..." });
@@ -93,13 +119,11 @@ export default function FaireDashboard() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell className="animate-pulse">
         <div className="h-32 bg-muted rounded-2xl" />
-        <div className="h-16 bg-muted rounded-xl" />
         <div className="grid grid-cols-4 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-muted rounded-xl" />)}</div>
-        <div className="h-12 bg-muted rounded-lg" />
-        <div className="grid grid-cols-2 gap-6"><div className="h-64 bg-muted rounded-xl" /><div className="h-64 bg-muted rounded-xl" /></div>
-      </div>
+        <div className="h-48 bg-muted rounded-xl" />
+      </PageShell>
     );
   }
 
@@ -108,7 +132,7 @@ export default function FaireDashboard() {
       <HeroBanner
         eyebrow="Faire Marketplace"
         headline="Faire Marketplace"
-        tagline={`Managing ${stores.length} brand storefronts`}
+        tagline={`Managing ${stores.length} brand storefronts · ${totalOrders.toLocaleString()} orders · ${totalProducts.toLocaleString()} products`}
         color={BRAND_COLOR}
         colorDark="#2D8A60"
         actions={
@@ -124,7 +148,7 @@ export default function FaireDashboard() {
         }
       />
 
-      {pendingFulfillment > 0 && (
+      {totalNewOrders > 0 && (
         <Fade>
           <div className="rounded-xl border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/20 p-4 flex items-center gap-4" data-testid="urgent-actions-widget">
             <div className="size-10 rounded-full bg-amber-400 flex items-center justify-center shrink-0">
@@ -132,12 +156,12 @@ export default function FaireDashboard() {
             </div>
             <div className="flex-1 space-y-1">
               <button onClick={() => setLocation("/faire/fulfillment")} className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-300 hover:underline" data-testid="link-fulfillment">
-                <span className="font-semibold">{pendingFulfillment} orders need fulfillment</span>
+                <span className="font-semibold">{totalNewOrders} new orders need attention</span>
                 <span className="text-amber-600">&rarr;</span>
               </button>
             </div>
-            <Button size="sm" className="bg-amber-500 text-white shrink-0" onClick={() => setLocation("/faire/fulfillment")} data-testid="btn-urgent-action">
-              Take Action
+            <Button size="sm" className="bg-amber-500 text-white shrink-0" onClick={() => setLocation("/faire/orders")} data-testid="btn-urgent-action">
+              View Orders
             </Button>
           </div>
         </Fade>
@@ -147,18 +171,18 @@ export default function FaireDashboard() {
         <StatGrid>
           <StaggerItem>
             <StatCard
-              label="Total Revenue MTD"
-              value={`$${(totalRevenueMTD / 100000).toFixed(0)}K`}
-              icon={TrendingUp}
+              label="Total Revenue"
+              value={`$${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+              icon={DollarSign}
               iconBg="rgba(5, 150, 105, 0.1)"
               iconColor="#059669"
             />
           </StaggerItem>
           <StaggerItem>
             <StatCard
-              label="New Orders Today"
-              value={newOrdersToday}
-              icon={Package}
+              label="Total Orders"
+              value={totalOrders.toLocaleString()}
+              icon={ShoppingCart}
               iconBg="rgba(37, 99, 235, 0.1)"
               iconColor="#2563EB"
             />
@@ -174,8 +198,8 @@ export default function FaireDashboard() {
           </StaggerItem>
           <StaggerItem>
             <StatCard
-              label="Active Retailers"
-              value={activeRetailers}
+              label="Unique Retailers"
+              value={uniqueRetailers}
               icon={Users}
               iconBg="rgba(124, 58, 237, 0.1)"
               iconColor="#7C3AED"
@@ -186,31 +210,47 @@ export default function FaireDashboard() {
 
       <Fade>
         <SectionCard
-          title="Store Health"
-          viewAllLabel="Sync Now"
-          onViewAll={handleSync}
+          title="Store Overview"
+          viewAllLabel="View All Stores"
+          onViewAll={() => setLocation("/faire/stores")}
         >
-          <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {stores.map((store: any) => {
-              const storeOrders = ordersByStore[store.id] ?? [];
-              const todayStr = new Date().toISOString().slice(0, 10);
-              const todayOrders = storeOrders.filter((o: any) => o.created_at?.startsWith(todayStr)).length;
-              const storeRevenue = storeOrders.reduce((sum: number, o: any) => {
-                return sum + (o.items ?? []).reduce((s: number, item: any) => s + (item.price_cents ?? 0) * (item.quantity ?? 0), 0);
-              }, 0);
+              const storeOrders = storeOrderMap[store.id] ?? [];
+              const storeProducts = storeProductMap[store.id] ?? [];
+              const newOrders = storeOrders.filter((o: any) => o.state === "NEW").length;
+              const isSelected = selectedStore === store.id;
               return (
                 <div
                   key={store.id}
-                  className="min-w-[160px] shrink-0 rounded-xl border bg-card p-3 cursor-pointer hover:bg-muted/20 transition-colors"
-                  onClick={() => setLocation("/faire/stores")}
-                  data-testid={`store-mini-card-${store.id}`}
+                  className={`rounded-xl border bg-card p-4 cursor-pointer hover:bg-muted/20 transition-colors ${isSelected ? "ring-2" : ""}`}
+                  style={isSelected ? { borderColor: BRAND_COLOR } : {}}
+                  onClick={() => setSelectedStore(isSelected ? "all" : store.id)}
+                  data-testid={`store-card-${store.id}`}
                 >
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-3">
                     <div className={`size-2 rounded-full ${store.active ? "bg-emerald-500" : "bg-gray-400"}`} />
-                    <p className="text-xs font-semibold truncate">{store.name}</p>
+                    <p className="text-sm font-semibold truncate">{store.name}</p>
                   </div>
-                  <p className="text-base font-bold">{todayOrders} <span className="text-[10px] text-muted-foreground font-normal">orders today</span></p>
-                  <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">${(storeRevenue / 100000).toFixed(0)}K <span className="text-muted-foreground font-normal">MTD</span></p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <p className="text-lg font-bold">{storeOrders.length}</p>
+                      <p className="text-xs text-muted-foreground">Orders</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold">{storeProducts.length}</p>
+                      <p className="text-xs text-muted-foreground">Products</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold">{newOrders}</p>
+                      <p className="text-xs text-muted-foreground">New</p>
+                    </div>
+                  </div>
+                  {store.last_synced_at && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Last synced {new Date(store.last_synced_at).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
               );
             })}
@@ -219,76 +259,156 @@ export default function FaireDashboard() {
       </Fade>
 
       <Fade>
-        <div className="flex gap-2 flex-wrap">
-          {ORDER_STATES.map(state => {
-            const cfg = stateConfig[state];
-            const count = filteredOrders.filter((o: any) => o.state === state).length;
-            return (
-              <div key={state} className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium" style={{ background: cfg.bg, color: cfg.color }} data-testid={`state-chip-${state}`}>
-                <span className="text-base font-bold">{count}</span>
-                <span>{cfg.label}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SectionCard
+            title="Recent Orders"
+            viewAllLabel="View All Orders"
+            onViewAll={() => setLocation("/faire/orders")}
+          >
+            {ordersLoading ? (
+              <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-12 bg-muted rounded-lg animate-pulse" />)}</div>
+            ) : recentOrders.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4" data-testid="text-no-orders">No orders found</p>
+            ) : (
+              <div className="space-y-3">
+                {recentOrders.map((order: any) => {
+                  const orderTotal = (order.items ?? []).reduce((s: number, i: any) => s + (i.price_cents ?? 0) * (i.quantity ?? 0), 0) / 100;
+                  const cfg = stateConfig[order.state as OrderState] ?? stateConfig.NEW;
+                  const store = stores.find((s: any) => s.id === order._storeId);
+                  return (
+                    <button
+                      key={order.id}
+                      onClick={() => setLocation(`/faire/orders/${order.id}`)}
+                      className="flex items-center justify-between gap-3 w-full p-3 rounded-xl border text-left hover:bg-muted/20 transition-colors"
+                      data-testid={`recent-order-${order.id}`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-sm font-semibold">#{order.display_id ?? order.id.slice(-6)}</span>
+                          <Badge
+                            variant="outline"
+                            className="text-xs"
+                            style={{ color: cfg.color, backgroundColor: cfg.bg, borderColor: cfg.color + "30" }}
+                          >
+                            {cfg.label}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">
+                          {store?.name ?? "Unknown Store"} · {order.retailer_id ?? "Unknown Retailer"}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-semibold">${orderTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-            );
-          })}
+            )}
+          </SectionCard>
+
+          <SectionCard
+            title="Top Products"
+            viewAllLabel="View All Products"
+            onViewAll={() => setLocation("/faire/products")}
+          >
+            {productsLoading ? (
+              <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-12 bg-muted rounded-lg animate-pulse" />)}</div>
+            ) : topProducts.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4" data-testid="text-no-products">No products found</p>
+            ) : (
+              <div className="space-y-3">
+                {topProducts.map((product: any) => {
+                  const store = stores.find((s: any) => s.id === product._storeId);
+                  const category = product.taxonomy_type?.name ?? "Uncategorized";
+                  return (
+                    <button
+                      key={product.id}
+                      onClick={() => setLocation(`/faire/products/${product.id}`)}
+                      className="flex items-center justify-between gap-3 w-full p-3 rounded-xl border text-left hover:bg-muted/20 transition-colors"
+                      data-testid={`top-product-${product.id}`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {product.thumb_url ? (
+                          <img
+                            src={product.thumb_url}
+                            alt={product.name}
+                            className="size-10 rounded-lg object-cover shrink-0 border"
+                          />
+                        ) : (
+                          <div className="size-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                            <Package size={16} className="text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold truncate">{product.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {store?.name ?? "Unknown Store"} · {category}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-semibold">{product.variantCount} variants</p>
+                        <p className="text-xs text-muted-foreground">{product.totalQty} in stock</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </SectionCard>
         </div>
       </Fade>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Fade>
-          <SectionCard title="Recent Orders" noPadding>
-            <div className="space-y-1 p-2">
-              {recentOrders.map((order: any) => {
-                const store = stores.find((s: any) => s.id === order._storeId);
-                const cfg = stateConfig[order.state as OrderState] ?? stateConfig.NEW;
-                const itemsTotal = (order.items ?? []).reduce((s: number, i: any) => s + (i.price_cents ?? 0) * (i.quantity ?? 0), 0);
-                return (
-                  <div
-                    key={order.id}
-                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/20 cursor-pointer transition-colors"
-                    onClick={() => setLocation(`/faire/orders/${order.id}`)}
-                    data-testid={`recent-order-${order.id}`}
-                  >
-                    <Badge variant="outline" className="text-[9px] font-mono shrink-0">{order.display_id}</Badge>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate">{order.address?.company_name ?? order.retailer_id}</p>
-                      <p className="text-[10px] text-muted-foreground">{order.address?.city}{order.address?.state ? `, ${order.address.state}` : ""}</p>
-                    </div>
-                    <Badge variant="outline" className="text-[9px] shrink-0" style={{ color: BRAND_COLOR, borderColor: `${BRAND_COLOR}40` }}>{store?.name?.split(" ")[0] ?? "Store"}</Badge>
-                    <p className="text-xs font-semibold shrink-0">${(itemsTotal / 100).toFixed(0)}</p>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded font-medium shrink-0" style={{ background: cfg.bg, color: cfg.color }}>{cfg.label}</span>
+      <Fade>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SectionCard title="Quick Actions">
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "Orders", path: "/faire/orders", icon: ShoppingCart, color: "#059669" },
+                { label: "Products", path: "/faire/products", icon: Package, color: "#2563EB" },
+                { label: "Fulfillment", path: "/faire/fulfillment", icon: TrendingUp, color: "#D97706" },
+                { label: "Analytics", path: "/faire/analytics", icon: TrendingUp, color: "#7C3AED" },
+              ].map(action => (
+                <button
+                  key={action.label}
+                  onClick={() => setLocation(action.path)}
+                  className="flex items-center gap-3 p-3 rounded-xl border hover:bg-muted/20 transition-colors text-left"
+                  data-testid={`quick-action-${action.label.toLowerCase()}`}
+                >
+                  <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${action.color}15`, color: action.color }}>
+                    <action.icon size={16} />
                   </div>
-                );
-              })}
+                  <span className="text-sm font-medium">{action.label}</span>
+                </button>
+              ))}
             </div>
           </SectionCard>
-        </Fade>
-
-        <Fade>
-          <SectionCard title="Top Products This Month" noPadding>
-            <div className="space-y-1 p-2">
-              {topProducts.map((product: any, i: number) => {
-                const store = stores.find((s: any) => s.id === product._storeId);
-                return (
-                  <div key={product.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/20 cursor-pointer transition-colors" onClick={() => setLocation(`/faire/products/${product.id}`)} data-testid={`top-product-${product.id}`}>
-                    <div className="size-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style={{ background: BRAND_COLOR }}>{i + 1}</div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate">{product.name}</p>
-                      <div className="flex gap-1 mt-0.5">
-                        <Badge variant="outline" className="text-[9px]">{store?.name?.split(" ")[0] ?? "Store"}</Badge>
-                        <span className="text-[10px] text-muted-foreground">{product.variants?.length ?? 0} variants</span>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-xs font-bold">{product.variants?.length ?? 0}</p>
-                      <p className="text-[10px] text-muted-foreground">variants</p>
-                    </div>
+          <SectionCard title="Sync Status">
+            <div className="space-y-3">
+              {stores.map((store: any) => (
+                <div key={store.id} className="flex items-center justify-between gap-2" data-testid={`sync-status-${store.id}`}>
+                  <div className="flex items-center gap-2">
+                    <div className={`size-2 rounded-full ${store.active ? "bg-emerald-500" : "bg-gray-400"}`} />
+                    <span className="text-sm font-medium">{store.name}</span>
                   </div>
-                );
-              })}
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      {store.last_synced_at
+                        ? new Date(store.last_synced_at).toLocaleDateString()
+                        : "Never synced"}
+                    </Badge>
+                    <Badge variant={store.active ? "default" : "secondary"} className="text-xs">
+                      {store.active ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
             </div>
           </SectionCard>
-        </Fade>
-      </div>
+        </div>
+      </Fade>
     </PageShell>
   );
 }

@@ -98,6 +98,39 @@ export async function fetchAllProducts(creds: FaireStoreCreds): Promise<unknown[
   return all;
 }
 
+async function fairePatch(
+  path: string,
+  creds: FaireStoreCreds,
+  body: object
+): Promise<{ ok: boolean; status: number; data: unknown }> {
+  const url = `${FAIRE_API_BASE}${path}`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      "X-FAIRE-OAUTH-ACCESS-TOKEN": creds.oauth_access_token,
+      "X-FAIRE-APP-CREDENTIALS": creds.app_credentials,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  let data: unknown = null;
+  try { data = await res.json(); } catch { data = null; }
+  return { ok: res.ok, status: res.status, data };
+}
+
+export async function updateVariantInventory(
+  creds: FaireStoreCreds,
+  productId: string,
+  variantId: string,
+  availableQuantity: number
+): Promise<{ ok: boolean; status: number; data: unknown }> {
+  return fairePatch(
+    `/products/${productId}/variants/${variantId}`,
+    creds,
+    { available_quantity: availableQuantity }
+  );
+}
+
 export async function fetchRetailerProfile(
   creds: FaireStoreCreds,
   retailerId: string

@@ -161,8 +161,6 @@ import FaireDashboard from "@/pages/faire/dashboard";
 import FaireStores from "@/pages/faire/stores";
 import FaireProducts from "@/pages/faire/products";
 import FaireProductDetail from "@/pages/faire/product-detail";
-import FaireInventory from "@/pages/faire/inventory";
-import FairePricing from "@/pages/faire/pricing";
 import FaireOrders from "@/pages/faire/orders";
 import FaireOrderDetail from "@/pages/faire/order-detail";
 import FaireFulfillment from "@/pages/faire/fulfillment";
@@ -421,8 +419,6 @@ function Router() {
       <Route path="/faire/stores" component={FaireStores} />
       <Route path="/faire/products/:id" component={FaireProductDetail} />
       <Route path="/faire/products" component={FaireProducts} />
-      <Route path="/faire/inventory" component={FaireInventory} />
-      <Route path="/faire/pricing" component={FairePricing} />
       <Route path="/faire/orders/:id" component={FaireOrderDetail} />
       <Route path="/faire/orders" component={FaireOrders} />
       <Route path="/faire/fulfillment" component={FaireFulfillment} />

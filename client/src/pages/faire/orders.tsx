@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { RefreshCw, CheckCircle, XCircle, Eye, ShoppingCart, Zap, FileText, Plus } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { RefreshCw, CheckCircle, XCircle, Eye, ShoppingCart, FileText, Plus } from "lucide-react";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import {
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/select";
 
 const BRAND_COLOR = "#1A6B45";
+const PAGE_SIZE = 25;
 
 type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
@@ -36,6 +36,7 @@ interface FaireOrder {
   source: string;
   is_free_shipping: boolean;
   items: OrderItem[];
+  address?: { name?: string; company_name?: string; city?: string; state?: string };
   payout_costs: { commission_bps: number };
   _storeId: string;
 }
@@ -89,9 +90,8 @@ const QUOT_STATUS_CONFIG: Record<string, { label: string; color: string; bg: str
   SENT_ELSEWHERE: { label: "Sent Elsewhere", color: "#64748B", bg: "#F1F5F9" },
 };
 
-function buildOrdersQueryKey(selectedStore: string, stateFilter: string) {
-  if (selectedStore === "all") return ["/api/faire/orders"];
-  return ["/api/faire/stores", selectedStore, "orders"];
+function retailerName(order: FaireOrder) {
+  return order.address?.company_name || order.address?.name || order.retailer_id;
 }
 
 export default function FaireOrders() {
@@ -102,6 +102,7 @@ export default function FaireOrders() {
   const [stateFilter, setStateFilter] = useState<OrderState | "all">("all");
   const [search, setSearch] = useState("");
   const [syncing, setSyncing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [acceptId, setAcceptId] = useState<string | null>(null);
   const [acceptLoading, setAcceptLoading] = useState(false);
@@ -120,28 +121,28 @@ export default function FaireOrders() {
   });
   const stores = storesData?.stores ?? [];
 
-  const ordersUrl = selectedStore === "all"
-    ? `/api/faire/orders${stateFilter !== "all" ? `?state=${stateFilter}` : ""}`
-    : `/api/faire/stores/${selectedStore}/orders${stateFilter !== "all" ? `?state=${stateFilter}` : ""}`;
-
   const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: FaireOrder[] }>({
     queryKey: selectedStore === "all"
-      ? ["/api/faire/orders", stateFilter]
-      : ["/api/faire/stores", selectedStore, "orders", stateFilter],
-    queryFn: () => fetch(ordersUrl).then(r => r.json()),
+      ? ["/api/faire/orders"]
+      : [`/api/faire/stores/${selectedStore}/orders`],
   });
 
   const allOrders = ordersData?.orders ?? [];
 
   const filtered = allOrders.filter(o => {
+    if (stateFilter !== "all" && o.state !== stateFilter) return false;
     if (search) {
-      const sid = (o.display_id ?? "").toLowerCase();
-      const rid = (o.retailer_id ?? "").toLowerCase();
       const q = search.toLowerCase();
-      if (!sid.includes(q) && !rid.includes(q)) return false;
+      const displayId = String(o.display_id ?? "").toLowerCase();
+      const rName = retailerName(o).toLowerCase();
+      if (!displayId.includes(q) && !rName.includes(q)) return false;
     }
     return true;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedOrders = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const kpiCounts = {
     NEW: allOrders.filter(o => o.state === "NEW").length,
@@ -188,10 +189,7 @@ export default function FaireOrders() {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["/api/faire/orders"] });
         queryClient.invalidateQueries({ queryKey: ["/api/faire/stores", order?._storeId, "orders"] });
-        toast({
-          title: "Order Accepted",
-          description: `Moved to Processing${data.mock ? " (no store selected — mock mode)" : ""}`,
-        });
+        toast({ title: "Order Accepted", description: "Moved to Processing" });
       } else {
         toast({ title: "Faire API Error", description: data.error ?? "Unknown error", variant: "destructive" });
       }
@@ -217,10 +215,7 @@ export default function FaireOrders() {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["/api/faire/orders"] });
         queryClient.invalidateQueries({ queryKey: ["/api/faire/stores", order?._storeId, "orders"] });
-        toast({
-          title: "Order Canceled",
-          description: `Reason: ${CANCEL_LABELS[cancelReason]}${data.mock ? " (mock)" : ""}`,
-        });
+        toast({ title: "Order Canceled", description: `Reason: ${CANCEL_LABELS[cancelReason]}` });
       } else {
         toast({ title: "Faire API Error", description: data.error ?? "Unknown error", variant: "destructive" });
       }
@@ -261,7 +256,7 @@ export default function FaireOrders() {
     setLocation(`/faire/quotations/${id}`);
   }
 
-  const storeName = (storeId: string) => stores.find(s => s.id === storeId)?.name ?? storeId;
+  const storeName = (storeId: string) => stores.find(s => s.id === storeId)?.name ?? "Store";
 
   if (ordersLoading) {
     return (
@@ -280,7 +275,7 @@ export default function FaireOrders() {
       <Fade>
         <PageHeader
           title="Orders"
-          subtitle="Manage orders across all your Faire stores"
+          subtitle={`${allOrders.length} orders across ${selectedStore === "all" ? "all stores" : storeName(selectedStore)}`}
           actions={
             <div className="flex items-center gap-2">
               <Button size="sm" variant="outline" className="h-9" onClick={handleSync} disabled={syncing} data-testid="btn-sync-orders">
@@ -288,7 +283,7 @@ export default function FaireOrders() {
               </Button>
               <select
                 value={selectedStore}
-                onChange={e => setSelectedStore(e.target.value)}
+                onChange={e => { setSelectedStore(e.target.value); setCurrentPage(1); }}
                 className="h-9 text-sm border rounded-lg px-3 bg-background"
                 data-testid="select-store"
               >
@@ -316,12 +311,12 @@ export default function FaireOrders() {
       <Fade>
         <IndexToolbar
           search={search}
-          onSearch={setSearch}
-          placeholder="Display ID or retailer..."
+          onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
+          placeholder="Search by order ID or retailer..."
           color={BRAND_COLOR}
           filters={ALL_STATES.map(s => ({ value: s, label: STATE_LABELS[s] }))}
           activeFilter={stateFilter}
-          onFilter={(v) => setStateFilter(v as OrderState | "all")}
+          onFilter={(v) => { setStateFilter(v as OrderState | "all"); setCurrentPage(1); }}
         />
       </Fade>
 
@@ -330,21 +325,21 @@ export default function FaireOrders() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/30">
-                <DataTH>Display ID</DataTH>
-                <DataTH>Store</DataTH>
+                <DataTH>Order</DataTH>
                 <DataTH>Retailer</DataTH>
+                <DataTH>Store</DataTH>
                 <DataTH>Source</DataTH>
                 <DataTH align="center">Items</DataTH>
                 <DataTH>Total</DataTH>
                 <DataTH>Commission</DataTH>
                 <DataTH>Quotation</DataTH>
-                <DataTH>State</DataTH>
+                <DataTH>Status</DataTH>
                 <DataTH>Date</DataTH>
                 <DataTH align="right">Actions</DataTH>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {filtered.map(order => {
+              {paginatedOrders.map(order => {
                 const cfg = stateConfig[order.state] ?? stateConfig.CANCELED;
                 const items = order.items ?? [];
                 const itemsTotal = items.reduce((sum, i) => sum + (i.price_cents ?? 0) * (i.quantity ?? 1), 0);
@@ -355,51 +350,56 @@ export default function FaireOrders() {
                 return (
                   <DataTR key={order.id} onClick={() => setLocation(`/faire/orders/${order.id}`)} data-testid={`order-row-${order.id}`}>
                     <DataTD>
-                      <div className="flex items-center gap-1.5">
-                        <Badge variant="outline" className="text-[10px] font-mono">{order.display_id ?? order.id.slice(-8)}</Badge>
-                        {order.is_free_shipping && <span title="Free shipping"><Zap size={11} className="text-emerald-500" /></span>}
-                      </div>
+                      <span className="font-medium">#{order.display_id ?? order.id.slice(-8)}</span>
                     </DataTD>
                     <DataTD>
-                      <Badge variant="outline" className="text-[10px]">
-                        {storeName(order._storeId).split(" ")[0]}
-                      </Badge>
+                      <button
+                        className="font-medium text-left hover:underline hover:text-primary truncate max-w-[140px] block"
+                        onClick={e => { e.stopPropagation(); setLocation(`/faire/retailers/${order.retailer_id}`); }}
+                        data-testid={`link-retailer-${order.id}`}
+                      >
+                        {retailerName(order)}
+                      </button>
                     </DataTD>
                     <DataTD>
-                      <p className="font-medium text-xs truncate max-w-[120px]">{order.retailer_id}</p>
+                      <button
+                        className="hover:underline hover:text-primary text-muted-foreground"
+                        onClick={e => { e.stopPropagation(); setLocation("/faire/stores"); }}
+                        data-testid={`link-store-${order.id}`}
+                      >
+                        {storeName(order._storeId)}
+                      </button>
                     </DataTD>
-                    <DataTD>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">
-                        {SOURCE_LABELS[order.source] ?? order.source}
-                      </span>
+                    <DataTD className="text-muted-foreground">
+                      {SOURCE_LABELS[order.source] ?? order.source}
                     </DataTD>
                     <DataTD align="center">{items.length}</DataTD>
                     <DataTD className="font-semibold">${(itemsTotal / 100).toFixed(2)}</DataTD>
-                    <DataTD className="text-muted-foreground font-medium">{commPct}%</DataTD>
+                    <DataTD className="text-muted-foreground">{commPct}%</DataTD>
                     <DataTD onClick={e => e.stopPropagation()}>
                       {linkedQuote && qsc ? (
                         <button
-                          className="text-[10px] px-2 py-0.5 rounded-full font-medium hover:opacity-80"
+                          className="text-xs px-2 py-0.5 rounded-full font-medium hover:opacity-80"
                           style={{ background: qsc.bg, color: qsc.color }}
                           onClick={() => setLocation(`/faire/quotations/${linkedQuote.id}`)}
                           data-testid={`link-quote-${order.id}`}
                         >
-                          <FileText size={9} className="inline mr-1" />{qsc.label}
+                          <FileText size={10} className="inline mr-1" />{qsc.label}
                         </button>
                       ) : canRequestQuote ? (
                         <button
-                          className="text-[10px] px-2 py-0.5 rounded-full font-medium border border-dashed border-slate-300 text-slate-400 hover:border-emerald-400 hover:text-emerald-600 flex items-center gap-1"
+                          className="text-xs px-2 py-0.5 rounded-full font-medium border border-dashed border-muted-foreground/30 text-muted-foreground hover:border-emerald-400 hover:text-emerald-600 flex items-center gap-1"
                           onClick={e => { e.stopPropagation(); setQuoteOrderId(order.id); }}
                           data-testid={`btn-request-quote-${order.id}`}
                         >
-                          <Plus size={9} /> Quote
+                          <Plus size={10} /> Quote
                         </button>
                       ) : (
-                        <span className="text-slate-300 text-xs">—</span>
+                        <span className="text-muted-foreground/40">—</span>
                       )}
                     </DataTD>
                     <DataTD>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: cfg.bg, color: cfg.color }}>
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: cfg.bg, color: cfg.color }}>
                         {cfg.label}
                       </span>
                     </DataTD>
@@ -420,7 +420,7 @@ export default function FaireOrders() {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={11} className="p-8 text-center text-sm text-muted-foreground">
+                  <td colSpan={11} className="px-4 py-8 text-center text-sm text-muted-foreground">
                     {allOrders.length === 0
                       ? "No orders synced yet. Use Sync to fetch orders from Faire."
                       : "No orders match your filters."}
@@ -432,7 +432,41 @@ export default function FaireOrders() {
         </DataTableContainer>
       </Fade>
 
-      {/* Accept dialog */}
+      {filtered.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+              Previous
+            </Button>
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              let page: number;
+              if (totalPages <= 7) page = i + 1;
+              else if (safePage <= 4) page = i + 1;
+              else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+              else page = safePage - 3 + i;
+              return (
+                <Button
+                  key={page} size="sm"
+                  variant={page === safePage ? "default" : "outline"}
+                  className="h-8 w-8 p-0"
+                  style={page === safePage ? { background: BRAND_COLOR } : {}}
+                  onClick={() => setCurrentPage(page)}
+                  data-testid={`btn-page-${page}`}
+                >
+                  {page}
+                </Button>
+              );
+            })}
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+
       <DetailModal
         open={!!acceptId}
         onClose={() => setAcceptId(null)}
@@ -448,7 +482,7 @@ export default function FaireOrders() {
               disabled={acceptLoading}
               data-testid="btn-confirm-accept"
             >
-              {acceptLoading ? "Accepting…" : "Accept → Processing"}
+              {acceptLoading ? "Accepting…" : "Accept Order"}
             </Button>
           </>
         }
@@ -458,7 +492,6 @@ export default function FaireOrders() {
         </div>
       </DetailModal>
 
-      {/* Cancel dialog */}
       <DetailModal
         open={!!cancelId}
         onClose={() => setCancelId(null)}
@@ -487,7 +520,6 @@ export default function FaireOrders() {
         </div>
       </DetailModal>
 
-      {/* Request Quote dialog */}
       <DetailModal
         open={!!quoteOrderId}
         onClose={() => setQuoteOrderId(null)}
@@ -518,12 +550,7 @@ export default function FaireOrders() {
           </div>
           <div>
             <Label>Notes</Label>
-            <Textarea
-              value={quoteNotes}
-              onChange={e => setQuoteNotes(e.target.value)}
-              placeholder="Internal notes for this quote…"
-              data-testid="input-quote-notes"
-            />
+            <Input value={quoteNotes} onChange={e => setQuoteNotes(e.target.value)} placeholder="Optional notes…" data-testid="input-quote-notes" />
           </div>
         </div>
       </DetailModal>

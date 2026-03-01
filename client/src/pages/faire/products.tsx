@@ -36,9 +36,12 @@ interface FaireProduct {
   name: string;
   lifecycle_state: ProductLifecycleState;
   sale_state: ProductSaleState;
-  category?: string;
+  taxonomy_type?: { id: string; name: string };
   variants: ProductVariant[];
   reviews?: { rating: number }[];
+  minimum_order_quantity?: number;
+  unit_multiplier?: number;
+  thumb_url?: string | null;
   _storeId: string;
 }
 
@@ -77,6 +80,8 @@ export default function FaireProducts() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   const { data: storesData } = useQuery<{ stores: FaireStore[] }>({
     queryKey: ["/api/faire/stores"],
@@ -84,16 +89,18 @@ export default function FaireProducts() {
   const stores = storesData?.stores ?? [];
 
   const { data: productsData, isLoading: productsLoading } = useQuery<{ products: FaireProduct[] }>({
-    queryKey: selectedStore === "all"
-      ? ["no-products-all"]
-      : ["/api/faire/stores", selectedStore, "products"],
-    queryFn: selectedStore === "all"
-      ? async () => ({ products: [] })
-      : () => fetch(`/api/faire/stores/${selectedStore}/products`).then(r => r.json()),
-    enabled: selectedStore !== "all",
+    queryKey: ["/api/faire/products?slim"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/products?slim", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
-  const allProducts = selectedStore === "all" ? [] : (productsData?.products ?? []);
+  const rawProducts = productsData?.products ?? [];
+  const allProducts = selectedStore === "all"
+    ? rawProducts
+    : rawProducts.filter(p => p._storeId === selectedStore);
 
   const filtered = allProducts.filter(p => {
     if (lifecycle !== "all" && p.lifecycle_state !== lifecycle) return false;
@@ -102,9 +109,15 @@ export default function FaireProducts() {
     return true;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedProducts = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
+
+  const [settingInventory, setSettingInventory] = useState(false);
 
   const handleSync = async () => {
     if (selectedStore === "all") {
@@ -116,7 +129,8 @@ export default function FaireProducts() {
       const res = await apiRequest("POST", `/api/faire/stores/${selectedStore}/sync`);
       const data = await res.json() as { success: boolean; orders_synced: number; products_synced: number; error?: string };
       if (data.success) {
-        queryClient.invalidateQueries({ queryKey: ["/api/faire/stores", selectedStore, "products"] });
+        queryClient.invalidateQueries({ queryKey: [`/api/faire/stores/${selectedStore}/products`] });
+        queryClient.invalidateQueries({ queryKey: ["/api/faire/products"] });
         queryClient.invalidateQueries({ queryKey: ["/api/faire/stores"] });
         toast({ title: "Sync Complete", description: `${data.products_synced} products · ${data.orders_synced} orders synced` });
       } else {
@@ -126,6 +140,29 @@ export default function FaireProducts() {
       toast({ title: "Network error", description: "Could not reach server", variant: "destructive" });
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const handleSetInventory = async () => {
+    if (selectedStore === "all") {
+      toast({ title: "Select a store", description: "Please select a specific store first.", variant: "destructive" });
+      return;
+    }
+    setSettingInventory(true);
+    try {
+      const res = await apiRequest("POST", `/api/faire/stores/${selectedStore}/set-inventory`, { quantity: 10000 });
+      const data = await res.json() as { success: boolean; updated: number; failed: number; error?: string };
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: [`/api/faire/stores/${selectedStore}/products`] });
+        queryClient.invalidateQueries({ queryKey: ["/api/faire/products"] });
+        toast({ title: "Inventory Updated", description: `${data.updated} variants set to 10,000 · ${data.failed} failed` });
+      } else {
+        toast({ title: "Failed", description: data.error ?? "Unknown error", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Network error", description: "Could not reach server", variant: "destructive" });
+    } finally {
+      setSettingInventory(false);
     }
   };
 
@@ -146,9 +183,7 @@ export default function FaireProducts() {
       <Fade>
         <PageHeader
           title="Product Catalog"
-          subtitle={selectedStore === "all"
-            ? `Select a store to view products`
-            : `${filtered.length} products · ${storeName(selectedStore)}`}
+          subtitle={`${filtered.length} products${selectedStore !== "all" ? ` · ${storeName(selectedStore)}` : " across all stores"}`}
           actions={
             <div className="flex items-center gap-2">
               <select
@@ -160,6 +195,17 @@ export default function FaireProducts() {
                 <option value="all">All Stores</option>
                 {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9"
+                onClick={handleSetInventory}
+                disabled={settingInventory || selectedStore === "all"}
+                data-testid="btn-set-inventory"
+              >
+                <Package size={14} className={`mr-2 ${settingInventory ? "animate-spin" : ""}`} />
+                {settingInventory ? "Updating…" : "Set Qty 10K"}
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
@@ -226,14 +272,7 @@ export default function FaireProducts() {
 
       <Fade>
         <DataTableContainer>
-          {selectedStore === "all" ? (
-            <div className="p-12 text-center">
-              <Package size={32} className="mx-auto mb-3 text-muted-foreground/40" />
-              <p className="text-sm font-medium text-muted-foreground">Select a store to view its products</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">Choose a store from the dropdown above, then sync to load products</p>
-            </div>
-          ) : (
-            <table className="w-full text-sm">
+          <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
                   <th className="text-left p-4 w-10">
@@ -248,29 +287,26 @@ export default function FaireProducts() {
                   <DataTH align="center">Variants</DataTH>
                   <DataTH>Wholesale</DataTH>
                   <DataTH>Retail</DataTH>
-                  <DataTH>Inventory</DataTH>
+                  <DataTH>MOQ / Case</DataTH>
                   <DataTH>State</DataTH>
-                  <DataTH>Reviews</DataTH>
                   <DataTH align="right">Actions</DataTH>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {filtered.map(product => {
-                  const catColor = categoryColors[product.category ?? ""] || "#6B7280";
+                {paginatedProducts.map(product => {
+                  const category = product.taxonomy_type?.name ?? "Uncategorized";
+                  const catColor = categoryColors[category] || "#6B7280";
                   const lc = lifecycleColors[product.lifecycle_state] ?? lifecycleColors.DRAFT;
                   const sc = saleColors[product.sale_state] ?? saleColors.SALES_PAUSED;
                   const variants = product.variants ?? [];
-                  const totalInventory = variants.reduce((s, v) => s + (v.available_quantity ?? 0), 0);
                   const wholesalePrices = variants.map(v => v.wholesale_price_cents ?? 0).filter(Boolean);
                   const retailPrices = variants.map(v => v.retail_price_cents ?? 0).filter(Boolean);
                   const wMin = wholesalePrices.length ? Math.min(...wholesalePrices) : 0;
                   const wMax = wholesalePrices.length ? Math.max(...wholesalePrices) : 0;
                   const rMin = retailPrices.length ? Math.min(...retailPrices) : 0;
                   const rMax = retailPrices.length ? Math.max(...retailPrices) : 0;
-                  const reviews = product.reviews ?? [];
-                  const avgRating = reviews.length > 0
-                    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
-                    : "—";
+                  const moq = product.minimum_order_quantity ?? 1;
+                  const caseSize = product.unit_multiplier ?? 1;
                   return (
                     <DataTR key={product.id} onClick={() => setLocation(`/faire/products/${product.id}`)} data-testid={`product-row-${product.id}`}>
                       <td className="p-4" onClick={e => e.stopPropagation()}>
@@ -283,12 +319,22 @@ export default function FaireProducts() {
                       </td>
                       <DataTD>
                         <div className="flex items-center gap-3">
-                          <div className="size-9 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm" style={{ background: catColor }}>
-                            {(product.category ?? product.name ?? "P").charAt(0)}
-                          </div>
+                          {product.thumb_url ? (
+                            <img
+                              src={product.thumb_url}
+                              alt={product.name}
+                              className="size-9 rounded-lg object-cover shrink-0 shadow-sm"
+                              loading="lazy"
+                              data-testid={`img-product-${product.id}`}
+                            />
+                          ) : (
+                            <div className="size-9 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm" style={{ background: catColor }}>
+                              {category.charAt(0)}
+                            </div>
+                          )}
                           <div>
                             <p className="font-semibold text-sm">{product.name}</p>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{product.category ?? "Uncategorized"}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{category}</p>
                           </div>
                         </div>
                       </DataTD>
@@ -301,9 +347,10 @@ export default function FaireProducts() {
                         {rMin === 0 ? "—" : rMin === rMax ? `$${(rMin / 100).toFixed(2)}` : `$${(rMin / 100).toFixed(0)}–$${(rMax / 100).toFixed(0)}`}
                       </DataTD>
                       <DataTD>
-                        <div className="flex items-center gap-2">
-                          <Package size={12} className="text-muted-foreground" />
-                          <span className="font-semibold">{totalInventory}</span>
+                        <div className="text-xs">
+                          <span className="font-medium">{moq}</span>
+                          <span className="text-muted-foreground"> / </span>
+                          <span className="font-medium">{caseSize}</span>
                         </div>
                       </DataTD>
                       <DataTD>
@@ -311,9 +358,6 @@ export default function FaireProducts() {
                           <span className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter" style={{ background: lc.bg, color: lc.text }}>{lifecycleLabels[product.lifecycle_state] ?? product.lifecycle_state}</span>
                           <span className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter" style={{ background: sc.bg, color: sc.text }}>{product.sale_state === "FOR_SALE" ? "For Sale" : "Paused"}</span>
                         </div>
-                      </DataTD>
-                      <DataTD className="text-xs text-muted-foreground">
-                        {avgRating !== "—" ? `★ ${avgRating} (${reviews.length})` : "—"}
                       </DataTD>
                       <DataTD align="right" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1">
@@ -324,18 +368,17 @@ export default function FaireProducts() {
                     </DataTR>
                   );
                 })}
-                {filtered.length === 0 && selectedStore !== "all" && (
+                {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={10} className="p-8 text-center text-sm text-muted-foreground font-medium">
+                    <td colSpan={9} className="p-8 text-center text-sm text-muted-foreground font-medium">
                       {allProducts.length === 0
-                        ? "No products synced yet. Click Sync to fetch products from Faire."
+                        ? "No products synced yet. Select a store and click Sync."
                         : "No products match your filters."}
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
-          )}
         </DataTableContainer>
       </Fade>
 

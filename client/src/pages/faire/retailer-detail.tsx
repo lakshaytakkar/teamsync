@@ -28,15 +28,30 @@ export default function FaireRetailerDetail() {
 
   const { data: retailerData, isLoading: retailerLoading } = useQuery<{ id: string; name: string; city?: string; state?: string; country?: string }>({
     queryKey: ['/api/faire/retailers', retailerId],
+    queryFn: async () => {
+      const res = await fetch(`/api/faire/retailers/${retailerId}`, { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
     enabled: !!retailerId,
   });
 
   const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
     queryKey: ['/api/faire/orders'],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/orders", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const { data: storesData } = useQuery<{ stores: { id: string; name: string; active: boolean; last_synced_at: string }[] }>({
     queryKey: ['/api/faire/stores'],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const isLoading = retailerLoading || ordersLoading;

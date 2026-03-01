@@ -25,9 +25,30 @@ export default function FaireAnalytics() {
   const [selectedStore, setSelectedStore] = useState("all");
   const [timeFilter, setTimeFilter] = useState<"7d" | "30d" | "month" | "3m">("month");
 
-  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({ queryKey: ["/api/faire/stores"] });
-  const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({ queryKey: ["/api/faire/orders"] });
-  const { data: productsData, isLoading: productsLoading } = useQuery<{ products: any[] }>({ queryKey: ["/api/faire/products"] });
+  const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
+    queryKey: ["/api/faire/stores"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
+  const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
+    queryKey: ["/api/faire/orders"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/orders", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
+  const { data: productsData, isLoading: productsLoading } = useQuery<{ products: any[] }>({
+    queryKey: ["/api/faire/products?slim"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/products?slim", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
 
   const isLoading = storesLoading || ordersLoading || productsLoading;
   const stores = storesData?.stores ?? [];

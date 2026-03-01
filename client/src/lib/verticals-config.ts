@@ -835,6 +835,66 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
+        title: "Orders",
+        defaultUrl: "/faire/orders",
+        icon: ShoppingBag,
+        items: [
+          { title: "All Orders", url: "/faire/orders" },
+          { title: "Fulfillment Queue", url: "/faire/fulfillment" },
+          { title: "Shipments", url: "/faire/shipments" },
+        ],
+      },
+      {
+        title: "Products",
+        defaultUrl: "/faire/products",
+        icon: Package,
+        items: [
+          { title: "All Products", url: "/faire/products" },
+        ],
+      },
+      {
+        title: "Retailers",
+        defaultUrl: "/faire/retailers",
+        icon: Users,
+        items: [],
+      },
+      {
+        title: "Stores",
+        defaultUrl: "/faire/stores",
+        icon: Store,
+        items: [],
+      },
+      {
+        title: "Quotations",
+        defaultUrl: "/faire/quotations",
+        icon: FileText,
+        items: [
+          { title: "All Quotations", url: "/faire/quotations" },
+          { title: "Partner Portal", url: "/faire/partner-portal" },
+        ],
+      },
+      {
+        title: "Finance",
+        defaultUrl: "/faire/ledger",
+        icon: Landmark,
+        items: [
+          { title: "Ledger", url: "/faire/ledger" },
+          { title: "Bank Transactions", url: "/faire/bank-transactions" },
+        ],
+      },
+      {
+        title: "Analytics",
+        defaultUrl: "/faire/analytics",
+        icon: BarChart3,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/faire/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
         title: "Chat",
         defaultUrl: "/faire/chat",
         icon: MessageCircle,
@@ -853,75 +913,13 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Tasks",
-        defaultUrl: "/faire/tasks",
-        icon: ListChecks,
-        items: [],
-      },
-      {
-        title: "Stores",
-        defaultUrl: "/faire/stores",
-        icon: Store,
-        items: [],
-      },
-      {
-        title: "Products & Catalog",
-        defaultUrl: "/faire/products",
-        icon: Package,
-        items: [
-          { title: "All Products", url: "/faire/products" },
-          { title: "Inventory", url: "/faire/inventory" },
-          { title: "Pricing & Prepacks", url: "/faire/pricing" },
-        ],
-      },
-      {
-        title: "Orders",
-        defaultUrl: "/faire/orders",
-        icon: ShoppingBag,
-        items: [
-          { title: "All Orders", url: "/faire/orders" },
-          { title: "Fulfillment Queue", url: "/faire/fulfillment" },
-          { title: "Shipments", url: "/faire/shipments" },
-        ],
-      },
-      {
-        title: "Quotations",
-        defaultUrl: "/faire/quotations",
-        icon: FileText,
-        items: [
-          { title: "All Quotations", url: "/faire/quotations" },
-          { title: "Partner Portal", url: "/faire/partner-portal" },
-        ],
-      },
-      {
-        title: "Retailers",
-        defaultUrl: "/faire/retailers",
-        icon: Users,
-        items: [],
-      },
-      {
-        title: "Finance",
-        defaultUrl: "/faire/ledger",
-        icon: Landmark,
-        items: [
-          { title: "Ledger", url: "/faire/ledger" },
-          { title: "Bank Transactions", url: "/faire/bank-transactions" },
-        ],
-      },
-      {
-        title: "Analytics",
-        defaultUrl: "/faire/analytics",
-        icon: BarChart3,
-        items: [],
-      },
-      {
         title: "Reports",
         defaultUrl: "/faire/reports",
         icon: FileText,
         items: [],
       },
       {
-        title: "Important Contacts",
+        title: "Contacts",
         defaultUrl: "/faire/contacts",
         icon: Phone,
         items: [],

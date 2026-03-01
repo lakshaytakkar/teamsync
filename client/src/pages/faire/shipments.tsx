@@ -24,13 +24,25 @@ export default function FaireShipments() {
   const { toast } = useToast();
   const [selectedStore, setSelectedStore] = useState("all");
   const [stateFilter, setStateFilter] = useState<"all" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
     queryKey: ["/api/faire/orders"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/orders", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
     queryKey: ["/api/faire/stores"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const isLoading = ordersLoading || storesLoading;

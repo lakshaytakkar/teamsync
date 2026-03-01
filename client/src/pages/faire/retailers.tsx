@@ -37,17 +37,34 @@ export default function FaireRetailers() {
   const [selectedStore, setSelectedStore] = useState("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   const { data: storesData, isLoading: storesLoading } = useQuery<{ stores: any[] }>({
     queryKey: ["/api/faire/stores"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/stores", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const { data: retailersData, isLoading: retailersLoading } = useQuery<{ retailers: any[] }>({
     queryKey: ["/api/faire/retailers"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/retailers", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const { data: ordersData, isLoading: ordersLoading } = useQuery<{ orders: any[] }>({
     queryKey: ["/api/faire/orders"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/orders", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
   });
 
   const isLoading = storesLoading || retailersLoading || ordersLoading;

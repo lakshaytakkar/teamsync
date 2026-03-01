@@ -16,7 +16,7 @@ import {
   getAllRetailers,
   getRetailer,
 } from "./supabase";
-import { fetchAllOrders, fetchAllProducts, fetchBrandProfile, fetchRetailerProfile } from "./faire-api";
+import { fetchAllOrders, fetchAllProducts, fetchBrandProfile, fetchRetailerProfile, updateVariantInventory } from "./faire-api";
 
 const FAIRE_API_BASE = "https://www.faire.com/external-api/v2";
 
@@ -72,10 +72,40 @@ export async function registerRoutes(
   });
 
   app.get("/api/faire/products", async (req, res) => {
-    const limit = parseInt(req.query.limit as string) || 1000;
+    const limit = parseInt(req.query.limit as string) || 5000;
     const offset = parseInt(req.query.offset as string) || 0;
+    const slim = req.query.slim !== undefined;
     try {
       const products = await getAllProducts({ limit, offset });
+      if (slim) {
+        const slimProducts = products.map((p: Record<string, unknown>) => {
+          const images = (p.images as { url: string }[]) ?? [];
+          const thumbUrl = images[0]?.url ?? null;
+          return {
+            id: p.id,
+            name: p.name,
+            lifecycle_state: p.lifecycle_state,
+            sale_state: p.sale_state,
+            taxonomy_type: p.taxonomy_type,
+            minimum_order_quantity: p.minimum_order_quantity,
+            unit_multiplier: p.unit_multiplier,
+            _storeId: p._storeId,
+            thumb_url: thumbUrl,
+            variants: ((p.variants as Record<string, unknown>[]) ?? []).map((v) => ({
+              id: v.id,
+              sku: v.sku,
+              name: v.name,
+              wholesale_price_cents: v.wholesale_price_cents,
+              retail_price_cents: v.retail_price_cents,
+              available_quantity: v.available_quantity,
+              options: v.options,
+              lifecycle_state: v.lifecycle_state,
+              sale_state: v.sale_state,
+            })),
+          };
+        });
+        return res.json({ products: slimProducts });
+      }
       return res.json({ products });
     } catch {
       return res.status(500).json({ error: "Failed to fetch all products" });
@@ -310,6 +340,42 @@ export async function registerRoutes(
       });
     } catch {
       return res.status(502).json({ success: false, error: "Failed to reach Faire API", mock: false });
+    }
+  });
+
+  app.post("/api/faire/stores/:storeId/set-inventory", async (req, res) => {
+    const { storeId } = req.params;
+    const { quantity } = req.body as { quantity?: number };
+    const targetQty = quantity ?? 10000;
+    const creds = await getStoreCredentials(storeId);
+    if (!creds) return res.status(404).json({ success: false, error: "Store not found or inactive" });
+
+    try {
+      const products = await getStoreProducts(storeId);
+      let updated = 0;
+      let failed = 0;
+      for (const rawProduct of products) {
+        const product = rawProduct as { id: string; variants?: { id: string; available_quantity?: number }[] };
+        for (const variant of product.variants ?? []) {
+          if (variant.available_quantity === targetQty) continue;
+          const result = await updateVariantInventory(
+            { oauth_access_token: creds.oauth_access_token, app_credentials: creds.app_credentials },
+            product.id,
+            variant.id,
+            targetQty
+          );
+          if (result.ok) {
+            updated++;
+          } else {
+            failed++;
+            console.error(`[faire] Failed to update inventory for ${product.id}/${variant.id}: ${result.status}`);
+          }
+        }
+      }
+      return res.json({ success: true, updated, failed, target_quantity: targetQty });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      return res.status(500).json({ success: false, error: msg });
     }
   });
 
