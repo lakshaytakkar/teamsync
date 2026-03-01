@@ -134,6 +134,16 @@ import FinanceSharedExpenses from "@/pages/finance/shared-expenses";
 import FinanceCashBook from "@/pages/finance/cashbook";
 import FinanceCompliance from "@/pages/finance/compliance";
 import FinanceReports from "@/pages/finance/reports";
+import OmsDashboard from "@/pages/oms/dashboard";
+import OmsOrders from "@/pages/oms/orders";
+import OmsInventory from "@/pages/oms/inventory";
+import OmsProducts from "@/pages/oms/products";
+import OmsShipments from "@/pages/oms/shipments";
+import OmsPurchaseOrders from "@/pages/oms/purchase-orders";
+import OmsSuppliers from "@/pages/oms/suppliers";
+import OmsReturns from "@/pages/oms/returns";
+import OmsLocations from "@/pages/oms/locations";
+import OmsReports from "@/pages/oms/reports";
 import SocialDashboard from "@/pages/social/dashboard";
 import SocialPosts from "@/pages/social/posts";
 import SocialPostDetail from "@/pages/social/post-detail";
@@ -346,6 +356,21 @@ function Router() {
       <Route path="/finance/cashbook" component={FinanceCashBook} />
       <Route path="/finance/compliance" component={FinanceCompliance} />
       <Route path="/finance/reports" component={FinanceReports} />
+      <Route path="/oms" component={OmsDashboard} />
+      <Route path="/oms/chat" component={UniversalChat} />
+      <Route path="/oms/team" component={UniversalTeam} />
+      <Route path="/oms/resources" component={UniversalResources} />
+      <Route path="/oms/tasks" component={UniversalTasks} />
+      <Route path="/oms/contacts-important" component={UniversalImportantContacts} />
+      <Route path="/oms/orders" component={OmsOrders} />
+      <Route path="/oms/inventory" component={OmsInventory} />
+      <Route path="/oms/products" component={OmsProducts} />
+      <Route path="/oms/shipments" component={OmsShipments} />
+      <Route path="/oms/purchase-orders" component={OmsPurchaseOrders} />
+      <Route path="/oms/suppliers" component={OmsSuppliers} />
+      <Route path="/oms/returns" component={OmsReturns} />
+      <Route path="/oms/locations" component={OmsLocations} />
+      <Route path="/oms/reports" component={OmsReports} />
       <Route path="/social" component={SocialDashboard} />
       <Route path="/social/chat" component={UniversalChat} />
       <Route path="/social/team" component={UniversalTeam} />

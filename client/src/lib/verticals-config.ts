@@ -48,6 +48,8 @@ import {
   Receipt,
   CreditCard,
   BookMarked,
+  Tag,
+  RotateCcw,
   type LucideIcon,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -62,6 +64,7 @@ import { HrmsLogo } from "@/components/brand/hrms-logo";
 import { AtsLogo } from "@/components/brand/ats-logo";
 import { CrmLogo } from "@/components/brand/crm-logo";
 import { FinanceLogo } from "@/components/brand/finance-logo";
+import { OmsLogo } from "@/components/brand/oms-logo";
 import { SocialLogo } from "@/components/brand/social-logo";
 import { FaireLogo } from "@/components/brand/faire-logo";
 
@@ -1260,6 +1263,109 @@ export const verticals: Vertical[] = [
     ],
   },
   {
+    id: "oms",
+    name: "Order & Fulfillment",
+    shortName: "OMS",
+    icon: Package,
+    logo: OmsLogo,
+    color: "#0891B2",
+    tagline: "Orders · WMS · B2B · B2C",
+    description: "B2B/B2C order fulfillment, inventory management & India logistics",
+    isDepartment: true,
+    navCategories: [
+      {
+        title: "Dashboard",
+        defaultUrl: "/oms",
+        icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/oms/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/oms/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/oms/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/oms/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
+        title: "Orders",
+        defaultUrl: "/oms/orders",
+        icon: ShoppingBag,
+        items: [],
+      },
+      {
+        title: "Inventory",
+        defaultUrl: "/oms/inventory",
+        icon: Package,
+        items: [],
+      },
+      {
+        title: "Products",
+        defaultUrl: "/oms/products",
+        icon: Tag,
+        items: [],
+      },
+      {
+        title: "Shipments",
+        defaultUrl: "/oms/shipments",
+        icon: Truck,
+        items: [],
+      },
+      {
+        title: "Purchase Orders",
+        defaultUrl: "/oms/purchase-orders",
+        icon: ClipboardList,
+        items: [],
+      },
+      {
+        title: "Suppliers",
+        defaultUrl: "/oms/suppliers",
+        icon: Building2,
+        items: [],
+      },
+      {
+        title: "Returns",
+        defaultUrl: "/oms/returns",
+        icon: RotateCcw,
+        items: [],
+      },
+      {
+        title: "Locations",
+        defaultUrl: "/oms/locations",
+        icon: MapPin,
+        items: [],
+      },
+      {
+        title: "Reports",
+        defaultUrl: "/oms/reports",
+        icon: BarChart3,
+        items: [],
+      },
+      {
+        title: "Important Contacts",
+        defaultUrl: "/oms/contacts-important",
+        icon: Phone,
+        items: [],
+      },
+    ],
+  },
+  {
     id: "social",
     name: "SMM",
     shortName: "SMM",
@@ -1376,6 +1482,7 @@ export function detectVerticalFromUrl(location: string): Vertical | undefined {
   if (location.startsWith("/ats")) return getVerticalById("ats");
   if (location.startsWith("/crm")) return getVerticalById("crm");
   if (location.startsWith("/finance")) return getVerticalById("finance");
+  if (location.startsWith("/oms")) return getVerticalById("oms");
   if (location.startsWith("/social")) return getVerticalById("social");
   if (location.startsWith("/hr")) return getVerticalById("hr");
   if (location.startsWith("/sales")) return getVerticalById("sales");

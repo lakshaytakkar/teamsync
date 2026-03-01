@@ -5,7 +5,7 @@ TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the 
 
 **Business Products** (6): LegalNations (`/hr`), USDrop AI (`/sales`), GoyoTours (`/events`), LBM Lifestyle (`/admin`), EazyToSell (`/ets`), FaireDesk (`/faire`)
 
-**Departments** (7): HRMS (`/hrms`), ATS (`/ats`), Sales CRM (`/crm`), Finance & Accounts (`/finance`), Event Management (`/hub`), Developer (`/dev`), SMM (`/social`)
+**Departments** (8): HRMS (`/hrms`), ATS (`/ats`), Sales CRM (`/crm`), Finance & Accounts (`/finance`), Order & Fulfillment OMS (`/oms`), Event Management (`/hub`), Developer (`/dev`), SMM (`/social`)
 
 ## Finance & Accounts Department (`/finance/*`) — amber #B45309
 
