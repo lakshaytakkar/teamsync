@@ -189,6 +189,24 @@ export interface FaireDispute {
   priority: "high" | "normal";
 }
 
+export type RetailerLeadStage = "Prospect" | "Outreach" | "Demo Scheduled" | "Proposal Sent" | "Partner Signed";
+export type RetailerLeadSource = "Website" | "Referral" | "Instagram" | "LinkedIn" | "Google Ads" | "Trade Show";
+
+export interface RetailerLead {
+  id: string;
+  name: string;
+  storeType: string;
+  location: string;
+  email: string;
+  phone: string;
+  source: RetailerLeadSource;
+  stage: RetailerLeadStage;
+  lastContact: string;
+  dealValue: number;
+  daysInStage: number;
+  notes?: string;
+}
+
 export const faireStores: FaireStore[] = [
   {
     id: "store-001",
@@ -1041,4 +1059,217 @@ export const faireDisputes: FaireDispute[] = [
     reason: "Late delivery", description: "Package arrived 4 days late. Missed pre-Valentine's Day window.",
     amount: 0, status: "resolved", created_at: "2026-02-20", resolved_at: "2026-02-21", resolution: "Offered 10% discount on next order as goodwill. Retailer accepted.", priority: "normal",
   },
+];
+
+export const faireRetailerLeads: RetailerLead[] = [
+  {
+    id: "lead-001",
+    name: "Modern Home Mumbai",
+    storeType: "Lifestyle Boutique",
+    location: "Mumbai, MH",
+    email: "contact@modernhomemumbai.in",
+    phone: "+91 98765 43210",
+    source: "Instagram",
+    stage: "Prospect",
+    lastContact: "2026-02-20",
+    dealValue: 5000,
+    daysInStage: 8,
+    notes: "Interested in sustainable home decor lines."
+  },
+  {
+    id: "lead-002",
+    name: "Jaipur Artisan Collective",
+    storeType: "Craft Store",
+    location: "Jaipur, RJ",
+    email: "info@jaipurartisans.com",
+    phone: "+91 91234 56789",
+    source: "Trade Show",
+    stage: "Outreach",
+    lastContact: "2026-02-22",
+    dealValue: 12000,
+    daysInStage: 6,
+    notes: "Met at Delhi Trade Fair. Sent initial introduction."
+  },
+  {
+    id: "lead-003",
+    name: "EcoLiving Bangalore",
+    storeType: "Organic Retailer",
+    location: "Bangalore, KA",
+    email: "hello@ecoliving.in",
+    phone: "+91 80234 56781",
+    source: "Website",
+    stage: "Demo Scheduled",
+    lastContact: "2026-02-25",
+    dealValue: 8500,
+    daysInStage: 3,
+    notes: "Demo scheduled for next Tuesday at 2 PM."
+  },
+  {
+    id: "lead-004",
+    name: "Heritage Homes Delhi",
+    storeType: "Premium Furniture",
+    location: "New Delhi, DL",
+    email: "sales@heritagehomes.in",
+    phone: "+91 11456 78901",
+    source: "Referral",
+    stage: "Proposal Sent",
+    lastContact: "2026-02-24",
+    dealValue: 25000,
+    daysInStage: 4,
+    notes: "Bulk order proposal sent for the upcoming festive season."
+  },
+  {
+    id: "lead-005",
+    name: "Urban Decor Pune",
+    storeType: "Home Improvement",
+    location: "Pune, MH",
+    email: "urban.decor@gmail.com",
+    phone: "+91 77654 32109",
+    source: "LinkedIn",
+    stage: "Partner Signed",
+    lastContact: "2026-02-27",
+    dealValue: 15000,
+    daysInStage: 1,
+    notes: "Agreement signed. Onboarding starts next week."
+  },
+  {
+    id: "lead-006",
+    name: "The Gift Studio Hyderabad",
+    storeType: "Gift Shop",
+    location: "Hyderabad, TS",
+    email: "gifts@thestudio.in",
+    phone: "+91 99887 76655",
+    source: "Instagram",
+    stage: "Prospect",
+    lastContact: "2026-02-18",
+    dealValue: 3500,
+    daysInStage: 10,
+    notes: "Looking for unique gifting items for corporate clients."
+  },
+  {
+    id: "lead-007",
+    name: "Coastal Crafts Kochi",
+    storeType: "Souvenir Shop",
+    location: "Kochi, KL",
+    email: "coastal@kochi.in",
+    phone: "+91 48423 45678",
+    source: "Google Ads",
+    stage: "Outreach",
+    lastContact: "2026-02-23",
+    dealValue: 6000,
+    daysInStage: 5,
+    notes: "Cold call successful. Follow-up email sent."
+  },
+  {
+    id: "lead-008",
+    name: "Royal Interiors Udaipur",
+    storeType: "Interior Design",
+    location: "Udaipur, RJ",
+    email: "royal@udaipur.in",
+    phone: "+91 29423 45678",
+    source: "Website",
+    stage: "Demo Scheduled",
+    lastContact: "2026-02-26",
+    dealValue: 45000,
+    daysInStage: 2,
+    notes: "Interested in exclusive distribution rights for Rajasthan."
+  },
+  {
+    id: "lead-009",
+    name: "Minimalist Living Gurgaon",
+    storeType: "Concept Store",
+    location: "Gurgaon, HR",
+    email: "minimalist@gurgaon.in",
+    phone: "+91 12423 45678",
+    source: "Referral",
+    stage: "Proposal Sent",
+    lastContact: "2026-02-21",
+    dealValue: 9000,
+    daysInStage: 7,
+    notes: "Proposal under review by their procurement team."
+  },
+  {
+    id: "lead-010",
+    name: "Traditional Treasures Kolkata",
+    storeType: "Ethnic Wear & Decor",
+    location: "Kolkata, WB",
+    email: "treasures@kolkata.in",
+    phone: "+91 33234 56789",
+    source: "Trade Show",
+    stage: "Prospect",
+    lastContact: "2026-02-15",
+    dealValue: 7000,
+    daysInStage: 13,
+    notes: "Interested in traditional hand-loomed textiles."
+  },
+  {
+    id: "lead-011",
+    name: "Nature's Nest Ahmedabad",
+    storeType: "Eco-friendly Store",
+    location: "Ahmedabad, GJ",
+    email: "nest@ahmedabad.in",
+    phone: "+91 79234 56789",
+    source: "Instagram",
+    stage: "Outreach",
+    lastContact: "2026-02-24",
+    dealValue: 5500,
+    daysInStage: 4,
+    notes: "Sent digital catalog and price list."
+  },
+  {
+    id: "lead-012",
+    name: "Luxe Living Chennai",
+    storeType: "Furniture Showroom",
+    location: "Chennai, TN",
+    email: "luxe@chennai.in",
+    phone: "+91 44234 56789",
+    source: "LinkedIn",
+    stage: "Demo Scheduled",
+    lastContact: "2026-02-27",
+    dealValue: 30000,
+    daysInStage: 1,
+    notes: "Video conference scheduled for product walkthrough."
+  },
+  {
+    id: "lead-013",
+    name: "The Decor Den Lucknow",
+    storeType: "Home Accessories",
+    location: "Lucknow, UP",
+    email: "den@lucknow.in",
+    phone: "+91 52223 45678",
+    source: "Website",
+    stage: "Prospect",
+    lastContact: "2026-02-19",
+    dealValue: 4000,
+    daysInStage: 9,
+    notes: "Initial inquiry from website contact form."
+  },
+  {
+    id: "lead-014",
+    name: "Indie Art Hub Goa",
+    storeType: "Art Gallery & Shop",
+    location: "Panaji, GA",
+    email: "art@goa.in",
+    phone: "+91 83223 45678",
+    source: "Referral",
+    stage: "Partner Signed",
+    lastContact: "2026-02-28",
+    dealValue: 10000,
+    daysInStage: 0,
+    notes: "First order placed. Onboarding in progress."
+  },
+  {
+    id: "lead-015",
+    name: "Elite Esthetics Chandigarh",
+    storeType: "Design Studio",
+    location: "Chandigarh, CH",
+    email: "elite@chandigarh.in",
+    phone: "+91 17223 45678",
+    source: "Trade Show",
+    stage: "Outreach",
+    lastContact: "2026-02-26",
+    dealValue: 18000,
+    daysInStage: 2,
+    notes: "Interested in wholesale pricing for interior projects."
+  }
 ];

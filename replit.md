@@ -3,9 +3,51 @@
 ## Overview
 TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the Dropship.io design system. The vertical switcher shows two labeled groups: "Business Products" and "Departments". Each vertical/department has its own dashboard, pages, brand logo, and workflows. Built with React, TypeScript, Tailwind CSS, and Shadcn UI.
 
-**Business Products** (6): LegalNations (`/hr`), USDrop AI (`/sales`), GoyoTours (`/events`), LBM Lifestyle (`/admin`), EazyToSell (`/ets`), FaireDesk (`/faire`)
+**Business Products** (7): Suprans Business Services (`/suprans`), LegalNations (`/hr`), USDrop AI (`/sales`), GoyoTours (`/events`), LBM Lifestyle (`/admin`), EazyToSell (`/ets`), FaireDesk (`/faire`)
 
 **Departments** (8): HRMS (`/hrms`), ATS (`/ats`), Sales CRM (`/crm`), Finance & Accounts (`/finance`), Order & Fulfillment OMS (`/oms`), Event Management (`/hub`), Developer (`/dev`), SMM (`/social`)
+
+## Suprans Business Services (`/suprans/*`) — indigo #3730A3
+
+Primary lead source and routing hub for all business verticals. Leads flow in → validated → enriched → assigned to vertical reps.
+
+### Pages
+- **Dashboard** `/suprans` — Command Center: 4 stat cards, vertical breakdown table (all 6 verticals with leads/assigned/converted counts), recent leads feed with quick Validate/Enrich buttons
+- **Inbound** `/suprans/inbound` — 8 new unvalidated leads, search, source filter pills (Website/Referral/Instagram/LinkedIn/Google Ads/Walk-in/WhatsApp), Validate dialog with notes
+- **Enrichment** `/suprans/enrichment` — 6 validated leads, AI-suggested vertical routing (e.g., "AI suggests: USDrop AI →"), Enrich dialog with vertical select, priority selector, notes
+- **Assignments** `/suprans/assignments` — 5 enriched leads ready to assign, vertical+rep dropdowns, follow-up date, recently assigned table with 4 assigned leads
+
+### Mock Data (`client/src/lib/mock-data-suprans.ts`)
+- 25 leads across 6 statuses (8 new, 6 validated, 5 enriched, 4 assigned, 2 converted)
+- 6 services mapped to verticals (company-formation→hr, tour-booking→events, ecommerce-setup→sales, event-management→eventhub, hr-consulting→hrms, franchise→ets)
+- `VERTICAL_REP_MAP` with 3 mock reps per vertical (18 total)
+- Report templates: Daily Lead Intake (employee scope) + Weekly Assignment Summary (department scope)
+
+## Recent Additions (Feb 2026)
+
+### CRM Payment Links (`/crm/payment-links`)
+- Multi-step Create dialog: customer details → amount+methods → QR preview
+- UPI QR code generation via `qrcode` npm package (mock UPI ID: `payments@supransbiz`)
+- Bank transfer details (HDFC), copy payment link to clipboard
+- Payment link table: search, filter pills (All/Pending/Paid/Expired), Mark as Paid inline action
+- Grouped under CRM "Performance" nav category
+
+### FaireDesk Retailer Pipeline
+- **Retailer Leads** `/faire/leads` — 15 leads with stage badges, search, filter pills (All/New/Contacted/Qualified/Converted)
+- **Retailer Pipeline** `/faire/pipeline` — Kanban board (Prospect→Outreach→Demo Scheduled→Proposal Sent→Partner Signed), 12 leads with deal values
+
+### EventHub Event Inquiries (`/hub/leads`)
+- 15 event inquiry leads (Corporate/Wedding/Social/Conference/Exhibition)
+- Client cards: guest count, tentative date, budget range, source, status badges
+- Stat cards: Total Inquiries, New Today, Qualified, Pipeline Value
+- Under EventHub "Sales" nav category
+
+### GoyoTours Booking Calendar (`/events/calendar`)
+- Monthly calendar grid (Mon-Sun), February 2026 default
+- Booking pills colored by tour type (Canton Fair/Custom Tour/Sourcing Tour)
+- Click-to-view detail panel on the right
+- Month navigation with Today button, status filters
+- Under Events "Bookings" nav category
 
 ## Finance & Accounts Department (`/finance/*`) — amber #B45309
 

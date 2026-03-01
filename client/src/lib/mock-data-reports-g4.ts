@@ -173,6 +173,49 @@ const crmReports: SubmittedReport[] = [
   makeReport("cr-009", crmTemplates[1], "Vikram Nair", "Sales Manager", "2026-02-28", "Week of 24 Feb", null, "pending", {}),
 ];
 
+const supransTemplates: ReportTemplate[] = [
+  {
+    id: "suprans-daily-intake",
+    name: "Daily Lead Intake",
+    description: "Daily log of new inbound leads received across all sources.",
+    scope: "employee",
+    frequency: "daily",
+    assignedRole: "Lead Intake Specialist",
+    fields: [
+      { id: "total_leads", label: "Total Leads Received", type: "number", required: true, unit: "leads" },
+      { id: "website_leads", label: "Website Leads", type: "number", required: true, unit: "leads" },
+      { id: "social_leads", label: "Social Media Leads", type: "number", required: true, unit: "leads" },
+      { id: "referral_leads", label: "Referral Leads", type: "number", required: true, unit: "leads" },
+      { id: "validated_count", label: "Validated Today", type: "number", required: true, unit: "leads" },
+      { id: "notes", label: "Notes / Flags", type: "textarea", required: false, placeholder: "Any unusual volume, duplicate entries, or quality issues..." },
+    ],
+  },
+  {
+    id: "suprans-weekly-assignments",
+    name: "Weekly Assignment Summary",
+    description: "Weekly summary of lead enrichment and vertical assignment activity.",
+    scope: "department",
+    frequency: "weekly",
+    assignedRole: "Lead Operations Manager",
+    fields: [
+      { id: "leads_enriched", label: "Leads Enriched", type: "number", required: true, unit: "leads" },
+      { id: "leads_assigned", label: "Leads Assigned to Verticals", type: "number", required: true, unit: "leads" },
+      { id: "conversion_rate", label: "Conversion Rate", type: "number", required: true, unit: "%" },
+      { id: "top_vertical", label: "Top Performing Vertical", type: "select", required: true, options: ["LegalNations", "GoyoTours", "USDrop AI", "EventHub", "HRMS", "EazyToSell"] },
+      { id: "dropped_leads", label: "Dropped Leads", type: "number", required: true, unit: "leads" },
+      { id: "highlights", label: "Weekly Highlights", type: "textarea", required: true, placeholder: "Key wins, bottlenecks, vertical feedback, or pipeline health..." },
+    ],
+  },
+];
+
+const supransReports: SubmittedReport[] = [
+  makeReport("sp-001", supransTemplates[0], "Kavitha Nair", "Lead Intake Specialist", "2026-02-28", "28 Feb 2026", "2026-02-28T09:00:00Z", "submitted", { total_leads: 8, website_leads: 3, social_leads: 3, referral_leads: 2, validated_count: 6, notes: "2 leads from Instagram appeared duplicate — flagged for review." }),
+  makeReport("sp-002", supransTemplates[0], "Kavitha Nair", "Lead Intake Specialist", "2026-02-27", "27 Feb 2026", "2026-02-27T09:15:00Z", "submitted", { total_leads: 5, website_leads: 2, social_leads: 2, referral_leads: 1, validated_count: 5 }),
+  makeReport("sp-003", supransTemplates[1], "Priya Sharma", "Lead Operations Manager", "2026-02-24", "Week of 17 Feb", "2026-02-24T11:00:00Z", "submitted", { leads_enriched: 9, leads_assigned: 7, conversion_rate: 28, top_vertical: "LegalNations", dropped_leads: 1, highlights: "LegalNations receiving highest quality leads. GoyoTours pipeline needs nurturing — 3 leads gone cold. Suggest WhatsApp follow-up campaign." }),
+  makeReport("sp-004", supransTemplates[0], "Kavitha Nair", "Lead Intake Specialist", "2026-02-28", "28 Feb 2026", null, "pending", {}),
+  makeReport("sp-005", supransTemplates[1], "Priya Sharma", "Lead Operations Manager", "2026-02-28", "Week of 24 Feb", null, "pending", {}),
+];
+
 export const group4ReportConfig: Record<string, VerticalReportConfig> = {
   finance: {
     templates: financeTemplates,
@@ -185,5 +228,9 @@ export const group4ReportConfig: Record<string, VerticalReportConfig> = {
   crm: {
     templates: crmTemplates,
     submittedReports: crmReports,
+  },
+  suprans: {
+    templates: supransTemplates,
+    submittedReports: supransReports,
   },
 };

@@ -67,6 +67,7 @@ import { FinanceLogo } from "@/components/brand/finance-logo";
 import { OmsLogo } from "@/components/brand/oms-logo";
 import { SocialLogo } from "@/components/brand/social-logo";
 import { FaireLogo } from "@/components/brand/faire-logo";
+import { SupransLogo } from "@/components/brand/suprans-logo";
 
 export interface NavItem {
   title: string;
@@ -94,6 +95,71 @@ export interface Vertical {
 }
 
 export const verticals: Vertical[] = [
+  {
+    id: "suprans",
+    name: "Suprans Business Services",
+    shortName: "Suprans",
+    icon: Target,
+    logo: SupransLogo,
+    color: "#3730A3",
+    tagline: "Lead Source & Identity",
+    description: "Primary lead intake, enrichment, and routing hub for all business verticals",
+    isDepartment: false,
+    navCategories: [
+      {
+        title: "Dashboard",
+        defaultUrl: "/suprans",
+        icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/suprans/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/suprans/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/suprans/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/suprans/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
+        title: "Leads Inbox",
+        defaultUrl: "/suprans/inbound",
+        icon: UserPlus,
+        items: [
+          { title: "Inbound", url: "/suprans/inbound" },
+          { title: "Enrichment", url: "/suprans/enrichment" },
+          { title: "Assignments", url: "/suprans/assignments" },
+        ],
+      },
+      {
+        title: "Reports",
+        defaultUrl: "/suprans/reports",
+        icon: BarChart3,
+        items: [],
+      },
+      {
+        title: "Important Contacts",
+        defaultUrl: "/suprans/contacts-important",
+        icon: Phone,
+        items: [],
+      },
+    ],
+  },
   {
     id: "hr",
     name: "LegalNations",
@@ -360,6 +426,7 @@ export const verticals: Vertical[] = [
         icon: ClipboardList,
         items: [
           { title: "All Bookings", url: "/events/bookings" },
+          { title: "Calendar", url: "/events/calendar" },
         ],
       },
       {
@@ -463,6 +530,14 @@ export const verticals: Vertical[] = [
         defaultUrl: "/hub/vendors",
         icon: Briefcase,
         items: [],
+      },
+      {
+        title: "Sales",
+        defaultUrl: "/hub/leads",
+        icon: UserPlus,
+        items: [
+          { title: "Inquiries", url: "/hub/leads" },
+        ],
       },
       {
         title: "Operations",
@@ -788,6 +863,15 @@ export const verticals: Vertical[] = [
         defaultUrl: "/faire/stores",
         icon: Store,
         items: [],
+      },
+      {
+        title: "Retailer Pipeline",
+        defaultUrl: "/faire/leads",
+        icon: UserPlus,
+        items: [
+          { title: "Leads", url: "/faire/leads" },
+          { title: "Pipeline", url: "/faire/pipeline" },
+        ],
       },
       {
         title: "Products & Catalog",
@@ -1137,7 +1221,10 @@ export const verticals: Vertical[] = [
         title: "Performance",
         defaultUrl: "/crm/performance",
         icon: Target,
-        items: [],
+        items: [
+          { title: "Team Performance", url: "/crm/performance" },
+          { title: "Payment Links", url: "/crm/payment-links" },
+        ],
       },
       {
         title: "Templates",
@@ -1477,6 +1564,7 @@ export function getAllNavUrls(vertical: Vertical): string[] {
 }
 
 export function detectVerticalFromUrl(location: string): Vertical | undefined {
+  if (location.startsWith("/suprans")) return getVerticalById("suprans");
   if (location.startsWith("/faire")) return getVerticalById("faire");
   if (location.startsWith("/hrms")) return getVerticalById("hrms");
   if (location.startsWith("/ats")) return getVerticalById("ats");

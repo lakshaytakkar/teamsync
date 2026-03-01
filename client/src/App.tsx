@@ -51,6 +51,7 @@ import EventsPackageDetail from "@/pages/events/package-detail";
 import EventsLeads from "@/pages/events/leads";
 import EventsBookings from "@/pages/events/bookings";
 import EventsBookingDetail from "@/pages/events/booking-detail";
+import EventsCalendar from "@/pages/events/calendar";
 import EventsHotels from "@/pages/events/hotels";
 import EventsVendors from "@/pages/events/vendors";
 import EventsAnalytics from "@/pages/events/analytics";
@@ -124,6 +125,7 @@ import CrmDeals from "@/pages/crm/deals";
 import CrmActivities from "@/pages/crm/activities";
 import CrmPerformance from "@/pages/crm/performance";
 import CrmTemplates from "@/pages/crm/templates";
+import CrmPaymentLinks from "@/pages/crm/payment-links";
 import FinanceDashboard from "@/pages/finance/dashboard";
 import FinanceLedger from "@/pages/finance/ledger";
 import FinanceTransactions from "@/pages/finance/transactions";
@@ -167,13 +169,30 @@ import FaireFulfillment from "@/pages/faire/fulfillment";
 import FaireShipments from "@/pages/faire/shipments";
 import FaireRetailers from "@/pages/faire/retailers";
 import FaireRetailerDetail from "@/pages/faire/retailer-detail";
+import FaireLeads from "@/pages/faire/leads";
+import FairePipeline from "@/pages/faire/pipeline";
 import FaireCampaigns from "@/pages/faire/campaigns";
 import FaireDisputes from "@/pages/faire/disputes";
 import FaireAnalytics from "@/pages/faire/analytics";
+import SupransDashboard from "@/pages/suprans/dashboard";
+import SupransInbound from "@/pages/suprans/inbound";
+import SupransEnrichment from "@/pages/suprans/enrichment";
+import SupransAssignments from "@/pages/suprans/assignments";
+import EventHubLeads from "@/pages/eventhub/leads";
 
 function Router() {
   return (
     <Switch>
+      <Route path="/suprans" component={SupransDashboard} />
+      <Route path="/suprans/chat" component={UniversalChat} />
+      <Route path="/suprans/team" component={UniversalTeam} />
+      <Route path="/suprans/resources" component={UniversalResources} />
+      <Route path="/suprans/tasks" component={UniversalTasks} />
+      <Route path="/suprans/inbound" component={SupransInbound} />
+      <Route path="/suprans/enrichment" component={SupransEnrichment} />
+      <Route path="/suprans/assignments" component={SupransAssignments} />
+      <Route path="/suprans/reports" component={UniversalReports} />
+      <Route path="/suprans/contacts-important" component={UniversalImportantContacts} />
       <Route path="/hr" component={Dashboard} />
       <Route path="/hr/chat" component={UniversalChat} />
       <Route path="/hr/team" component={UniversalTeam} />
@@ -227,6 +246,7 @@ function Router() {
       <Route path="/events/packages" component={EventsPackages} />
       <Route path="/events/leads" component={EventsLeads} />
       <Route path="/events/bookings/:id" component={EventsBookingDetail} />
+      <Route path="/events/calendar" component={EventsCalendar} />
       <Route path="/events/bookings" component={EventsBookings} />
       <Route path="/events/hotels" component={EventsHotels} />
       <Route path="/events/vendors" component={EventsVendors} />
@@ -248,6 +268,7 @@ function Router() {
       <Route path="/hub/vendors" component={HubVendors} />
       <Route path="/hub/budget" component={HubBudget} />
       <Route path="/hub/analytics" component={HubAnalytics} />
+      <Route path="/hub/leads" component={EventHubLeads} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/chat" component={UniversalChat} />
       <Route path="/admin/team" component={UniversalTeam} />
@@ -340,6 +361,7 @@ function Router() {
       <Route path="/crm/deals" component={CrmDeals} />
       <Route path="/crm/activities" component={CrmActivities} />
       <Route path="/crm/performance" component={CrmPerformance} />
+      <Route path="/crm/payment-links" component={CrmPaymentLinks} />
       <Route path="/crm/templates" component={CrmTemplates} />
       <Route path="/finance" component={FinanceDashboard} />
       <Route path="/finance/chat" component={UniversalChat} />
@@ -406,6 +428,8 @@ function Router() {
       <Route path="/faire/shipments" component={FaireShipments} />
       <Route path="/faire/retailers/:id" component={FaireRetailerDetail} />
       <Route path="/faire/retailers" component={FaireRetailers} />
+      <Route path="/faire/leads" component={FaireLeads} />
+      <Route path="/faire/pipeline" component={FairePipeline} />
       <Route path="/faire/campaigns" component={FaireCampaigns} />
       <Route path="/faire/disputes" component={FaireDisputes} />
       <Route path="/faire/analytics" component={FaireAnalytics} />
