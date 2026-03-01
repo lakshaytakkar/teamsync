@@ -96,16 +96,19 @@ export function TopNavigation() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2" data-testid="button-user-menu">
+              <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu">
                 <img src={getPersonAvatar("Sneha Patel", 32)} alt="SP" className="size-8 rounded-full" />
-                <div className="hidden flex-col items-start md:flex">
-                  <span className="text-sm font-medium">Sneha Patel</span>
-                  <span className="text-[13px] text-muted-foreground">Operations Manager</span>
-                </div>
-                <ChevronDown className="size-3.5 text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
+              <div className="flex items-center gap-3 px-2 py-2.5">
+                <img src={getPersonAvatar("Sneha Patel", 40)} alt="SP" className="size-10 rounded-full" />
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">Sneha Patel</span>
+                  <span className="text-xs text-muted-foreground">Operations Manager</span>
+                </div>
+              </div>
+              <DropdownMenuSeparator />
               <DropdownMenuItem className="text-sm" data-testid="menu-item-profile">My Profile</DropdownMenuItem>
               <DropdownMenuItem className="text-sm" data-testid="menu-item-settings">Account Settings</DropdownMenuItem>
               <DropdownMenuSeparator />

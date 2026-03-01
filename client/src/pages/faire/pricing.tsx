@@ -31,11 +31,6 @@ export default function FairePricing() {
   const { toast } = useToast();
   const [selectedStore, setSelectedStore] = useState("all");
   const [search, setSearch] = useState("");
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [bulkOpen, setBulkOpen] = useState(false);
-  const [bulkType, setBulkType] = useState<"wholesale" | "retail">("wholesale");
-  const [bulkValue, setBulkValue] = useState("");
-  const [bulkMode, setBulkMode] = useState<"percent" | "fixed">("percent");
   const [addPrepackOpen, setAddPrepackOpen] = useState(false);
   const [prepackName, setPrepackName] = useState("");
   const [prepackPrice, setPrepackPrice] = useState("");
@@ -82,7 +77,6 @@ export default function FairePricing() {
   const safePage = Math.min(currentPage, totalPages);
   const paginatedRows = rows.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const toggleRow = (id: string) => setSelectedRows(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const filteredPrepacks = selectedStore === "all" ? mockPrepacks : mockPrepacks.filter(pp => pp.storeId === selectedStore);
 
   if (isLoading) {
@@ -112,23 +106,11 @@ export default function FairePricing() {
         />
       </Fade>
 
-      {selectedRows.length > 0 && (
-        <Fade>
-          <div className="flex items-center gap-2 bg-muted/60 rounded-lg px-4 py-2">
-            <span className="text-xs text-muted-foreground">{selectedRows.length} variants selected</span>
-            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => { setBulkType("wholesale"); setBulkOpen(true); }} data-testid="btn-bulk-wholesale">Adjust Wholesale</Button>
-            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => { setBulkType("retail"); setBulkOpen(true); }} data-testid="btn-bulk-retail">Adjust Retail</Button>
-            <button className="text-xs text-muted-foreground ml-2 hover:text-foreground" onClick={() => setSelectedRows([])}>Clear</button>
-          </div>
-        </Fade>
-      )}
-
       <Fade>
         <DataTableContainer>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/30">
-                <DataTH className="w-8"><input type="checkbox" className="rounded" onChange={e => setSelectedRows(e.target.checked ? rows.map((r: any) => r.id) : [])} /></DataTH>
                 <DataTH>Product</DataTH>
                 <DataTH>Store</DataTH>
                 <DataTH>SKU</DataTH>
@@ -146,9 +128,6 @@ export default function FairePricing() {
                 const mc = marginColor(margin);
                 return (
                   <DataTR key={r.id} data-testid={`pricing-row-${r.id}`}>
-                    <DataTD>
-                      <input type="checkbox" checked={selectedRows.includes(r.id)} onChange={() => toggleRow(r.id)} className="rounded" data-testid={`check-${r.id}`} />
-                    </DataTD>
                     <DataTD>
                       <p className="font-medium">{r.productName}</p>
                       <p className="text-[10px] text-muted-foreground">{(r.options ?? []).map((o: any) => o.value).join(" / ")}</p>
@@ -230,26 +209,6 @@ export default function FairePricing() {
           </table>
         </DataTableContainer>
       </Fade>
-
-      <Dialog open={bulkOpen} onOpenChange={() => setBulkOpen(false)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Adjust {bulkType === "wholesale" ? "Wholesale" : "Retail"} Price — {selectedRows.length} variants</DialogTitle></DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="flex gap-2">
-              <button onClick={() => setBulkMode("percent")} className={`flex-1 py-2 text-sm rounded-lg border ${bulkMode === "percent" ? "text-white border-transparent" : "bg-background"}`} style={bulkMode === "percent" ? { background: BRAND_COLOR } : {}} data-testid="mode-percent">% Change</button>
-              <button onClick={() => setBulkMode("fixed")} className={`flex-1 py-2 text-sm rounded-lg border ${bulkMode === "fixed" ? "text-white border-transparent" : "bg-background"}`} style={bulkMode === "fixed" ? { background: BRAND_COLOR } : {}} data-testid="mode-fixed">Fixed $ Amount</button>
-            </div>
-            <div className="space-y-1.5">
-              <Label>{bulkMode === "percent" ? "Percentage Change (e.g. +5 or -10)" : "New Price ($)"}</Label>
-              <Input type="number" value={bulkValue} onChange={e => setBulkValue(e.target.value)} placeholder={bulkMode === "percent" ? "e.g. 5" : "e.g. 28"} data-testid="input-bulk-value" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBulkOpen(false)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Prices Updated", description: `${selectedRows.length} variants updated.` }); setBulkOpen(false); setSelectedRows([]); }} data-testid="btn-apply-bulk">Apply</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={addPrepackOpen} onOpenChange={() => setAddPrepackOpen(false)}>
         <DialogContent>

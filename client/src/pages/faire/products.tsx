@@ -79,7 +79,6 @@ export default function FaireProducts() {
   const [lifecycle, setLifecycle] = useState<"all" | ProductLifecycleState>("all");
   const [saleState, setSaleState] = useState<"all" | ProductSaleState>("all");
   const [search, setSearch] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -119,10 +118,6 @@ export default function FaireProducts() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
   const paginatedProducts = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
 
   const [settingInventory, setSettingInventory] = useState(false);
 
@@ -267,30 +262,11 @@ export default function FaireProducts() {
         />
       </Fade>
 
-      {selectedIds.length > 0 && (
-        <Fade>
-          <div className="flex items-center gap-2 bg-muted/60 rounded-lg px-4 py-2">
-            <span className="text-xs text-muted-foreground font-medium">{selectedIds.length} selected</span>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => { toast({ title: "Marked Published" }); setSelectedIds([]); }}>Mark Published</Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => { toast({ title: "Marked Unpublished" }); setSelectedIds([]); }}>Unpublish</Button>
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => { toast({ title: "Exported CSV" }); setSelectedIds([]); }}>Export CSV</Button>
-            <button className="text-xs text-muted-foreground ml-2 hover:text-foreground underline underline-offset-4" onClick={() => setSelectedIds([])}>Clear</button>
-          </div>
-        </Fade>
-      )}
-
       <Fade>
         <DataTableContainer>
           <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/30">
-                  <th className="text-left p-4 w-10">
-                    <input
-                      type="checkbox"
-                      className="rounded border-muted-foreground/30"
-                      onChange={e => setSelectedIds(e.target.checked ? filtered.map(p => p.id) : [])}
-                    />
-                  </th>
                   <DataTH>Product</DataTH>
                   <DataTH>SKU</DataTH>
                   <DataTH>Store</DataTH>
@@ -319,14 +295,6 @@ export default function FaireProducts() {
                   const caseSize = product.unit_multiplier ?? 1;
                   return (
                     <DataTR key={product.id} onClick={() => setLocation(`/faire/products/${product.id}`)} data-testid={`product-row-${product.id}`}>
-                      <td className="p-4" onClick={e => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(product.id)}
-                          onChange={() => toggleSelect(product.id)}
-                          className="rounded border-muted-foreground/30"
-                        />
-                      </td>
                       <DataTD>
                         <div className="flex items-center gap-3">
                           {product.thumb_url ? (
