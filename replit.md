@@ -3,7 +3,7 @@
 ## Overview
 TeamSync is a multi-vertical team portal with exceptional UI/UX inspired by the Dropship.io design system. The vertical switcher shows two labeled groups: "Business Products" and "Departments". Each vertical/department has its own dashboard, pages, brand logo, and workflows. Built with React, TypeScript, Tailwind CSS, and Shadcn UI.
 
-**Business Products** (7): Suprans Business Services (`/suprans`), LegalNations (`/hr`), USDrop AI (`/sales`), GoyoTours (`/events`), LBM Lifestyle (`/admin`), EazyToSell (`/ets`), FaireDesk (`/faire`)
+**Business Products** (8): Suprans Business Services (`/suprans`), LegalNations (`/hr`), USDrop AI (`/sales`), GoyoTours (`/events`), LBM Lifestyle (`/admin`), EazyToSell (`/ets`), FaireDesk (`/faire`), Vendor Portal (`/vendor`)
 
 **Departments** (8): HRMS (`/hrms`), ATS (`/ats`), Sales CRM (`/crm`), Finance & Accounts (`/finance`), Order & Fulfillment OMS (`/oms`), Event Management (`/hub`), Developer (`/dev`), SMM (`/social`)
 
@@ -57,6 +57,24 @@ Complete end-to-end order operations pipeline with 5 new pages:
 - `POST /api/faire/orders/:id/cancel` → `POST faire.com/external-api/v2/orders/:id/cancel`
 - `POST /api/faire/orders/:id/shipments` → `POST faire.com/external-api/v2/orders/:id/shipments`
 - Routes now accept `storeId` (UUID) instead of raw token — credentials fetched server-side from Supabase
+
+### Vendor Portal (`/vendor/*`) — purple #7C3AED (Mar 2026)
+
+Standalone supplier-facing portal. Separate vertical from FaireDesk. Vendors select their identity via a dropdown (persisted in `localStorage` key `vp_vendor_id`). All 4 faire_vendors are available.
+
+**Pages:**
+- **Dashboard** `/vendor` — Identity card (name, country, rating, lead days, specialties), 4 stat cards (Open Requests, Quotes Submitted, Active Orders, Payments Made), Recent Quote Requests feed, Quick Actions panel
+- **Quotations** `/vendor/quotations` — 3 tabs: Open Requests (SENT quotes awaiting vendor pricing), Submitted (quotes vendor has priced), History (accepted/rejected); inline "Submit Pricing" form per quotation
+- **Pipeline** `/vendor/pipeline` — Accepted orders only; tracking update form (carrier + tracking number); order status progression
+- **Ledger** `/vendor/ledger` — Bank transactions filtered by vendor name keywords from `bank_transactions` table; per-vendor payment history
+- **Chat** `/vendor/chat` — Routes to universal chat component
+- **Reports** `/vendor/reports` — Routes to universal reports component
+
+**Vendor identity (faire_vendors Supabase table):**
+- fulf-001: ShipFast Logistics (USA, 4.7★, 245 orders)
+- fulf-002: GlobalPack Co (HK, 4.5★, 189 orders)
+- fulf-003: QuickFulfill EU (Germany, 4.8★, 312 orders)
+- fulf-004: AsiaDirect Supply (India, 4.6★, 176 orders) — default
 
 **Wise API Client (server/wise.ts):**
 - Read-only personal token — `Authorization: Bearer {WISE_API_KEY}` (stored as secret `WISE_API_KEY`)

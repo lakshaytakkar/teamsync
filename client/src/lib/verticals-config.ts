@@ -68,6 +68,7 @@ import { OmsLogo } from "@/components/brand/oms-logo";
 import { SocialLogo } from "@/components/brand/social-logo";
 import { FaireLogo } from "@/components/brand/faire-logo";
 import { SupransLogo } from "@/components/brand/suprans-logo";
+import { VendorPortalLogo } from "@/components/brand/vendor-portal-logo";
 
 export interface NavItem {
   title: string;
@@ -878,7 +879,6 @@ export const verticals: Vertical[] = [
         icon: FileText,
         items: [
           { title: "All Quotations", url: "/faire/quotations" },
-          { title: "Partner Portal", url: "/faire/partner-portal" },
           { title: "Vendors", url: "/faire/vendors" },
         ],
       },
@@ -931,6 +931,55 @@ export const verticals: Vertical[] = [
         title: "Contacts",
         defaultUrl: "/faire/contacts",
         icon: Phone,
+        items: [],
+      },
+    ],
+  },
+  {
+    id: "vendor-portal",
+    name: "Vendor Portal",
+    shortName: "Vendors",
+    icon: Briefcase,
+    logo: VendorPortalLogo,
+    color: "#7C3AED",
+    tagline: "Supplier Command Center",
+    description: "Vendor-facing portal for managing quotations, pipeline, and ledger",
+    isDepartment: false,
+    navCategories: [
+      {
+        title: "Dashboard",
+        defaultUrl: "/vendor",
+        icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Quotations",
+        defaultUrl: "/vendor/quotations",
+        icon: FileText,
+        items: [],
+      },
+      {
+        title: "Pipeline",
+        defaultUrl: "/vendor/pipeline",
+        icon: Truck,
+        items: [],
+      },
+      {
+        title: "Ledger",
+        defaultUrl: "/vendor/ledger",
+        icon: Landmark,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/vendor/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Reports",
+        defaultUrl: "/vendor/reports",
+        icon: FileText,
         items: [],
       },
     ],
@@ -1569,6 +1618,7 @@ export function getAllNavUrls(vertical: Vertical): string[] {
 
 export function detectVerticalFromUrl(location: string): Vertical | undefined {
   if (location.startsWith("/suprans")) return getVerticalById("suprans");
+  if (location.startsWith("/vendor")) return getVerticalById("vendor-portal");
   if (location.startsWith("/faire")) return getVerticalById("faire");
   if (location.startsWith("/hrms")) return getVerticalById("hrms");
   if (location.startsWith("/ats")) return getVerticalById("ats");
