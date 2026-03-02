@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { Search, Bell, MessageCircle, Users } from "lucide-react";
+import { Search, Bell, MessageCircle, Users, BookOpen, BarChart2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getPersonAvatar } from "@/lib/avatars";
@@ -15,6 +15,8 @@ import { useVertical } from "@/lib/vertical-store";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import type { NavCategory } from "@/lib/verticals-config";
+
+const PINNED_TITLES = new Set(["Chat", "Team", "Resources", "Reports", "Contacts", "Important Contacts"]);
 
 function getActiveCategory(location: string, categories: NavCategory[]): NavCategory | null {
   for (const cat of categories) {
@@ -42,8 +44,44 @@ export function TopNavigation() {
   const activeCategory = getActiveCategory(location, navCategories);
   const showSubNav = activeCategory && activeCategory.items.length > 1;
 
-  const chatUrl = navCategories.find(c => c.title === "Chat")?.defaultUrl ?? null;
-  const teamUrl = navCategories.find(c => c.title === "Team")?.defaultUrl ?? null;
+  const findUrl = (...titles: string[]) => {
+    for (const t of titles) {
+      const url = navCategories.find(c => c.title === t)?.defaultUrl;
+      if (url) return url;
+    }
+    return null;
+  };
+
+  const chatUrl = findUrl("Chat");
+  const teamUrl = findUrl("Team");
+  const resourcesUrl = findUrl("Resources");
+  const reportsUrl = findUrl("Reports", "Team Reports");
+  const contactsUrl = findUrl("Important Contacts", "Contacts");
+
+  function PinnedBtn({
+    url,
+    icon: Icon,
+    label,
+    testId,
+  }: {
+    url: string | null;
+    icon: React.ElementType;
+    label: string;
+    testId: string;
+  }) {
+    if (!url) return null;
+    return (
+      <Button
+        size="icon"
+        variant={location === url ? "secondary" : "ghost"}
+        onClick={() => setLocation(url)}
+        data-testid={testId}
+        title={label}
+      >
+        <Icon className="size-4" />
+      </Button>
+    );
+  }
 
   return (
     <div className="shrink-0 overflow-y-hidden px-16 lg:px-24 pt-3 space-y-2">
@@ -57,7 +95,7 @@ export function TopNavigation() {
           <Separator orientation="vertical" className="h-6 hidden sm:block" />
 
           <nav className="flex items-center gap-0.5 overflow-x-auto overflow-y-hidden scrollbar-hide" data-testid="nav-level-1">
-            {navCategories.filter(cat => cat.title !== "Chat" && cat.title !== "Team").map((cat) => {
+            {navCategories.filter(cat => !PINNED_TITLES.has(cat.title)).map((cat) => {
               const isActive = activeCategory?.title === cat.title;
               return (
                 <Link
@@ -95,29 +133,11 @@ export function TopNavigation() {
             <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-destructive animate-pulse" />
           </Button>
 
-          {chatUrl && (
-            <Button
-              size="icon"
-              variant={location === chatUrl ? "secondary" : "ghost"}
-              onClick={() => setLocation(chatUrl)}
-              data-testid="button-chat"
-              title="Chat"
-            >
-              <MessageCircle className="size-4" />
-            </Button>
-          )}
-
-          {teamUrl && (
-            <Button
-              size="icon"
-              variant={location === teamUrl ? "secondary" : "ghost"}
-              onClick={() => setLocation(teamUrl)}
-              data-testid="button-team"
-              title="Team"
-            >
-              <Users className="size-4" />
-            </Button>
-          )}
+          <PinnedBtn url={resourcesUrl} icon={BookOpen} label="Resources" testId="button-resources" />
+          <PinnedBtn url={reportsUrl} icon={BarChart2} label="Reports" testId="button-reports" />
+          <PinnedBtn url={contactsUrl} icon={Phone} label="Contacts" testId="button-contacts" />
+          <PinnedBtn url={chatUrl} icon={MessageCircle} label="Chat" testId="button-chat" />
+          <PinnedBtn url={teamUrl} icon={Users} label="Team" testId="button-team" />
 
           <Separator orientation="vertical" className="h-5" />
 
