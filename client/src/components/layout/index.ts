@@ -17,3 +17,6 @@ export {
   DetailSection,
   DetailModal,
 } from "./page-layout";
+
+export { NotificationPanel } from "./notification-panel";
+export { SearchPanel } from "./search-panel";

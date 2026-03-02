@@ -375,3 +375,29 @@ export const sharedTasks: SharedTask[] = [
   { id: "T-ETS-008", verticalId: "ets", title: "Partner Performance Reviews — Q4", description: "Review Q4 performance for all 14 existing franchise partners — sales metrics, compliance scores, and renewal eligibility.", status: "todo", priority: "high", assigneeName: "Naveen Pillai", dueDate: "2026-03-12", tags: ["performance", "Q4", "franchise"], createdDate: "2026-02-24", subtasks: [{ id: "st-1", title: "Pull Q4 sales data", completed: false }, { id: "st-2", title: "Score each partner", completed: false }] },
   { id: "T-ETS-009", verticalId: "ets", title: "EazyToSell App — Concept Design", description: "Initiate concept design for a mobile app for franchise partners — order tracking, inventory check, and commission dashboard.", status: "backlog", priority: "low", assigneeName: "Meera Iyer", dueDate: "2026-04-20", tags: ["app", "mobile", "concept"], createdDate: "2026-02-28", subtasks: [{ id: "st-1", title: "Define core features", completed: false }] },
 ];
+
+export type NotificationType = "order" | "fulfillment" | "inventory" | "finance" | "retailer" | "application" | "system" | "quotation";
+
+export interface AppNotification {
+  id: string;
+  verticalId: string;
+  type: NotificationType;
+  title: string;
+  description: string;
+  time: string;
+  url: string;
+  isRead: boolean;
+}
+
+export const faireNotifications: AppNotification[] = [
+  { id: "N-FAIRE-001", verticalId: "faire", type: "order", title: "3 new orders need acceptance", description: "Toyarina received 3 new wholesale orders totalling $4,820 — review and accept before the 7-day window closes.", time: "2 min ago", url: "/faire/orders", isRead: false },
+  { id: "N-FAIRE-002", verticalId: "faire", type: "fulfillment", title: "2 orders past ship deadline", description: "Orders F-0041 and F-0038 are 48 hours past their expected ship date. Retailers have been waiting.", time: "1 hr ago", url: "/faire/fulfillment", isRead: false },
+  { id: "N-FAIRE-003", verticalId: "faire", type: "inventory", title: "Low stock — Bamboo Incense Holder", description: "Only 8 units left across all stores. Restock recommended before next Faire sync to avoid cancellations.", time: "3 hrs ago", url: "/faire/products", isRead: false },
+  { id: "N-FAIRE-004", verticalId: "faire", type: "finance", title: "Faire payout received — $3,420", description: "February week 4 payout landed in your bank account. Commission deducted: $513 (15%). Ready to reconcile.", time: "5 hrs ago", url: "/faire/ledger", isRead: false },
+  { id: "N-FAIRE-005", verticalId: "faire", type: "retailer", title: "New retailer placed first order", description: "Lone Star Court (Austin, TX) placed their first order — $890 from Gullee Gadgets. Great opportunity for a follow-up.", time: "Yesterday", url: "/faire/retailers", isRead: true },
+  { id: "N-FAIRE-006", verticalId: "faire", type: "application", title: "Docs requested — Toyarina application", description: "The Faire review team has requested EIN and Articles of Incorporation for the Toyarina seller account application.", time: "Yesterday", url: "/faire/applications", isRead: true },
+  { id: "N-FAIRE-007", verticalId: "faire", type: "system", title: "Store sync complete — Toyarina", description: "Toyarina sync finished: 14 new orders pulled, 2 products updated, 1 retailer added. Last synced: just now.", time: "Yesterday", url: "/faire/stores", isRead: true },
+  { id: "N-FAIRE-008", verticalId: "faire", type: "quotation", title: "Quote received from Sunrise Fulfillment", description: "A quote for order F-0042 (3 items, $2,100 order value) was submitted. Review margin and lead time before accepting.", time: "2 days ago", url: "/faire/quotations", isRead: true },
+  { id: "N-FAIRE-009", verticalId: "faire", type: "inventory", title: "18 draft products — Holiday Farm", description: "Holiday Farm has 18 products stuck in DRAFT. They won't appear on Faire until published. Review and publish.", time: "2 days ago", url: "/faire/products", isRead: true },
+  { id: "N-FAIRE-010", verticalId: "faire", type: "finance", title: "Unreconciled transaction needs mapping", description: "A $1,240 bank credit from Feb 26 hasn't been mapped to a Faire order. Link it in Bank Transactions to close the ledger.", time: "3 days ago", url: "/faire/bank-transactions", isRead: true },
+];

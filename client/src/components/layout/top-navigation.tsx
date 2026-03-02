@@ -1,6 +1,8 @@
 import { useLocation, Link } from "wouter";
-import { Search, Bell, MessageCircle, Users, BookOpen, BarChart2, Phone } from "lucide-react";
+import { MessageCircle, Users, BookOpen, BarChart2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationPanel } from "./notification-panel";
+import { SearchPanel } from "./search-panel";
 import { Separator } from "@/components/ui/separator";
 import { getPersonAvatar } from "@/lib/avatars";
 import {
@@ -124,14 +126,8 @@ export function TopNavigation() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Button size="icon" variant="ghost" data-testid="button-search">
-            <Search className="size-4" />
-          </Button>
-
-          <Button size="icon" variant="ghost" className="relative" data-testid="button-notifications">
-            <Bell className="size-4" />
-            <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-destructive animate-pulse" />
-          </Button>
+          <SearchPanel />
+          <NotificationPanel />
 
           <PinnedBtn url={resourcesUrl} icon={BookOpen} label="Resources" testId="button-resources" />
           <PinnedBtn url={reportsUrl} icon={BarChart2} label="Reports" testId="button-reports" />
