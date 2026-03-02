@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, CreditCard, CheckCircle, Link2 } from "lucide-react";
+import { Plus, CreditCard, CheckCircle, Link2, Paperclip, Upload, FileText } from "lucide-react";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,10 @@ export default function FaireBankTransactions() {
   const [mapSearch, setMapSearch] = useState("");
   const [mapOrderIds, setMapOrderIds] = useState<string[]>([]);
 
+  const [attachModal, setAttachModal] = useState<FaireBankTransaction | null>(null);
+  const [attachUploading, setAttachUploading] = useState(false);
+  const [attachments, setAttachments] = useState<Record<string, { id: string; file_name: string; url: string }[]>>({});
+
   const [addModal, setAddModal] = useState(false);
   const [addDate, setAddDate] = useState("");
   const [addAmount, setAddAmount] = useState("");
@@ -88,6 +92,41 @@ export default function FaireBankTransactions() {
     setMapOrderIds([]);
     setMapSearch("");
     toast({ title: "Transaction mapped", description: `Linked to ${mapOrderIds.length} order(s)` });
+  }
+
+  async function openAttachments(txn: FaireBankTransaction) {
+    setAttachModal(txn);
+    if (!attachments[txn.id]) {
+      try {
+        const res = await fetch(`/api/faire/transactions/${txn.id}/attachments`);
+        const data = await res.json();
+        setAttachments(prev => ({ ...prev, [txn.id]: data.attachments ?? [] }));
+      } catch {
+        setAttachments(prev => ({ ...prev, [txn.id]: [] }));
+      }
+    }
+  }
+
+  async function handleFileUpload(txn: FaireBankTransaction, file: File) {
+    setAttachUploading(true);
+    try {
+      const res = await fetch(`/api/faire/transactions/${txn.id}/attachments`, {
+        method: "POST",
+        headers: { "Content-Type": file.type, "x-file-name": file.name },
+        body: await file.arrayBuffer(),
+      });
+      const data = await res.json();
+      if (data.attachment) {
+        setAttachments(prev => ({
+          ...prev,
+          [txn.id]: [...(prev[txn.id] ?? []), { id: data.attachment.id, file_name: data.attachment.file_name, url: data.attachment.url }],
+        }));
+        toast({ title: "File attached", description: file.name });
+      }
+    } catch {
+      toast({ title: "Upload failed", variant: "destructive" });
+    }
+    setAttachUploading(false);
   }
 
   function confirmAdd() {
@@ -145,8 +184,8 @@ export default function FaireBankTransactions() {
           color={BRAND_COLOR}
           filters={[
             { value: "all", label: "All" },
-            { value: "CREDIT", label: "Credits" },
-            { value: "DEBIT", label: "Debits" },
+            { value: "CREDIT", label: "Faire Payouts" },
+            { value: "DEBIT", label: "Paid to Suppliers" },
             { value: "unreconciled", label: "Unreconciled" },
           ]}
           activeFilter={filter}
@@ -235,16 +274,31 @@ export default function FaireBankTransactions() {
                     )}
                   </DataTD>
                   <DataTD>
-                    {!t.reconciled && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => { setMapModal(t); setMapOrderIds([]); setMapSearch(""); }}
-                        data-testid={`button-map-${t.id}`}
+                    <div className="flex items-center gap-1">
+                      {!t.reconciled && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => { setMapModal(t); setMapOrderIds([]); setMapSearch(""); }}
+                          data-testid={`button-map-${t.id}`}
+                        >
+                          Map to Order
+                        </Button>
+                      )}
+                      <button
+                        className="relative h-8 w-8 flex items-center justify-center rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                        onClick={() => openAttachments(t)}
+                        data-testid={`button-attach-${t.id}`}
+                        title="Attachments"
                       >
-                        Map to Order
-                      </Button>
-                    )}
+                        <Paperclip size={14} />
+                        {(attachments[t.id]?.length ?? 0) > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center text-white" style={{ background: BRAND_COLOR }}>
+                            {attachments[t.id].length}
+                          </span>
+                        )}
+                      </button>
+                    </div>
                   </DataTD>
                 </DataTR>
               ))}
@@ -252,6 +306,57 @@ export default function FaireBankTransactions() {
           </table>}
         </DataTableContainer>
       </Fade>
+
+      {/* Attachments modal */}
+      <DetailModal
+        open={!!attachModal}
+        onClose={() => setAttachModal(null)}
+        title="Transaction Attachments"
+        subtitle={`Proof files for: ${attachModal?.reference ?? ""}`}
+        footer={
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => setAttachModal(null)}>Close</Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <div className="p-3 rounded-lg bg-slate-50 text-sm">
+            <div className="font-medium">{attachModal?.description}</div>
+            <div className="text-muted-foreground mt-1">{attachModal?.type} · {attachModal?.date}</div>
+          </div>
+          <div>
+            <Label className="mb-2 block">Upload New File</Label>
+            <label className={`flex items-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors hover:border-primary/50 hover:bg-muted/30 ${attachUploading ? "opacity-50 pointer-events-none" : ""}`}>
+              <Upload size={16} className="text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{attachUploading ? "Uploading…" : "Click to select a file (PDF, image, etc.)"}</span>
+              <input
+                type="file"
+                className="hidden"
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file && attachModal) handleFileUpload(attachModal, file);
+                  e.target.value = "";
+                }}
+                data-testid="input-attachment-file"
+              />
+            </label>
+          </div>
+          <div>
+            <Label className="mb-2 block">Attached Files ({(attachModal && attachments[attachModal.id]?.length) ?? 0})</Label>
+            {attachModal && (attachments[attachModal.id]?.length ?? 0) === 0 && (
+              <p className="text-sm text-muted-foreground py-2">No attachments yet.</p>
+            )}
+            {attachModal && (attachments[attachModal.id] ?? []).map((a: any) => (
+              <div key={a.id} className="flex items-center gap-2 py-2 border-b last:border-b-0">
+                <FileText size={14} className="text-muted-foreground shrink-0" />
+                <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-sm hover:underline text-primary flex-1 truncate" data-testid={`attachment-link-${a.id}`}>
+                  {a.file_name}
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </DetailModal>
 
       {/* Map to Order dialog */}
       <DetailModal

@@ -2,6 +2,14 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, CheckCircle, XCircle, Eye, ShoppingCart, FileText, Plus } from "lucide-react";
+
+import buddhaAyurvedaLogo from "@/assets/store-logos/buddha-ayurveda.png";
+import buddhaYogaLogo from "@/assets/store-logos/buddha-yoga.png";
+import gulleeGadgetsLogo from "@/assets/store-logos/gullee-gadgets.png";
+import holidayFarmLogo from "@/assets/store-logos/holiday-farm.png";
+import superSantaLogo from "@/assets/store-logos/super-santa.png";
+import toyarinaLogo from "@/assets/store-logos/toyarina.png";
+
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +31,15 @@ import {
 
 const BRAND_COLOR = "#1A6B45";
 const PAGE_SIZE = 25;
+
+const STORE_LOGOS: Record<string, string> = {
+  "Buddha Ayurveda": buddhaAyurvedaLogo,
+  "Buddha Yoga": buddhaYogaLogo,
+  "Gullee Gadgets": gulleeGadgetsLogo,
+  "Holiday Farm": holidayFarmLogo,
+  "Super Santa": superSantaLogo,
+  "Toyarina": toyarinaLogo,
+};
 
 type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
@@ -364,10 +381,19 @@ export default function FaireOrders() {
                     </DataTD>
                     <DataTD>
                       <button
-                        className="hover:underline hover:text-primary text-muted-foreground"
+                        className="flex items-center gap-1.5 hover:underline hover:text-primary text-muted-foreground"
                         onClick={e => { e.stopPropagation(); setLocation("/faire/stores"); }}
                         data-testid={`link-store-${order.id}`}
                       >
+                        {(() => {
+                          const name = storeName(order._storeId);
+                          const logo = STORE_LOGOS[name];
+                          return logo ? (
+                            <img src={logo} alt={name} loading="lazy" decoding="async" className="w-5 h-5 rounded-full object-cover shrink-0" />
+                          ) : (
+                            <span className="w-5 h-5 rounded-full bg-muted shrink-0 inline-block" />
+                          );
+                        })()}
                         {storeName(order._storeId)}
                       </button>
                     </DataTD>

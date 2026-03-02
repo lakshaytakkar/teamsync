@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { Search, Bell, ChevronDown } from "lucide-react";
+import { Search, Bell, MessageCircle, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getPersonAvatar } from "@/lib/avatars";
@@ -36,11 +36,14 @@ function isItemActive(location: string, itemUrl: string): boolean {
 }
 
 export function TopNavigation() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { currentVertical } = useVertical();
   const navCategories = currentVertical.navCategories;
   const activeCategory = getActiveCategory(location, navCategories);
   const showSubNav = activeCategory && activeCategory.items.length > 1;
+
+  const chatUrl = navCategories.find(c => c.title === "Chat")?.defaultUrl ?? null;
+  const teamUrl = navCategories.find(c => c.title === "Team")?.defaultUrl ?? null;
 
   return (
     <div className="shrink-0 overflow-y-hidden px-16 lg:px-24 pt-3 space-y-2">
@@ -91,6 +94,30 @@ export function TopNavigation() {
             <Bell className="size-4" />
             <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-destructive animate-pulse" />
           </Button>
+
+          {chatUrl && (
+            <Button
+              size="icon"
+              variant={location === chatUrl ? "secondary" : "ghost"}
+              onClick={() => setLocation(chatUrl)}
+              data-testid="button-chat"
+              title="Chat"
+            >
+              <MessageCircle className="size-4" />
+            </Button>
+          )}
+
+          {teamUrl && (
+            <Button
+              size="icon"
+              variant={location === teamUrl ? "secondary" : "ghost"}
+              onClick={() => setLocation(teamUrl)}
+              data-testid="button-team"
+              title="Team"
+            >
+              <Users className="size-4" />
+            </Button>
+          )}
 
           <Separator orientation="vertical" className="h-5" />
 

@@ -3,8 +3,9 @@ import { useRoute, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, Printer, CheckCircle, XCircle, AlertTriangle,
-  FileText, BookOpen, ExternalLink, Truck, MapPin, Package,
+  FileText, BookOpen, ExternalLink, Truck, MapPin, Package, Mail,
 } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -103,9 +104,24 @@ export default function FaireOrderDetail() {
     },
   });
 
+  const { data: productsData } = useQuery<{ products: any[] }>({
+    queryKey: ['/api/faire/products?slim'],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/products?slim", { headers: { "Cache-Control": "no-cache" } });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
+
   const isLoading = ordersLoading || storesLoading;
   const orders = ordersData?.orders ?? [];
   const stores = storesData?.stores ?? [];
+  const allProducts = productsData?.products ?? [];
+
+  const productThumbMap: Record<string, string> = {};
+  for (const p of allProducts) {
+    if (p.id && p.thumb_url) productThumbMap[p.id] = p.thumb_url;
+  }
 
   const order = orders.find((o: any) => o.id === params?.id) ?? orders[0];
   const store = order ? stores.find((s: any) => s.id === order._storeId) : undefined;
@@ -282,7 +298,34 @@ export default function FaireOrderDetail() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {(() => {
+              const itemLines = (order.items ?? []).map((i: any) => `• ${i.product_name} ×${i.quantity}`).join("\n");
+              const total = (order.items ?? []).reduce((s: number, i: any) => s + i.price_cents * i.quantity, 0);
+              const msg = `*Faire Order #${order.display_id}*\nRetailer: ${retailerDisplayName}\nStore: ${store?.name ?? ""}\nTotal: $${(total / 100).toFixed(2)}\n\nItems:\n${itemLines}`;
+              const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+              const mailSubject = `Faire Order #${order.display_id} – Quotation Request`;
+              const mailBody = msg.replace(/\*/g, "");
+              return (
+                <>
+                  <Button
+                    variant="outline" size="sm"
+                    className="text-[#25D366] border-[#25D366]/30 hover:bg-[#25D366]/10"
+                    onClick={() => window.open(waUrl, "_blank")}
+                    data-testid="btn-share-whatsapp"
+                  >
+                    <SiWhatsapp size={13} className="mr-1.5" /> WhatsApp
+                  </Button>
+                  <Button
+                    variant="outline" size="sm"
+                    onClick={() => window.open(`mailto:?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`, "_blank")}
+                    data-testid="btn-share-email"
+                  >
+                    <Mail size={13} className="mr-1.5" /> Email
+                  </Button>
+                </>
+              );
+            })()}
             <Button variant="outline" size="sm" onClick={() => toast({ title: "Printing Packing Slip..." })} data-testid="btn-print">
               <Printer size={14} className="mr-2" /> Print Slip
             </Button>
@@ -334,6 +377,7 @@ export default function FaireOrderDetail() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b bg-muted/30">
+                      <DataTH className="w-12"></DataTH>
                       <DataTH>Product</DataTH>
                       <DataTH>SKU</DataTH>
                       <DataTH align="center">Qty</DataTH>
@@ -345,8 +389,18 @@ export default function FaireOrderDetail() {
                   <tbody className="divide-y">
                     {(order.items ?? []).map((item: any) => {
                       const isBackordered = item.state === "BACKORDERED";
+                      const thumb = productThumbMap[item.product_id] ?? null;
                       return (
                         <tr key={item.id} className={isBackordered ? "bg-amber-50/50 dark:bg-amber-950/10" : ""} data-testid={`item-row-${item.id}`}>
+                          <DataTD>
+                            <div className="w-10 h-10 rounded-md overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                              {thumb ? (
+                                <img src={thumb} alt={item.product_name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                              ) : (
+                                <Package size={16} className="text-muted-foreground/50" />
+                              )}
+                            </div>
+                          </DataTD>
                           <DataTD>
                             <p className="font-medium">{item.product_name}</p>
                             <p className="text-sm text-muted-foreground">{item.variant_name}</p>

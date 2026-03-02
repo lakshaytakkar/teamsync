@@ -16,6 +16,16 @@ import {
   getAllRetailers,
   getRetailer,
   extractAndUpsertRetailersFromOrders,
+  listVendors,
+  upsertVendor,
+  deleteVendor,
+  getProductVendors,
+  setProductVendor,
+  removeProductVendor,
+  getTransactionAttachments,
+  addTransactionAttachment,
+  uploadTransactionProof,
+  getTransactionProofUrl,
 } from "./supabase";
 import { fetchAllOrders, fetchAllProducts, fetchBrandProfile, fetchRetailerProfile, updateVariantInventory } from "./faire-api";
 
@@ -400,6 +410,88 @@ export async function registerRoutes(
     } catch {
       return res.status(502).json({ success: false, error: "Failed to reach Faire API", mock: false });
     }
+  });
+
+  // ── Vendor routes ────────────────────────────────────────────────────────────
+  app.get("/api/faire/vendors", async (_req, res) => {
+    try {
+      const vendors = await listVendors();
+      return res.json({ vendors });
+    } catch { return res.status(500).json({ error: "Failed to fetch vendors" }); }
+  });
+
+  app.post("/api/faire/vendors", async (req, res) => {
+    try {
+      const v = req.body as { id?: string; name: string; contact_name: string; email: string; whatsapp: string; is_default: boolean; notes: string };
+      const result = await upsertVendor(v);
+      if (!result) return res.status(500).json({ error: "Failed to save vendor" });
+      return res.json({ vendor: result });
+    } catch { return res.status(500).json({ error: "Failed to save vendor" }); }
+  });
+
+  app.delete("/api/faire/vendors/:id", async (req, res) => {
+    try {
+      await deleteVendor(req.params.id);
+      return res.json({ success: true });
+    } catch { return res.status(500).json({ error: "Failed to delete vendor" }); }
+  });
+
+  app.get("/api/faire/products/:productId/vendors", async (req, res) => {
+    try {
+      const vendors = await getProductVendors(req.params.productId);
+      return res.json({ vendors });
+    } catch { return res.status(500).json({ error: "Failed to fetch product vendors" }); }
+  });
+
+  app.post("/api/faire/products/:productId/vendors", async (req, res) => {
+    try {
+      const { vendor_id, is_exclusive } = req.body as { vendor_id: string; is_exclusive?: boolean };
+      await setProductVendor(req.params.productId, vendor_id, is_exclusive ?? false);
+      return res.json({ success: true });
+    } catch { return res.status(500).json({ error: "Failed to set product vendor" }); }
+  });
+
+  app.delete("/api/faire/products/:productId/vendors/:vendorId", async (req, res) => {
+    try {
+      await removeProductVendor(req.params.productId, req.params.vendorId);
+      return res.json({ success: true });
+    } catch { return res.status(500).json({ error: "Failed to remove product vendor" }); }
+  });
+
+  // ── Transaction attachment routes ─────────────────────────────────────────────
+  app.get("/api/faire/transactions/:id/attachments", async (req, res) => {
+    try {
+      const attachments = await getTransactionAttachments(req.params.id);
+      const withUrls = await Promise.all(attachments.map(async a => ({
+        ...a,
+        url: await getTransactionProofUrl(a.storage_path),
+      })));
+      return res.json({ attachments: withUrls });
+    } catch { return res.status(500).json({ error: "Failed to fetch attachments" }); }
+  });
+
+  app.post("/api/faire/transactions/:id/attachments", async (req, res) => {
+    try {
+      const chunks: Buffer[] = [];
+      req.on("data", chunk => chunks.push(chunk));
+      req.on("end", async () => {
+        const body = Buffer.concat(chunks);
+        const fileName = (req.headers["x-file-name"] as string) ?? "file";
+        const mimeType = (req.headers["content-type"] as string) ?? "application/octet-stream";
+        const storagePath = await uploadTransactionProof(req.params.id, body, fileName, mimeType);
+        if (!storagePath) return res.status(500).json({ error: "Upload failed" });
+        const attachment = await addTransactionAttachment({
+          transaction_id: req.params.id,
+          file_name: fileName,
+          storage_path: storagePath,
+          file_size_bytes: body.length,
+          mime_type: mimeType,
+        });
+        if (!attachment) return res.status(500).json({ error: "Failed to record attachment" });
+        const url = await getTransactionProofUrl(storagePath);
+        return res.json({ attachment: { ...attachment, url } });
+      });
+    } catch { return res.status(500).json({ error: "Failed to upload attachment" }); }
   });
 
   app.post("/api/faire/stores/:storeId/set-inventory", async (req, res) => {

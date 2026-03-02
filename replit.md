@@ -41,7 +41,8 @@ Complete end-to-end order operations pipeline with 5 new pages:
 - **Quotation Detail** `/faire/quotations/:id` — 3-column layout: order context (with product images) / quotation (status timeline, fulfiller card, line items, costs) / decision panel (margin health bar, action buttons); status transitions (DRAFT→SENT→QUOTE_RECEIVED→ACCEPTED/CHALLENGED/SENT_ELSEWHERE); Challenge + Send Elsewhere dialogs
 - **Partner Portal** `/faire/partner-portal` — Fulfiller-facing quote submission UI; fulfiller selector; SENT quotations as cards with product image grids; inline quote submission form; updates quotation to QUOTE_RECEIVED
 - **Financial Ledger** `/faire/ledger` — Per-order financials; 4 stat cards; filter tabs; full table with Faire payout vs fulfiller cost vs net margin; Mark as Cleared dialog linking bank transactions
-- **Bank Transactions** `/faire/bank-transactions` — Reconciliation table; 3 stat cards; unreconciled rows amber-highlighted; Map to Order dialog; Add Transaction dialog
+- **Bank Transactions** `/faire/bank-transactions` — Reconciliation table; 3 stat cards; unreconciled rows amber-highlighted; Map to Order dialog; Add Transaction dialog; filter tabs renamed to "Faire Payouts" (CREDIT) and "Paid to Suppliers" (DEBIT); paperclip icon per row opens attachment modal (upload proof files to Supabase Storage via POST /api/faire/transactions/:id/attachments); attachment count badge on icon
+- **Vendors** `/faire/vendors` — Full CRUD vendor directory; Add/Edit modal with name, contact, email, WhatsApp, notes, default flag; default vendor KPI card; WhatsApp clickable links; vendor assignment badge; registered under Quotations nav section
 
 **Real Faire API integration (server/routes.ts):**
 - `GET /api/faire/stores` — lists all active stores (id + name + last_synced_at, credentials never leave server)
@@ -73,9 +74,11 @@ Complete end-to-end order operations pipeline with 5 new pages:
 
 **All 18 Faire frontend pages migrated to real API data via TanStack Query (zero mock-data-faire imports):**
 - **dashboard.tsx** — stores + orders + products via useQuery; computes revenue, pending fulfillment, unique retailers from real data; store cards with per-store stats grouped by `_storeId`; recent orders + top products sections
-- **orders.tsx** — all orders from `/api/faire/orders`; per-store filtering; Accept/Cancel use `order._storeId`; quotation cross-references from mock-data-faire-ops
-- **products.tsx** — slim endpoint `/api/faire/products?slim` (~1.9MB); all 3022 products across 4 stores; SKU column; product thumbnail images from CDN; store/lifecycle/sale-state filters; search by name or SKU; pagination 50/page; bulk inventory update
-- **order-detail.tsx** — full order data; Accept/Cancel/Add Shipment call real Faire API; quotation/fulfiller/ledger panels from mock-data-faire-ops
+- **orders.tsx** — all orders from `/api/faire/orders`; per-store filtering; Accept/Cancel use `order._storeId`; quotation cross-references from mock-data-faire-ops; store logo (20×20 rounded) shown next to store name in table (STORE_LOGOS map keyed by store name)
+- **products.tsx** — slim endpoint `/api/faire/products?slim` (~1.9MB); all 3022 products across 4 stores; SKU column; product thumbnail images from CDN; store/lifecycle/sale-state filters; search by name or SKU; pagination 50/page; bulk inventory update; Vendor column with "Assign" button per row → opens modal to select vendor + exclusive toggle; uses /api/faire/products/:id/vendors
+- **order-detail.tsx** — full order data; Accept/Cancel/Add Shipment call real Faire API; quotation/fulfiller/ledger panels from mock-data-faire-ops; WhatsApp + Email share buttons in header; 40×40 product thumbnails in items table (cross-referenced from /api/faire/products?slim)
+- **analytics.tsx** — WhatsApp + Email share buttons in page header that generate summary text with KPIs
+- **bank-transactions.tsx** — filter tabs renamed to "Faire Payouts"/"Paid to Suppliers"; paperclip button per row opens attachment upload modal backed by Supabase Storage
 - **product-detail.tsx** — full product data with image gallery; category from `taxonomy_type.name`; reviews fallback
 - **inventory.tsx** — slim products; variant-level inventory with store filter
 - **pricing.tsx** — slim products; variant pricing with DataTH/DataTD/DataTR + pagination; prepacks table also normalized; prepacks kept as local mock

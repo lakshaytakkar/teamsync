@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, Mail } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { useQuery } from "@tanstack/react-query";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -147,7 +148,30 @@ export default function FaireAnalytics() {
             <h1 className="text-2xl font-bold font-heading">Analytics</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Marketplace performance across all stores</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            {(() => {
+              const summary = `*Faire Analytics*\nStores: ${stores.length}\nOrders: ${totalOrders}\nRevenue: $${totalRevenue >= 1000 ? `${(totalRevenue / 1000).toFixed(1)}K` : totalRevenue.toFixed(0)}\nRetailers: ${uniqueRetailers}\nUnits Sold: ${unitsSold}\nCancel Rate: ${cancelRate}%`;
+              return (
+                <>
+                  <button
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border text-[#25D366] border-[#25D366]/30 hover:bg-[#25D366]/10 transition-colors"
+                    onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(summary)}`, "_blank")}
+                    title="Share on WhatsApp"
+                    data-testid="btn-analytics-share-whatsapp"
+                  >
+                    <SiWhatsapp size={15} />
+                  </button>
+                  <button
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border hover:bg-muted transition-colors text-muted-foreground"
+                    onClick={() => window.open(`mailto:?subject=${encodeURIComponent("Faire Analytics Summary")}&body=${encodeURIComponent(summary.replace(/\*/g, ""))}`, "_blank")}
+                    title="Share via Email"
+                    data-testid="btn-analytics-share-email"
+                  >
+                    <Mail size={15} />
+                  </button>
+                </>
+              );
+            })()}
             <div className="flex gap-1">
               {(["7d", "30d", "month", "3m"] as const).map(t => (
                 <button key={t} onClick={() => setTimeFilter(t)} className={`px-3 py-1 text-xs rounded-lg border transition-colors ${timeFilter === t ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={timeFilter === t ? { background: BRAND_COLOR } : {}} data-testid={`filter-time-${t}`}>

@@ -317,3 +317,121 @@ export async function getStoreCounts(storeId: string): Promise<{
   if (rows.length === 0) return { total_orders: 0, total_products: 0, new_orders: 0 };
   return rows[0];
 }
+
+// ── Vendor helpers ─────────────────────────────────────────────────────────────
+
+export interface FaireVendor {
+  id: string;
+  name: string;
+  contact_name: string;
+  email: string;
+  whatsapp: string;
+  is_default: boolean;
+  notes: string;
+  created_at: string;
+}
+
+export async function listVendors(): Promise<FaireVendor[]> {
+  const { data, error } = await supabase.rpc("faire_list_vendors");
+  if (error) { console.error("[supabase] listVendors error:", error.message); return []; }
+  return (data as FaireVendor[]) ?? [];
+}
+
+export async function upsertVendor(vendor: {
+  id?: string;
+  name: string;
+  contact_name: string;
+  email: string;
+  whatsapp: string;
+  is_default: boolean;
+  notes: string;
+}): Promise<FaireVendor | null> {
+  const { data, error } = await supabase.rpc("faire_upsert_vendor", {
+    p_id: vendor.id ?? null,
+    p_name: vendor.name,
+    p_contact_name: vendor.contact_name,
+    p_email: vendor.email,
+    p_whatsapp: vendor.whatsapp,
+    p_is_default: vendor.is_default,
+    p_notes: vendor.notes,
+  });
+  if (error) { console.error("[supabase] upsertVendor error:", error.message); return null; }
+  return data as FaireVendor;
+}
+
+export async function deleteVendor(id: string): Promise<void> {
+  const { error } = await supabase.rpc("faire_delete_vendor", { p_id: id });
+  if (error) console.error("[supabase] deleteVendor error:", error.message);
+}
+
+export async function getProductVendors(productId: string): Promise<{ vendor_id: string; vendor_name: string; is_exclusive: boolean }[]> {
+  const { data, error } = await supabase.rpc("faire_get_product_vendors", { p_product_id: productId });
+  if (error) { console.error("[supabase] getProductVendors error:", error.message); return []; }
+  return (data as { vendor_id: string; vendor_name: string; is_exclusive: boolean }[]) ?? [];
+}
+
+export async function setProductVendor(productId: string, vendorId: string, isExclusive: boolean): Promise<void> {
+  const { error } = await supabase.rpc("faire_set_product_vendor", {
+    p_product_id: productId,
+    p_vendor_id: vendorId,
+    p_is_exclusive: isExclusive,
+  });
+  if (error) console.error("[supabase] setProductVendor error:", error.message);
+}
+
+export async function removeProductVendor(productId: string, vendorId: string): Promise<void> {
+  const { error } = await supabase.rpc("faire_remove_product_vendor", {
+    p_product_id: productId,
+    p_vendor_id: vendorId,
+  });
+  if (error) console.error("[supabase] removeProductVendor error:", error.message);
+}
+
+// ── Transaction attachment helpers ─────────────────────────────────────────────
+
+export interface TransactionAttachment {
+  id: string;
+  transaction_id: string;
+  file_name: string;
+  storage_path: string;
+  file_size_bytes: number | null;
+  mime_type: string | null;
+  uploaded_at: string;
+}
+
+export async function getTransactionAttachments(transactionId: string): Promise<TransactionAttachment[]> {
+  const { data, error } = await supabase.rpc("faire_get_transaction_attachments", { p_transaction_id: transactionId });
+  if (error) { console.error("[supabase] getTransactionAttachments error:", error.message); return []; }
+  return (data as TransactionAttachment[]) ?? [];
+}
+
+export async function addTransactionAttachment(params: {
+  transaction_id: string;
+  file_name: string;
+  storage_path: string;
+  file_size_bytes: number;
+  mime_type: string;
+}): Promise<TransactionAttachment | null> {
+  const { data, error } = await supabase.rpc("faire_add_transaction_attachment", {
+    p_transaction_id: params.transaction_id,
+    p_file_name: params.file_name,
+    p_storage_path: params.storage_path,
+    p_file_size_bytes: params.file_size_bytes,
+    p_mime_type: params.mime_type,
+  });
+  if (error) { console.error("[supabase] addTransactionAttachment error:", error.message); return null; }
+  return data as TransactionAttachment;
+}
+
+export async function uploadTransactionProof(transactionId: string, file: Buffer, fileName: string, mimeType: string): Promise<string | null> {
+  const path = `${transactionId}/${Date.now()}-${fileName}`;
+  const { error } = await supabase.storage.from("transaction-proofs").upload(path, file, { contentType: mimeType, upsert: false });
+  if (error) { console.error("[supabase] uploadTransactionProof error:", error.message); return null; }
+  return path;
+}
+
+export async function getTransactionProofUrl(storagePath: string): Promise<string | null> {
+  const { data, error } = await supabase.storage.from("transaction-proofs").createSignedUrl(storagePath, 3600);
+  if (error) { console.error("[supabase] getTransactionProofUrl error:", error.message); return null; }
+  return data.signedUrl;
+}

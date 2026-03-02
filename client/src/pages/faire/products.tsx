@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, Pencil, Package, RefreshCw } from "lucide-react";
+import { Plus, Trash2, Pencil, Package, RefreshCw, Building2 } from "lucide-react";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { DualCurrency, formatUSD, formatINR } from "@/lib/faire-currency";
 import { apiRequest } from "@/lib/queryClient";
@@ -83,11 +84,25 @@ export default function FaireProducts() {
   const [syncing, setSyncing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 50;
+  const [assignModal, setAssignModal] = useState<{ productId: string; productName: string } | null>(null);
+  const [assignVendorId, setAssignVendorId] = useState("");
+  const [assignExclusive, setAssignExclusive] = useState(false);
+  const [productVendors, setProductVendors] = useState<Record<string, string>>({});
 
   const { data: storesData } = useQuery<{ stores: FaireStore[] }>({
     queryKey: ["/api/faire/stores"],
   });
   const stores = storesData?.stores ?? [];
+
+  const { data: vendorsData } = useQuery<{ vendors: { id: string; name: string; is_default: boolean }[] }>({
+    queryKey: ["/api/faire/vendors"],
+    queryFn: async () => {
+      const res = await fetch("/api/faire/vendors");
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return res.json();
+    },
+  });
+  const vendors = vendorsData?.vendors ?? [];
 
   const { data: productsData, isLoading: productsLoading } = useQuery<{ products: FaireProduct[] }>({
     queryKey: ["/api/faire/products?slim"],
@@ -171,6 +186,37 @@ export default function FaireProducts() {
   };
 
   const storeName = (storeId: string) => stores.find(s => s.id === storeId)?.name ?? storeId;
+
+  async function openAssign(productId: string, productName: string) {
+    setAssignModal({ productId, productName });
+    setAssignVendorId(productVendors[productId] ?? "");
+    setAssignExclusive(false);
+    try {
+      const res = await fetch(`/api/faire/products/${productId}/vendors`);
+      const data = await res.json();
+      if (data.vendors?.length > 0) {
+        setAssignVendorId(data.vendors[0].vendor_id);
+        setAssignExclusive(data.vendors[0].is_exclusive ?? false);
+      }
+    } catch { /* silently ignore */ }
+  }
+
+  async function confirmAssign() {
+    if (!assignModal) return;
+    if (!assignVendorId) {
+      toast({ title: "Select a vendor", variant: "destructive" });
+      return;
+    }
+    try {
+      await apiRequest("POST", `/api/faire/products/${assignModal.productId}/vendors`, { vendor_id: assignVendorId, is_exclusive: assignExclusive });
+      const vendorName = vendors.find(v => v.id === assignVendorId)?.name ?? "";
+      setProductVendors(prev => ({ ...prev, [assignModal.productId]: vendorName }));
+      toast({ title: "Vendor assigned", description: `${vendorName} assigned to ${assignModal.productName}` });
+      setAssignModal(null);
+    } catch {
+      toast({ title: "Failed to assign vendor", variant: "destructive" });
+    }
+  }
 
   if (productsLoading) {
     return (
@@ -275,6 +321,7 @@ export default function FaireProducts() {
                   <DataTH>Retail</DataTH>
                   <DataTH>MOQ / Case</DataTH>
                   <DataTH>State</DataTH>
+                  <DataTH>Vendor</DataTH>
                   <DataTH align="right">Actions</DataTH>
                 </tr>
               </thead>
@@ -361,6 +408,27 @@ export default function FaireProducts() {
                           <span className="text-[10px] px-1.5 py-0.5 rounded font-medium uppercase tracking-tighter" style={{ background: sc.bg, color: sc.text }}>{product.sale_state === "FOR_SALE" ? "For Sale" : "Paused"}</span>
                         </div>
                       </DataTD>
+                      <DataTD onClick={e => e.stopPropagation()}>
+                        {productVendors[product.id] ? (
+                          <button
+                            onClick={() => openAssign(product.id, product.name)}
+                            className="flex items-center gap-1 text-xs text-primary hover:underline"
+                            data-testid={`btn-vendor-${product.id}`}
+                          >
+                            <Building2 size={11} />
+                            {productVendors[product.id]}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => openAssign(product.id, product.name)}
+                            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 hover:underline"
+                            data-testid={`btn-assign-vendor-${product.id}`}
+                          >
+                            <Building2 size={11} />
+                            {vendors.find(v => v.is_default)?.name ? `Default` : "Assign"}
+                          </button>
+                        )}
+                      </DataTD>
                       <DataTD align="right" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1">
                           <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setLocation(`/faire/products/${product.id}`)} data-testid={`btn-view-product-${product.id}`}><Pencil size={14} /></Button>
@@ -418,6 +486,60 @@ export default function FaireProducts() {
           </div>
         </div>
       )}
+
+      {/* Vendor Assignment Modal */}
+      <DetailModal
+        open={!!assignModal}
+        onClose={() => setAssignModal(null)}
+        title="Assign Vendor"
+        subtitle={`Select a supplier for: ${assignModal?.productName ?? ""}`}
+        footer={
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={() => setAssignModal(null)}>Cancel</Button>
+            <Button onClick={confirmAssign} style={{ background: BRAND_COLOR }} className="text-white" data-testid="btn-confirm-assign-vendor">
+              Assign Vendor
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <Label className="mb-2 block">Vendor</Label>
+            {vendors.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No vendors available. Add vendors first from the Vendors page.</p>
+            ) : (
+              <div className="space-y-2">
+                {vendors.map(v => (
+                  <label key={v.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-muted/50 ${assignVendorId === v.id ? "border-primary bg-primary/5" : ""}`}>
+                    <input
+                      type="radio"
+                      name="vendor"
+                      value={v.id}
+                      checked={assignVendorId === v.id}
+                      onChange={() => setAssignVendorId(v.id)}
+                      className="w-4 h-4"
+                      data-testid={`radio-vendor-${v.id}`}
+                    />
+                    <div>
+                      <p className="text-sm font-medium">{v.name}</p>
+                      {v.is_default && <span className="text-[10px] text-amber-600 font-semibold">DEFAULT</span>}
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+          {vendors.length > 0 && (
+            <label className="flex items-center gap-2 cursor-pointer select-none" data-testid="checkbox-exclusive">
+              <input type="checkbox" checked={assignExclusive} onChange={e => setAssignExclusive(e.target.checked)} className="w-4 h-4 rounded" />
+              <div>
+                <p className="text-sm font-medium">Exclusive assignment</p>
+                <p className="text-xs text-muted-foreground">Only this vendor can quote for this product</p>
+              </div>
+            </label>
+          )}
+        </div>
+      </DetailModal>
 
       <DetailModal
         open={!!deleteId}

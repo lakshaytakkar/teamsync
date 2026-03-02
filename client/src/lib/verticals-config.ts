@@ -871,6 +871,7 @@ export const verticals: Vertical[] = [
         items: [
           { title: "All Quotations", url: "/faire/quotations" },
           { title: "Partner Portal", url: "/faire/partner-portal" },
+          { title: "Vendors", url: "/faire/vendors" },
         ],
       },
       {
