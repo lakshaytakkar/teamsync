@@ -57,7 +57,7 @@ export function TopNavigation() {
           <Separator orientation="vertical" className="h-6 hidden sm:block" />
 
           <nav className="flex items-center gap-0.5 overflow-x-auto overflow-y-hidden scrollbar-hide" data-testid="nav-level-1">
-            {navCategories.map((cat) => {
+            {navCategories.filter(cat => cat.title !== "Chat" && cat.title !== "Team").map((cat) => {
               const isActive = activeCategory?.title === cat.title;
               return (
                 <Link

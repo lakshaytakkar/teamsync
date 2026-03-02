@@ -196,12 +196,10 @@ export default function FaireApplications() {
       />
 
       <Fade>
-        <StatGrid cols={3}>
-          <StatCard label="Total Applications" value={String(counts.total)} icon={ClipboardList} iconBg="#F0FDF4" iconColor={BRAND_COLOR} />
+        <StatGrid cols={6}>
+          <StatCard label="Total" value={String(counts.total)} icon={ClipboardList} iconBg="#F0FDF4" iconColor={BRAND_COLOR} />
           <StatCard label="Drafting" value={String(counts.drafting)} icon={Clock} iconBg="#F8FAFC" iconColor="#64748B" />
           <StatCard label="Applied" value={String(counts.applied)} icon={ClipboardList} iconBg="#EFF6FF" iconColor="#2563EB" />
-        </StatGrid>
-        <StatGrid cols={3}>
           <StatCard label="Pending Docs" value={String(counts.pending_docs)} icon={AlertTriangle} iconBg="#FFFBEB" iconColor="#D97706" />
           <StatCard label="Approved" value={String(counts.approved)} icon={CheckCircle2} iconBg="#F0FDF4" iconColor="#16A34A" />
           <StatCard label="Rejected" value={String(counts.rejected)} icon={XCircle} iconBg="#FEF2F2" iconColor="#DC2626" />
