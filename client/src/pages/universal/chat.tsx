@@ -109,10 +109,11 @@ export default function UniversalChat() {
   if (!vertical) return <div>Vertical not found</div>;
 
   return (
-    <PageTransition className="flex h-full overflow-hidden">
+    <PageTransition className="px-16 lg:px-24 py-6 h-full flex flex-col min-h-0">
+      <div className="flex flex-1 rounded-xl border bg-card overflow-hidden min-h-0">
       {/* Left Sidebar - Pattern I: aside.w-64 */}
       <aside 
-        className="w-64 shrink-0 flex flex-col bg-card border-r overflow-hidden"
+        className="w-64 shrink-0 flex flex-col border-r overflow-hidden"
       >
         <div className="p-4 border-b space-y-4">
           <h2 className="text-base font-semibold">Team Chat</h2>
@@ -319,6 +320,7 @@ export default function UniversalChat() {
           </div>
         )}
       </main>
+      </div>
     </PageTransition>
   );
 }
