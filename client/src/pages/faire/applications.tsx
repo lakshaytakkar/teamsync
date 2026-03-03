@@ -17,6 +17,7 @@ import {
   PageShell, PageHeader, StatGrid, StatCard,
   DataTableContainer, DataTH, DataTD, DataTR, DetailModal,
 } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -24,7 +25,6 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 
-const BRAND_COLOR = "#1A6B45";
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; icon: typeof Clock }> = {
   drafting:     { label: "Drafting",      bg: "bg-slate-100",  text: "text-slate-700",  icon: Clock },
@@ -188,7 +188,7 @@ export default function FaireApplications() {
             <Button variant="outline" size="sm" onClick={() => setVideoOpen(true)} data-testid="btn-open-video">
               <PlayCircle size={14} className="mr-1.5" /> Tutorial
             </Button>
-            <Button onClick={openAdd} style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" data-testid="btn-new-application">
+            <Button onClick={openAdd} style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" data-testid="btn-new-application">
               <Plus size={15} className="mr-1.5" /> New Application
             </Button>
           </div>
@@ -197,7 +197,7 @@ export default function FaireApplications() {
 
       <Fade>
         <StatGrid cols={6}>
-          <StatCard label="Total" value={String(counts.total)} icon={ClipboardList} iconBg="#F0FDF4" iconColor={BRAND_COLOR} />
+          <StatCard label="Total" value={String(counts.total)} icon={ClipboardList} iconBg="#F0FDF4" iconColor={FAIRE_COLOR} />
           <StatCard label="Drafting" value={String(counts.drafting)} icon={Clock} iconBg="#F8FAFC" iconColor="#64748B" />
           <StatCard label="Applied" value={String(counts.applied)} icon={ClipboardList} iconBg="#EFF6FF" iconColor="#2563EB" />
           <StatCard label="Pending Docs" value={String(counts.pending_docs)} icon={AlertTriangle} iconBg="#FFFBEB" iconColor="#D97706" />
@@ -262,7 +262,7 @@ export default function FaireApplications() {
                     <DataTR key={a.id} onClick={() => setLocation(`/faire/applications/${a.id}`)} data-testid={`row-application-${a.id}`}>
                       <DataTD>
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: BRAND_COLOR }}>
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: FAIRE_COLOR }}>
                             {a.brand_name.charAt(0).toUpperCase()}
                           </div>
                           <p className="font-medium">{a.brand_name}</p>
@@ -303,7 +303,7 @@ export default function FaireApplications() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
-            <Button onClick={() => createMutation.mutate()} style={{ background: BRAND_COLOR }} className="text-white" disabled={createMutation.isPending} data-testid="btn-create-application">
+            <Button onClick={() => createMutation.mutate()} style={{ background: FAIRE_COLOR }} className="text-white" disabled={createMutation.isPending} data-testid="btn-create-application">
               {createMutation.isPending ? "Creating…" : "Create Application"}
             </Button>
           </div>
@@ -379,7 +379,7 @@ export default function FaireApplications() {
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <BookOpen size={18} style={{ color: BRAND_COLOR }} /> Faire Seller Account Application — SOP
+              <BookOpen size={18} style={{ color: FAIRE_COLOR }} /> Faire Seller Account Application — SOP
             </DialogTitle>
             <DialogDescription>
               Standard Operating Procedure for getting a new Faire wholesale seller account approved.
@@ -388,7 +388,7 @@ export default function FaireApplications() {
           <div className="space-y-4 mt-2">
             {SOP_STEPS.map(step => (
               <div key={step.n} className="flex gap-3">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 mt-0.5" style={{ background: BRAND_COLOR }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 mt-0.5" style={{ background: FAIRE_COLOR }}>
                   {step.n}
                 </div>
                 <div className="flex-1">
@@ -408,7 +408,7 @@ export default function FaireApplications() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
-                style={{ color: BRAND_COLOR }}
+                style={{ color: FAIRE_COLOR }}
               >
                 <ExternalLink size={13} /> Open Faire Registration Page
               </a>
@@ -422,7 +422,7 @@ export default function FaireApplications() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <PlayCircle size={18} style={{ color: BRAND_COLOR }} /> Faire Seller Account — Video Tutorial
+              <PlayCircle size={18} style={{ color: FAIRE_COLOR }} /> Faire Seller Account — Video Tutorial
             </DialogTitle>
             <DialogDescription>
               Step-by-step walkthrough of the entire application process.

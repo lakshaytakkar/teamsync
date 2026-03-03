@@ -19,8 +19,8 @@ import {
   PageShell, PageHeader, StatGrid, StatCard, IndexToolbar,
   DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR, DetailModal,
 } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 
-const BRAND_COLOR = "#1A6B45";
 const WISE_GREEN = "#9FE870";
 const MERCURY_TEAL = "#00B8A9";
 
@@ -115,7 +115,7 @@ function TagEditor({
             className="text-[11px] px-2 py-0.5 rounded-full border transition-all"
             style={
               tags.includes(pt)
-                ? { background: BRAND_COLOR, color: "#fff", borderColor: BRAND_COLOR }
+                ? { background: FAIRE_COLOR, color: "#fff", borderColor: FAIRE_COLOR }
                 : { background: "transparent", color: "var(--muted-foreground)", borderColor: "var(--border)" }
             }
           >
@@ -642,7 +642,7 @@ export default function FaireBankTransactions() {
           subtitle="Credit and debit transaction log for reconciliation"
           actions={
             bankView === "faire" ? (
-              <Button onClick={() => setAddModal(true)} style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" data-testid="button-add-transaction">
+              <Button onClick={() => setAddModal(true)} style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" data-testid="button-add-transaction">
                 <Plus className="h-4 w-4 mr-1" /> Add Transaction
               </Button>
             ) : undefined
@@ -659,7 +659,7 @@ export default function FaireBankTransactions() {
                 key={tab.id}
                 onClick={() => setBankView(tab.id)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                style={active ? { background: BRAND_COLOR, color: "#fff" } : { color: "var(--muted-foreground)", background: "transparent" }}
+                style={active ? { background: FAIRE_COLOR, color: "#fff" } : { color: "var(--muted-foreground)", background: "transparent" }}
                 data-testid={`bank-tab-${tab.id}`}
               >
                 {tab.icon}
@@ -687,7 +687,7 @@ export default function FaireBankTransactions() {
               search={search}
               onSearch={setSearch}
               placeholder="Search by description or reference…"
-              color={BRAND_COLOR}
+              color={FAIRE_COLOR}
               filters={[
                 { value: "all", label: "All" },
                 { value: "credit", label: "Faire Payouts" },
@@ -793,7 +793,7 @@ export default function FaireBankTransactions() {
                             >
                               <Paperclip size={13} />
                               {(attachments[t.id]?.length ?? 0) > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center text-white" style={{ background: BRAND_COLOR }}>
+                                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center text-white" style={{ background: FAIRE_COLOR }}>
                                   {attachments[t.id].length}
                                 </span>
                               )}
@@ -851,7 +851,7 @@ export default function FaireBankTransactions() {
                 <Button variant="outline" onClick={() => setMapModal(null)}>Cancel</Button>
                 <Button
                   onClick={() => mapModal && mapOrderId && mapToOrder.mutate({ id: mapModal.id, faire_order_id: mapOrderId })}
-                  style={{ background: BRAND_COLOR }} className="text-white"
+                  style={{ background: FAIRE_COLOR }} className="text-white"
                   disabled={!mapOrderId || mapToOrder.isPending}
                   data-testid="button-confirm-map"
                 >
@@ -897,7 +897,7 @@ export default function FaireBankTransactions() {
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setEditModal(null)}>Cancel</Button>
                 <Button
-                  style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90"
+                  style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90"
                   onClick={() => editModal && saveEdit.mutate({ id: editModal.id, tags: editTags, notes: editNotes, category: editCategory })}
                   disabled={saveEdit.isPending}
                   data-testid="btn-save-edit"
@@ -932,7 +932,7 @@ export default function FaireBankTransactions() {
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setAddModal(false)}>Cancel</Button>
                 <Button
-                  style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90"
+                  style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90"
                   disabled={addTransaction.isPending}
                   onClick={() => {
                     if (!addDate || !addAmount || !addRef || !addDesc || !addBank) { toast({ title: "Fill all fields", variant: "destructive" }); return; }

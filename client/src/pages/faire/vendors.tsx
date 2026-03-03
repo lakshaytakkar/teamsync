@@ -13,8 +13,8 @@ import {
   PageShell, PageHeader, StatGrid, StatCard, IndexToolbar,
   DataTableContainer, DataTH, DataTD, DataTR, DetailModal,
 } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 
-const BRAND_COLOR = "#1A6B45";
 
 interface FaireVendor {
   id: string;
@@ -105,7 +105,7 @@ export default function FaireVendors() {
         title="Vendors"
         subtitle="Supplier and fulfiller directory for Faire quotations"
         actions={
-          <Button onClick={openAdd} style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" data-testid="btn-add-vendor">
+          <Button onClick={openAdd} style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" data-testid="btn-add-vendor">
             <Plus size={15} className="mr-1.5" /> Add Vendor
           </Button>
         }
@@ -122,7 +122,7 @@ export default function FaireVendors() {
           search={search}
           onSearch={setSearch}
           placeholder="Search vendors…"
-          color={BRAND_COLOR}
+          color={FAIRE_COLOR}
         />
 
         <DataTableContainer>
@@ -150,7 +150,7 @@ export default function FaireVendors() {
                   <DataTR key={v.id} data-testid={`row-vendor-${v.id}`}>
                     <DataTD>
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: BRAND_COLOR }}>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: FAIRE_COLOR }}>
                           {v.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -217,7 +217,7 @@ export default function FaireVendors() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
-            <Button onClick={() => saveMutation.mutate()} style={{ background: BRAND_COLOR }} className="text-white" disabled={saveMutation.isPending} data-testid="btn-save-vendor">
+            <Button onClick={() => saveMutation.mutate()} style={{ background: FAIRE_COLOR }} className="text-white" disabled={saveMutation.isPending} data-testid="btn-save-vendor">
               {saveMutation.isPending ? "Saving…" : editing ? "Save Changes" : "Add Vendor"}
             </Button>
           </div>

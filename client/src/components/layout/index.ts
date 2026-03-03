@@ -16,6 +16,7 @@ export {
   DataTR,
   DetailSection,
   DetailModal,
+  InfoRow,
 } from "./page-layout";
 
 export { NotificationPanel } from "./notification-panel";

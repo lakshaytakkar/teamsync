@@ -18,6 +18,7 @@ import {
   DataTD,
   DataTR,
 } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 
 import buddhaAyurvedaLogo from "@/assets/store-logos/buddha-ayurveda.png";
 import buddhaYogaLogo from "@/assets/store-logos/buddha-yoga.png";
@@ -26,7 +27,6 @@ import holidayFarmLogo from "@/assets/store-logos/holiday-farm.png";
 import superSantaLogo from "@/assets/store-logos/super-santa.png";
 import toyarinaLogo from "@/assets/store-logos/toyarina.png";
 
-const BRAND_COLOR = "#1A6B45";
 
 const STORE_LOGOS: Record<string, string> = {
   "Buddha Ayurveda": buddhaAyurvedaLogo,
@@ -189,7 +189,7 @@ export default function FaireStores() {
             trend={formatINR(globalTotalRevenue)}
             icon={DollarSign}
             iconBg="#ECFDF5"
-            iconColor={BRAND_COLOR}
+            iconColor={FAIRE_COLOR}
           />
           <StatCard
             label="Total Orders"
@@ -252,7 +252,7 @@ export default function FaireStores() {
                         ) : (
                           <div
                             className="size-12 rounded-xl flex items-center justify-center text-white text-lg font-bold shrink-0 shadow-sm"
-                            style={{ background: BRAND_COLOR }}
+                            style={{ background: FAIRE_COLOR }}
                           >
                             {store.name.charAt(0)}
                           </div>

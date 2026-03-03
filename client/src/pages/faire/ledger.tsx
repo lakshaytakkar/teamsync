@@ -17,8 +17,8 @@ import {
   PageShell, PageHeader, StatGrid, StatCard, IndexToolbar,
   DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR, DetailModal,
 } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 
-const BRAND_COLOR = "#1A6B45";
 
 const STATUS_CONFIG: Record<LedgerPaymentStatus, { label: string; color: string; bg: string }> = {
   PENDING:        { label: "Pending",        color: "#D97706", bg: "#FFFBEB" },
@@ -118,7 +118,7 @@ export default function FaireLedger() {
 
       <Fade>
         <StatGrid cols={4}>
-          <StatCard label="Faire Receivable" value={isLoading ? "—" : formatUSD(totalReceivable)} trend={isLoading ? undefined : formatINR(totalReceivable)} icon={BookOpen} iconBg="#F0FDF4" iconColor={BRAND_COLOR} />
+          <StatCard label="Faire Receivable" value={isLoading ? "—" : formatUSD(totalReceivable)} trend={isLoading ? undefined : formatINR(totalReceivable)} icon={BookOpen} iconBg="#F0FDF4" iconColor={FAIRE_COLOR} />
           <StatCard label="Fulfiller Payable" value={isLoading ? "—" : formatUSD(totalPayable)} trend={isLoading ? undefined : formatINR(totalPayable)} icon={BookOpen} iconBg="#FEF2F2" iconColor="#DC2626" />
           <StatCard label="Net Profit (Cleared)" value={isLoading ? "—" : formatUSD(netProfit)} trend={isLoading ? undefined : formatINR(netProfit)} icon={BookOpen} iconBg="#ECFDF5" iconColor="#059669" />
           <StatCard label="Pending Reconciliation" value={isLoading ? "—" : String(pendingRecon)} icon={BookOpen} iconBg="#FFFBEB" iconColor="#D97706" />
@@ -128,7 +128,7 @@ export default function FaireLedger() {
           search={search}
           onSearch={setSearch}
           placeholder="Search by order display ID…"
-          color={BRAND_COLOR}
+          color={FAIRE_COLOR}
           filters={STATUS_TABS.map(s => ({ value: s, label: STATUS_LABELS[s] }))}
           activeFilter={statusFilter}
           onFilter={s => setStatusFilter(s as LedgerPaymentStatus | "all")}
@@ -259,7 +259,7 @@ export default function FaireLedger() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setClearModal(null)}>Cancel</Button>
-            <Button onClick={confirmClear} style={{ background: BRAND_COLOR }} className="text-white" data-testid="button-confirm-clear">
+            <Button onClick={confirmClear} style={{ background: FAIRE_COLOR }} className="text-white" data-testid="button-confirm-clear">
               Confirm Cleared
             </Button>
           </div>

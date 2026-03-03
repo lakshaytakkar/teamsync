@@ -16,11 +16,11 @@ import {
   faireQuotations, type FaireQuotation, type QuotationStatus,
 } from "@/lib/mock-data-faire-ops";
 import { DetailModal } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
-const BRAND_COLOR = "#1A6B45";
 
 const STATUS_CONFIG: Record<QuotationStatus, { label: string; color: string; bg: string }> = {
   DRAFT:          { label: "Draft",          color: "#6B7280", bg: "#F9FAFB" },
@@ -65,13 +65,13 @@ function StepTimeline({ status }: { status: QuotationStatus }) {
               </span>
             </div>
             {i < steps.length - 1 && (
-              <div className="flex-1 h-0.5 mx-2 mb-6" style={{ background: i < terminalIndex ? BRAND_COLOR : "var(--border)" }} />
+              <div className="flex-1 h-0.5 mx-2 mb-6" style={{ background: i < terminalIndex ? FAIRE_COLOR : "var(--border)" }} />
             )}
           </div>
         );
       })}
       <div className="flex items-center flex-1">
-        <div className="flex-1 h-0.5 mx-2 mb-6" style={{ background: ["ACCEPTED", "CHALLENGED", "SENT_ELSEWHERE"].includes(status) ? BRAND_COLOR : "var(--border)" }} />
+        <div className="flex-1 h-0.5 mx-2 mb-6" style={{ background: ["ACCEPTED", "CHALLENGED", "SENT_ELSEWHERE"].includes(status) ? FAIRE_COLOR : "var(--border)" }} />
         <div className="flex flex-col items-center">
           {(["ACCEPTED", "CHALLENGED", "SENT_ELSEWHERE"] as QuotationStatus[]).includes(status) ? (
             <>
@@ -299,7 +299,7 @@ export default function FaireQuotationDetail() {
                     </div>
                     <div className="flex justify-between border-t pt-2 font-semibold text-sm text-foreground">
                       <span>Net Payout</span>
-                      <span style={{ color: BRAND_COLOR }}><DualCurrency cents={fairePayout} /></span>
+                      <span style={{ color: FAIRE_COLOR }}><DualCurrency cents={fairePayout} /></span>
                     </div>
                   </div>
                 </>
@@ -328,7 +328,7 @@ export default function FaireQuotationDetail() {
                 <div className="flex items-start gap-4">
                   <div
                     className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-base shrink-0"
-                    style={{ background: BRAND_COLOR }}
+                    style={{ background: FAIRE_COLOR }}
                   >
                     {fulfiller.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2)}
                   </div>
@@ -416,7 +416,7 @@ export default function FaireQuotationDetail() {
                   )}
                   <tr className="font-semibold border-t">
                     <td colSpan={3} className="py-3 text-right text-base">Total</td>
-                    <td className="py-3 text-right text-base" style={{ color: BRAND_COLOR }}>
+                    <td className="py-3 text-right text-base" style={{ color: FAIRE_COLOR }}>
                       {fulfillerTotal > 0 ? <DualCurrency cents={fulfillerTotal} /> : "—"}
                     </td>
                   </tr>
@@ -456,7 +456,7 @@ export default function FaireQuotationDetail() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Faire Net Payout</span>
-                  <span className="font-semibold text-base" style={{ color: BRAND_COLOR }}>
+                  <span className="font-semibold text-base" style={{ color: FAIRE_COLOR }}>
                     {fairePayout > 0 ? <DualCurrency cents={fairePayout} /> : "—"}
                   </span>
                 </div>
@@ -502,7 +502,7 @@ export default function FaireQuotationDetail() {
               <div className="font-semibold text-base mb-4">Actions</div>
 
               {quotation.status === "DRAFT" && (
-                <Button className="w-full text-white" style={{ background: BRAND_COLOR }} onClick={handleSend} data-testid="button-send-to-fulfiller">
+                <Button className="w-full text-white" style={{ background: FAIRE_COLOR }} onClick={handleSend} data-testid="button-send-to-fulfiller">
                   <Send className="h-4 w-4 mr-2" /> Send to Fulfiller
                 </Button>
               )}
@@ -518,7 +518,7 @@ export default function FaireQuotationDetail() {
 
               {quotation.status === "QUOTE_RECEIVED" && (
                 <div className="space-y-2.5">
-                  <Button className="w-full text-white" style={{ background: BRAND_COLOR }} onClick={handleAccept} data-testid="button-accept-quote">
+                  <Button className="w-full text-white" style={{ background: FAIRE_COLOR }} onClick={handleAccept} data-testid="button-accept-quote">
                     <CheckCircle className="h-4 w-4 mr-2" /> Accept Quote
                   </Button>
                   <Button variant="outline" className="w-full border-orange-300 text-orange-600 hover:bg-orange-50" onClick={() => setChallengeDialog(true)} data-testid="button-challenge-quote">
@@ -628,7 +628,7 @@ export default function FaireQuotationDetail() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setElsewhereDialog(false)}>Cancel</Button>
-            <Button onClick={handleSendElsewhere} style={{ background: BRAND_COLOR }} className="text-white" data-testid="button-confirm-elsewhere">
+            <Button onClick={handleSendElsewhere} style={{ background: FAIRE_COLOR }} className="text-white" data-testid="button-confirm-elsewhere">
               Create New Draft
             </Button>
           </div>

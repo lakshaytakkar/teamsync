@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DetailModal } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 import { useToast } from "@/hooks/use-toast";
 import { DualCurrency } from "@/lib/faire-currency";
 
-const BRAND_COLOR = "#1A6B45";
 
 type ProductLifecycleState = "PUBLISHED" | "DRAFT" | "UNPUBLISHED" | "DELETED";
 type ProductSaleState = "FOR_SALE" | "SALES_PAUSED";
@@ -280,7 +280,7 @@ export default function FaireProductDetail() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setPriceOpen(false)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Price Updated", description: `Wholesale: $${editWholesale} · Retail: $${editRetail}` }); setPriceOpen(false); }} data-testid="btn-save-price">Save Price</Button>
+            <Button style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Price Updated", description: `Wholesale: $${editWholesale} · Retail: $${editRetail}` }); setPriceOpen(false); }} data-testid="btn-save-price">Save Price</Button>
           </div>
         }
       >
@@ -298,7 +298,7 @@ export default function FaireProductDetail() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setStockOpen(false)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Stock Updated", description: `New quantity: ${editQty}` }); setStockOpen(false); }} data-testid="btn-save-stock">Save</Button>
+            <Button style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Stock Updated", description: `New quantity: ${editQty}` }); setStockOpen(false); }} data-testid="btn-save-stock">Save</Button>
           </div>
         }
       >
@@ -315,7 +315,7 @@ export default function FaireProductDetail() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Product Updated" }); setEditOpen(false); }} data-testid="btn-save-product">Save Changes</Button>
+            <Button style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Product Updated" }); setEditOpen(false); }} data-testid="btn-save-product">Save Changes</Button>
           </div>
         }
       >

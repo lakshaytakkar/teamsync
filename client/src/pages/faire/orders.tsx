@@ -28,8 +28,17 @@ import { DualCurrency } from "@/lib/faire-currency";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  FAIRE_COLOR,
+  type OrderState,
+  ORDER_STATE_CONFIG,
+  ORDER_STATE_LABELS,
+  ALL_ORDER_STATES,
+  CANCEL_REASONS,
+  SOURCE_LABELS,
+  QUOT_STATUS_CONFIG,
+} from "@/lib/faire-config";
 
-const BRAND_COLOR = "#1A6B45";
 const PAGE_SIZE = 25;
 
 const STORE_LOGOS: Record<string, string> = {
@@ -41,7 +50,6 @@ const STORE_LOGOS: Record<string, string> = {
   "Toyarina": toyarinaLogo,
 };
 
-type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
 interface FaireStore { id: string; name: string; active: boolean; last_synced_at: string | null }
 interface OrderItem { id: string; variant_id: string; product_id: string; product_name: string; quantity: number; price_cents: number }
@@ -59,54 +67,10 @@ interface FaireOrder {
   _storeId: string;
 }
 
-const stateConfig: Record<OrderState, { label: string; color: string; bg: string }> = {
-  NEW: { label: "New", color: "#2563EB", bg: "#EFF6FF" },
-  PROCESSING: { label: "Processing", color: "#7C3AED", bg: "#F5F3FF" },
-  PRE_TRANSIT: { label: "Pre-Transit", color: "#9333EA", bg: "#FAF5FF" },
-  IN_TRANSIT: { label: "In Transit", color: "#D97706", bg: "#FFFBEB" },
-  DELIVERED: { label: "Delivered", color: "#059669", bg: "#ECFDF5" },
-  PENDING_RETAILER_CONFIRMATION: { label: "Pending Confirmation", color: "#EA580C", bg: "#FFF7ED" },
-  BACKORDERED: { label: "Backordered", color: "#DC4A26", bg: "#FFF1EE" },
-  CANCELED: { label: "Canceled", color: "#6B7280", bg: "#F9FAFB" },
-};
 
-const ALL_STATES: (OrderState | "all")[] = ["all", "NEW", "PROCESSING", "PRE_TRANSIT", "IN_TRANSIT", "DELIVERED", "PENDING_RETAILER_CONFIRMATION", "BACKORDERED", "CANCELED"];
-const STATE_LABELS: Record<string, string> = {
-  all: "All", NEW: "New", PROCESSING: "Processing", PRE_TRANSIT: "Pre-Transit",
-  IN_TRANSIT: "In Transit", DELIVERED: "Delivered",
-  PENDING_RETAILER_CONFIRMATION: "Pending", BACKORDERED: "Backordered", CANCELED: "Canceled",
-};
 
-const CANCEL_REASONS = [
-  "REQUESTED_BY_RETAILER", "RETAILER_NOT_GOOD_FIT", "CHANGE_REPLACE_ORDER",
-  "ITEM_OUT_OF_STOCK", "INCORRECT_PRICING", "ORDER_TOO_SMALL",
-  "REJECT_INTERNATIONAL_ORDER", "OTHER",
-];
-const CANCEL_LABELS: Record<string, string> = {
-  REQUESTED_BY_RETAILER: "Requested by retailer",
-  RETAILER_NOT_GOOD_FIT: "Retailer not a good fit",
-  CHANGE_REPLACE_ORDER: "Change / replace order",
-  ITEM_OUT_OF_STOCK: "Item out of stock",
-  INCORRECT_PRICING: "Incorrect pricing",
-  ORDER_TOO_SMALL: "Order too small",
-  REJECT_INTERNATIONAL_ORDER: "Reject international order",
-  OTHER: "Other",
-};
 
-const SOURCE_LABELS: Record<string, string> = {
-  MARKETPLACE: "Marketplace",
-  FAIRE_DIRECT: "Faire Direct",
-  TRADESHOW: "Tradeshow",
-};
 
-const QUOT_STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  DRAFT:          { label: "Draft",          color: "#6B7280", bg: "#F9FAFB" },
-  SENT:           { label: "Sent",           color: "#2563EB", bg: "#EFF6FF" },
-  QUOTE_RECEIVED: { label: "Quote Received", color: "#D97706", bg: "#FFFBEB" },
-  ACCEPTED:       { label: "Accepted",       color: "#059669", bg: "#ECFDF5" },
-  CHALLENGED:     { label: "Challenged",     color: "#EA580C", bg: "#FFF7ED" },
-  SENT_ELSEWHERE: { label: "Sent Elsewhere", color: "#64748B", bg: "#F1F5F9" },
-};
 
 function retailerName(order: FaireOrder) {
   return order.address?.company_name || order.address?.name || order.retailer_id;
@@ -266,7 +230,7 @@ export default function FaireOrders() {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["/api/faire/orders"] });
         queryClient.invalidateQueries({ queryKey: ["/api/faire/stores", order?._storeId, "orders"] });
-        toast({ title: "Order Canceled", description: `Reason: ${CANCEL_LABELS[cancelReason]}` });
+        toast({ title: "Order Canceled", description: `Reason: ${CANCEL_REASONS.find(r => r.value === cancelReason)?.label ?? cancelReason}` });
       } else {
         toast({ title: "Faire API Error", description: data.error ?? "Unknown error", variant: "destructive" });
       }
@@ -364,8 +328,8 @@ export default function FaireOrders() {
           search={search}
           onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
           placeholder="Search by order ID or retailer..."
-          color={BRAND_COLOR}
-          filters={ALL_STATES.map(s => ({ value: s, label: STATE_LABELS[s] }))}
+          color={FAIRE_COLOR}
+          filters={ALL_ORDER_STATES.map(s => ({ value: s, label: ORDER_STATE_LABELS[s] }))}
           activeFilter={stateFilter}
           onFilter={(v) => { setStateFilter(v as OrderState | "all"); setCurrentPage(1); }}
         />
@@ -391,7 +355,7 @@ export default function FaireOrders() {
             </thead>
             <tbody className="divide-y">
               {paginatedOrders.map(order => {
-                const cfg = stateConfig[order.state] ?? stateConfig.CANCELED;
+                const cfg = ORDER_STATE_CONFIG[order.state] ?? ORDER_STATE_CONFIG.CANCELED;
                 const items = order.items ?? [];
                 const itemsTotal = items.reduce((sum, i) => sum + (i.price_cents ?? 0) * (i.quantity ?? 1), 0);
                 const commPct = ((order.payout_costs?.commission_bps ?? 0) / 100).toFixed(0);
@@ -512,7 +476,7 @@ export default function FaireOrders() {
                   key={page} size="sm"
                   variant={page === safePage ? "default" : "outline"}
                   className="h-8 w-8 p-0"
-                  style={page === safePage ? { background: BRAND_COLOR } : {}}
+                  style={page === safePage ? { background: FAIRE_COLOR } : {}}
                   onClick={() => setCurrentPage(page)}
                   data-testid={`btn-page-${page}`}
                 >
@@ -536,7 +500,7 @@ export default function FaireOrders() {
           <>
             <Button variant="outline" onClick={() => setAcceptId(null)} disabled={acceptLoading}>Cancel</Button>
             <Button
-              style={{ background: BRAND_COLOR }}
+              style={{ background: FAIRE_COLOR }}
               className="text-white hover:opacity-90"
               onClick={handleAccept}
               disabled={acceptLoading}
@@ -570,7 +534,7 @@ export default function FaireOrders() {
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cancellation Reason</Label>
             <select value={cancelReason} onChange={e => setCancelReason(e.target.value)} className="w-full h-10 border rounded-lg px-3 text-sm bg-background" data-testid="select-cancel-reason">
-              {CANCEL_REASONS.map(r => <option key={r} value={r}>{CANCEL_LABELS[r]}</option>)}
+              {CANCEL_REASONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
@@ -588,7 +552,7 @@ export default function FaireOrders() {
         footer={
           <>
             <Button variant="outline" onClick={() => setQuoteOrderId(null)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white" onClick={handleRequestQuote} data-testid="btn-confirm-request-quote">
+            <Button style={{ background: FAIRE_COLOR }} className="text-white" onClick={handleRequestQuote} data-testid="btn-confirm-request-quote">
               Create Draft
             </Button>
           </>

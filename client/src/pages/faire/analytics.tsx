@@ -5,22 +5,15 @@ import { useQuery } from "@tanstack/react-query";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTableContainer, DataTH, DataTD, DataTR } from "@/components/layout";
+import {
+  FAIRE_COLOR,
+  type OrderState,
+  ORDER_STATE_CONFIG,
+} from "@/lib/faire-config";
 import { formatINR, formatINRFromDollars, DualFromDollars } from "@/lib/faire-currency";
 
-const BRAND_COLOR = "#1A6B45";
 
-type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
-const stateConfig: Record<OrderState, { label: string; color: string; bg: string }> = {
-  NEW: { label: "New", color: "#2563EB", bg: "#EFF6FF" },
-  PROCESSING: { label: "Processing", color: "#7C3AED", bg: "#F5F3FF" },
-  PRE_TRANSIT: { label: "Pre-Transit", color: "#9333EA", bg: "#FAF5FF" },
-  IN_TRANSIT: { label: "In Transit", color: "#D97706", bg: "#FFFBEB" },
-  DELIVERED: { label: "Delivered", color: "#059669", bg: "#ECFDF5" },
-  PENDING_RETAILER_CONFIRMATION: { label: "Pending", color: "#EA580C", bg: "#FFF7ED" },
-  BACKORDERED: { label: "Backordered", color: "#DC4A26", bg: "#FFF1EE" },
-  CANCELED: { label: "Canceled", color: "#6B7280", bg: "#F9FAFB" },
-};
 
 const ALL_ORDER_STATES: OrderState[] = ["NEW", "PROCESSING", "PRE_TRANSIT", "IN_TRANSIT", "DELIVERED", "PENDING_RETAILER_CONFIRMATION", "BACKORDERED", "CANCELED"];
 
@@ -174,7 +167,7 @@ export default function FaireAnalytics() {
             })()}
             <div className="flex gap-1">
               {(["7d", "30d", "month", "3m"] as const).map(t => (
-                <button key={t} onClick={() => setTimeFilter(t)} className={`px-3 py-1 text-xs rounded-lg border transition-colors ${timeFilter === t ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={timeFilter === t ? { background: BRAND_COLOR } : {}} data-testid={`filter-time-${t}`}>
+                <button key={t} onClick={() => setTimeFilter(t)} className={`px-3 py-1 text-xs rounded-lg border transition-colors ${timeFilter === t ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={timeFilter === t ? { background: FAIRE_COLOR } : {}} data-testid={`filter-time-${t}`}>
                   {t === "7d" ? "7 Days" : t === "30d" ? "30 Days" : t === "month" ? "This Month" : "3 Months"}
                 </button>
               ))}
@@ -185,11 +178,11 @@ export default function FaireAnalytics() {
 
       <Fade>
         <div className="flex gap-1 overflow-x-auto pb-1">
-          <button onClick={() => setSelectedStore("all")} className={`px-4 py-1.5 text-xs rounded-lg border shrink-0 transition-colors font-medium ${selectedStore === "all" ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={selectedStore === "all" ? { background: BRAND_COLOR } : {}} data-testid="tab-all-stores">
+          <button onClick={() => setSelectedStore("all")} className={`px-4 py-1.5 text-xs rounded-lg border shrink-0 transition-colors font-medium ${selectedStore === "all" ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={selectedStore === "all" ? { background: FAIRE_COLOR } : {}} data-testid="tab-all-stores">
             All Stores
           </button>
           {stores.map((s: any) => (
-            <button key={s.id} onClick={() => setSelectedStore(s.id)} className={`px-4 py-1.5 text-xs rounded-lg border shrink-0 transition-colors font-medium ${selectedStore === s.id ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={selectedStore === s.id ? { background: BRAND_COLOR } : {}} data-testid={`tab-store-${s.id}`}>
+            <button key={s.id} onClick={() => setSelectedStore(s.id)} className={`px-4 py-1.5 text-xs rounded-lg border shrink-0 transition-colors font-medium ${selectedStore === s.id ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={selectedStore === s.id ? { background: FAIRE_COLOR } : {}} data-testid={`tab-store-${s.id}`}>
               {s.name.split(" ")[0]}
             </button>
           ))}
@@ -229,7 +222,7 @@ export default function FaireAnalytics() {
                       <p className="text-xs font-bold"><DualFromDollars dollars={store.revenue} /></p>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all" style={{ width: `${barWidth}%`, background: BRAND_COLOR }} />
+                      <div className="h-full rounded-full transition-all" style={{ width: `${barWidth}%`, background: FAIRE_COLOR }} />
                     </div>
                   </div>
                 );
@@ -244,7 +237,7 @@ export default function FaireAnalytics() {
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {ALL_ORDER_STATES.map(state => {
-                  const cfg = stateConfig[state];
+                  const cfg = ORDER_STATE_CONFIG[state];
                   const count = storeOrders.filter((o: any) => o.state === state).length;
                   return (
                     <div key={state} className="flex items-center gap-1.5 px-3 py-2 rounded-lg" style={{ background: cfg.bg }} data-testid={`state-chip-${state}`}>
@@ -334,7 +327,7 @@ export default function FaireAnalytics() {
                   return (
                     <div key={month.label} className="flex-1 flex flex-col items-center gap-2" data-testid={`month-bar-${i}`}>
                       <div className="flex items-end h-20 w-full px-1">
-                        <div className="w-full rounded-t-md transition-all" style={{ height: `${barH}%`, background: BRAND_COLOR, opacity: i === monthlyData.length - 1 ? 1 : 0.7 }} />
+                        <div className="w-full rounded-t-md transition-all" style={{ height: `${barH}%`, background: FAIRE_COLOR, opacity: i === monthlyData.length - 1 ? 1 : 0.7 }} />
                       </div>
                       <div className="text-center">
                         <p className="text-[10px] font-bold"><DualFromDollars dollars={month.revenue} /></p>

@@ -8,11 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import {
   PageShell, PageHeader, DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR,
 } from "@/components/layout";
+import { FAIRE_COLOR, type OrderState } from "@/lib/faire-config";
 import { DualCurrency } from "@/lib/faire-currency";
 
-const BRAND_COLOR = "#1A6B45";
 
-type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "BACKORDERED" | "CANCELED";
 
 const orderStateConfig: Record<string, { label: string; color: string; bg: string }> = {
   PRE_TRANSIT: { label: "Pre-Transit", color: "#9333EA", bg: "#FAF5FF" },
@@ -213,7 +212,7 @@ export default function FaireShipments() {
               else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
               else page = safePage - 3 + i;
               return (
-                <Button key={page} size="sm" variant={page === safePage ? "default" : "outline"} className="h-8 w-8 p-0" style={page === safePage ? { background: BRAND_COLOR } : {}} onClick={() => setCurrentPage(page)} data-testid={`btn-page-${page}`}>{page}</Button>
+                <Button key={page} size="sm" variant={page === safePage ? "default" : "outline"} className="h-8 w-8 p-0" style={page === safePage ? { background: FAIRE_COLOR } : {}} onClick={() => setCurrentPage(page)} data-testid={`btn-page-${page}`}>{page}</Button>
               );
             })}
             <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">Next</Button>

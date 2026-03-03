@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { PageShell, DetailModal } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -23,7 +24,6 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 
-const BRAND_COLOR = "#1A6B45";
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; icon: typeof Clock }> = {
   drafting:     { label: "Drafting",      bg: "bg-slate-100",  text: "text-slate-700",  icon: Clock },
@@ -154,7 +154,7 @@ function InlineField({
         />
       )}
       <div className="flex gap-1.5">
-        <Button size="sm" className="h-7 text-xs text-white" style={{ background: BRAND_COLOR }}
+        <Button size="sm" className="h-7 text-xs text-white" style={{ background: FAIRE_COLOR }}
           onClick={() => { onSave(draft); setEditing(false); }}>Save</Button>
         <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setEditing(false)}>Cancel</Button>
       </div>
@@ -431,7 +431,7 @@ export default function FaireApplicationDetail() {
                 <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => statusMutation.mutate("rejected")} data-testid="btn-mark-rejected">
                   Mark Rejected
                 </Button>
-                <Button size="sm" className="text-white" style={{ background: BRAND_COLOR }} onClick={() => setPromoteOpen(true)} data-testid="btn-promote">
+                <Button size="sm" className="text-white" style={{ background: FAIRE_COLOR }} onClick={() => setPromoteOpen(true)} data-testid="btn-promote">
                   <CheckCircle2 size={13} className="mr-1" /> Mark Approved
                 </Button>
               </>
@@ -453,7 +453,7 @@ export default function FaireApplicationDetail() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <BookOpen size={14} style={{ color: BRAND_COLOR }} /> Brand Identity
+                  <BookOpen size={14} style={{ color: FAIRE_COLOR }} /> Brand Identity
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -469,7 +469,7 @@ export default function FaireApplicationDetail() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Mail size={14} style={{ color: BRAND_COLOR }} /> Email & Contact
+                  <Mail size={14} style={{ color: FAIRE_COLOR }} /> Email & Contact
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -482,7 +482,7 @@ export default function FaireApplicationDetail() {
                         key={t}
                         onClick={() => patch("email_type", t)}
                         className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${app.email_type === t ? "text-white border-transparent" : "bg-background border-border text-muted-foreground hover:bg-muted"}`}
-                        style={app.email_type === t ? { background: BRAND_COLOR } : {}}
+                        style={app.email_type === t ? { background: FAIRE_COLOR } : {}}
                         data-testid={`btn-email-type-${t}`}
                       >
                         {t === "branded" ? "Branded (name@domain.com)" : "Basic (Gmail / Outlook)"}
@@ -497,7 +497,7 @@ export default function FaireApplicationDetail() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Globe size={14} style={{ color: BRAND_COLOR }} /> Domain & Website
+                  <Globe size={14} style={{ color: FAIRE_COLOR }} /> Domain & Website
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -521,7 +521,7 @@ export default function FaireApplicationDetail() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <ShoppingBag size={14} style={{ color: BRAND_COLOR }} /> Marketplace Strategy
+                  <ShoppingBag size={14} style={{ color: FAIRE_COLOR }} /> Marketplace Strategy
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -533,7 +533,7 @@ export default function FaireApplicationDetail() {
                         key={s}
                         onClick={() => patch("marketplace_strategy", s)}
                         className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors capitalize ${app.marketplace_strategy === s ? "text-white border-transparent" : "bg-background border-border text-muted-foreground hover:bg-muted"}`}
-                        style={app.marketplace_strategy === s ? { background: BRAND_COLOR } : {}}
+                        style={app.marketplace_strategy === s ? { background: FAIRE_COLOR } : {}}
                         data-testid={`btn-strategy-${s}`}
                       >
                         {s === "website" ? "Website" : s === "etsy" ? "Etsy" : "Both"}
@@ -551,7 +551,7 @@ export default function FaireApplicationDetail() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Package size={14} style={{ color: BRAND_COLOR }} /> Product Listings
+                  <Package size={14} style={{ color: FAIRE_COLOR }} /> Product Listings
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -566,7 +566,7 @@ export default function FaireApplicationDetail() {
                           key={m}
                           onClick={() => patch("listing_method", m)}
                           className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${app.listing_method === m ? "text-white border-transparent" : "bg-background border-border text-muted-foreground hover:bg-muted"}`}
-                          style={app.listing_method === m ? { background: BRAND_COLOR } : {}}
+                          style={app.listing_method === m ? { background: FAIRE_COLOR } : {}}
                           data-testid={`btn-listing-${m}`}
                         >
                           {m === "csv" ? "CSV" : m === "shopify_sync" ? "Shopify Sync" : "Manual"}
@@ -587,7 +587,7 @@ export default function FaireApplicationDetail() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <FileText size={14} style={{ color: BRAND_COLOR }} /> Legal Documents
+                  <FileText size={14} style={{ color: FAIRE_COLOR }} /> Legal Documents
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -600,7 +600,7 @@ export default function FaireApplicationDetail() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <ClipboardList size={14} style={{ color: BRAND_COLOR }} /> Application Submission
+                  <ClipboardList size={14} style={{ color: FAIRE_COLOR }} /> Application Submission
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -632,7 +632,7 @@ export default function FaireApplicationDetail() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Clock size={14} style={{ color: BRAND_COLOR }} /> Follow-up Timeline
+                    <Clock size={14} style={{ color: FAIRE_COLOR }} /> Follow-up Timeline
                   </CardTitle>
                   <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setFollowupOpen(true)} data-testid="btn-add-followup">
                     <Plus size={12} className="mr-1" /> Add
@@ -679,7 +679,7 @@ export default function FaireApplicationDetail() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Link2 size={14} style={{ color: BRAND_COLOR }} /> Quick Links
+                    <Link2 size={14} style={{ color: FAIRE_COLOR }} /> Quick Links
                   </CardTitle>
                   <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setLinkOpen(true)} data-testid="btn-add-link">
                     <Plus size={12} className="mr-1" /> Add
@@ -753,7 +753,7 @@ export default function FaireApplicationDetail() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
-            <Button onClick={() => editMutation.mutate()} style={{ background: BRAND_COLOR }} className="text-white" disabled={editMutation.isPending} data-testid="btn-save-edit">
+            <Button onClick={() => editMutation.mutate()} style={{ background: FAIRE_COLOR }} className="text-white" disabled={editMutation.isPending} data-testid="btn-save-edit">
               {editMutation.isPending ? "Saving…" : "Save Changes"}
             </Button>
           </div>
@@ -860,7 +860,7 @@ export default function FaireApplicationDetail() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setFollowupOpen(false)}>Cancel</Button>
-            <Button onClick={() => addFollowupMutation.mutate()} style={{ background: BRAND_COLOR }} className="text-white" disabled={addFollowupMutation.isPending} data-testid="btn-save-followup">
+            <Button onClick={() => addFollowupMutation.mutate()} style={{ background: FAIRE_COLOR }} className="text-white" disabled={addFollowupMutation.isPending} data-testid="btn-save-followup">
               {addFollowupMutation.isPending ? "Saving…" : "Log Follow-up"}
             </Button>
           </div>
@@ -902,7 +902,7 @@ export default function FaireApplicationDetail() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setLinkOpen(false)}>Cancel</Button>
-            <Button onClick={() => addLinkMutation.mutate()} style={{ background: BRAND_COLOR }} className="text-white" disabled={addLinkMutation.isPending} data-testid="btn-save-link">
+            <Button onClick={() => addLinkMutation.mutate()} style={{ background: FAIRE_COLOR }} className="text-white" disabled={addLinkMutation.isPending} data-testid="btn-save-link">
               {addLinkMutation.isPending ? "Saving…" : "Add Link"}
             </Button>
           </div>

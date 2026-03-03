@@ -21,8 +21,8 @@ import {
   DataTR,
   DetailModal,
 } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 
-const BRAND_COLOR = "#1A6B45";
 
 export default function FaireInventory() {
   const { toast } = useToast();
@@ -144,7 +144,7 @@ export default function FaireInventory() {
       <Fade>
         <StatGrid>
           {[
-            { label: "Total SKUs", value: totalSKUs, color: BRAND_COLOR, bg: "rgba(26, 107, 69, 0.1)" },
+            { label: "Total SKUs", value: totalSKUs, color: FAIRE_COLOR, bg: "rgba(26, 107, 69, 0.1)" },
             { label: "Out of Stock", value: outOfStock, color: "#DC2626", bg: "#FEF2F2" },
             { label: "Low Stock (<5)", value: lowStock, color: "#D97706", bg: "#FFFBEB" },
             { label: "Backordered", value: backordered, color: "#7C3AED", bg: "#F5F3FF" },
@@ -166,7 +166,7 @@ export default function FaireInventory() {
           search={search}
           onSearch={setSearch}
           placeholder="Search product or SKU..."
-          color={BRAND_COLOR}
+          color={FAIRE_COLOR}
         />
       </Fade>
 
@@ -239,7 +239,7 @@ export default function FaireInventory() {
         footer={
           <>
             <Button variant="outline" onClick={() => setQtyVariantId(null)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Stock Updated", description: `${qtyVariant?.sku}: ${editQty} units` }); setQtyVariantId(null); }} data-testid="btn-save-qty">Save Changes</Button>
+            <Button style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Stock Updated", description: `${qtyVariant?.sku}: ${editQty} units` }); setQtyVariantId(null); }} data-testid="btn-save-qty">Save Changes</Button>
           </>
         }
       >
@@ -259,7 +259,7 @@ export default function FaireInventory() {
         footer={
           <>
             <Button variant="outline" onClick={() => setBackorderVariantId(null)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Backorder Date Set", description: backorderDate }); setBackorderVariantId(null); }} data-testid="btn-save-backorder">Save Date</Button>
+            <Button style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Backorder Date Set", description: backorderDate }); setBackorderVariantId(null); }} data-testid="btn-save-backorder">Save Date</Button>
           </>
         }
       >

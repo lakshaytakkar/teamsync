@@ -16,11 +16,11 @@ import {
   PageShell, PageHeader, StatGrid, StatCard, IndexToolbar, DataTableContainer,
   DataTH, SortableDataTH, DataTD, DataTR, DetailModal,
 } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
-const BRAND_COLOR = "#1A6B45";
 
 const STATUS_CONFIG: Record<QuotationStatus, { label: string; color: string; bg: string }> = {
   DRAFT:          { label: "Draft",           color: "#6B7280", bg: "#F9FAFB" },
@@ -146,7 +146,7 @@ export default function FaireQuotations() {
           <Button
             data-testid="button-new-quotation"
             onClick={() => setShowNew(true)}
-            style={{ background: BRAND_COLOR }}
+            style={{ background: FAIRE_COLOR }}
             className="text-white hover:opacity-90"
           >
             <Plus className="h-4 w-4 mr-1" /> New Quotation
@@ -156,7 +156,7 @@ export default function FaireQuotations() {
 
       <Fade>
         <StatGrid cols={4}>
-          <StatCard label="Total Quotes" value={isLoading ? "—" : String(total)} icon={FileText} iconBg="#F0FDF4" iconColor={BRAND_COLOR} />
+          <StatCard label="Total Quotes" value={isLoading ? "—" : String(total)} icon={FileText} iconBg="#F0FDF4" iconColor={FAIRE_COLOR} />
           <StatCard label="Pending Review" value={isLoading ? "—" : String(pending)} icon={AlertCircle} iconBg="#FFFBEB" iconColor="#D97706" />
           <StatCard label="Accepted" value={isLoading ? "—" : String(accepted)} icon={FileText} iconBg="#ECFDF5" iconColor="#059669" />
           <StatCard label="Avg Net Margin" value={isLoading ? "—" : `${avgMargin}%`} icon={FileText} iconBg="#EFF6FF" iconColor="#2563EB" />
@@ -166,7 +166,7 @@ export default function FaireQuotations() {
           search={search}
           onSearch={setSearch}
           placeholder="Search by quote ID, order, or fulfiller…"
-          color={BRAND_COLOR}
+          color={FAIRE_COLOR}
           filters={STATUS_TABS.map(s => ({ value: s, label: STATUS_LABELS[s] }))}
           activeFilter={statusFilter}
           onFilter={s => setStatusFilter(s as QuotationStatus | "all")}
@@ -246,7 +246,7 @@ export default function FaireQuotations() {
                       {fulfiller ? (
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                            style={{ background: BRAND_COLOR }}>
+                            style={{ background: FAIRE_COLOR }}>
                             {fulfiller.name.split(" ").map(w => w[0]).join("").slice(0, 2)}
                           </div>
                           <span className="font-medium">{fulfiller.name}</span>
@@ -272,7 +272,7 @@ export default function FaireQuotations() {
                       <Button
                         size="sm"
                         variant={q.status === "QUOTE_RECEIVED" ? "default" : "outline"}
-                        style={q.status === "QUOTE_RECEIVED" ? { background: BRAND_COLOR, color: "white" } : {}}
+                        style={q.status === "QUOTE_RECEIVED" ? { background: FAIRE_COLOR, color: "white" } : {}}
                         onClick={() => setLocation(`/faire/quotations/${q.id}`)}
                         data-testid={`button-view-quotation-${q.id}`}
                       >
@@ -296,7 +296,7 @@ export default function FaireQuotations() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setShowNew(false)}>Cancel</Button>
-            <Button onClick={createQuotation} style={{ background: BRAND_COLOR }} className="text-white" data-testid="button-create-quotation-confirm">
+            <Button onClick={createQuotation} style={{ background: FAIRE_COLOR }} className="text-white" data-testid="button-create-quotation-confirm">
               Create Draft
             </Button>
           </div>

@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DetailModal } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 import { useToast } from "@/hooks/use-toast";
 import { DualCurrency } from "@/lib/faire-currency";
 import {
   PageShell, PageHeader, DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR,
 } from "@/components/layout";
 
-const BRAND_COLOR = "#1A6B45";
 
 function marginColor(pct: number) {
   if (pct >= 50) return { bg: "#ECFDF5", text: "#059669" };
@@ -200,7 +200,7 @@ export default function FairePricing() {
                   key={page} size="sm"
                   variant={page === safePage ? "default" : "outline"}
                   className="h-8 w-8 p-0"
-                  style={page === safePage ? { background: BRAND_COLOR } : {}}
+                  style={page === safePage ? { background: FAIRE_COLOR } : {}}
                   onClick={() => setCurrentPage(page)}
                   data-testid={`btn-page-${page}`}
                 >
@@ -252,7 +252,7 @@ export default function FairePricing() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setAddPrepackOpen(false)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Prepack Created", description: prepackName }); setAddPrepackOpen(false); setPrepackName(""); setPrepackPrice(""); }} data-testid="btn-save-prepack">Create Prepack</Button>
+            <Button style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Prepack Created", description: prepackName }); setAddPrepackOpen(false); setPrepackName(""); setPrepackPrice(""); }} data-testid="btn-save-prepack">Create Prepack</Button>
           </div>
         }
       >

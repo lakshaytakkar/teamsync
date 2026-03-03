@@ -10,25 +10,18 @@ import {
   StatCard,
   SectionCard,
 } from "@/components/layout";
+import {
+  FAIRE_COLOR,
+  type OrderState,
+  ORDER_STATE_CONFIG,
+} from "@/lib/faire-config";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { formatINRFromDollars, DualFromDollars } from "@/lib/faire-currency";
 
-type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
-const BRAND_COLOR = "#1A6B45";
 
-const stateConfig: Record<OrderState, { label: string; color: string; bg: string }> = {
-  NEW: { label: "New", color: "#2563EB", bg: "#EFF6FF" },
-  PROCESSING: { label: "Processing", color: "#7C3AED", bg: "#F5F3FF" },
-  PRE_TRANSIT: { label: "Pre-Transit", color: "#9333EA", bg: "#FAF5FF" },
-  IN_TRANSIT: { label: "In Transit", color: "#D97706", bg: "#FFFBEB" },
-  DELIVERED: { label: "Delivered", color: "#059669", bg: "#ECFDF5" },
-  PENDING_RETAILER_CONFIRMATION: { label: "Pending", color: "#EA580C", bg: "#FFF7ED" },
-  BACKORDERED: { label: "Backordered", color: "#DC4A26", bg: "#FFF1EE" },
-  CANCELED: { label: "Canceled", color: "#6B7280", bg: "#F9FAFB" },
-};
 
 export default function FaireDashboard() {
   const [, setLocation] = useLocation();
@@ -134,7 +127,7 @@ export default function FaireDashboard() {
         eyebrow="Faire Marketplace"
         headline="Faire Marketplace"
         tagline={`Managing ${stores.length} brand storefronts · ${totalOrders.toLocaleString()} orders · ${totalProducts.toLocaleString()} products`}
-        color={BRAND_COLOR}
+        color={FAIRE_COLOR}
         colorDark="#2D8A60"
         actions={
           <select
@@ -226,7 +219,7 @@ export default function FaireDashboard() {
                 <div
                   key={store.id}
                   className={`rounded-xl border bg-card p-4 cursor-pointer hover:bg-muted/20 transition-colors ${isSelected ? "ring-2" : ""}`}
-                  style={isSelected ? { borderColor: BRAND_COLOR } : {}}
+                  style={isSelected ? { borderColor: FAIRE_COLOR } : {}}
                   onClick={() => setSelectedStore(isSelected ? "all" : store.id)}
                   data-testid={`store-card-${store.id}`}
                 >
@@ -275,7 +268,7 @@ export default function FaireDashboard() {
               <div className="space-y-3">
                 {recentOrders.map((order: any) => {
                   const orderTotal = (order.items ?? []).reduce((s: number, i: any) => s + (i.price_cents ?? 0) * (i.quantity ?? 0), 0) / 100;
-                  const cfg = stateConfig[order.state as OrderState] ?? stateConfig.NEW;
+                  const cfg = ORDER_STATE_CONFIG[order.state as OrderState] ?? ORDER_STATE_CONFIG.NEW;
                   const store = stores.find((s: any) => s.id === order._storeId);
                   return (
                     <button

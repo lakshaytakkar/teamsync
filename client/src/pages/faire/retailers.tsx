@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { DetailModal } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 import {
   PageShell,
   PageHeader,
@@ -24,7 +25,6 @@ import {
   SortableDataTH,
 } from "@/components/layout";
 
-const BRAND_COLOR = "#1A6B45";
 const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
 
 interface EnrichedRetailer {
@@ -191,7 +191,7 @@ export default function FaireRetailers() {
       <Fade>
         <StatGrid>
           {[
-            { label: "Total Retailers", value: totalRetailers, color: BRAND_COLOR, bg: "rgba(26, 107, 69, 0.1)" },
+            { label: "Total Retailers", value: totalRetailers, color: FAIRE_COLOR, bg: "rgba(26, 107, 69, 0.1)" },
             { label: "Active (90d)", value: activeRetailers, color: "#2563EB", bg: "#EFF6FF" },
             { label: "Avg Order Value", value: `$${avgOrderValue}`, color: "#7C3AED", bg: "#F5F3FF", trend: formatINRFromDollars(avgOrderValue) },
             { label: "Repeat Rate", value: `${repeatRate}%`, color: "#D97706", bg: "#FFFBEB" },
@@ -214,7 +214,7 @@ export default function FaireRetailers() {
           search={search}
           onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
           placeholder="Search retailer or store..."
-          color={BRAND_COLOR}
+          color={FAIRE_COLOR}
           filters={[
             { value: "all", label: "All Status" },
             { value: "active", label: "Active" },
@@ -310,7 +310,7 @@ export default function FaireRetailers() {
                   key={page} size="sm"
                   variant={page === safePage ? "default" : "outline"}
                   className="h-8 w-8 p-0"
-                  style={page === safePage ? { background: BRAND_COLOR } : {}}
+                  style={page === safePage ? { background: FAIRE_COLOR } : {}}
                   onClick={() => setCurrentPage(page)}
                   data-testid={`btn-page-${page}`}
                 >
@@ -336,7 +336,7 @@ export default function FaireRetailers() {
               <Button
                 onClick={() => enrichMutation.mutate({ id: enrichTarget.id, data: enrichForm })}
                 disabled={enrichMutation.isPending}
-                style={{ background: BRAND_COLOR }}
+                style={{ background: FAIRE_COLOR }}
                 className="text-white hover:opacity-90"
                 data-testid="btn-save-enrich-modal"
               >

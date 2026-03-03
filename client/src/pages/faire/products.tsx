@@ -20,8 +20,8 @@ import {
   DataTR,
   DetailModal,
 } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 
-const BRAND_COLOR = "#1A6B45";
 
 type ProductLifecycleState = "PUBLISHED" | "DRAFT" | "UNPUBLISHED" | "DELETED";
 type ProductSaleState = "FOR_SALE" | "SALES_PAUSED";
@@ -318,7 +318,7 @@ export default function FaireProducts() {
                 <RefreshCw size={14} className={`mr-2 ${syncing ? "animate-spin" : ""}`} />
                 Sync
               </Button>
-              <Button onClick={() => toast({ title: "Add Product", description: "Product creation form coming soon." })} style={{ background: BRAND_COLOR }} className="text-white hover-elevate" data-testid="btn-add-product">
+              <Button onClick={() => toast({ title: "Add Product", description: "Product creation form coming soon." })} style={{ background: FAIRE_COLOR }} className="text-white hover-elevate" data-testid="btn-add-product">
                 <Plus size={16} className="mr-2" /> Add Product
               </Button>
             </div>
@@ -331,7 +331,7 @@ export default function FaireProducts() {
           search={search}
           onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
           placeholder="Search products or SKU..."
-          color={BRAND_COLOR}
+          color={FAIRE_COLOR}
           filters={[
             { value: "all", label: "All Lifecycle" },
             { value: "PUBLISHED", label: "Published" },
@@ -348,7 +348,7 @@ export default function FaireProducts() {
                   key={s}
                   onClick={() => { setSaleState(s); setCurrentPage(1); }}
                   className={`px-3 py-1 text-xs rounded-full border transition-colors ${saleState === s ? "text-white border-transparent" : "bg-background hover:bg-muted"}`}
-                  style={saleState === s ? { background: BRAND_COLOR } : {}}
+                  style={saleState === s ? { background: FAIRE_COLOR } : {}}
                   data-testid={`filter-sale-${s}`}
                 >
                   {s === "all" ? "All Sales" : s === "FOR_SALE" ? "For Sale" : "Paused"}
@@ -523,7 +523,7 @@ export default function FaireProducts() {
                   key={page} size="sm"
                   variant={page === safePage ? "default" : "outline"}
                   className="h-8 w-8 p-0"
-                  style={page === safePage ? { background: BRAND_COLOR } : {}}
+                  style={page === safePage ? { background: FAIRE_COLOR } : {}}
                   onClick={() => setCurrentPage(page)}
                   data-testid={`btn-page-${page}`}
                 >
@@ -547,7 +547,7 @@ export default function FaireProducts() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setAssignModal(null)}>Cancel</Button>
-            <Button onClick={confirmAssign} style={{ background: BRAND_COLOR }} className="text-white" data-testid="btn-confirm-assign-vendor">
+            <Button onClick={confirmAssign} style={{ background: FAIRE_COLOR }} className="text-white" data-testid="btn-confirm-assign-vendor">
               Assign Vendor
             </Button>
           </div>

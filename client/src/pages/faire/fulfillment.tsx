@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Printer, Truck } from "lucide-react";
 import { Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { PageShell, PageHeader } from "@/components/layout";
+import { FAIRE_COLOR } from "@/lib/faire-config";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,6 @@ import { useToast } from "@/hooks/use-toast";
 import { DualCurrencyInline } from "@/lib/faire-currency";
 import { DetailModal } from "@/components/layout";
 
-const BRAND_COLOR = "#1A6B45";
 const CARRIERS = ["UPS", "FedEx", "USPS", "DHL"];
 const SHIP_TYPES = [
   { value: "SHIP_ON_YOUR_OWN", label: "Ship on your own" },
@@ -124,7 +124,7 @@ export default function FaireFulfillment() {
               <StaggerItem key={order.id}>
                 <div
                   className="rounded-xl border bg-card p-4 flex items-start gap-4"
-                  style={{ borderLeftWidth: 3, borderLeftColor: isNew ? "#D97706" : BRAND_COLOR }}
+                  style={{ borderLeftWidth: 3, borderLeftColor: isNew ? "#D97706" : FAIRE_COLOR }}
                   data-testid={`fulfillment-card-${order.id}`}
                 >
                   <div className="flex-1 min-w-0">
@@ -161,7 +161,7 @@ export default function FaireFulfillment() {
                   </div>
                   <Button
                     size="sm"
-                    style={{ background: BRAND_COLOR }}
+                    style={{ background: FAIRE_COLOR }}
                     className="text-white hover:opacity-90 shrink-0"
                     onClick={() => { setShipOrderId(order.id); setCarrier("UPS"); setTracking(""); setMakerCostDollars(""); setShipType("SHIP_ON_YOUR_OWN"); }}
                     data-testid={`btn-ship-${order.id}`}
@@ -183,7 +183,7 @@ export default function FaireFulfillment() {
         footer={
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setShipOrderId(null)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Shipment Recorded", description: `${carrier} — ${tracking || "No tracking"}. Order moved to In-Transit.` }); setShipOrderId(null); }} data-testid="btn-confirm-ship">Record Shipment</Button>
+            <Button style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" onClick={() => { toast({ title: "Shipment Recorded", description: `${carrier} — ${tracking || "No tracking"}. Order moved to In-Transit.` }); setShipOrderId(null); }} data-testid="btn-confirm-ship">Record Shipment</Button>
           </div>
         }
       >

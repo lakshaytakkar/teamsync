@@ -17,70 +17,21 @@ import {
 } from "@/lib/mock-data-faire-ops";
 import {
   PageShell, SectionCard, DetailModal, DetailSection,
-  DataTableContainer, DataTH, DataTD,
+  DataTableContainer, DataTH, DataTD, InfoRow,
 } from "@/components/layout";
 import { DualCurrency, DualCurrencyInline, formatUSD, formatINR } from "@/lib/faire-currency";
-
-type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
-
-const BRAND_COLOR = "#1A6B45";
-const CARRIERS = ["UPS", "FedEx", "USPS", "DHL"];
-const SHIP_TYPES = [
-  { value: "SHIP_ON_YOUR_OWN", label: "Ship on your own" },
-  { value: "FAIRE_SHIPPING_LABEL", label: "Faire shipping label" },
-];
-const CANCEL_REASONS = [
-  { value: "REQUESTED_BY_RETAILER", label: "Requested by retailer" },
-  { value: "RETAILER_NOT_GOOD_FIT", label: "Retailer not a good fit" },
-  { value: "CHANGE_REPLACE_ORDER", label: "Change / replace order" },
-  { value: "ITEM_OUT_OF_STOCK", label: "Item out of stock" },
-  { value: "INCORRECT_PRICING", label: "Incorrect pricing" },
-  { value: "ORDER_TOO_SMALL", label: "Order too small" },
-  { value: "REJECT_INTERNATIONAL_ORDER", label: "Reject international order" },
-  { value: "OTHER", label: "Other" },
-];
-
-const stateConfig: Record<OrderState, { label: string; color: string; bg: string }> = {
-  NEW: { label: "New", color: "#2563EB", bg: "#EFF6FF" },
-  PROCESSING: { label: "Processing", color: "#7C3AED", bg: "#F5F3FF" },
-  PRE_TRANSIT: { label: "Pre-Transit", color: "#9333EA", bg: "#FAF5FF" },
-  IN_TRANSIT: { label: "In Transit", color: "#D97706", bg: "#FFFBEB" },
-  DELIVERED: { label: "Delivered", color: "#059669", bg: "#ECFDF5" },
-  PENDING_RETAILER_CONFIRMATION: { label: "Pending Confirmation", color: "#EA580C", bg: "#FFF7ED" },
-  BACKORDERED: { label: "Backordered", color: "#DC4A26", bg: "#FFF1EE" },
-  CANCELED: { label: "Canceled", color: "#6B7280", bg: "#F9FAFB" },
-};
-
-const QUOT_STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  DRAFT: { label: "Draft", color: "#6B7280", bg: "#F9FAFB" },
-  SENT: { label: "Sent", color: "#2563EB", bg: "#EFF6FF" },
-  QUOTE_RECEIVED: { label: "Quote Received", color: "#D97706", bg: "#FFFBEB" },
-  ACCEPTED: { label: "Accepted", color: "#059669", bg: "#ECFDF5" },
-  CHALLENGED: { label: "Challenged", color: "#EA580C", bg: "#FFF7ED" },
-  SENT_ELSEWHERE: { label: "Sent Elsewhere", color: "#64748B", bg: "#F1F5F9" },
-};
-
-const LED_STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  PENDING: { label: "Pending", color: "#D97706", bg: "#FFFBEB" },
-  PARTIALLY_PAID: { label: "Partially Paid", color: "#2563EB", bg: "#EFF6FF" },
-  CLEARED: { label: "Cleared", color: "#059669", bg: "#ECFDF5" },
-};
-
-const TIMELINE_STATES: OrderState[] = ["NEW", "PROCESSING", "PRE_TRANSIT", "IN_TRANSIT", "DELIVERED"];
-const SOURCE_LABELS: Record<string, string> = {
-  MARKETPLACE: "Marketplace",
-  FAIRE_DIRECT: "Faire Direct",
-  TRADESHOW: "Tradeshow",
-};
-
-function InfoRow({ label, value, children }: { label: string; value?: string | number; children?: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between py-1.5">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      {children ?? <span className="text-sm font-medium">{value}</span>}
-    </div>
-  );
-}
+import {
+  FAIRE_COLOR,
+  type OrderState,
+  ORDER_STATE_CONFIG,
+  QUOT_STATUS_CONFIG,
+  LED_STATUS_CONFIG,
+  TIMELINE_STATES,
+  SOURCE_LABELS,
+  CANCEL_REASONS,
+  CARRIERS,
+  SHIP_TYPES,
+} from "@/lib/faire-config";
 
 export default function FaireOrderDetail() {
   const [, setLocation] = useLocation();
@@ -149,7 +100,7 @@ export default function FaireOrderDetail() {
 
   const [acceptLoading, setAcceptLoading] = useState(false);
 
-  const cfg = order ? stateConfig[order.state as OrderState] : stateConfig.NEW;
+  const cfg = order ? ORDER_STATE_CONFIG[order.state as OrderState] : ORDER_STATE_CONFIG.NEW;
   const timelineIdx = order ? TIMELINE_STATES.indexOf(order.state as OrderState) : -1;
   const itemsTotal = order ? (order.items ?? []).reduce((sum: number, i: any) => sum + i.price_cents * i.quantity, 0) : 0;
   const commissionAmt = order?.payout_costs?.commission_cents ?? 0;
@@ -335,7 +286,7 @@ export default function FaireOrderDetail() {
               <Printer size={14} className="mr-2" /> Print Slip
             </Button>
             {order.state === "NEW" && (
-              <Button size="sm" style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={handleAccept} disabled={acceptLoading} data-testid="btn-accept">
+              <Button size="sm" style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" onClick={handleAccept} disabled={acceptLoading} data-testid="btn-accept">
                 <CheckCircle size={14} className="mr-2" /> {acceptLoading ? "Accepting…" : "Accept Order"}
               </Button>
             )}
@@ -351,7 +302,7 @@ export default function FaireOrderDetail() {
       <Fade>
         <div className="flex items-center gap-0 py-2">
           {TIMELINE_STATES.map((state, i) => {
-            const stateCfg = stateConfig[state];
+            const stateCfg = ORDER_STATE_CONFIG[state];
             const isActive = i <= timelineIdx && timelineIdx >= 0;
             const isCurrent = TIMELINE_STATES[timelineIdx] === state;
             return (
@@ -359,14 +310,14 @@ export default function FaireOrderDetail() {
                 <div className="flex flex-col items-center flex-1">
                   <div
                     className={`size-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${isActive ? "text-white border-transparent" : "text-muted-foreground border-muted"}`}
-                    style={isActive ? { background: BRAND_COLOR } : {}}
+                    style={isActive ? { background: FAIRE_COLOR } : {}}
                   >
                     {i + 1}
                   </div>
                   <p className={`text-xs mt-1.5 font-medium ${isCurrent ? "text-foreground" : "text-muted-foreground"}`}>{stateCfg.label}</p>
                 </div>
                 {i < TIMELINE_STATES.length - 1 && (
-                  <div className={`flex-1 h-0.5 mb-5 ${i < timelineIdx && timelineIdx >= 0 ? "" : "bg-muted"}`} style={i < timelineIdx && timelineIdx >= 0 ? { background: BRAND_COLOR } : {}} />
+                  <div className={`flex-1 h-0.5 mb-5 ${i < timelineIdx && timelineIdx >= 0 ? "" : "bg-muted"}`} style={i < timelineIdx && timelineIdx >= 0 ? { background: FAIRE_COLOR } : {}} />
                 )}
               </div>
             );
@@ -463,7 +414,7 @@ export default function FaireOrderDetail() {
             <SectionCard title="Delivery Address">
               <div className="flex items-start gap-3">
                 <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(26, 107, 69, 0.1)" }}>
-                  <MapPin size={16} style={{ color: BRAND_COLOR }} />
+                  <MapPin size={16} style={{ color: FAIRE_COLOR }} />
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">{order.address?.name}</p>
@@ -680,7 +631,7 @@ export default function FaireOrderDetail() {
         footer={
           <>
             <Button variant="outline" onClick={() => setAddShipOpen(false)}>Cancel</Button>
-            <Button style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" onClick={handleAddShipment} disabled={shipLoading} data-testid="btn-save-shipment">
+            <Button style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" onClick={handleAddShipment} disabled={shipLoading} data-testid="btn-save-shipment">
               {shipLoading ? "Pushing…" : "Add Shipment"}
             </Button>
           </>

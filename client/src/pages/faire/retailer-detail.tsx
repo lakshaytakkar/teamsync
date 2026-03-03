@@ -18,21 +18,14 @@ import {
   DataTR,
   DetailModal,
 } from "@/components/layout";
+import {
+  FAIRE_COLOR,
+  type OrderState,
+  ORDER_STATE_CONFIG,
+} from "@/lib/faire-config";
 
-const BRAND_COLOR = "#1A6B45";
 
-type OrderState = "NEW" | "PROCESSING" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED" | "PENDING_RETAILER_CONFIRMATION" | "BACKORDERED" | "CANCELED";
 
-const stateConfig: Record<OrderState, { label: string; color: string; bg: string }> = {
-  NEW: { label: "New", color: "#2563EB", bg: "#EFF6FF" },
-  PROCESSING: { label: "Processing", color: "#7C3AED", bg: "#F5F3FF" },
-  PRE_TRANSIT: { label: "Pre-Transit", color: "#9333EA", bg: "#FAF5FF" },
-  IN_TRANSIT: { label: "In Transit", color: "#D97706", bg: "#FFFBEB" },
-  DELIVERED: { label: "Delivered", color: "#059669", bg: "#ECFDF5" },
-  PENDING_RETAILER_CONFIRMATION: { label: "Pending", color: "#EA580C", bg: "#FFF7ED" },
-  BACKORDERED: { label: "Backordered", color: "#DC4A26", bg: "#FFF1EE" },
-  CANCELED: { label: "Canceled", color: "#6B7280", bg: "#F9FAFB" },
-};
 
 interface Enrichment {
   retailer_id: string;
@@ -213,7 +206,7 @@ export default function FaireRetailerDetail() {
                   {isActive ? "active" : "inactive"}
                 </span>
                 {hasEnrichment && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: `${BRAND_COLOR}15`, color: BRAND_COLOR }}>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: `${FAIRE_COLOR}15`, color: FAIRE_COLOR }}>
                     Enriched
                   </span>
                 )}
@@ -239,7 +232,7 @@ export default function FaireRetailerDetail() {
             <Button
               size="sm"
               onClick={openEnrichModal}
-              style={{ background: BRAND_COLOR }}
+              style={{ background: FAIRE_COLOR }}
               className="text-white hover:opacity-90"
               data-testid="btn-enrich"
             >
@@ -357,7 +350,7 @@ export default function FaireRetailerDetail() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-sm font-medium hover:underline"
-                            style={{ color: BRAND_COLOR }}
+                            style={{ color: FAIRE_COLOR }}
                             data-testid="link-website"
                           >
                             {enrichment.website}
@@ -410,14 +403,14 @@ export default function FaireRetailerDetail() {
                 onClick={openEnrichModal}
                 data-testid="enrich-empty-state"
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: `${BRAND_COLOR}15` }}>
-                  <User size={18} style={{ color: BRAND_COLOR }} />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: `${FAIRE_COLOR}15` }}>
+                  <User size={18} style={{ color: FAIRE_COLOR }} />
                 </div>
                 <div>
                   <p className="font-medium text-sm">No contact details yet</p>
                   <p className="text-xs text-muted-foreground mt-0.5">Click to add contact person, phone, address, and social links</p>
                 </div>
-                <Button size="sm" style={{ background: BRAND_COLOR }} className="text-white hover:opacity-90" data-testid="btn-enrich-empty">
+                <Button size="sm" style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" data-testid="btn-enrich-empty">
                   <Pencil size={12} className="mr-1.5" /> Enrich Retailer
                 </Button>
               </div>
@@ -445,7 +438,7 @@ export default function FaireRetailerDetail() {
                       <tbody className="divide-y">
                         {retailerOrders.map((order: any) => {
                           const store = stores.find(s => s.id === order._storeId);
-                          const cfg = stateConfig[order.state as OrderState] ?? stateConfig.NEW;
+                          const cfg = ORDER_STATE_CONFIG[order.state as OrderState] ?? ORDER_STATE_CONFIG.NEW;
                           const itemsTotal = (order.items ?? []).reduce((s: number, i: any) => s + (i.price_cents ?? 0) * (i.quantity ?? 0), 0);
                           return (
                             <DataTR key={order.id} onClick={() => setLocation(`/faire/orders/${order.id}`)} data-testid={`order-history-row-${order.id}`}>
@@ -497,7 +490,7 @@ export default function FaireRetailerDetail() {
                 <div className="flex flex-wrap gap-1.5">
                   {Array.from(storeIdsSet).map((sid) => {
                     const store = stores.find(s => s.id === sid);
-                    return <Badge key={sid as string} variant="outline" style={{ borderColor: `${BRAND_COLOR}40`, color: BRAND_COLOR }} data-testid={`badge-store-${sid}`}>{store?.name ?? "Unknown Store"}</Badge>;
+                    return <Badge key={sid as string} variant="outline" style={{ borderColor: `${FAIRE_COLOR}40`, color: FAIRE_COLOR }} data-testid={`badge-store-${sid}`}>{store?.name ?? "Unknown Store"}</Badge>;
                   })}
                   {storeIdsSet.size === 0 && <span className="text-xs text-muted-foreground">No store data</span>}
                 </div>
@@ -518,7 +511,7 @@ export default function FaireRetailerDetail() {
             <Button
               onClick={() => enrichMutation.mutate(formData)}
               disabled={enrichMutation.isPending}
-              style={{ background: BRAND_COLOR }}
+              style={{ background: FAIRE_COLOR }}
               className="text-white hover:opacity-90"
               data-testid="btn-save-enrichment"
             >

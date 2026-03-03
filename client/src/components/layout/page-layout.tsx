@@ -609,3 +609,25 @@ export function DetailModal({
     </Dialog>
   );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// InfoRow — locked detail-page key-value primitive
+// Always flex justify-between py-1.5. Label: text-sm text-muted-foreground.
+// Value: text-sm font-medium. Use children for custom value rendering.
+// FROZEN: Never redefine inline in a page. Always import from here.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface InfoRowProps {
+  label: string;
+  value?: string | number;
+  children?: ReactNode;
+}
+
+export function InfoRow({ label, value, children }: InfoRowProps) {
+  return (
+    <div className="flex items-center justify-between py-1.5" data-testid={`info-row-${label.toLowerCase().replace(/\s+/g, "-")}`}>
+      <span className="text-sm text-muted-foreground">{label}</span>
+      {children ?? <span className="text-sm font-medium">{value}</span>}
+    </div>
+  );
+}
