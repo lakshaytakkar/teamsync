@@ -109,12 +109,39 @@ export default function FaireLedger() {
     toast({ title: "Entry cleared", description: `Ledger entry for ${clearModal.order_id} marked as Cleared` });
   }
 
+  const sortedFiltered = sort
+    ? [...filtered].sort((a, b) => {
+        const dir = sort.dir === "asc" ? 1 : -1;
+        const k = sort.key;
+        let aVal: any, bVal: any;
+        if (k === "order") {
+          const oA = allOrders.find((o: any) => o.id === a.order_id);
+          const oB = allOrders.find((o: any) => o.id === b.order_id);
+          aVal = oA?.display_id ?? ""; bVal = oB?.display_id ?? "";
+        }
+        else if (k === "payout") { aVal = a.faire_payout_cents; bVal = b.faire_payout_cents; }
+        else if (k === "fulfiller_cost") { aVal = a.fulfiller_cost_cents; bVal = b.fulfiller_cost_cents; }
+        else if (k === "margin") { aVal = a.net_margin_cents; bVal = b.net_margin_cents; }
+        else { aVal = (a as any)[k]; bVal = (b as any)[k]; }
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+        if (typeof aVal === "number" && typeof bVal === "number") return (aVal - bVal) * dir;
+        return String(aVal).localeCompare(String(bVal)) * dir;
+      })
+    : filtered;
+  const totalPages = Math.max(1, Math.ceil(sortedFiltered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginated = sortedFiltered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <PageShell>
-      <PageHeader
-        title="Financial Ledger"
-        subtitle="Per-order financial records tracking Faire payouts vs fulfiller costs"
-      />
+      <Fade>
+        <PageHeader
+          title="Financial Ledger"
+          subtitle="Per-order financial records tracking Faire payouts vs fulfiller costs"
+        />
+      </Fade>
 
       <Fade>
         <StatGrid cols={4}>
@@ -123,7 +150,9 @@ export default function FaireLedger() {
           <StatCard label="Net Profit (Cleared)" value={isLoading ? "—" : formatUSD(netProfit)} trend={isLoading ? undefined : formatINR(netProfit)} icon={BookOpen} iconBg="#ECFDF5" iconColor="#059669" />
           <StatCard label="Pending Reconciliation" value={isLoading ? "—" : String(pendingRecon)} icon={BookOpen} iconBg="#FFFBEB" iconColor="#D97706" />
         </StatGrid>
+      </Fade>
 
+      <Fade>
         <IndexToolbar
           search={search}
           onSearch={setSearch}
@@ -133,36 +162,14 @@ export default function FaireLedger() {
           activeFilter={statusFilter}
           onFilter={s => setStatusFilter(s as LedgerPaymentStatus | "all")}
         />
+      </Fade>
 
+      <Fade>
         <DataTableContainer>
           {isLoading && <div className="h-48 animate-pulse bg-muted/30 rounded" />}
           {!isLoading && filtered.length === 0 && <div className="p-8 text-center text-sm text-muted-foreground">No ledger entries match current filters.</div>}
-          {!isLoading && filtered.length > 0 && (() => {
-            const sortedFiltered = sort
-              ? [...filtered].sort((a, b) => {
-                  const dir = sort.dir === "asc" ? 1 : -1;
-                  const k = sort.key;
-                  let aVal: any, bVal: any;
-                  if (k === "order") {
-                    const oA = allOrders.find((o: any) => o.id === a.order_id);
-                    const oB = allOrders.find((o: any) => o.id === b.order_id);
-                    aVal = oA?.display_id ?? ""; bVal = oB?.display_id ?? "";
-                  }
-                  else if (k === "payout") { aVal = a.faire_payout_cents; bVal = b.faire_payout_cents; }
-                  else if (k === "fulfiller_cost") { aVal = a.fulfiller_cost_cents; bVal = b.fulfiller_cost_cents; }
-                  else if (k === "margin") { aVal = a.net_margin_cents; bVal = b.net_margin_cents; }
-                  else { aVal = (a as any)[k]; bVal = (b as any)[k]; }
-                  if (aVal == null && bVal == null) return 0;
-                  if (aVal == null) return 1;
-                  if (bVal == null) return -1;
-                  if (typeof aVal === "number" && typeof bVal === "number") return (aVal - bVal) * dir;
-                  return String(aVal).localeCompare(String(bVal)) * dir;
-                })
-              : filtered;
-            const totalPages = Math.max(1, Math.ceil(sortedFiltered.length / PAGE_SIZE));
-            const safePage = Math.min(currentPage, totalPages);
-            const paginated = sortedFiltered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-            return <table className="w-full text-sm">
+          {!isLoading && filtered.length > 0 && (
+            <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/30">
                 <SortableDataTH sortKey="order" currentSort={sort} onSort={handleSort}>Order</SortableDataTH>
@@ -250,48 +257,45 @@ export default function FaireLedger() {
                 );
               })}
             </tbody>
-          </table>; })()}
+          </table>
+          )}
         </DataTableContainer>
-
-        {filtered.length > PAGE_SIZE && (() => {
-          const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-          const safePage = Math.min(currentPage, totalPages);
-          return (
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
-              </p>
-              <div className="flex items-center gap-1">
-                <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
-                  Previous
-                </Button>
-                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                  let page: number;
-                  if (totalPages <= 7) page = i + 1;
-                  else if (safePage <= 4) page = i + 1;
-                  else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
-                  else page = safePage - 3 + i;
-                  return (
-                    <Button
-                      key={page} size="sm"
-                      variant={page === safePage ? "default" : "outline"}
-                      className="h-8 w-8 p-0"
-                      style={page === safePage ? { background: FAIRE_COLOR } : {}}
-                      onClick={() => setCurrentPage(page)}
-                      data-testid={`btn-page-${page}`}
-                    >
-                      {page}
-                    </Button>
-                  );
-                })}
-                <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
-                  Next
-                </Button>
-              </div>
-            </div>
-          );
-        })()}
       </Fade>
+
+      {sortedFiltered.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sortedFiltered.length)} of {sortedFiltered.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+              Previous
+            </Button>
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              let page: number;
+              if (totalPages <= 7) page = i + 1;
+              else if (safePage <= 4) page = i + 1;
+              else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+              else page = safePage - 3 + i;
+              return (
+                <Button
+                  key={page} size="sm"
+                  variant={page === safePage ? "default" : "outline"}
+                  className="h-8 w-8 p-0"
+                  style={page === safePage ? { background: FAIRE_COLOR } : {}}
+                  onClick={() => setCurrentPage(page)}
+                  data-testid={`btn-page-${page}`}
+                >
+                  {page}
+                </Button>
+              );
+            })}
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       <DetailModal
         open={!!clearModal}

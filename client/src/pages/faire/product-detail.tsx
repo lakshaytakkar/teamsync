@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DetailModal, PageShell } from "@/components/layout";
+import { DetailModal, InfoRow, PageShell } from "@/components/layout";
 import { FAIRE_COLOR } from "@/lib/faire-config";
 import { useToast } from "@/hooks/use-toast";
 import { DualCurrency } from "@/lib/faire-currency";
@@ -93,7 +93,7 @@ export default function FaireProductDetail() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => setLocation("/faire/products")} data-testid="btn-back">
-              <ArrowLeft size={15} className="mr-1.5" /> Products
+              <ArrowLeft size={16} className="mr-1" /> Products
             </Button>
             <h1 className="text-2xl font-bold font-heading">{product.name}</h1>
             <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ background: lc.bg, color: lc.color }}>{lc.label}</span>
@@ -107,19 +107,27 @@ export default function FaireProductDetail() {
       </Fade>
 
       <Fade>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">{store?.name ?? "Unknown Store"}</Badge>
-          <Badge variant="outline">{category}</Badge>
-          <Badge variant="outline">Made in: {product.made_in_country ?? "N/A"}</Badge>
-          <Badge variant="outline">MOQ: {product.minimum_order_quantity ?? 1}</Badge>
-          <Badge variant="outline">Units/Case: {product.units_per_case ?? 1}</Badge>
-          {product.preorderable && <Badge variant="outline">Pre-orderable</Badge>}
-          {(product.tags ?? []).map((tag: string) => (
-            <div key={tag} className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-xs">
-              <Tag size={9} /> {tag}
-            </div>
-          ))}
-        </div>
+        <Card>
+          <CardContent className="space-y-1 pt-5">
+            <InfoRow label="Store" value={store?.name ?? "Unknown Store"} />
+            <InfoRow label="Category" value={category} />
+            <InfoRow label="Made In" value={product.made_in_country ?? "N/A"} />
+            <InfoRow label="MOQ" value={product.minimum_order_quantity ?? 1} />
+            <InfoRow label="Units/Case" value={product.units_per_case ?? 1} />
+            {product.preorderable && <InfoRow label="Pre-orderable" value="Yes" />}
+            {(product.tags ?? []).length > 0 && (
+              <InfoRow label="Tags">
+                <div className="flex flex-wrap gap-1">
+                  {(product.tags ?? []).map((tag: string) => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      <Tag size={9} className="mr-1" /> {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </InfoRow>
+            )}
+          </CardContent>
+        </Card>
       </Fade>
 
       <Fade>

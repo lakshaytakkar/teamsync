@@ -141,22 +141,54 @@ export default function FaireQuotations() {
 
   const newOrProcOrders = allOrders.filter((o: any) => o.state === "NEW" || o.state === "PROCESSING");
 
+  const sortedFiltered = sort
+    ? [...filtered].sort((a, b) => {
+        const dir = sort.dir === "asc" ? 1 : -1;
+        const k = sort.key;
+        let aVal: any, bVal: any;
+        if (k === "order") {
+          const oA = allOrders.find((o: any) => o.id === a.order_id);
+          const oB = allOrders.find((o: any) => o.id === b.order_id);
+          aVal = oA?.display_id ?? ""; bVal = oB?.display_id ?? "";
+        }
+        else if (k === "fulfiller") {
+          aVal = faireFulfillers.find(f => f.id === a.fulfiller_id)?.name ?? "";
+          bVal = faireFulfillers.find(f => f.id === b.fulfiller_id)?.name ?? "";
+        }
+        else if (k === "total") { aVal = quotationFulfillerTotal(a); bVal = quotationFulfillerTotal(b); }
+        else if (k === "margin") { aVal = marginPct(a, allOrders) ?? -999; bVal = marginPct(b, allOrders) ?? -999; }
+        else if (k === "status") { aVal = a.status; bVal = b.status; }
+        else { aVal = (a as any)[k]; bVal = (b as any)[k]; }
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+        if (typeof aVal === "number" && typeof bVal === "number") return (aVal - bVal) * dir;
+        return String(aVal).localeCompare(String(bVal)) * dir;
+      })
+    : filtered;
+
+  const totalPages = Math.max(1, Math.ceil(sortedFiltered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginated = sortedFiltered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <PageShell>
-      <PageHeader
-        title="Quotations"
-        subtitle={`${total} quote requests across all stores`}
-        actions={
-          <Button
-            data-testid="button-new-quotation"
-            onClick={() => setShowNew(true)}
-            style={{ background: FAIRE_COLOR }}
-            className="text-white hover:opacity-90"
-          >
-            <Plus className="h-4 w-4 mr-1" /> New Quotation
-          </Button>
-        }
-      />
+      <Fade>
+        <PageHeader
+          title="Quotations"
+          subtitle={`${total} quote requests across all stores`}
+          actions={
+            <Button
+              data-testid="button-new-quotation"
+              onClick={() => setShowNew(true)}
+              style={{ background: FAIRE_COLOR }}
+              className="text-white hover:opacity-90"
+            >
+              <Plus className="h-4 w-4 mr-1" /> New Quotation
+            </Button>
+          }
+        />
+      </Fade>
 
       <Fade>
         <StatGrid cols={4}>
@@ -165,7 +197,9 @@ export default function FaireQuotations() {
           <StatCard label="Accepted" value={isLoading ? "—" : String(accepted)} icon={FileText} iconBg="#ECFDF5" iconColor="#059669" />
           <StatCard label="Avg Net Margin" value={isLoading ? "—" : `${avgMargin}%`} icon={FileText} iconBg="#EFF6FF" iconColor="#2563EB" />
         </StatGrid>
+      </Fade>
 
+      <Fade>
         <IndexToolbar
           search={search}
           onSearch={v => { setSearch(v); setCurrentPage(1); }}
@@ -175,164 +209,135 @@ export default function FaireQuotations() {
           activeFilter={statusFilter}
           onFilter={s => { setStatusFilter(s as QuotationStatus | "all"); setCurrentPage(1); }}
         />
+      </Fade>
 
+      <Fade>
         <DataTableContainer>
           {isLoading && <div className="h-48 animate-pulse bg-muted/30 rounded" />}
           {!isLoading && filtered.length === 0 && <div className="p-8 text-center text-sm text-muted-foreground">No quotations match current filters.</div>}
-          {!isLoading && filtered.length > 0 && (() => {
-            const sortedFiltered = sort
-              ? [...filtered].sort((a, b) => {
-                  const dir = sort.dir === "asc" ? 1 : -1;
-                  const k = sort.key;
-                  let aVal: any, bVal: any;
-                  if (k === "order") {
-                    const oA = allOrders.find((o: any) => o.id === a.order_id);
-                    const oB = allOrders.find((o: any) => o.id === b.order_id);
-                    aVal = oA?.display_id ?? ""; bVal = oB?.display_id ?? "";
-                  }
-                  else if (k === "fulfiller") {
-                    aVal = faireFulfillers.find(f => f.id === a.fulfiller_id)?.name ?? "";
-                    bVal = faireFulfillers.find(f => f.id === b.fulfiller_id)?.name ?? "";
-                  }
-                  else if (k === "total") { aVal = quotationFulfillerTotal(a); bVal = quotationFulfillerTotal(b); }
-                  else if (k === "margin") { aVal = marginPct(a, allOrders) ?? -999; bVal = marginPct(b, allOrders) ?? -999; }
-                  else if (k === "status") { aVal = a.status; bVal = b.status; }
-                  else { aVal = (a as any)[k]; bVal = (b as any)[k]; }
-                  if (aVal == null && bVal == null) return 0;
-                  if (aVal == null) return 1;
-                  if (bVal == null) return -1;
-                  if (typeof aVal === "number" && typeof bVal === "number") return (aVal - bVal) * dir;
-                  return String(aVal).localeCompare(String(bVal)) * dir;
-                })
-              : filtered;
-            const totalPages = Math.max(1, Math.ceil(sortedFiltered.length / PAGE_SIZE));
-            const safePage = Math.min(currentPage, totalPages);
-            const paginated = sortedFiltered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-            return <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/30">
-                <DataTH>Quote ID</DataTH>
-                <SortableDataTH sortKey="order" currentSort={sort} onSort={handleSort}>Order</SortableDataTH>
-                <SortableDataTH sortKey="fulfiller" currentSort={sort} onSort={handleSort}>Fulfiller</SortableDataTH>
-                <DataTH>Items</DataTH>
-                <SortableDataTH sortKey="total" currentSort={sort} onSort={handleSort}>Fulfiller Total</SortableDataTH>
-                <DataTH>Faire Payout</DataTH>
-                <SortableDataTH sortKey="margin" currentSort={sort} onSort={handleSort}>Margin</SortableDataTH>
-                <SortableDataTH sortKey="status" currentSort={sort} onSort={handleSort}>Status</SortableDataTH>
-                <DataTH>Sent / Received</DataTH>
-                <DataTH>Action</DataTH>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {paginated.map(q => {
-                const order = allOrders.find((o: any) => o.id === q.order_id);
-                const fulfiller = faireFulfillers.find(f => f.id === q.fulfiller_id);
-                const ftotal = quotationFulfillerTotal(q);
-                const fpayout = orderFairePayout(q.order_id, allOrders);
-                const mp = marginPct(q, allOrders);
-                const sc = STATUS_CONFIG[q.status];
-                const marginColor = mp === null ? "#6B7280" : mp > 30 ? "#059669" : mp >= 15 ? "#D97706" : "#DC2626";
-                return (
-                  <DataTR key={q.id} data-testid={`row-quotation-${q.id}`}>
-                    <DataTD>
-                      <span className="font-mono text-muted-foreground">{q.id}</span>
-                    </DataTD>
-                    <DataTD>
-                      {order ? (
-                        <button
-                          onClick={() => setLocation(`/faire/orders/${order.id}`)}
-                          className="font-mono text-xs px-2 py-0.5 rounded hover:opacity-80"
-                          style={{ background: "#EFF6FF", color: "#2563EB" }}
-                          data-testid={`link-order-${order.id}`}
-                        >
-                          #{order.display_id}
-                        </button>
-                      ) : "—"}
-                    </DataTD>
-                    <DataTD>
-                      {fulfiller ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                            style={{ background: FAIRE_COLOR }}>
-                            {fulfiller.name.split(" ").map(w => w[0]).join("").slice(0, 2)}
-                          </div>
-                          <span className="font-medium">{fulfiller.name}</span>
-                        </div>
-                      ) : "—"}
-                    </DataTD>
-                    <DataTD>{q.items.length}</DataTD>
-                    <DataTD>{q.status === "DRAFT" || q.status === "SENT" ? "—" : <DualCurrency cents={ftotal} />}</DataTD>
-                    <DataTD><DualCurrency cents={fpayout} /></DataTD>
-                    <DataTD>
-                      {mp !== null && q.status !== "DRAFT" && q.status !== "SENT" ? (
-                        <span className="font-semibold" style={{ color: marginColor }}>{mp}%</span>
-                      ) : "—"}
-                    </DataTD>
-                    <DataTD>
-                      <Badge style={{ background: sc.bg, color: sc.color }} className="border-0">{sc.label}</Badge>
-                    </DataTD>
-                    <DataTD className="text-muted-foreground">
-                      <div>{q.sent_at ? new Date(q.sent_at).toLocaleDateString() : "—"}</div>
-                      <div>{q.received_at ? new Date(q.received_at).toLocaleDateString() : "—"}</div>
-                    </DataTD>
-                    <DataTD>
-                      <Button
-                        size="sm"
-                        variant={q.status === "QUOTE_RECEIVED" ? "default" : "outline"}
-                        style={q.status === "QUOTE_RECEIVED" ? { background: FAIRE_COLOR, color: "white" } : {}}
-                        onClick={() => setLocation(`/faire/quotations/${q.id}`)}
-                        data-testid={`button-view-quotation-${q.id}`}
-                      >
-                        <Eye className="h-3 w-3 mr-1" />
-                        {q.status === "QUOTE_RECEIVED" ? "Review" : "View"}
-                      </Button>
-                    </DataTD>
-                  </DataTR>
-                );
-              })}
-            </tbody>
-          </table>; })()}
-        </DataTableContainer>
-
-        {filtered.length > PAGE_SIZE && (() => {
-          const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-          const safePage = Math.min(currentPage, totalPages);
-          return (
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
-              </p>
-              <div className="flex items-center gap-1">
-                <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
-                  Previous
-                </Button>
-                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                  let page: number;
-                  if (totalPages <= 7) page = i + 1;
-                  else if (safePage <= 4) page = i + 1;
-                  else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
-                  else page = safePage - 3 + i;
+          {!isLoading && filtered.length > 0 && (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/30">
+                  <DataTH>Quote ID</DataTH>
+                  <SortableDataTH sortKey="order" currentSort={sort} onSort={handleSort}>Order</SortableDataTH>
+                  <SortableDataTH sortKey="fulfiller" currentSort={sort} onSort={handleSort}>Fulfiller</SortableDataTH>
+                  <DataTH>Items</DataTH>
+                  <SortableDataTH sortKey="total" currentSort={sort} onSort={handleSort}>Fulfiller Total</SortableDataTH>
+                  <DataTH>Faire Payout</DataTH>
+                  <SortableDataTH sortKey="margin" currentSort={sort} onSort={handleSort}>Margin</SortableDataTH>
+                  <SortableDataTH sortKey="status" currentSort={sort} onSort={handleSort}>Status</SortableDataTH>
+                  <DataTH>Sent / Received</DataTH>
+                  <DataTH>Action</DataTH>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {paginated.map(q => {
+                  const order = allOrders.find((o: any) => o.id === q.order_id);
+                  const fulfiller = faireFulfillers.find(f => f.id === q.fulfiller_id);
+                  const ftotal = quotationFulfillerTotal(q);
+                  const fpayout = orderFairePayout(q.order_id, allOrders);
+                  const mp = marginPct(q, allOrders);
+                  const sc = STATUS_CONFIG[q.status];
+                  const marginColor = mp === null ? "#6B7280" : mp > 30 ? "#059669" : mp >= 15 ? "#D97706" : "#DC2626";
                   return (
-                    <Button
-                      key={page} size="sm"
-                      variant={page === safePage ? "default" : "outline"}
-                      className="h-8 w-8 p-0"
-                      style={page === safePage ? { background: FAIRE_COLOR } : {}}
-                      onClick={() => setCurrentPage(page)}
-                      data-testid={`btn-page-${page}`}
-                    >
-                      {page}
-                    </Button>
+                    <DataTR key={q.id} data-testid={`row-quotation-${q.id}`}>
+                      <DataTD>
+                        <span className="font-mono text-muted-foreground">{q.id}</span>
+                      </DataTD>
+                      <DataTD>
+                        {order ? (
+                          <button
+                            onClick={() => setLocation(`/faire/orders/${order.id}`)}
+                            className="font-mono text-xs px-2 py-0.5 rounded hover:opacity-80"
+                            style={{ background: "#EFF6FF", color: "#2563EB" }}
+                            data-testid={`link-order-${order.id}`}
+                          >
+                            #{order.display_id}
+                          </button>
+                        ) : "—"}
+                      </DataTD>
+                      <DataTD>
+                        {fulfiller ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                              style={{ background: FAIRE_COLOR }}>
+                              {fulfiller.name.split(" ").map(w => w[0]).join("").slice(0, 2)}
+                            </div>
+                            <span className="font-medium">{fulfiller.name}</span>
+                          </div>
+                        ) : "—"}
+                      </DataTD>
+                      <DataTD>{q.items.length}</DataTD>
+                      <DataTD>{q.status === "DRAFT" || q.status === "SENT" ? "—" : <DualCurrency cents={ftotal} />}</DataTD>
+                      <DataTD><DualCurrency cents={fpayout} /></DataTD>
+                      <DataTD>
+                        {mp !== null && q.status !== "DRAFT" && q.status !== "SENT" ? (
+                          <span className="font-semibold" style={{ color: marginColor }}>{mp}%</span>
+                        ) : "—"}
+                      </DataTD>
+                      <DataTD>
+                        <Badge style={{ background: sc.bg, color: sc.color }} className="border-0">{sc.label}</Badge>
+                      </DataTD>
+                      <DataTD className="text-muted-foreground">
+                        <div>{q.sent_at ? new Date(q.sent_at).toLocaleDateString() : "—"}</div>
+                        <div>{q.received_at ? new Date(q.received_at).toLocaleDateString() : "—"}</div>
+                      </DataTD>
+                      <DataTD>
+                        <Button
+                          size="sm"
+                          variant={q.status === "QUOTE_RECEIVED" ? "default" : "outline"}
+                          style={q.status === "QUOTE_RECEIVED" ? { background: FAIRE_COLOR, color: "white" } : {}}
+                          onClick={() => setLocation(`/faire/quotations/${q.id}`)}
+                          data-testid={`button-view-quotation-${q.id}`}
+                        >
+                          <Eye className="h-3 w-3 mr-1" />
+                          {q.status === "QUOTE_RECEIVED" ? "Review" : "View"}
+                        </Button>
+                      </DataTD>
+                    </DataTR>
                   );
                 })}
-                <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
-                  Next
-                </Button>
-              </div>
-            </div>
-          );
-        })()}
+              </tbody>
+            </table>
+          )}
+        </DataTableContainer>
       </Fade>
+
+      {sortedFiltered.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sortedFiltered.length)} of {sortedFiltered.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+              Previous
+            </Button>
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              let page: number;
+              if (totalPages <= 7) page = i + 1;
+              else if (safePage <= 4) page = i + 1;
+              else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+              else page = safePage - 3 + i;
+              return (
+                <Button
+                  key={page} size="sm"
+                  variant={page === safePage ? "default" : "outline"}
+                  className="h-8 w-8 p-0"
+                  style={page === safePage ? { background: FAIRE_COLOR } : {}}
+                  onClick={() => setCurrentPage(page)}
+                  data-testid={`btn-page-${page}`}
+                >
+                  {page}
+                </Button>
+              );
+            })}
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       <DetailModal
         open={showNew}

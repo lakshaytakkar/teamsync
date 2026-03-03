@@ -199,7 +199,7 @@ export default function FaireRetailerDetail() {
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3 flex-wrap">
             <Button variant="ghost" size="sm" onClick={() => setLocation("/faire/retailers")} data-testid="btn-back">
-              <ArrowLeft size={15} className="mr-1.5" /> Retailers
+              <ArrowLeft size={16} className="mr-1" /> Retailers
             </Button>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -274,119 +274,75 @@ export default function FaireRetailerDetail() {
                     <Pencil size={11} /> Edit
                   </button>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                    {enrichment?.contact_name && (
-                      <div className="flex items-start gap-2">
-                        <User size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Contact Person</p>
-                          <p className="text-sm font-medium" data-testid="text-contact-name">{enrichment.contact_name}</p>
-                        </div>
+                <CardContent className="space-y-1">
+                  {enrichment?.contact_name && (
+                    <InfoRow label="Contact Person" value={enrichment.contact_name} />
+                  )}
+                  {enrichment?.contact_email && (
+                    <InfoRow label="Email">
+                      <a href={`mailto:${enrichment.contact_email}`} className="text-sm font-medium hover:underline" data-testid="text-contact-email">{enrichment.contact_email}</a>
+                    </InfoRow>
+                  )}
+                  {enrichment?.contact_phone && (
+                    <InfoRow label="Phone">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium" data-testid="text-contact-phone">{enrichment.contact_phone}</span>
+                        <a
+                          href={whatsappUrl(enrichment.contact_phone)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] px-1.5 py-0.5 rounded font-medium text-white"
+                          style={{ background: "#25D366" }}
+                          data-testid="link-whatsapp"
+                        >
+                          WhatsApp
+                        </a>
                       </div>
-                    )}
-                    {enrichment?.contact_email && (
-                      <div className="flex items-start gap-2">
-                        <Mail size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Email</p>
-                          <a href={`mailto:${enrichment.contact_email}`} className="text-sm font-medium hover:underline" data-testid="text-contact-email">{enrichment.contact_email}</a>
-                        </div>
-                      </div>
-                    )}
-                    {enrichment?.contact_phone && (
-                      <div className="flex items-start gap-2">
-                        <Phone size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Phone</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium" data-testid="text-contact-phone">{enrichment.contact_phone}</span>
-                            <a
-                              href={whatsappUrl(enrichment.contact_phone)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[10px] px-1.5 py-0.5 rounded font-medium text-white"
-                              style={{ background: "#25D366" }}
-                              data-testid="link-whatsapp"
-                            >
-                              WhatsApp
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    {enrichment?.store_address && (
-                      <div className="flex items-start gap-2">
-                        <MapPin size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Store Address</p>
-                          <p className="text-sm whitespace-pre-line" data-testid="text-store-address">{enrichment.store_address}</p>
-                        </div>
-                      </div>
-                    )}
-                    {enrichment?.business_type && (
-                      <div className="flex items-start gap-2">
-                        <Briefcase size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Business Type</p>
-                          <p className="text-sm" data-testid="text-business-type">{enrichment.business_type}</p>
-                        </div>
-                      </div>
-                    )}
-                    {enrichment?.store_type && (
-                      <div className="flex items-start gap-2">
-                        <Briefcase size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Store Type</p>
-                          <p className="text-sm" data-testid="text-store-type">{enrichment.store_type}</p>
-                        </div>
-                      </div>
-                    )}
-                    {enrichment?.website && (
-                      <div className="flex items-start gap-2">
-                        <Globe size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Website</p>
-                          <a
-                            href={enrichment.website.startsWith("http") ? enrichment.website : `https://${enrichment.website}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm font-medium hover:underline"
-                            style={{ color: FAIRE_COLOR }}
-                            data-testid="link-website"
-                          >
-                            {enrichment.website}
-                          </a>
-                        </div>
-                      </div>
-                    )}
-                    {enrichment?.instagram && (
-                      <div className="flex items-start gap-2">
-                        <Instagram size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Instagram</p>
-                          <a
-                            href={`https://instagram.com/${enrichment.instagram.replace(/^@/, "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm font-medium hover:underline"
-                            data-testid="link-instagram"
-                          >
-                            {enrichment.instagram.startsWith("@") ? enrichment.instagram : `@${enrichment.instagram}`}
-                          </a>
-                        </div>
-                      </div>
-                    )}
-                    {enrichment?.notes && (
-                      <div className="col-span-2 flex items-start gap-2">
-                        <div className="w-3.5 shrink-0" />
-                        <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Notes</p>
-                          <p className="text-sm text-muted-foreground whitespace-pre-line" data-testid="text-notes">{enrichment.notes}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    </InfoRow>
+                  )}
+                  {enrichment?.store_address && (
+                    <InfoRow label="Store Address">
+                      <span className="text-sm whitespace-pre-line" data-testid="text-store-address">{enrichment.store_address}</span>
+                    </InfoRow>
+                  )}
+                  {enrichment?.business_type && (
+                    <InfoRow label="Business Type" value={enrichment.business_type} />
+                  )}
+                  {enrichment?.store_type && (
+                    <InfoRow label="Store Type" value={enrichment.store_type} />
+                  )}
+                  {enrichment?.website && (
+                    <InfoRow label="Website">
+                      <a
+                        href={enrichment.website.startsWith("http") ? enrichment.website : `https://${enrichment.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium hover:underline"
+                        style={{ color: FAIRE_COLOR }}
+                        data-testid="link-website"
+                      >
+                        {enrichment.website}
+                      </a>
+                    </InfoRow>
+                  )}
+                  {enrichment?.instagram && (
+                    <InfoRow label="Instagram">
+                      <a
+                        href={`https://instagram.com/${enrichment.instagram.replace(/^@/, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium hover:underline"
+                        data-testid="link-instagram"
+                      >
+                        {enrichment.instagram.startsWith("@") ? enrichment.instagram : `@${enrichment.instagram}`}
+                      </a>
+                    </InfoRow>
+                  )}
+                  {enrichment?.notes && (
+                    <InfoRow label="Notes">
+                      <span className="text-sm text-muted-foreground whitespace-pre-line" data-testid="text-notes">{enrichment.notes}</span>
+                    </InfoRow>
+                  )}
                   {enrichment?.enriched_by && (
                     <p className="text-[10px] text-muted-foreground mt-3 pt-3 border-t">
                       Enriched by <span className="font-medium">{enrichment.enriched_by}</span>

@@ -184,23 +184,25 @@ export default function FaireApplications() {
 
   return (
     <PageShell>
-      <PageHeader
-        title="Seller Applications"
-        subtitle="Manage Faire wholesale seller account applications from start to approval"
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setSopOpen(true)} data-testid="btn-open-sop">
-              <BookOpen size={14} className="mr-1.5" /> SOP
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setVideoOpen(true)} data-testid="btn-open-video">
-              <PlayCircle size={14} className="mr-1.5" /> Tutorial
-            </Button>
-            <Button onClick={openAdd} style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" data-testid="btn-new-application">
-              <Plus size={15} className="mr-1.5" /> New Application
-            </Button>
-          </div>
-        }
-      />
+      <Fade>
+        <PageHeader
+          title="Seller Applications"
+          subtitle="Manage Faire wholesale seller account applications from start to approval"
+          actions={
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setSopOpen(true)} data-testid="btn-open-sop">
+                <BookOpen size={14} className="mr-1.5" /> SOP
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setVideoOpen(true)} data-testid="btn-open-video">
+                <PlayCircle size={14} className="mr-1.5" /> Tutorial
+              </Button>
+              <Button onClick={openAdd} style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" data-testid="btn-new-application">
+                <Plus size={15} className="mr-1.5" /> New Application
+              </Button>
+            </div>
+          }
+        />
+      </Fade>
 
       <Fade>
         <StatGrid cols={6}>
@@ -211,7 +213,9 @@ export default function FaireApplications() {
           <StatCard label="Approved" value={String(counts.approved)} icon={CheckCircle2} iconBg="#F0FDF4" iconColor="#16A34A" />
           <StatCard label="Rejected" value={String(counts.rejected)} icon={XCircle} iconBg="#FEF2F2" iconColor="#DC2626" />
         </StatGrid>
+      </Fade>
 
+      <Fade>
         <IndexToolbar
           search={search}
           onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
@@ -228,7 +232,9 @@ export default function FaireApplications() {
           activeFilter={statusFilter}
           onFilter={(v) => { setStatusFilter(v); setCurrentPage(1); }}
         />
+      </Fade>
 
+      <Fade>
         <DataTableContainer>
           {isLoading && <div className="h-48 animate-pulse bg-muted/30 rounded" />}
           {!isLoading && filtered.length === 0 && (
@@ -290,42 +296,42 @@ export default function FaireApplications() {
             </table>
           )}
         </DataTableContainer>
-
-        {filtered.length > PAGE_SIZE && (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
-            </p>
-            <div className="flex items-center gap-1">
-              <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
-                Previous
-              </Button>
-              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                let page: number;
-                if (totalPages <= 7) page = i + 1;
-                else if (safePage <= 4) page = i + 1;
-                else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
-                else page = safePage - 3 + i;
-                return (
-                  <Button
-                    key={page} size="sm"
-                    variant={page === safePage ? "default" : "outline"}
-                    className="h-8 w-8 p-0"
-                    style={page === safePage ? { background: FAIRE_COLOR } : {}}
-                    onClick={() => setCurrentPage(page)}
-                    data-testid={`btn-page-${page}`}
-                  >
-                    {page}
-                  </Button>
-                );
-              })}
-              <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
       </Fade>
+
+      {filtered.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+              Previous
+            </Button>
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              let page: number;
+              if (totalPages <= 7) page = i + 1;
+              else if (safePage <= 4) page = i + 1;
+              else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+              else page = safePage - 3 + i;
+              return (
+                <Button
+                  key={page} size="sm"
+                  variant={page === safePage ? "default" : "outline"}
+                  className="h-8 w-8 p-0"
+                  style={page === safePage ? { background: FAIRE_COLOR } : {}}
+                  onClick={() => setCurrentPage(page)}
+                  data-testid={`btn-page-${page}`}
+                >
+                  {page}
+                </Button>
+              );
+            })}
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* New Application Modal */}
       <DetailModal

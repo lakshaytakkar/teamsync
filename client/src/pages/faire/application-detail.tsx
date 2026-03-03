@@ -399,12 +399,12 @@ export default function FaireApplicationDetail() {
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-start gap-3">
-            <Button variant="ghost" size="sm" className="h-8 mt-0.5" onClick={() => setLocation("/faire/applications")} data-testid="btn-back">
-              <ArrowLeft size={14} className="mr-1" /> Back
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/faire/applications")} data-testid="btn-back">
+              <ArrowLeft size={16} className="mr-1" /> Applications
             </Button>
             <div>
               <div className="flex items-center gap-2.5 mb-1">
-                <h1 className="text-2xl font-bold">{app.brand_name}</h1>
+                <h1 className="text-2xl font-bold font-heading">{app.brand_name}</h1>
                 <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${sc.bg} ${sc.text}`}>
                   <StatusIcon size={11} /> {sc.label}
                 </span>

@@ -689,7 +689,9 @@ export default function FaireBankTransactions() {
               <StatCard label="Unreconciled" value={faireLoading ? "—" : String(unreconciledCount)} icon={CreditCard} iconBg="#FFFBEB" iconColor="#D97706" />
               <StatCard label="Personal Txns" value={faireLoading ? "—" : String(personalCount)} icon={User} iconBg="#F5F3FF" iconColor="#7C3AED" />
             </StatGrid>
+          </Fade>
 
+          <Fade>
             <IndexToolbar
               search={search}
               onSearch={v => { setSearch(v); setCurrentPage(1); }}
@@ -705,7 +707,9 @@ export default function FaireBankTransactions() {
               activeFilter={filter}
               onFilter={(k) => { setFilter(k as FaireFilter); setCurrentPage(1); }}
             />
+          </Fade>
 
+          <Fade>
             <DataTableContainer>
               {faireLoading && <div className="h-48 animate-pulse bg-muted/30 rounded" />}
               {!faireLoading && sorted.length === 0 && (
@@ -813,42 +817,42 @@ export default function FaireBankTransactions() {
                 </table>
               )}
             </DataTableContainer>
-
-            {sorted.length > PAGE_SIZE && (
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {(btSafePage - 1) * PAGE_SIZE + 1}–{Math.min(btSafePage * PAGE_SIZE, sorted.length)} of {sorted.length}
-                  </p>
-                  <div className="flex items-center gap-1">
-                    <Button size="sm" variant="outline" className="h-8" disabled={btSafePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
-                      Previous
-                    </Button>
-                    {Array.from({ length: Math.min(btTotalPages, 7) }, (_, i) => {
-                      let page: number;
-                      if (btTotalPages <= 7) page = i + 1;
-                      else if (btSafePage <= 4) page = i + 1;
-                      else if (btSafePage >= btTotalPages - 3) page = btTotalPages - 6 + i;
-                      else page = btSafePage - 3 + i;
-                      return (
-                        <Button
-                          key={page} size="sm"
-                          variant={page === btSafePage ? "default" : "outline"}
-                          className="h-8 w-8 p-0"
-                          style={page === btSafePage ? { background: FAIRE_COLOR } : {}}
-                          onClick={() => setCurrentPage(page)}
-                          data-testid={`btn-page-${page}`}
-                        >
-                          {page}
-                        </Button>
-                      );
-                    })}
-                    <Button size="sm" variant="outline" className="h-8" disabled={btSafePage >= btTotalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
-                      Next
-                    </Button>
-                  </div>
-                </div>
-            )}
           </Fade>
+
+          {sorted.length > PAGE_SIZE && (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Showing {(btSafePage - 1) * PAGE_SIZE + 1}–{Math.min(btSafePage * PAGE_SIZE, sorted.length)} of {sorted.length}
+                </p>
+                <div className="flex items-center gap-1">
+                  <Button size="sm" variant="outline" className="h-8" disabled={btSafePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+                    Previous
+                  </Button>
+                  {Array.from({ length: Math.min(btTotalPages, 7) }, (_, i) => {
+                    let page: number;
+                    if (btTotalPages <= 7) page = i + 1;
+                    else if (btSafePage <= 4) page = i + 1;
+                    else if (btSafePage >= btTotalPages - 3) page = btTotalPages - 6 + i;
+                    else page = btSafePage - 3 + i;
+                    return (
+                      <Button
+                        key={page} size="sm"
+                        variant={page === btSafePage ? "default" : "outline"}
+                        className="h-8 w-8 p-0"
+                        style={page === btSafePage ? { background: FAIRE_COLOR } : {}}
+                        onClick={() => setCurrentPage(page)}
+                        data-testid={`btn-page-${page}`}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  })}
+                  <Button size="sm" variant="outline" className="h-8" disabled={btSafePage >= btTotalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+                    Next
+                  </Button>
+                </div>
+              </div>
+          )}
 
           <DetailModal
             open={!!attachModal}

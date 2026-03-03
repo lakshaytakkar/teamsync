@@ -212,7 +212,7 @@ export default function FaireQuotationDetail() {
       <Fade>
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => setLocation("/faire/quotations")} data-testid="button-back-quotations">
-            <ArrowLeft className="h-4 w-4 mr-1.5" /> Quotations
+            <ArrowLeft size={16} className="mr-1" /> Quotations
           </Button>
           <span className="text-muted-foreground">/</span>
           <span className="font-mono text-sm font-semibold text-foreground">{quotation.id}</span>
@@ -246,24 +246,22 @@ export default function FaireQuotationDetail() {
 
               {order ? (
                 <>
-                  <div className="flex items-center gap-2 mb-3">
-                    <button
-                      className="font-mono text-sm px-2.5 py-1 rounded font-bold hover:opacity-80 transition-opacity"
-                      style={{ background: "#EFF6FF", color: "#2563EB" }}
-                      onClick={() => setLocation(`/faire/orders/${order.id}`)}
-                      data-testid="link-order"
-                    >
-                      #{order.display_id}
-                    </button>
-                    <Badge style={{ background: "var(--muted)", color: "var(--foreground)" }} className="border-0 text-sm">{order.state}</Badge>
-                  </div>
-
-                  <div className="mb-4 p-3 rounded-lg bg-muted/40 space-y-1">
-                    <div className="font-semibold text-sm">{order.address?.name}</div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" />
-                      {order.address?.city}, {order.address?.state_code}
-                    </div>
+                  <div className="space-y-1 mb-4">
+                    <InfoRow label="Order">
+                      <button
+                        className="font-mono text-sm px-2.5 py-0.5 rounded font-bold hover:opacity-80 transition-opacity"
+                        style={{ background: "#EFF6FF", color: "#2563EB" }}
+                        onClick={() => setLocation(`/faire/orders/${order.id}`)}
+                        data-testid="link-order"
+                      >
+                        #{order.display_id}
+                      </button>
+                    </InfoRow>
+                    <InfoRow label="State">
+                      <Badge style={{ background: "var(--muted)", color: "var(--foreground)" }} className="border-0 text-sm">{order.state}</Badge>
+                    </InfoRow>
+                    <InfoRow label="Customer" value={order.address?.name ?? "—"} />
+                    <InfoRow label="Location" value={`${order.address?.city ?? ""}, ${order.address?.state_code ?? ""}`} />
                   </div>
 
                   <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Items Ordered</div>
