@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
-  PageShell, PageHeader, DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR,
+  PageShell, PageHeader, IndexToolbar, DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR,
 } from "@/components/layout";
 import { FAIRE_COLOR, type OrderState } from "@/lib/faire-config";
 import { DualCurrency } from "@/lib/faire-currency";
@@ -28,6 +28,7 @@ export default function FaireShipments() {
   const { toast } = useToast();
   const [selectedStore, setSelectedStore] = useState("all");
   const [stateFilter, setStateFilter] = useState<"all" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED">("all");
+  const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
   const PAGE_SIZE = 25;
@@ -77,6 +78,14 @@ export default function FaireShipments() {
     .filter(s => {
       if (selectedStore !== "all" && s.store?.id !== selectedStore) return false;
       if (stateFilter !== "all" && s.order?.state !== stateFilter) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        const shipId = (s.id ?? "").toLowerCase();
+        const orderId = (s.order?.display_id ?? "").toLowerCase();
+        const carrier = (s.carrier ?? "").toLowerCase();
+        const trackingCode = (s.tracking_code ?? "").toLowerCase();
+        if (!shipId.includes(q) && !orderId.includes(q) && !carrier.includes(q) && !trackingCode.includes(q)) return false;
+      }
       return true;
     });
 
@@ -124,20 +133,28 @@ export default function FaireShipments() {
           title="Shipments"
           subtitle="All in-transit and recent shipments"
           actions={
-            <div className="flex items-center gap-2">
-              <select value={selectedStore} onChange={e => { setSelectedStore(e.target.value); setCurrentPage(1); }} className="h-8 text-xs border rounded-lg px-2" data-testid="select-store">
-                <option value="all">All Stores</option>
-                {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-              <div className="flex gap-1">
-                {(["all", "PRE_TRANSIT", "IN_TRANSIT", "DELIVERED"] as const).map(s => (
-                  <button key={s} onClick={() => { setStateFilter(s); setCurrentPage(1); }} className={`px-3 py-1 text-xs rounded-lg border transition-colors ${stateFilter === s ? "text-white border-transparent" : "bg-background hover:bg-muted"}`} style={stateFilter === s ? { background: "#1A6B45" } : {}} data-testid={`filter-state-${s}`}>
-                    {s === "all" ? "All" : s === "PRE_TRANSIT" ? "Pre-Transit" : s === "IN_TRANSIT" ? "In Transit" : "Delivered"}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <select value={selectedStore} onChange={e => { setSelectedStore(e.target.value); setCurrentPage(1); }} className="h-9 text-sm border rounded-lg px-3 bg-background" data-testid="select-store">
+              <option value="all">All Stores</option>
+              {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
           }
+        />
+      </Fade>
+
+      <Fade>
+        <IndexToolbar
+          search={search}
+          onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
+          placeholder="Search shipments..."
+          color={FAIRE_COLOR}
+          filters={[
+            { value: "all", label: "All" },
+            { value: "PRE_TRANSIT", label: "Pre-Transit" },
+            { value: "IN_TRANSIT", label: "In Transit" },
+            { value: "DELIVERED", label: "Delivered" },
+          ]}
+          activeFilter={stateFilter}
+          onFilter={(v) => { setStateFilter(v as "all" | "PRE_TRANSIT" | "IN_TRANSIT" | "DELIVERED"); setCurrentPage(1); }}
         />
       </Fade>
 

@@ -11,7 +11,7 @@ import { FAIRE_COLOR } from "@/lib/faire-config";
 import { useToast } from "@/hooks/use-toast";
 import { DualCurrency } from "@/lib/faire-currency";
 import {
-  PageShell, PageHeader, DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR,
+  PageShell, PageHeader, IndexToolbar, DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR,
 } from "@/components/layout";
 
 
@@ -128,14 +128,20 @@ export default function FairePricing() {
         <PageHeader
           title="Pricing & Prepacks"
           subtitle="Manage wholesale and retail prices across all stores"
-          actions={
-            <div className="flex gap-2">
-              <select value={selectedStore} onChange={e => { setSelectedStore(e.target.value); setCurrentPage(1); }} className="h-8 text-xs border rounded-lg px-2" data-testid="select-store">
-                <option value="all">All Stores</option>
-                {stores.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-              <Input placeholder="Search products..." value={search} onChange={e => { setSearch(e.target.value); setCurrentPage(1); }} className="max-w-xs h-8 text-sm" data-testid="input-search" />
-            </div>
+        />
+      </Fade>
+
+      <Fade>
+        <IndexToolbar
+          search={search}
+          onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
+          placeholder="Search products..."
+          color={FAIRE_COLOR}
+          extra={
+            <select value={selectedStore} onChange={e => { setSelectedStore(e.target.value); setCurrentPage(1); }} className="h-9 text-sm border rounded-lg px-3 bg-background" data-testid="select-store">
+              <option value="all">All Stores</option>
+              {stores.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
           }
         />
       </Fade>

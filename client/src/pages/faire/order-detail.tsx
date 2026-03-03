@@ -469,15 +469,11 @@ export default function FaireOrderDetail() {
                   const retailerOrders = orders.filter((o: any) => o.retailer_id === order.retailer_id);
                   const totalSpent = retailerOrders.reduce((sum: number, o: any) => sum + (o.items ?? []).reduce((s: number, i: any) => s + i.price_cents * i.quantity, 0), 0);
                   return (
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-muted/40 rounded-lg p-3 text-center">
-                        <p className="text-lg font-bold">{retailerOrders.length}</p>
-                        <p className="text-xs text-muted-foreground">Total Orders</p>
-                      </div>
-                      <div className="bg-muted/40 rounded-lg p-3 text-center">
-                        <p className="text-lg font-bold"><DualCurrency cents={totalSpent} /></p>
-                        <p className="text-xs text-muted-foreground">Total Spent</p>
-                      </div>
+                    <div className="space-y-1">
+                      <InfoRow label="Total Orders" value={retailerOrders.length} />
+                      <InfoRow label="Total Spent">
+                        <span className="text-sm font-medium"><DualCurrency cents={totalSpent} /></span>
+                      </InfoRow>
                     </div>
                   );
                 })()}

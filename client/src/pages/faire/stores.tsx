@@ -11,6 +11,7 @@ import { formatUSD, formatINR, DualCurrency } from "@/lib/faire-currency";
 import {
   PageShell,
   PageHeader,
+  IndexToolbar,
   StatGrid,
   StatCard,
   DataTableContainer,
@@ -89,11 +90,15 @@ function getLastSyncLabel(ts: string | null): string {
   return `${Math.round(diff / 1440)}d ago`;
 }
 
+const PAGE_SIZE = 25;
+
 export default function FaireStores() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data, isLoading } = useQuery<StoresWithSummary>({
     queryKey: ["/api/faire/stores?summary"],
@@ -146,6 +151,19 @@ export default function FaireStores() {
       </PageShell>
     );
   }
+
+  const filtered = stores.filter(s => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      s.name.toLowerCase().includes(q) ||
+      s.id.toLowerCase().includes(q)
+    );
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedStores = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const activeCount = stores.filter(s => s.active).length;
   const syncedCount = stores.filter(s => s.last_synced_at).length;
@@ -216,6 +234,15 @@ export default function FaireStores() {
       </Fade>
 
       <Fade>
+        <IndexToolbar
+          search={search}
+          onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
+          placeholder="Search stores..."
+          color={FAIRE_COLOR}
+        />
+      </Fade>
+
+      <Fade>
         <DataTableContainer>
           <table className="w-full text-sm">
             <thead>
@@ -233,7 +260,7 @@ export default function FaireStores() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {stores.map(store => {
+              {paginatedStores.map(store => {
                 const isSyncing = syncingId === store.id;
                 const logo = STORE_LOGOS[store.name];
                 const category = STORE_CATEGORIES[store.name] ?? "General Merchandise";
@@ -373,10 +400,12 @@ export default function FaireStores() {
                   </DataTR>
                 );
               })}
-              {stores.length === 0 && (
+              {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center text-sm text-muted-foreground font-medium">
-                    No stores configured. Add a Faire brand account to get started.
+                  <td colSpan={10} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                    {stores.length === 0
+                      ? "No stores configured. Add a Faire brand account to get started."
+                      : "No stores match your search."}
                   </td>
                 </tr>
               )}
@@ -384,6 +413,41 @@ export default function FaireStores() {
           </table>
         </DataTableContainer>
       </Fade>
+
+      {filtered.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+              Previous
+            </Button>
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              let page: number;
+              if (totalPages <= 7) page = i + 1;
+              else if (safePage <= 4) page = i + 1;
+              else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+              else page = safePage - 3 + i;
+              return (
+                <Button
+                  key={page} size="sm"
+                  variant={page === safePage ? "default" : "outline"}
+                  className="h-8 w-8 p-0"
+                  style={page === safePage ? { background: FAIRE_COLOR } : {}}
+                  onClick={() => setCurrentPage(page)}
+                  data-testid={`btn-page-${page}`}
+                >
+                  {page}
+                </Button>
+              );
+            })}
+            <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </PageShell>
   );
 }

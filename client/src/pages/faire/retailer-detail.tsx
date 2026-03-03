@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { ArrowLeft, Mail, Phone, Globe, Instagram, MapPin, Briefcase, User, Pencil, MessageCircle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PageTransition, Fade } from "@/components/ui/animated";
+import { Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import {
   DataTD,
   DataTR,
   DetailModal,
+  InfoRow,
+  PageShell,
 } from "@/components/layout";
 import {
   FAIRE_COLOR,
@@ -192,7 +194,7 @@ export default function FaireRetailerDetail() {
   );
 
   return (
-    <PageTransition className="px-16 py-6 lg:px-24 space-y-5">
+    <PageShell>
       <Fade>
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3 flex-wrap">
@@ -201,7 +203,7 @@ export default function FaireRetailerDetail() {
             </Button>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl font-bold font-heading" data-testid="text-retailer-name">{retailerName}</h1>
+                <h1 className="text-2xl font-bold font-heading" data-testid="text-retailer-name">{retailerName}</h1>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${isActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"}`} data-testid="text-retailer-status">
                   {isActive ? "active" : "inactive"}
                 </span>
@@ -248,13 +250,13 @@ export default function FaireRetailerDetail() {
           <Fade>
             <Card>
               <CardHeader className="pb-2"><CardTitle className="text-sm">Retailer Info</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Name</p><p className="text-sm" data-testid="text-info-name">{retailerName}</p></div>
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Retailer ID</p><p className="text-xs font-mono text-muted-foreground truncate" data-testid="text-info-id">{retailerId}</p></div>
-                  {locationParts && <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Location</p><p className="text-sm" data-testid="text-info-location">{locationParts}</p></div>}
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-wide">Status</p><p className="text-sm" data-testid="text-info-status">{isActive ? "Active" : "Inactive"}</p></div>
-                </div>
+              <CardContent className="space-y-1">
+                <InfoRow label="Name" value={retailerName} />
+                <InfoRow label="Retailer ID">
+                  <span className="text-xs font-mono text-muted-foreground truncate" data-testid="text-info-id">{retailerId}</span>
+                </InfoRow>
+                {locationParts && <InfoRow label="Location" value={locationParts} />}
+                <InfoRow label="Status" value={isActive ? "Active" : "Inactive"} />
               </CardContent>
             </Card>
           </Fade>
@@ -463,22 +465,22 @@ export default function FaireRetailerDetail() {
           <Fade>
             <Card>
               <CardHeader className="pb-2"><CardTitle className="text-sm">Lifetime Stats</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                {[
-                  { label: "Total Orders", value: totalOrders },
-                  { label: "Total Spent", value: `$${totalSpentDollars.toLocaleString()}`, sub: formatINRFromDollars(totalSpentDollars) },
-                  { label: "Avg Order Value", value: `$${avgOrderValue}`, sub: formatINRFromDollars(avgOrderValue) },
-                  { label: "First Order", value: firstOrder ? new Date(firstOrder.created_at).toLocaleDateString() : "\u2014" },
-                  { label: "Last Order", value: lastOrder ? new Date(lastOrder.created_at).toLocaleDateString() : "\u2014" },
-                ].map((stat, i) => (
-                  <div key={i} className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-foreground">{stat.label}</span>
-                    <span className="text-sm font-semibold" data-testid={`text-stat-${stat.label.toLowerCase().replace(/\s+/g, "-")}`}>
-                      {stat.value}
-                      {"sub" in stat && stat.sub && <span className="block text-[10px] text-muted-foreground/70 font-normal text-right">{stat.sub}</span>}
-                    </span>
-                  </div>
-                ))}
+              <CardContent className="space-y-1">
+                <InfoRow label="Total Orders" value={totalOrders} />
+                <InfoRow label="Total Spent">
+                  <span className="text-sm font-medium" data-testid="text-stat-total-spent">
+                    ${totalSpentDollars.toLocaleString()}
+                    <span className="block text-[10px] text-muted-foreground/70 font-normal text-right">{formatINRFromDollars(totalSpentDollars)}</span>
+                  </span>
+                </InfoRow>
+                <InfoRow label="Avg Order Value">
+                  <span className="text-sm font-medium" data-testid="text-stat-avg-order-value">
+                    ${avgOrderValue}
+                    <span className="block text-[10px] text-muted-foreground/70 font-normal text-right">{formatINRFromDollars(avgOrderValue)}</span>
+                  </span>
+                </InfoRow>
+                <InfoRow label="First Order" value={firstOrder ? new Date(firstOrder.created_at).toLocaleDateString() : "\u2014"} />
+                <InfoRow label="Last Order" value={lastOrder ? new Date(lastOrder.created_at).toLocaleDateString() : "\u2014"} />
               </CardContent>
             </Card>
           </Fade>
@@ -622,6 +624,6 @@ export default function FaireRetailerDetail() {
           </div>
         </div>
       </DetailModal>
-    </PageTransition>
+    </PageShell>
   );
 }

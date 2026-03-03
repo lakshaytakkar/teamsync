@@ -58,6 +58,8 @@ function marginPct(q: FaireQuotation, orders: any[]): number | null {
   return Math.round(((payout - cost) / payout) * 100);
 }
 
+const PAGE_SIZE = 25;
+
 export default function FaireQuotations() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -74,6 +76,7 @@ export default function FaireQuotations() {
   const [statusFilter, setStatusFilter] = useState<QuotationStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [quotations, setQuotations] = useState(faireQuotations);
 
   const handleSort = (key: string) => {
@@ -82,6 +85,7 @@ export default function FaireQuotations() {
       if (prev.dir === "asc") return { key, dir: "desc" };
       return null;
     });
+    setCurrentPage(1);
   };
   const [showNew, setShowNew] = useState(false);
   const [newOrderId, setNewOrderId] = useState("");
@@ -164,12 +168,12 @@ export default function FaireQuotations() {
 
         <IndexToolbar
           search={search}
-          onSearch={setSearch}
+          onSearch={v => { setSearch(v); setCurrentPage(1); }}
           placeholder="Search by quote ID, order, or fulfiller…"
           color={FAIRE_COLOR}
           filters={STATUS_TABS.map(s => ({ value: s, label: STATUS_LABELS[s] }))}
           activeFilter={statusFilter}
-          onFilter={s => setStatusFilter(s as QuotationStatus | "all")}
+          onFilter={s => { setStatusFilter(s as QuotationStatus | "all"); setCurrentPage(1); }}
         />
 
         <DataTableContainer>
@@ -201,6 +205,9 @@ export default function FaireQuotations() {
                   return String(aVal).localeCompare(String(bVal)) * dir;
                 })
               : filtered;
+            const totalPages = Math.max(1, Math.ceil(sortedFiltered.length / PAGE_SIZE));
+            const safePage = Math.min(currentPage, totalPages);
+            const paginated = sortedFiltered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
             return <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/30">
@@ -217,7 +224,7 @@ export default function FaireQuotations() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {sortedFiltered.map(q => {
+              {paginated.map(q => {
                 const order = allOrders.find((o: any) => o.id === q.order_id);
                 const fulfiller = faireFulfillers.find(f => f.id === q.fulfiller_id);
                 const ftotal = quotationFulfillerTotal(q);
@@ -286,6 +293,45 @@ export default function FaireQuotations() {
             </tbody>
           </table>; })()}
         </DataTableContainer>
+
+        {filtered.length > PAGE_SIZE && (() => {
+          const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+          const safePage = Math.min(currentPage, totalPages);
+          return (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+                  Previous
+                </Button>
+                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                  let page: number;
+                  if (totalPages <= 7) page = i + 1;
+                  else if (safePage <= 4) page = i + 1;
+                  else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+                  else page = safePage - 3 + i;
+                  return (
+                    <Button
+                      key={page} size="sm"
+                      variant={page === safePage ? "default" : "outline"}
+                      className="h-8 w-8 p-0"
+                      style={page === safePage ? { background: FAIRE_COLOR } : {}}
+                      onClick={() => setCurrentPage(page)}
+                      data-testid={`btn-page-${page}`}
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
+                <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+                  Next
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
       </Fade>
 
       <DetailModal

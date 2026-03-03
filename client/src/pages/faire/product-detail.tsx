@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Star, Pencil, Trash2, Tag, ImageIcon } from "lucide-react";
-import { PageTransition, Fade } from "@/components/ui/animated";
+import { Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DetailModal } from "@/components/layout";
+import { DetailModal, PageShell } from "@/components/layout";
 import { FAIRE_COLOR } from "@/lib/faire-config";
 import { useToast } from "@/hooks/use-toast";
 import { DualCurrency } from "@/lib/faire-currency";
@@ -88,14 +88,14 @@ export default function FaireProductDetail() {
     : null;
 
   return (
-    <PageTransition className="px-16 py-6 lg:px-24 space-y-5">
+    <PageShell>
       <Fade>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => setLocation("/faire/products")} data-testid="btn-back">
               <ArrowLeft size={15} className="mr-1.5" /> Products
             </Button>
-            <h1 className="text-xl font-bold font-heading">{product.name}</h1>
+            <h1 className="text-2xl font-bold font-heading">{product.name}</h1>
             <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ background: lc.bg, color: lc.color }}>{lc.label}</span>
             <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ background: sl.bg, color: sl.color }}>{sl.label}</span>
           </div>
@@ -356,6 +356,6 @@ export default function FaireProductDetail() {
           <p className="text-sm text-muted-foreground">This action cannot be undone. All product data, variants, and pricing will be permanently removed from your Faire store.</p>
         </div>
       </DetailModal>
-    </PageTransition>
+    </PageShell>
   );
 }

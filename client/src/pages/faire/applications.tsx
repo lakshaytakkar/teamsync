@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, ClipboardList, CheckCircle2, Clock, AlertTriangle, XCircle,
-  FileText, BookOpen, PlayCircle, ExternalLink, Search,
+  FileText, BookOpen, PlayCircle, ExternalLink,
 } from "lucide-react";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import {
-  PageShell, PageHeader, StatGrid, StatCard,
+  PageShell, PageHeader, StatGrid, StatCard, IndexToolbar,
   DataTableContainer, DataTH, DataTD, DataTR, DetailModal,
 } from "@/components/layout";
 import { FAIRE_COLOR } from "@/lib/faire-config";
@@ -110,6 +110,7 @@ export default function FaireApplications() {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
   const [sopOpen, setSopOpen] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
@@ -159,12 +160,18 @@ export default function FaireApplications() {
     onError: (e: any) => toast({ title: e.message, variant: "destructive" }),
   });
 
+  const PAGE_SIZE = 25;
+
   const filtered = apps.filter(a => {
     const matchStatus = statusFilter === "all" || a.status === statusFilter;
     const s = search.toLowerCase();
     const matchSearch = !s || a.brand_name.toLowerCase().includes(s) || (a.email_id ?? "").toLowerCase().includes(s) || (a.category ?? "").toLowerCase().includes(s);
     return matchStatus && matchSearch;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedApps = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const counts = {
     total: apps.length,
@@ -205,31 +212,22 @@ export default function FaireApplications() {
           <StatCard label="Rejected" value={String(counts.rejected)} icon={XCircle} iconBg="#FEF2F2" iconColor="#DC2626" />
         </StatGrid>
 
-        <div className="flex items-center gap-3 mb-4">
-          <div className="relative flex-1 max-w-sm">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search by brand name, email, category…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-9 h-9"
-              data-testid="input-search-applications"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 h-9" data-testid="select-status-filter">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="drafting">Drafting</SelectItem>
-              <SelectItem value="applied">Applied</SelectItem>
-              <SelectItem value="pending_docs">Pending Docs</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <IndexToolbar
+          search={search}
+          onSearch={(v) => { setSearch(v); setCurrentPage(1); }}
+          placeholder="Search by brand or contact..."
+          color={FAIRE_COLOR}
+          filters={[
+            { value: "all", label: "All" },
+            { value: "drafting", label: "Drafting", count: counts.drafting },
+            { value: "applied", label: "Applied", count: counts.applied },
+            { value: "pending_docs", label: "Pending Docs", count: counts.pending_docs },
+            { value: "approved", label: "Approved", count: counts.approved },
+            { value: "rejected", label: "Rejected", count: counts.rejected },
+          ]}
+          activeFilter={statusFilter}
+          onFilter={(v) => { setStatusFilter(v); setCurrentPage(1); }}
+        />
 
         <DataTableContainer>
           {isLoading && <div className="h-48 animate-pulse bg-muted/30 rounded" />}
@@ -255,7 +253,7 @@ export default function FaireApplications() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {filtered.map(a => {
+                {paginatedApps.map(a => {
                   const sc = STATUS_CONFIG[a.status] ?? STATUS_CONFIG.drafting;
                   const Icon = sc.icon;
                   return (
@@ -292,6 +290,41 @@ export default function FaireApplications() {
             </table>
           )}
         </DataTableContainer>
+
+        {filtered.length > PAGE_SIZE && (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+            </p>
+            <div className="flex items-center gap-1">
+              <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+                Previous
+              </Button>
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                let page: number;
+                if (totalPages <= 7) page = i + 1;
+                else if (safePage <= 4) page = i + 1;
+                else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+                else page = safePage - 3 + i;
+                return (
+                  <Button
+                    key={page} size="sm"
+                    variant={page === safePage ? "default" : "outline"}
+                    className="h-8 w-8 p-0"
+                    style={page === safePage ? { background: FAIRE_COLOR } : {}}
+                    onClick={() => setCurrentPage(page)}
+                    data-testid={`btn-page-${page}`}
+                  >
+                    {page}
+                  </Button>
+                );
+              })}
+              <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </Fade>
 
       {/* New Application Modal */}

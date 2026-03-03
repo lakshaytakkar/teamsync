@@ -2,7 +2,8 @@ import { useState } from "react";
 import { TrendingUp, TrendingDown, Mail } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { useQuery } from "@tanstack/react-query";
-import { PageTransition, Fade } from "@/components/ui/animated";
+import { Fade } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTableContainer, DataTH, DataTD, DataTR } from "@/components/layout";
 import {
@@ -134,7 +135,7 @@ export default function FaireAnalytics() {
   }
 
   return (
-    <PageTransition className="px-16 py-6 lg:px-24 space-y-6">
+    <PageShell>
       <Fade>
         <div className="flex items-center justify-between">
           <div>
@@ -349,6 +350,6 @@ export default function FaireAnalytics() {
           </CardContent>
         </Card>
       </Fade>
-    </PageTransition>
+    </PageShell>
   );
 }

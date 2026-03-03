@@ -186,7 +186,11 @@ export default function FaireInventory() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {allVariants.map((v: any) => {
+              {(() => {
+                const totalPages = Math.max(1, Math.ceil(allVariants.length / PAGE_SIZE));
+                const safePage = Math.min(currentPage, totalPages);
+                return allVariants.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+              })().map((v: any) => {
                 const isOut = v.available_quantity === 0;
                 const isLow = v.available_quantity > 0 && v.available_quantity < 5;
                 return (
@@ -229,6 +233,45 @@ export default function FaireInventory() {
             </tbody>
           </table>
         </DataTableContainer>
+
+        {allVariants.length > PAGE_SIZE && (() => {
+          const totalPages = Math.max(1, Math.ceil(allVariants.length / PAGE_SIZE));
+          const safePage = Math.min(currentPage, totalPages);
+          return (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, allVariants.length)} of {allVariants.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+                  Previous
+                </Button>
+                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                  let page: number;
+                  if (totalPages <= 7) page = i + 1;
+                  else if (safePage <= 4) page = i + 1;
+                  else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+                  else page = safePage - 3 + i;
+                  return (
+                    <Button
+                      key={page} size="sm"
+                      variant={page === safePage ? "default" : "outline"}
+                      className="h-8 w-8 p-0"
+                      style={page === safePage ? { background: FAIRE_COLOR } : {}}
+                      onClick={() => setCurrentPage(page)}
+                      data-testid={`btn-page-${page}`}
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
+                <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+                  Next
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
       </Fade>
 
       <DetailModal

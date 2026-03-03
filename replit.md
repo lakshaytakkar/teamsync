@@ -46,6 +46,18 @@ One config per vertical, each exporting `VERTICAL_COLOR` + TypeScript status typ
 - **NO** inline `const BRAND = "#..."` — import `VERTICAL_COLOR` from per-vertical config
 - **StatusBadge** auto-resolves all status strings across all verticals via extended `variantMap`
 
+#### Faire Gold Standard (orders.tsx) — Applied to All Faire Pages (Mar 2026)
+All Faire index pages follow orders.tsx pattern:
+- **Wrapper**: `PageShell` → `Fade` sections
+- **Header**: `PageHeader` with `text-2xl font-bold`, subtitle, action buttons
+- **Toolbar**: `IndexToolbar` with `w-80` search, `FilterPill` row, `FAIRE_COLOR` brand color
+- **Table**: `DataTableContainer` → `DataTH`/`SortableDataTH` → `DataTR` + `DataTD`
+- **Pagination**: `PAGE_SIZE=25`, "Showing X-Y of Z", page buttons with FAIRE_COLOR active state
+- **Row actions**: Inline icon buttons (`ghost`/`outline`, `h-8 w-8 p-0`)
+- **Detail pages**: `text-2xl font-bold` title, `InfoRow` for key-value pairs, `DetailSection` for grouped blocks
+
+Pages standardized: applications, stores, shipments, pricing, quotations, vendors, inventory, bank-transactions, ledger, analytics, retailer-detail, product-detail, quotation-detail, order-detail, application-detail
+
 ## Recent Additions (Feb 2026)
 
 ### CRM Payment Links (`/crm/payment-links`)

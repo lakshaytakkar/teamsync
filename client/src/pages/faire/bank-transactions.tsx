@@ -503,6 +503,8 @@ export default function FaireBankTransactions() {
   const [editTags, setEditTags] = useState<string[]>([]);
   const [editNotes, setEditNotes] = useState("");
   const [editCategory, setEditCategory] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 25;
 
   const { data: faireData, isLoading: faireLoading } = useQuery<{ transactions: BankTx[]; total: number }>({
     queryKey: ["/api/bank-transactions", { source: "faire_payout" }],
@@ -556,6 +558,7 @@ export default function FaireBankTransactions() {
 
   const handleSort = (key: string) => {
     setSort((p) => !p || p.key !== key ? { key, dir: "asc" } : p.dir === "asc" ? { key, dir: "desc" } : null);
+    setCurrentPage(1);
   };
 
   const transactions: BankTx[] = faireData?.transactions ?? [];
@@ -583,6 +586,10 @@ export default function FaireBankTransactions() {
         return String(aVal).localeCompare(String(bVal)) * dir;
       })
     : filtered;
+
+  const btTotalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const btSafePage = Math.min(currentPage, btTotalPages);
+  const paginated = sorted.slice((btSafePage - 1) * PAGE_SIZE, btSafePage * PAGE_SIZE);
 
   const totalCredits = transactions.filter((t) => t.type === "credit").reduce((s, t) => s + (t.amount_usd ?? t.amount), 0);
   const totalDebits = transactions.filter((t) => t.type === "debit").reduce((s, t) => s + (t.amount_usd ?? t.amount), 0);
@@ -685,7 +692,7 @@ export default function FaireBankTransactions() {
 
             <IndexToolbar
               search={search}
-              onSearch={setSearch}
+              onSearch={v => { setSearch(v); setCurrentPage(1); }}
               placeholder="Search by description or reference…"
               color={FAIRE_COLOR}
               filters={[
@@ -696,7 +703,7 @@ export default function FaireBankTransactions() {
                 { value: "personal", label: "Personal" },
               ]}
               activeFilter={filter}
-              onFilter={(k) => setFilter(k as FaireFilter)}
+              onFilter={(k) => { setFilter(k as FaireFilter); setCurrentPage(1); }}
             />
 
             <DataTableContainer>
@@ -722,7 +729,7 @@ export default function FaireBankTransactions() {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {sorted.map((t) => (
+                    {paginated.map((t) => (
                       <DataTR
                         key={t.id}
                         data-testid={`row-txn-${t.id}`}
@@ -806,6 +813,41 @@ export default function FaireBankTransactions() {
                 </table>
               )}
             </DataTableContainer>
+
+            {sorted.length > PAGE_SIZE && (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(btSafePage - 1) * PAGE_SIZE + 1}–{Math.min(btSafePage * PAGE_SIZE, sorted.length)} of {sorted.length}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    <Button size="sm" variant="outline" className="h-8" disabled={btSafePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+                      Previous
+                    </Button>
+                    {Array.from({ length: Math.min(btTotalPages, 7) }, (_, i) => {
+                      let page: number;
+                      if (btTotalPages <= 7) page = i + 1;
+                      else if (btSafePage <= 4) page = i + 1;
+                      else if (btSafePage >= btTotalPages - 3) page = btTotalPages - 6 + i;
+                      else page = btSafePage - 3 + i;
+                      return (
+                        <Button
+                          key={page} size="sm"
+                          variant={page === btSafePage ? "default" : "outline"}
+                          className="h-8 w-8 p-0"
+                          style={page === btSafePage ? { background: FAIRE_COLOR } : {}}
+                          onClick={() => setCurrentPage(page)}
+                          data-testid={`btn-page-${page}`}
+                        >
+                          {page}
+                        </Button>
+                      );
+                    })}
+                    <Button size="sm" variant="outline" className="h-8" disabled={btSafePage >= btTotalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+                      Next
+                    </Button>
+                  </div>
+                </div>
+            )}
           </Fade>
 
           <DetailModal

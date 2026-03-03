@@ -15,7 +15,7 @@ import { DualCurrency, DualCurrencyInline } from "@/lib/faire-currency";
 import {
   faireQuotations, type FaireQuotation, type QuotationStatus,
 } from "@/lib/mock-data-faire-ops";
-import { DetailModal } from "@/components/layout";
+import { DetailModal, InfoRow } from "@/components/layout";
 import { FAIRE_COLOR } from "@/lib/faire-config";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -453,29 +453,28 @@ export default function FaireQuotationDetail() {
             {/* Financial summary */}
             <div className="rounded-xl border bg-card p-5 shadow-sm">
               <div className="font-semibold text-base mb-4">Financial Summary</div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Faire Net Payout</span>
+              <div className="space-y-1">
+                <InfoRow label="Faire Net Payout">
                   <span className="font-semibold text-base" style={{ color: FAIRE_COLOR }}>
                     {fairePayout > 0 ? <DualCurrency cents={fairePayout} /> : "—"}
                   </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Fulfiller Total</span>
+                </InfoRow>
+                <InfoRow label="Fulfiller Total">
                   <span className="font-semibold text-base">
                     {fulfillerTotal > 0 ? <DualCurrency cents={fulfillerTotal} /> : "—"}
                   </span>
-                </div>
-                <div className="border-t pt-3 flex justify-between items-start">
-                  <span className="font-semibold text-sm">Net Margin</span>
-                  <div className="text-right">
-                    <div className="font-bold text-xl" style={{ color: marginColor }}>
-                      {fulfillerTotal > 0 ? <DualCurrency cents={netMargin} /> : "—"}
+                </InfoRow>
+                <div className="border-t pt-3">
+                  <InfoRow label="Net Margin">
+                    <div className="text-right">
+                      <div className="font-bold text-xl" style={{ color: marginColor }}>
+                        {fulfillerTotal > 0 ? <DualCurrency cents={netMargin} /> : "—"}
+                      </div>
+                      {fulfillerTotal > 0 && (
+                        <div className="text-sm font-semibold mt-0.5" style={{ color: marginColor }}>{marginPct}% margin</div>
+                      )}
                     </div>
-                    {fulfillerTotal > 0 && (
-                      <div className="text-sm font-semibold mt-0.5" style={{ color: marginColor }}>{marginPct}% margin</div>
-                    )}
-                  </div>
+                  </InfoRow>
                 </div>
               </div>
               {fulfillerTotal > 0 && (
@@ -563,35 +562,20 @@ export default function FaireQuotationDetail() {
             </div>
 
             {/* Timeline */}
-            <div className="rounded-xl border bg-card p-5 shadow-sm space-y-2.5">
-              <div className="font-semibold text-base mb-1">Timeline</div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Created</span>
-                <span className="font-medium">{new Date(quotation.created_at).toLocaleDateString()}</span>
-              </div>
+            <div className="rounded-xl border bg-card p-5 shadow-sm space-y-1">
+              <div className="font-semibold text-base mb-2">Timeline</div>
+              <InfoRow label="Created" value={new Date(quotation.created_at).toLocaleDateString()} />
               {quotation.sent_at && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Sent</span>
-                  <span className="font-medium">{new Date(quotation.sent_at).toLocaleDateString()}</span>
-                </div>
+                <InfoRow label="Sent" value={new Date(quotation.sent_at).toLocaleDateString()} />
               )}
               {quotation.received_at && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Quote Received</span>
-                  <span className="font-medium">{new Date(quotation.received_at).toLocaleDateString()}</span>
-                </div>
+                <InfoRow label="Quote Received" value={new Date(quotation.received_at).toLocaleDateString()} />
               )}
               {quotation.accepted_at && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Accepted</span>
-                  <span className="font-medium">{new Date(quotation.accepted_at).toLocaleDateString()}</span>
-                </div>
+                <InfoRow label="Accepted" value={new Date(quotation.accepted_at).toLocaleDateString()} />
               )}
               {quotation.challenged_at && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Challenged</span>
-                  <span className="font-medium">{new Date(quotation.challenged_at).toLocaleDateString()}</span>
-                </div>
+                <InfoRow label="Challenged" value={new Date(quotation.challenged_at).toLocaleDateString()} />
               )}
             </div>
           </div>

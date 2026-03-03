@@ -27,6 +27,8 @@ interface FaireVendor {
   created_at: string | null;
 }
 
+const PAGE_SIZE = 25;
+
 export default function FaireVendors() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -43,6 +45,7 @@ export default function FaireVendors() {
   const vendors = data?.vendors ?? [];
 
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<FaireVendor | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -99,6 +102,10 @@ export default function FaireVendors() {
 
   const defaultVendor = vendors.find(v => v.is_default);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <PageShell>
       <PageHeader
@@ -120,7 +127,7 @@ export default function FaireVendors() {
 
         <IndexToolbar
           search={search}
-          onSearch={setSearch}
+          onSearch={v => { setSearch(v); setCurrentPage(1); }}
           placeholder="Search vendors…"
           color={FAIRE_COLOR}
         />
@@ -146,7 +153,7 @@ export default function FaireVendors() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {filtered.map(v => (
+                {paginated.map(v => (
                   <DataTR key={v.id} data-testid={`row-vendor-${v.id}`}>
                     <DataTD>
                       <div className="flex items-center gap-2">
@@ -206,6 +213,41 @@ export default function FaireVendors() {
             </table>
           )}
         </DataTableContainer>
+
+        {filtered.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <Button size="sm" variant="outline" className="h-8" disabled={safePage <= 1} onClick={() => setCurrentPage(p => p - 1)} data-testid="btn-prev-page">
+                  Previous
+                </Button>
+                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                  let page: number;
+                  if (totalPages <= 7) page = i + 1;
+                  else if (safePage <= 4) page = i + 1;
+                  else if (safePage >= totalPages - 3) page = totalPages - 6 + i;
+                  else page = safePage - 3 + i;
+                  return (
+                    <Button
+                      key={page} size="sm"
+                      variant={page === safePage ? "default" : "outline"}
+                      className="h-8 w-8 p-0"
+                      style={page === safePage ? { background: FAIRE_COLOR } : {}}
+                      onClick={() => setCurrentPage(page)}
+                      data-testid={`btn-page-${page}`}
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
+                <Button size="sm" variant="outline" className="h-8" disabled={safePage >= totalPages} onClick={() => setCurrentPage(p => p + 1)} data-testid="btn-next-page">
+                  Next
+                </Button>
+              </div>
+            </div>
+        )}
       </Fade>
 
       {/* Add/Edit modal */}
