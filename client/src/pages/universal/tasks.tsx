@@ -697,17 +697,17 @@ function TaskDetailDialog({
 
           {/* Meta strip: assignee · priority · status · due date */}
           <div className="flex items-center gap-3 mt-3 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <Avatar className="h-5 w-5">
+            <div className="flex items-center gap-2">
+              <Avatar className="h-6 w-6">
                 <AvatarImage src={getPersonAvatar(task.assigneeName)} />
-                <AvatarFallback className="text-[9px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
+                <AvatarFallback className="text-[10px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
               </Avatar>
-              <span className="text-xs text-muted-foreground">{task.assigneeName}</span>
+              <span className="text-sm text-foreground/80 font-medium">{task.assigneeName}</span>
             </div>
-            <span className="text-muted-foreground/30 text-xs">·</span>
+            <span className="text-muted-foreground/30">·</span>
             <Badge
               className={cn(
-                "text-[10px] px-2 py-0.5 border-0 font-medium capitalize",
+                "text-xs px-2.5 py-0.5 border-0 font-medium capitalize",
                 task.priority === "critical" && "bg-red-50 text-red-500",
                 task.priority === "high" && "bg-orange-50 text-orange-500",
                 task.priority === "medium" && "bg-blue-50 text-blue-500",
@@ -716,9 +716,9 @@ function TaskDetailDialog({
             >
               {task.priority}
             </Badge>
-            <span className="text-muted-foreground/30 text-xs">·</span>
+            <span className="text-muted-foreground/30">·</span>
             <Select value={task.status} onValueChange={onStatusChange}>
-              <SelectTrigger className="h-6 text-xs border-0 bg-muted/60 px-2 gap-1 w-auto shadow-none" data-testid="select-task-status">
+              <SelectTrigger className="h-7 text-sm border-0 bg-muted/60 px-2.5 gap-1.5 w-auto shadow-none" data-testid="select-task-status">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -729,9 +729,9 @@ function TaskDetailDialog({
                 <SelectItem value="done">Done</SelectItem>
               </SelectContent>
             </Select>
-            <span className="text-muted-foreground/30 text-xs">·</span>
-            <div className={cn("flex items-center gap-1 text-xs", isOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
-              <Calendar className="h-3 w-3" />
+            <span className="text-muted-foreground/30">·</span>
+            <div className={cn("flex items-center gap-1.5 text-sm", isOverdue ? "text-red-500 font-medium" : "text-foreground/70")}>
+              <Calendar className="h-3.5 w-3.5" />
               {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </div>
           </div>
@@ -758,7 +758,7 @@ function TaskDetailDialog({
                   return (
                     <span
                       key={tag}
-                      className={cn("text-[11px] font-medium px-2.5 py-0.5 rounded-full", palettes[i % palettes.length])}
+                      className={cn("text-xs font-medium px-2.5 py-1 rounded-full", palettes[i % palettes.length])}
                     >
                       {tag}
                     </span>
@@ -833,63 +833,63 @@ function TaskDetailDialog({
           </div>
 
           {/* RIGHT: activity panel */}
-          <div className="w-80 shrink-0 border-l flex flex-col overflow-hidden bg-muted/20">
+          <div className="w-[340px] shrink-0 border-l flex flex-col overflow-hidden bg-muted/10">
             <Tabs defaultValue="comments" className="flex flex-col flex-1 overflow-hidden">
-              <div className="bg-card border-b px-3 pt-2 pb-0 shrink-0">
-                <TabsList className="w-full grid grid-cols-3 h-8 bg-muted/60">
-                  <TabsTrigger value="comments" className="text-[11px] gap-1" data-testid="tab-comments">
-                    <MessageSquare className="h-3 w-3" />
+              <div className="bg-card border-b px-3 pt-2.5 pb-0 shrink-0">
+                <TabsList className="w-full grid grid-cols-3 h-9 bg-muted/60">
+                  <TabsTrigger value="comments" className="text-xs gap-1.5" data-testid="tab-comments">
+                    <MessageSquare className="h-3.5 w-3.5" />
                     Comments{comments.length > 0 ? ` (${comments.length})` : ""}
                   </TabsTrigger>
-                  <TabsTrigger value="files" className="text-[11px] gap-1" data-testid="tab-files">
-                    <Paperclip className="h-3 w-3" />
+                  <TabsTrigger value="files" className="text-xs gap-1.5" data-testid="tab-files">
+                    <Paperclip className="h-3.5 w-3.5" />
                     Files{attachments.length > 0 ? ` (${attachments.length})` : ""}
                   </TabsTrigger>
-                  <TabsTrigger value="links" className="text-[11px] gap-1" data-testid="tab-links">
-                    <Link2 className="h-3 w-3" />
+                  <TabsTrigger value="links" className="text-xs gap-1.5" data-testid="tab-links">
+                    <Link2 className="h-3.5 w-3.5" />
                     Links{links.length > 0 ? ` (${links.length})` : ""}
                   </TabsTrigger>
                 </TabsList>
               </div>
 
               {/* Comments tab */}
-              <TabsContent value="comments" className="flex-1 overflow-y-auto px-4 py-3 m-0 space-y-3">
-                <div className="space-y-3">
+              <TabsContent value="comments" className="flex-1 overflow-y-auto px-4 py-4 m-0 space-y-4">
+                <div className="space-y-4">
                   {comments.length === 0 && (
-                    <p className="text-xs text-muted-foreground">No comments yet.</p>
+                    <p className="text-sm text-muted-foreground/70">No comments yet.</p>
                   )}
                   {comments.map(c => (
-                    <div key={c.id} className="flex gap-2 group" data-testid={`comment-${c.id}`}>
-                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-semibold">
+                    <div key={c.id} className="flex gap-3 group" data-testid={`comment-${c.id}`}>
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
                         {c.author.slice(0, 2).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-xs font-medium truncate">{c.author}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-semibold truncate">{c.author}</span>
                           <div className="flex items-center gap-1 shrink-0">
-                            <span className="text-[10px] text-muted-foreground">{timeAgo(c.created_at)}</span>
+                            <span className="text-xs text-muted-foreground">{timeAgo(c.created_at)}</span>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                               onClick={() => deleteActivityMutation.mutate(c.id)}
                               data-testid={`btn-delete-comment-${c.id}`}
                             >
-                              <Trash2 className="h-3 w-3 text-muted-foreground" />
+                              <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
                             </Button>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{c.content}</p>
+                        <p className="text-sm text-foreground/70 mt-1 leading-relaxed">{c.content}</p>
                       </div>
                     </div>
                   ))}
                 </div>
-                <div className="flex items-end gap-2 pt-1">
+                <div className="flex items-end gap-2 pt-2">
                   <Textarea
                     value={newComment}
                     onChange={e => setNewComment(e.target.value)}
                     placeholder="Add a comment..."
-                    className="min-h-[56px] text-xs resize-none"
+                    className="min-h-[64px] text-sm resize-none"
                     onKeyDown={e => {
                       if (e.key === "Enter" && !e.shiftKey && newComment.trim()) {
                         e.preventDefault();
@@ -900,18 +900,18 @@ function TaskDetailDialog({
                   />
                   <Button
                     size="icon"
-                    className="h-8 w-8 shrink-0"
+                    className="h-9 w-9 shrink-0"
                     disabled={!newComment.trim() || addCommentMutation.isPending}
                     onClick={() => addCommentMutation.mutate()}
                     data-testid="button-post-comment"
                   >
-                    {addCommentMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                    {addCommentMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   </Button>
                 </div>
               </TabsContent>
 
               {/* Files tab */}
-              <TabsContent value="files" className="flex-1 overflow-y-auto px-4 py-3 m-0 space-y-3">
+              <TabsContent value="files" className="flex-1 overflow-y-auto px-4 py-4 m-0 space-y-3">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -923,43 +923,43 @@ function TaskDetailDialog({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full h-8 text-xs gap-1.5"
+                  className="w-full h-9 text-sm gap-2"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
                   data-testid="button-attach-file"
                 >
-                  {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                   {uploading ? "Uploading..." : "Attach Files"}
                 </Button>
                 <div className="space-y-2">
                   {attachments.length === 0 && (
-                    <p className="text-xs text-muted-foreground">No files attached.</p>
+                    <p className="text-sm text-muted-foreground/70">No files attached.</p>
                   )}
                   {attachments.map(a => (
-                    <div key={a.id} className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 group" data-testid={`attachment-${a.id}`}>
-                      <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <div key={a.id} className="flex items-center gap-2.5 rounded-md border bg-card px-3 py-2.5 group" data-testid={`attachment-${a.id}`}>
+                      <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium truncate">{a.file_name}</p>
+                        <p className="text-sm font-medium truncate">{a.file_name}</p>
                         {a.file_size != null && (
-                          <p className="text-[10px] text-muted-foreground">{formatBytes(a.file_size)}</p>
+                          <p className="text-xs text-muted-foreground">{formatBytes(a.file_size)}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                         {a.file_url && (
                           <a href={a.file_url} target="_blank" rel="noopener noreferrer" data-testid={`link-download-${a.id}`}>
-                            <Button variant="ghost" size="icon" className="h-5 w-5">
-                              <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                            <Button variant="ghost" size="icon" className="h-6 w-6">
+                              <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
                             </Button>
                           </a>
                         )}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-5 w-5"
+                          className="h-6 w-6"
                           onClick={() => deleteActivityMutation.mutate(a.id)}
                           data-testid={`btn-delete-attachment-${a.id}`}
                         >
-                          <Trash2 className="h-3 w-3 text-muted-foreground" />
+                          <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
                         </Button>
                       </div>
                     </div>
@@ -968,62 +968,62 @@ function TaskDetailDialog({
               </TabsContent>
 
               {/* Links tab */}
-              <TabsContent value="links" className="flex-1 overflow-y-auto px-4 py-3 m-0 space-y-3">
+              <TabsContent value="links" className="flex-1 overflow-y-auto px-4 py-4 m-0 space-y-3">
                 <div className="space-y-2">
                   {links.length === 0 && (
-                    <p className="text-xs text-muted-foreground">No links added.</p>
+                    <p className="text-sm text-muted-foreground/70">No links added.</p>
                   )}
                   {links.map(l => (
-                    <div key={l.id} className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 group" data-testid={`link-${l.id}`}>
-                      <Link2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <div key={l.id} className="flex items-center gap-2.5 rounded-md border bg-card px-3 py-2.5 group" data-testid={`link-${l.id}`}>
+                      <Link2 className="h-4 w-4 text-muted-foreground shrink-0" />
                       <div className="flex-1 min-w-0">
                         <a
                           href={l.link_url ?? "#"}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs font-medium text-primary hover:underline truncate block"
+                          className="text-sm font-medium text-primary hover:underline truncate block"
                         >
                           {l.link_title || l.link_url}
                         </a>
                         {l.link_title && (
-                          <p className="text-[10px] text-muted-foreground truncate">{l.link_url}</p>
+                          <p className="text-xs text-muted-foreground truncate">{l.link_url}</p>
                         )}
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                         onClick={() => deleteActivityMutation.mutate(l.id)}
                         data-testid={`btn-delete-link-${l.id}`}
                       >
-                        <Trash2 className="h-3 w-3 text-muted-foreground" />
+                        <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
                       </Button>
                     </div>
                   ))}
                 </div>
-                <div className="space-y-2 pt-1 border-t">
+                <div className="space-y-2 pt-2 border-t">
                   <Input
                     value={newLinkUrl}
                     onChange={e => setNewLinkUrl(e.target.value)}
                     placeholder="https://..."
-                    className="h-8 text-xs"
+                    className="h-9 text-sm"
                     data-testid="input-link-url"
                   />
                   <Input
                     value={newLinkTitle}
                     onChange={e => setNewLinkTitle(e.target.value)}
                     placeholder="Title (optional)"
-                    className="h-8 text-xs"
+                    className="h-9 text-sm"
                     data-testid="input-link-title"
                   />
                   <Button
                     size="sm"
-                    className="w-full h-8 text-xs gap-1"
+                    className="w-full h-9 text-sm gap-1.5"
                     disabled={!newLinkUrl.trim() || addLinkMutation.isPending}
                     onClick={() => addLinkMutation.mutate()}
                     data-testid="button-add-link"
                   >
-                    {addLinkMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Link2 className="h-3 w-3" />}
+                    {addLinkMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
                     Add Link
                   </Button>
                 </div>
