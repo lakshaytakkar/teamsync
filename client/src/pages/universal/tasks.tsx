@@ -288,6 +288,15 @@ export default function UniversalTasks() {
           onStatusChange={(status) => {
             setTasks(prev => prev.map(t => t.id === selectedTask.id ? { ...t, status: status as SharedTask["status"] } : t));
           }}
+          onPriorityChange={(priority) => {
+            setTasks(prev => prev.map(t => t.id === selectedTask.id ? { ...t, priority: priority as SharedTask["priority"] } : t));
+          }}
+          onAssigneeChange={(name) => {
+            setTasks(prev => prev.map(t => t.id === selectedTask.id ? { ...t, assigneeName: name } : t));
+          }}
+          onDueDateChange={(date) => {
+            setTasks(prev => prev.map(t => t.id === selectedTask.id ? { ...t, dueDate: date } : t));
+          }}
           onSubtaskToggle={(subtaskId) => {
             setTasks(prev => prev.map(t => t.id === selectedTask.id ? {
               ...t,
@@ -594,6 +603,9 @@ function TaskDetailDialog({
   isOpen, 
   onOpenChange, 
   onStatusChange,
+  onPriorityChange,
+  onAssigneeChange,
+  onDueDateChange,
   onSubtaskToggle,
   onAddSubtask
 }: { 
@@ -601,6 +613,9 @@ function TaskDetailDialog({
   isOpen: boolean, 
   onOpenChange: (open: boolean) => void,
   onStatusChange: (status: string) => void,
+  onPriorityChange: (priority: string) => void,
+  onAssigneeChange: (name: string) => void,
+  onDueDateChange: (date: string) => void,
   onSubtaskToggle: (id: string) => void,
   onAddSubtask: (title: string) => void
 }) {
@@ -702,41 +717,59 @@ function TaskDetailDialog({
           {/* LEFT: task content */}
           <div className="flex-1 overflow-y-auto divide-y min-w-0">
             {/* Details */}
-            <div className="px-6 py-4">
-              <div className="grid grid-cols-4 gap-x-4 gap-y-3">
-                {/* Assignee */}
-                <div className="col-span-1 space-y-1">
+            <div className="px-6 py-4 space-y-3">
+              {/* Row 1: Assigned To + Priority */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Assigned To</p>
-                  <div className="flex items-center gap-1.5">
-                    <Avatar className="h-5 w-5 shrink-0">
-                      <AvatarImage src={getPersonAvatar(task.assigneeName)} />
-                      <AvatarFallback className="text-[9px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-xs font-medium truncate">{task.assigneeName}</span>
-                  </div>
+                  <Select value={task.assigneeName} onValueChange={onAssigneeChange}>
+                    <SelectTrigger className="h-8 text-xs border border-border/60 bg-background shadow-none gap-1.5" data-testid="select-task-assignee">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Avatar className="h-4 w-4 shrink-0">
+                          <AvatarImage src={getPersonAvatar(task.assigneeName)} />
+                          <AvatarFallback className="text-[8px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
+                        </Avatar>
+                        <span className="truncate">{task.assigneeName}</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {verticalMembers.filter(m => m.verticalId === task.verticalId).map(m => (
+                        <SelectItem key={m.id} value={m.name}>
+                          <div className="flex items-center gap-2">
+                            <Avatar className="h-5 w-5">
+                              <AvatarImage src={getPersonAvatar(m.name)} />
+                              <AvatarFallback className="text-[9px]">{m.name.substring(0, 2)}</AvatarFallback>
+                            </Avatar>
+                            {m.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {/* Priority */}
-                <div className="col-span-1 space-y-1">
+                <div className="space-y-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Priority</p>
-                  <Badge
-                    className={cn(
-                      "text-xs px-2 py-0.5 border-0 font-medium capitalize",
-                      task.priority === "critical" && "bg-red-50 text-red-500",
-                      task.priority === "high" && "bg-orange-50 text-orange-500",
-                      task.priority === "medium" && "bg-blue-50 text-blue-500",
-                      task.priority === "low" && "bg-slate-50 text-slate-500",
-                    )}
-                  >
-                    {task.priority}
-                  </Badge>
+                  <Select value={task.priority} onValueChange={onPriorityChange}>
+                    <SelectTrigger className="h-8 text-xs border border-border/60 bg-background shadow-none" data-testid="select-task-priority">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="critical"><span className="text-red-500 font-medium">Critical</span></SelectItem>
+                      <SelectItem value="high"><span className="text-orange-500 font-medium">High</span></SelectItem>
+                      <SelectItem value="medium"><span className="text-blue-500 font-medium">Medium</span></SelectItem>
+                      <SelectItem value="low"><span className="text-slate-500 font-medium">Low</span></SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+              </div>
 
-                {/* Status */}
-                <div className="col-span-1 space-y-1">
+              {/* Row 2: Status + Due Date */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Status</p>
                   <Select value={task.status} onValueChange={onStatusChange}>
-                    <SelectTrigger className="h-7 text-xs border border-border/60 bg-background px-2 gap-1 w-full shadow-none" data-testid="select-task-status">
+                    <SelectTrigger className="h-8 text-xs border border-border/60 bg-background shadow-none" data-testid="select-task-status">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -749,19 +782,27 @@ function TaskDetailDialog({
                   </Select>
                 </div>
 
-                {/* Due Date */}
-                <div className="col-span-1 space-y-1">
+                <div className="space-y-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Due Date</p>
-                  <div className={cn("flex items-center gap-1 text-xs font-medium", isOverdue ? "text-red-500" : "text-foreground/80")}>
-                    <Calendar className="h-3 w-3 shrink-0" />
-                    {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  <div className="relative">
+                    <Calendar className={cn("absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none z-10", isOverdue ? "text-red-500" : "text-muted-foreground")} />
+                    <input
+                      type="date"
+                      value={task.dueDate ? task.dueDate.split("T")[0] : ""}
+                      onChange={e => onDueDateChange(e.target.value)}
+                      className={cn(
+                        "h-8 w-full rounded-md border border-border/60 bg-background pl-8 pr-2 text-xs shadow-none outline-none focus:ring-1 focus:ring-ring",
+                        isOverdue ? "text-red-500 font-medium" : "text-foreground"
+                      )}
+                      data-testid="input-task-due-date"
+                    />
                   </div>
                 </div>
               </div>
 
               {/* Tags */}
               {task.tags.length > 0 && (
-                <div className="mt-3 space-y-1">
+                <div className="space-y-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tags</p>
                   <div className="flex flex-wrap gap-1.5">
                     {task.tags.map((tag, i) => {
@@ -776,10 +817,7 @@ function TaskDetailDialog({
                         "bg-orange-50 text-orange-600 border border-orange-200",
                       ];
                       return (
-                        <span
-                          key={tag}
-                          className={cn("text-xs font-medium px-2.5 py-0.5 rounded-full", palettes[i % palettes.length])}
-                        >
+                        <span key={tag} className={cn("text-xs font-medium px-2.5 py-0.5 rounded-full", palettes[i % palettes.length])}>
                           {tag}
                         </span>
                       );
