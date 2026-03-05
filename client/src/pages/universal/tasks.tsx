@@ -20,7 +20,9 @@ import {
   Send,
   Loader2,
   Upload,
-  ExternalLink
+  ExternalLink,
+  Copy,
+  Check
 } from "lucide-react";
 import { detectVerticalFromUrl } from "@/lib/verticals-config";
 import { 
@@ -607,7 +609,8 @@ function TaskDetailDialog({
   onAssigneeChange,
   onDueDateChange,
   onSubtaskToggle,
-  onAddSubtask
+  onAddSubtask,
+  onDelete
 }: { 
   task: SharedTask, 
   isOpen: boolean, 
@@ -617,9 +620,11 @@ function TaskDetailDialog({
   onAssigneeChange: (name: string) => void,
   onDueDateChange: (date: string) => void,
   onSubtaskToggle: (id: string) => void,
-  onAddSubtask: (title: string) => void
+  onAddSubtask: (title: string) => void,
+  onDelete?: () => void
 }) {
   const [newSubtask, setNewSubtask] = useState("");
+  const [copied, setCopied] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [newLinkTitle, setNewLinkTitle] = useState("");
@@ -690,7 +695,7 @@ function TaskDetailDialog({
       <DialogContent className="max-w-5xl p-0 gap-0 overflow-hidden" data-testid="dialog-task-detail">
         {/* Sticky header */}
         <div className="sticky top-0 z-10 bg-card border-b px-6 py-3 shrink-0">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
             <div className="flex flex-col min-w-0 flex-1">
               <DialogTitle className="text-base font-semibold truncate" data-testid={`text-task-title-${task.id}`}>
                 {task.title}
@@ -699,17 +704,46 @@ function TaskDetailDialog({
                 Created on {new Date(task.createdDate).toLocaleDateString()}
               </p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 shrink-0 mt-0.5"
-              onClick={() => onOpenChange(false)}
-              data-testid="button-close-task-detail"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            {/* Action buttons */}
+            <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                title="Copy task title"
+                onClick={() => {
+                  navigator.clipboard.writeText(task.title);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1500);
+                }}
+                data-testid="button-copy-task"
+              >
+                {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+              </Button>
+              {onDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  title="Delete task"
+                  onClick={() => { onOpenChange(false); onDelete(); }}
+                  data-testid="button-delete-task"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+              <div className="w-px h-5 bg-border mx-1" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => onOpenChange(false)}
+                data-testid="button-close-task-detail"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-
         </div>
 
         {/* Body: left content + right activity */}
