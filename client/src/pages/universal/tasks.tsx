@@ -674,30 +674,99 @@ function TaskDetailDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl p-0 gap-0 overflow-hidden" data-testid="dialog-task-detail">
         {/* Sticky header */}
-        <div className="sticky top-0 z-10 bg-card border-b px-6 py-4 flex items-center justify-between gap-3">
-          <div className="flex flex-col min-w-0">
-            <DialogTitle className="text-base font-semibold truncate" data-testid={`text-task-title-${task.id}`}>
-              {task.title}
-            </DialogTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Created on {new Date(task.createdDate).toLocaleDateString()}
-            </p>
+        <div className="sticky top-0 z-10 bg-card border-b px-6 py-3 shrink-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col min-w-0 flex-1">
+              <DialogTitle className="text-base font-semibold truncate" data-testid={`text-task-title-${task.id}`}>
+                {task.title}
+              </DialogTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Created on {new Date(task.createdDate).toLocaleDateString()}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0 mt-0.5"
+              onClick={() => onOpenChange(false)}
+              data-testid="button-close-task-detail"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0"
-            onClick={() => onOpenChange(false)}
-            data-testid="button-close-task-detail"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+
+          {/* Meta strip: assignee · priority · status · due date */}
+          <div className="flex items-center gap-3 mt-3 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <Avatar className="h-5 w-5">
+                <AvatarImage src={getPersonAvatar(task.assigneeName)} />
+                <AvatarFallback className="text-[9px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
+              </Avatar>
+              <span className="text-xs text-muted-foreground">{task.assigneeName}</span>
+            </div>
+            <span className="text-muted-foreground/30 text-xs">·</span>
+            <Badge
+              className={cn(
+                "text-[10px] px-2 py-0.5 border-0 font-medium capitalize",
+                task.priority === "critical" && "bg-red-50 text-red-500",
+                task.priority === "high" && "bg-orange-50 text-orange-500",
+                task.priority === "medium" && "bg-blue-50 text-blue-500",
+                task.priority === "low" && "bg-slate-50 text-slate-500",
+              )}
+            >
+              {task.priority}
+            </Badge>
+            <span className="text-muted-foreground/30 text-xs">·</span>
+            <Select value={task.status} onValueChange={onStatusChange}>
+              <SelectTrigger className="h-6 text-xs border-0 bg-muted/60 px-2 gap-1 w-auto shadow-none" data-testid="select-task-status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="backlog">Backlog</SelectItem>
+                <SelectItem value="todo">To Do</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="review">In Review</SelectItem>
+                <SelectItem value="done">Done</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-muted-foreground/30 text-xs">·</span>
+            <div className={cn("flex items-center gap-1 text-xs", isOverdue ? "text-red-500 font-medium" : "text-muted-foreground")}>
+              <Calendar className="h-3 w-3" />
+              {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+            </div>
+          </div>
         </div>
 
         {/* Body: left content + right activity */}
         <div className="flex flex-row h-[75vh]">
           {/* LEFT: task content */}
           <div className="flex-1 overflow-y-auto divide-y min-w-0">
+            {/* Tags */}
+            {task.tags.length > 0 && (
+              <div className="px-6 py-4 flex flex-wrap gap-1.5">
+                {task.tags.map((tag, i) => {
+                  const palettes = [
+                    "bg-sky-50 text-sky-600 border border-sky-200",
+                    "bg-violet-50 text-violet-600 border border-violet-200",
+                    "bg-emerald-50 text-emerald-600 border border-emerald-200",
+                    "bg-amber-50 text-amber-600 border border-amber-200",
+                    "bg-rose-50 text-rose-600 border border-rose-200",
+                    "bg-indigo-50 text-indigo-600 border border-indigo-200",
+                    "bg-teal-50 text-teal-600 border border-teal-200",
+                    "bg-orange-50 text-orange-600 border border-orange-200",
+                  ];
+                  return (
+                    <span
+                      key={tag}
+                      className={cn("text-[11px] font-medium px-2.5 py-0.5 rounded-full", palettes[i % palettes.length])}
+                    >
+                      {tag}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Description */}
             <div className="px-6 py-5">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Description</p>
@@ -759,69 +828,6 @@ function TaskDetailDialog({
                     data-testid="input-add-subtask"
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* Details */}
-            <div className="px-6 py-5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Details</p>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Assignee</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={getPersonAvatar(task.assigneeName)} />
-                      <AvatarFallback>{task.assigneeName.substring(0, 2)}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium">{task.assigneeName}</span>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Priority</p>
-                  <Badge 
-                    className={cn(
-                      "mt-1 text-[10px] px-2 py-0.5 border-0 font-medium capitalize",
-                      task.priority === "critical" && "bg-red-50 text-red-500",
-                      task.priority === "high" && "bg-orange-50 text-orange-500",
-                      task.priority === "medium" && "bg-blue-50 text-blue-500",
-                      task.priority === "low" && "bg-slate-50 text-slate-500",
-                    )}
-                  >
-                    {task.priority}
-                  </Badge>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Status</p>
-                  <Select value={task.status} onValueChange={onStatusChange}>
-                    <SelectTrigger className="h-8 mt-1" data-testid="select-task-status">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="backlog">Backlog</SelectItem>
-                      <SelectItem value="todo">To Do</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
-                      <SelectItem value="review">In Review</SelectItem>
-                      <SelectItem value="done">Done</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Due Date</p>
-                  <div className={cn("flex items-center gap-1.5 text-sm mt-1", isOverdue ? "text-red-500 font-medium" : "text-foreground")}>
-                    <Calendar className="h-3.5 w-3.5" />
-                    {new Date(task.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                  </div>
-                </div>
-                {task.tags.length > 0 && (
-                  <div className="col-span-2 space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tags</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {task.tags.map(tag => (
-                        <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
