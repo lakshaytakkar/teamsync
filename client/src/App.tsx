@@ -177,6 +177,13 @@ import FaireQuotationDetail from "@/pages/faire/quotation-detail";
 import FairePartnerPortal from "@/pages/faire/partner-portal";
 import FaireLedger from "@/pages/faire/ledger";
 import FaireBankTransactions from "@/pages/faire/bank-transactions";
+
+import PortalLayout from "@/components/portal/portal-layout";
+import PortalLNDashboard from "@/pages/portal/legalnations/dashboard";
+import PortalLNCompanies from "@/pages/portal/legalnations/companies";
+import PortalLNDocuments from "@/pages/portal/legalnations/documents";
+import PortalLNInvoices from "@/pages/portal/legalnations/invoices";
+import PortalLNMessages from "@/pages/portal/legalnations/messages";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
 import FaireApplications from "@/pages/faire/applications";
@@ -493,6 +500,19 @@ function Router() {
   );
 }
 
+function PortalRouter() {
+  return (
+    <Switch>
+      <Route path="/portal/legalnations/companies" component={PortalLNCompanies} />
+      <Route path="/portal/legalnations/documents" component={PortalLNDocuments} />
+      <Route path="/portal/legalnations/invoices" component={PortalLNInvoices} />
+      <Route path="/portal/legalnations/messages" component={PortalLNMessages} />
+      <Route path="/portal/legalnations" component={PortalLNDashboard} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
 function VerticalSync({ setCurrentVertical }: { setCurrentVertical: (id: string) => void }) {
   const [location, setLocation] = useLocation();
   useEffect(() => {
@@ -522,21 +542,30 @@ function App() {
     });
   }, []);
 
+  const [loc] = useLocation();
+  const isPortal = loc.startsWith("/portal/");
+
   return (
     <VerticalContext.Provider value={{ currentVertical, setCurrentVertical }}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <VerticalSync setCurrentVertical={setCurrentVertical} />
-          <div className="flex h-screen w-full flex-col">
-            <AnnouncementBanner />
-            <TopNavigation />
-            <main className="flex-1 overflow-auto">
-              <Router />
-            </main>
-          </div>
+          {isPortal ? (
+            <PortalLayout>
+              <PortalRouter />
+            </PortalLayout>
+          ) : (
+            <div className="flex h-screen w-full flex-col">
+              <AnnouncementBanner />
+              <TopNavigation />
+              <main className="flex-1 overflow-auto">
+                <Router />
+              </main>
+            </div>
+          )}
           <Toaster />
-          <PwaInstallPrompt />
-          <AIChatWidget />
+          {!isPortal && <PwaInstallPrompt />}
+          {!isPortal && <AIChatWidget />}
         </TooltipProvider>
       </QueryClientProvider>
     </VerticalContext.Provider>

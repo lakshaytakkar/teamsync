@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Check, ChevronsUpDown, Building2 } from "lucide-react";
+import { Check, ChevronsUpDown, Building2, ExternalLink } from "lucide-react";
 import { useLocation } from "wouter";
 import { verticals } from "@/lib/verticals-config";
 import { useVertical } from "@/lib/vertical-store";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { LegalNationsLogo } from "@/components/brand/legalnations-logo";
+import { Separator } from "@/components/ui/separator";
 
 const businessProducts = verticals.filter((v) => !v.isDepartment);
 const departments = verticals.filter((v) => v.isDepartment);
@@ -112,9 +114,30 @@ export function VerticalSwitcher() {
               })}
             </div>
 
-            <div className="mt-3 mx-2 pt-3 border-t border-border">
+            <Separator className="my-2" />
+
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-2 pt-1 pb-2">
+              <ExternalLink className="size-3" />
+              Client Portals
+            </p>
+            <div className="space-y-0.5">
+              <button
+                onClick={() => { setLocation("/portal/legalnations"); setOpen(false); }}
+                className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-left transition-colors hover:bg-accent"
+                data-testid="portal-option-legalnations"
+              >
+                <LegalNationsLogo size={32} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate leading-tight">LegalNations</p>
+                  <p className="text-[11px] text-muted-foreground truncate">Client Portal</p>
+                </div>
+                <ExternalLink className="size-3 text-muted-foreground shrink-0" />
+              </button>
+            </div>
+
+            <div className="mt-2 mx-2 pt-2 border-t border-border">
               <p className="text-[10px] text-muted-foreground leading-relaxed">
-                Departments are shared across all business verticals.
+                Preview client-facing portals as your customers see them.
               </p>
             </div>
           </div>

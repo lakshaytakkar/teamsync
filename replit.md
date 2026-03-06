@@ -896,3 +896,27 @@ tickets(id uuid PK, ticket_code text UNIQUE auto-gen TK-0001+, vertical_id text,
 | GET | `/api/ai/conversations/:id/attachments` | List attachments |
 | GET | `/api/ai/attachments/:id/download` | Download attachment |
 | DELETE | `/api/ai/attachments/:id` | Delete attachment |
+
+## Client Portal System (Mar 2026)
+
+Client-facing portal prototype accessible via vertical switcher under "Client Portals" section. Uses separate layout (`PortalLayout`) without TopNavigation/AnnouncementBanner/AIChatWidget.
+
+### Architecture
+- Routes: `/portal/legalnations/*` — detected via `loc.startsWith("/portal/")` in App.tsx
+- Layout: `client/src/components/portal/portal-layout.tsx` — sidebar with LegalNations branding, nav items, client info
+- Router: `PortalRouter` function in App.tsx (separate from main `Router`)
+- Mock data: `client/src/lib/mock-data-portal-legalnations.ts` — client profile (Rajesh Kumar), 2 companies, documents, invoices, messages
+
+### Portal Pages (5)
+| Page | Route | File |
+|------|-------|------|
+| Dashboard | `/portal/legalnations` | `client/src/pages/portal/legalnations/dashboard.tsx` |
+| Companies | `/portal/legalnations/companies` | `client/src/pages/portal/legalnations/companies.tsx` |
+| Documents | `/portal/legalnations/documents` | `client/src/pages/portal/legalnations/documents.tsx` |
+| Invoices | `/portal/legalnations/invoices` | `client/src/pages/portal/legalnations/invoices.tsx` |
+| Messages | `/portal/legalnations/messages` | `client/src/pages/portal/legalnations/messages.tsx` |
+
+### Navigation Entry
+- Vertical switcher (`vertical-switcher.tsx`) has "Client Portals" section with LegalNations entry
+- Portal sidebar has "Back to Internal Portal" link navigating to `/hr`
+- "Preview Mode" badge shown at top of portal pages
