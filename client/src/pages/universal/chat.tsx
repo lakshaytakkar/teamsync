@@ -202,7 +202,7 @@ function ChannelItem({
     <div
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors hover:bg-muted/50 group",
+        "flex items-center gap-3 px-3 py-3 sm:py-2.5 cursor-pointer transition-colors hover:bg-muted/50 group",
         active && "bg-muted/70"
       )}
       style={active ? { backgroundColor: `${verticalColor}12` } : {}}
@@ -636,7 +636,7 @@ function ChannelInfoPanel({
   onClose: () => void;
 }) {
   return (
-    <aside className="w-64 shrink-0 border-l flex flex-col bg-background overflow-hidden">
+    <aside className="w-[280px] sm:w-64 shrink-0 border-l flex flex-col bg-background overflow-hidden fixed inset-y-0 right-0 z-40 md:relative md:z-auto shadow-lg md:shadow-none">
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <h3 className="text-sm font-semibold">Details</h3>
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
@@ -712,6 +712,7 @@ export default function UniversalChat() {
   const [showJumpToBottom, setShowJumpToBottom] = useState(false);
   const [hasNewOutOfView, setHasNewOutOfView] = useState(false);
   const [showUserSwitcher, setShowUserSwitcher] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(() => window.innerWidth >= 768);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -980,15 +981,39 @@ export default function UniversalChat() {
 
   return (
     <TooltipProvider>
-    <PageTransition className="px-6 lg:px-12 py-4 h-full flex flex-col min-h-0">
+    <PageTransition className="px-2 sm:px-6 lg:px-12 py-2 sm:py-4 h-full flex flex-col min-h-0">
       <div className="flex flex-1 rounded-xl border bg-card overflow-hidden min-h-0 shadow-sm">
 
+        {/* ── Mobile sidebar backdrop ──────────────────────────────────── */}
+        {mobileSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/20 z-30 md:hidden"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+        )}
+
         {/* ── LEFT SIDEBAR ─────────────────────────────────────────────── */}
-        <aside className="w-64 shrink-0 flex flex-col border-r overflow-hidden bg-muted/20">
+        <aside className={cn(
+          "w-[280px] sm:w-64 shrink-0 flex flex-col border-r overflow-hidden bg-card md:bg-muted/20 transition-transform duration-200",
+          "fixed inset-y-0 left-0 z-40 md:relative md:z-auto md:translate-x-0",
+          mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}>
           {/* Header */}
           <div className="p-3 border-b space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold">Team Chat</h2>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 md:hidden"
+                  onClick={() => setMobileSidebarOpen(false)}
+                  data-testid="btn-close-sidebar"
+                  aria-label="Close sidebar"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h2 className="text-sm font-bold">Team Chat</h2>
+              </div>
               <div className="relative">
                 <button
                   onClick={() => setShowUserSwitcher(!showUserSwitcher)}
@@ -1080,6 +1105,7 @@ export default function UniversalChat() {
                       setActiveChannelId(channel.id);
                       setActiveTab(channel.type === "dm" ? "dm" : "channel");
                       setShowInfo(false);
+                      if (window.innerWidth < 768) setMobileSidebarOpen(false);
                     }}
                   />
                 ))
@@ -1093,8 +1119,18 @@ export default function UniversalChat() {
           {activeChannel ? (
             <>
               {/* Channel Header */}
-              <div className="border-b px-4 py-2.5 flex items-center justify-between shrink-0 bg-background">
-                <div className="flex items-center gap-3 overflow-hidden">
+              <div className="border-b px-3 sm:px-4 py-2.5 flex items-center justify-between shrink-0 bg-background">
+                <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0 md:hidden"
+                    onClick={() => setMobileSidebarOpen(true)}
+                    data-testid="btn-open-sidebar"
+                    aria-label="Open sidebar"
+                  >
+                    <Menu className="h-4 w-4" />
+                  </Button>
                   {activeChannel.type === "dm" ? (
                     <div className="relative">
                       <Avatar className="h-8 w-8">
@@ -1336,16 +1372,32 @@ export default function UniversalChat() {
 
                 {/* Channel Info Panel */}
                 {showInfo && activeChannel && (
-                  <ChannelInfoPanel
-                    channel={activeChannel}
-                    verticalId={verticalId}
-                    onClose={() => setShowInfo(false)}
-                  />
+                  <>
+                    <div
+                      className="fixed inset-0 bg-black/20 z-30 md:hidden"
+                      onClick={() => setShowInfo(false)}
+                    />
+                    <ChannelInfoPanel
+                      channel={activeChannel}
+                      verticalId={verticalId}
+                      onClose={() => setShowInfo(false)}
+                    />
+                  </>
                 )}
               </div>
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 mb-4 md:hidden"
+                onClick={() => setMobileSidebarOpen(true)}
+                data-testid="btn-open-sidebar-empty"
+                aria-label="Open sidebar"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
               <MessageCircle className="h-14 w-14 mb-4 opacity-15" />
               <p className="text-sm font-medium">Select a conversation</p>
               <p className="text-xs mt-1 opacity-70">Choose a channel or DM to start chatting</p>
