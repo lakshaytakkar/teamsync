@@ -94,10 +94,21 @@ async function updateConversationTitle(conversationId: string, firstUserMessage:
     .eq("title", "New Chat");
 }
 
+function extractMessageContent(msg: any): string {
+  if (typeof msg.content === "string") return msg.content;
+  if (Array.isArray(msg.parts)) {
+    return msg.parts
+      .filter((p: any) => p.type === "text")
+      .map((p: any) => p.text)
+      .join("");
+  }
+  return "";
+}
+
 router.post("/chat", async (req: Request, res: Response) => {
   try {
     const { messages, conversationId: incomingId, verticalId } = req.body as {
-      messages: { role: string; content: string }[];
+      messages: any[];
       conversationId?: string;
       verticalId?: string;
     };
@@ -110,13 +121,14 @@ router.post("/chat", async (req: Request, res: Response) => {
 
     const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
     if (lastUserMessage) {
-      await saveMessage(convId, "user", lastUserMessage.content);
-      await updateConversationTitle(convId, lastUserMessage.content);
+      const content = extractMessageContent(lastUserMessage);
+      await saveMessage(convId, "user", content);
+      await updateConversationTitle(convId, content);
     }
 
     const aiMessages = messages.map((m) => ({
       role: m.role as "user" | "assistant" | "system",
-      content: m.content,
+      content: extractMessageContent(m),
     }));
 
     const result = streamText({

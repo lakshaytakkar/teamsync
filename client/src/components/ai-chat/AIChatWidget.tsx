@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback, useEffect, useContext } from "react";
+import { useState, useRef, useCallback, useEffect, useContext, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
+import { TextStreamChatTransport } from "ai";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   X, Maximize2, Minimize2, Plus, Send, Square, Trash2,
@@ -139,6 +140,7 @@ function ChatWindow({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [input, setInput] = useState("");
 
   const mappedInitial = initialMessages.map((m) => ({
     id: m.id,
@@ -147,23 +149,22 @@ function ChatWindow({
     parts: [{ type: "text" as const, text: m.content }],
   }));
 
-  const chatHelpers = useChat({
-    api: "/api/ai/chat",
-    body: { conversationId, verticalId },
-    initialMessages: mappedInitial,
-    streamProtocol: "text",
+  const transport = useMemo(
+    () =>
+      new TextStreamChatTransport({
+        api: "/api/ai/chat",
+        body: { conversationId, verticalId },
+      }),
+    [conversationId, verticalId]
+  );
+
+  const { messages, status, stop, sendMessage } = useChat({
+    transport,
+    messages: mappedInitial.length > 0 ? mappedInitial : undefined,
     onFinish: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/ai/conversations"] });
     },
   });
-
-  const messages = chatHelpers.messages ?? [];
-  const input = chatHelpers.input ?? "";
-  const handleInputChange = chatHelpers.handleInputChange;
-  const handleSubmit = chatHelpers.handleSubmit;
-  const status = chatHelpers.status ?? "ready";
-  const stop = chatHelpers.stop;
-  const setInput = chatHelpers.setInput ?? (() => {});
 
   const { data: attachments = [] } = useQuery<AiAttachment[]>({
     queryKey: ["/api/ai/conversations", conversationId, "attachments"],
@@ -173,22 +174,37 @@ function ChatWindow({
 
   const isLoading = status === "submitted" || status === "streaming";
 
+  const handleSend = useCallback(() => {
+    const text = input.trim();
+    if (!text) return;
+    setInput("");
+    sendMessage({ text });
+  }, [input, sendMessage]);
+
+  const handleFormSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      handleSend();
+    },
+    [handleSend]
+  );
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        formRef.current?.requestSubmit();
+        handleSend();
       }
     },
-    []
+    [handleSend]
   );
 
   const handleSuggestionClick = useCallback(
     (suggestion: string) => {
-      setInput(suggestion);
-      setTimeout(() => formRef.current?.requestSubmit(), 50);
+      setInput("");
+      sendMessage({ text: suggestion });
     },
-    [setInput]
+    [sendMessage]
   );
 
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,9 +235,17 @@ function ChatWindow({
     }
   }, [conversationId, queryClient]);
 
+  const getMessageText = useCallback((msg: typeof messages[0]) => {
+    if (!msg.parts) return "";
+    return msg.parts
+      .filter((p): p is { type: "text"; text: string } => p.type === "text")
+      .map((p) => p.text)
+      .join("");
+  }, []);
+
   const handleDownloadConversation = useCallback(() => {
     const markdown = messages
-      .map((m) => `**${m.role === "user" ? "You" : "TeamSync AI"}:**\n${m.content}`)
+      .map((m) => `**${m.role === "user" ? "You" : "TeamSync AI"}:**\n${getMessageText(m)}`)
       .join("\n\n---\n\n");
     const blob = new Blob([markdown], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
@@ -273,9 +297,9 @@ function ChatWindow({
                 <Message key={message.id} from={message.role}>
                   <MessageContent>
                     {message.role === "assistant" ? (
-                      <MessageResponse>{message.content}</MessageResponse>
+                      <MessageResponse>{getMessageText(message)}</MessageResponse>
                     ) : (
-                      <span>{message.content}</span>
+                      <span>{getMessageText(message)}</span>
                     )}
                   </MessageContent>
                 </Message>
@@ -311,7 +335,7 @@ function ChatWindow({
       )}
 
       <div className={cn("border-t p-3", isExpanded && "px-4 sm:px-8 pb-6")}>
-        <form ref={formRef} onSubmit={handleSubmit}>
+        <form ref={formRef} onSubmit={handleFormSubmit}>
           <div className={cn(
             "relative flex items-end gap-2 rounded-xl border bg-background shadow-sm focus-within:ring-1 focus-within:ring-ring px-3 py-2",
             isExpanded && "max-w-3xl mx-auto"
@@ -337,8 +361,8 @@ function ChatWindow({
               <Paperclip className={cn("size-3.5", uploadingFile && "animate-spin")} />
             </Button>
             <Textarea
-              value={input ?? ""}
-              onChange={handleInputChange}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask TeamSync AI…"
               rows={1}
