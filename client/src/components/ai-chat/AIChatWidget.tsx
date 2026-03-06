@@ -25,7 +25,7 @@ import {
 import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { VerticalContext } from "@/lib/vertical-store";
-import aiIcon from "@assets/image_1772789030064.png";
+import aiIcon from "@assets/ai-chat-icon.png";
 
 interface AiConversation {
   id: string;
@@ -470,11 +470,9 @@ export function AIChatWidget() {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.12 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpen}
             className="fixed bottom-6 right-6 z-50 w-14 h-14 flex items-center justify-center focus:outline-none"
-            style={{ filter: "drop-shadow(0 4px 16px rgba(59,130,246,0.35))" }}
             aria-label="Open TeamSync AI"
             data-testid="ai-chat-trigger"
           >
