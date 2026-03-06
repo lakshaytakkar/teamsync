@@ -103,7 +103,8 @@ ${DB_SCHEMA}
 - If a query fails, explain what happened and try a different approach.
 - You can make multiple queries in sequence to gather related data before answering.
 - When you generate an image, always include the image ID in your response using this exact format: [GENERATED_IMAGE:imageId] so the UI can render it inline. For example: [GENERATED_IMAGE:abc-123-def]
-- When asked to create, generate, draw, or design any image, use the generateImage tool.`;
+- When asked to create, generate, draw, or design any image, use the generateImage tool.
+- Users can attach files (images, CSVs, PDFs, text files) to their messages. When a file is attached, its content is included directly in the message — for images you can see and analyze them, for text/CSV/JSON files the content is embedded as text. Always acknowledge and process attached file content when present.`;
 
 async function getOrCreateConversation(
   conversationId: string | undefined,
@@ -335,10 +336,11 @@ const queryDatabaseTool = tool({
 
 router.post("/chat", async (req: Request, res: Response) => {
   try {
-    const { messages, conversationId: incomingId, verticalId } = req.body as {
+    const { messages, conversationId: incomingId, verticalId, attachmentIds } = req.body as {
       messages: any[];
       conversationId?: string;
       verticalId?: string;
+      attachmentIds?: string[];
     };
 
     if (!messages || messages.length === 0) {
@@ -354,10 +356,75 @@ router.post("/chat", async (req: Request, res: Response) => {
       await updateConversationTitle(convId, content);
     }
 
-    const aiMessages = messages.map((m) => ({
+    const aiMessages: Array<{ role: "user" | "assistant" | "system"; content: string | Array<any> }> = messages.map((m) => ({
       role: m.role as "user" | "assistant" | "system",
       content: extractMessageContent(m),
     }));
+
+    if (attachmentIds && attachmentIds.length > 0) {
+      const { data: attachmentRows } = await supabase
+        .from("ai_attachments")
+        .select("id, filename, file_data, mime_type")
+        .eq("conversation_id", convId)
+        .in("id", attachmentIds);
+
+      if (attachmentRows && attachmentRows.length > 0) {
+        const lastUserIdx = aiMessages.length - 1 - [...aiMessages].reverse().findIndex((m) => m.role === "user");
+        if (lastUserIdx >= 0 && lastUserIdx < aiMessages.length) {
+          const textContent = typeof aiMessages[lastUserIdx].content === "string"
+            ? aiMessages[lastUserIdx].content as string
+            : "";
+
+          const TEXT_EMBEDDABLE_MIMES = [
+            "text/", "application/json", "application/csv", "application/xml",
+            "application/javascript", "application/typescript", "application/x-yaml",
+            "application/octet-stream",
+          ];
+          const isTextEmbeddable = (mime: string) =>
+            TEXT_EMBEDDABLE_MIMES.some((prefix) => mime.startsWith(prefix));
+
+          const contentParts: Array<any> = [{ type: "text", text: textContent }];
+
+          for (const att of attachmentRows) {
+            const mimeType = att.mime_type as string;
+            const fileData = att.file_data as string;
+            const filename = att.filename as string;
+
+            if (mimeType.startsWith("image/")) {
+              const imgBase64Match = fileData.match(/^data:[^;]+;base64,(.+)$/);
+              if (imgBase64Match) {
+                const imgBuffer = Buffer.from(imgBase64Match[1], "base64");
+                contentParts.push({
+                  type: "image",
+                  image: imgBuffer,
+                  mimeType: mimeType,
+                });
+                console.log(`[ai-chat] Including image attachment: ${filename} (${imgBuffer.length} bytes)`);
+              }
+            } else if (isTextEmbeddable(mimeType)) {
+              const base64Match = fileData.match(/^data:[^;]+;base64,(.+)$/);
+              if (base64Match) {
+                const decoded = Buffer.from(base64Match[1], "base64").toString("utf-8");
+                const truncated = decoded.length > 50000 ? decoded.slice(0, 50000) + "\n\n[Content truncated at 50,000 characters]" : decoded;
+                contentParts.push({
+                  type: "text",
+                  text: `\n\n--- Attached file: ${filename} (${mimeType}) ---\n${truncated}\n--- End of file ---`,
+                });
+                console.log(`[ai-chat] Including text attachment: ${filename} (${decoded.length} chars)`);
+              }
+            } else {
+              contentParts.push({
+                type: "text",
+                text: `\n\n[Attached file: ${filename} (${mimeType}) — binary file type, content cannot be displayed inline]`,
+              });
+              console.log(`[ai-chat] Skipping binary attachment: ${filename} (${mimeType})`);
+            }
+          }
+
+          aiMessages[lastUserIdx].content = contentParts;
+        }
+      }
+    }
 
     const verticalContext = verticalId ? `\n\nCurrent vertical context: ${verticalId}. When querying, filter by vertical_id = '${verticalId}' when relevant.` : "";
 

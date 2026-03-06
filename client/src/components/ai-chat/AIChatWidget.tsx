@@ -810,6 +810,7 @@ function ChatWindow({
   const queryClient = useQueryClient();
   const [uploadingFile, setUploadingFile] = useState(false);
   const [input, setInput] = useState("");
+  const [pendingAttachmentIds, setPendingAttachmentIds] = useState<string[]>([]);
 
   const mappedInitial = initialMessages.map((m) => ({
     id: m.id,
@@ -847,8 +848,13 @@ function ChatWindow({
     const text = input.trim();
     if (!text) return;
     setInput("");
-    sendMessage({ text });
-  }, [input, sendMessage]);
+    const idsToSend = [...pendingAttachmentIds];
+    setPendingAttachmentIds([]);
+    sendMessage(
+      { text },
+      idsToSend.length > 0 ? { body: { attachmentIds: idsToSend } } : undefined
+    );
+  }, [input, sendMessage, pendingAttachmentIds]);
 
   const handleFormSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -892,6 +898,10 @@ function ChatWindow({
       });
 
       if (res.ok) {
+        const data = await res.json();
+        if (data.id) {
+          setPendingAttachmentIds((prev) => [...prev, data.id]);
+        }
         queryClient.invalidateQueries({
           queryKey: ["/api/ai/conversations", conversationId, "attachments"],
         });
@@ -1035,6 +1045,22 @@ function ChatWindow({
       )}
 
       <div className={cn("border-t p-3", isExpanded && "px-4 sm:px-8 pb-6")}>
+        {pendingAttachmentIds.length > 0 && (
+          <div className={cn("flex items-center gap-2 mb-2 px-1", isExpanded && "max-w-3xl mx-auto")}>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 rounded-md px-2 py-1">
+              <Paperclip className="size-3" />
+              <span>{pendingAttachmentIds.length} file{pendingAttachmentIds.length > 1 ? "s" : ""} attached — will be sent with your next message</span>
+              <button
+                type="button"
+                className="ml-1 text-muted-foreground hover:text-foreground"
+                onClick={() => setPendingAttachmentIds([])}
+                data-testid="ai-chat-clear-attachments"
+              >
+                <X className="size-3" />
+              </button>
+            </div>
+          </div>
+        )}
         <form ref={formRef} onSubmit={handleFormSubmit}>
           <div className={cn(
             "relative flex items-end gap-2 rounded-xl border bg-background shadow-sm focus-within:ring-1 focus-within:ring-ring px-3 py-2",
