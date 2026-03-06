@@ -51,6 +51,7 @@ import {
   addTaskComment,
   addTaskLink,
   uploadTaskFile,
+  uploadChatFile,
   deleteTaskActivity,
   getVerticals,
   getVertical,
@@ -1141,6 +1142,33 @@ export async function registerRoutes(
     } catch (e) {
       console.error("[routes] POST messages caught exception:", e);
       return res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+
+  app.post("/api/core/channels/:id/upload", upload.single("file"), async (req, res) => {
+    try {
+      const file = req.file;
+      if (!file) return res.status(400).json({ error: "No file provided" });
+      const { sender_name } = req.body;
+      if (!sender_name) return res.status(400).json({ error: "sender_name required" });
+
+      const uploaded = await uploadChatFile(req.params.id, file.buffer, file.originalname);
+      if (!uploaded) return res.status(500).json({ error: "Failed to upload file" });
+
+      const msg = await createChannelMessage({
+        channel_id: req.params.id,
+        sender_name,
+        content: file.originalname,
+        message_type: "file",
+        file_url: uploaded.url,
+        file_name: file.originalname,
+        file_size: file.size,
+      });
+      if (!msg) return res.status(500).json({ error: "Failed to create file message" });
+      return res.status(201).json(msg);
+    } catch (e) {
+      console.error("[routes] POST upload caught exception:", e);
+      return res.status(500).json({ error: "Failed to upload file" });
     }
   });
 

@@ -4,10 +4,7 @@ import {
   Search,
   Hash,
   Users,
-  Phone,
-  Video,
   MoreVertical,
-  Smile,
   Paperclip,
   Send,
   MessageCircle,
@@ -21,6 +18,11 @@ import {
   Megaphone,
   Info,
   ArrowDown,
+  FileText,
+  Download,
+  Image as ImageIcon,
+  Menu,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { detectVerticalFromUrl, verticals } from "@/lib/verticals-config";
@@ -73,12 +75,28 @@ interface DBMessage {
   is_deleted: boolean;
   reactions: Record<string, string[]>;
   message_type: string;
+  file_url: string | null;
+  file_name: string | null;
+  file_size: number | null;
   created_at: string;
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────
 
 const QUICK_REACTIONS = ["👍", "❤️", "😂", "🎉", "🔥", "👀"];
+const EMOJI_LIST = ["😀", "😂", "😍", "🤔", "😎", "🙌", "👍", "❤️", "🔥", "🎉", "👀", "💯", "✅", "🚀", "💪", "🙏"];
+
+function formatFileSize(bytes: number | null): string {
+  if (!bytes) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function isImageFile(fileName: string | null): boolean {
+  if (!fileName) return false;
+  return /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i.test(fileName);
+}
 
 function formatTime(isoString: string): string {
   const date = new Date(isoString);
@@ -317,15 +335,42 @@ function MessageBubble({
           </div>
         )}
 
-        <div className={cn(
-          "rounded-2xl px-4 py-2 text-sm shadow-sm leading-relaxed",
-          msg.is_deleted ? "opacity-50 italic" : "",
-          isMe ? "text-white" : "bg-card border text-foreground"
+        {msg.file_url && !msg.is_deleted ? (
+          isImageFile(msg.file_name) ? (
+            <div className="rounded-2xl overflow-hidden shadow-sm border max-w-xs">
+              <a href={msg.file_url} target="_blank" rel="noopener noreferrer">
+                <img src={msg.file_url} alt={msg.file_name ?? "image"} className="max-h-64 w-auto object-cover" loading="lazy" />
+              </a>
+              <div className={cn("px-3 py-1.5 text-xs flex items-center justify-between gap-2", isMe ? "text-white" : "bg-card text-foreground")} style={isMe ? { backgroundColor: verticalColor } : {}}>
+                <span className="truncate">{msg.file_name}</span>
+                <a href={msg.file_url} download={msg.file_name ?? undefined} target="_blank" rel="noopener noreferrer" className="shrink-0 opacity-70 hover:opacity-100" data-testid={`btn-download-${msg.id}`}>
+                  <Download className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className={cn("rounded-2xl px-4 py-3 shadow-sm flex items-center gap-3 min-w-[200px]", isMe ? "text-white" : "bg-card border text-foreground")} style={isMe ? { backgroundColor: verticalColor } : {}}>
+              <FileText className="h-8 w-8 shrink-0 opacity-70" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{msg.file_name}</p>
+                <p className="text-xs opacity-70">{formatFileSize(msg.file_size)}</p>
+              </div>
+              <a href={msg.file_url} download={msg.file_name ?? undefined} target="_blank" rel="noopener noreferrer" className="shrink-0 opacity-70 hover:opacity-100" data-testid={`btn-download-${msg.id}`}>
+                <Download className="h-4 w-4" />
+              </a>
+            </div>
+          )
+        ) : (
+          <div className={cn(
+            "rounded-2xl px-4 py-2 text-sm shadow-sm leading-relaxed",
+            msg.is_deleted ? "opacity-50 italic" : "",
+            isMe ? "text-white" : "bg-card border text-foreground"
+          )}
+          style={isMe ? { backgroundColor: verticalColor } : {}}
+          >
+            {msg.content}
+          </div>
         )}
-        style={isMe ? { backgroundColor: verticalColor } : {}}
-        >
-          {msg.content}
-        </div>
 
         {!showHeader && !msg.is_deleted && (
           <span className={cn("text-[10px] text-muted-foreground px-1 opacity-0 group-hover:opacity-100 transition-opacity")}>

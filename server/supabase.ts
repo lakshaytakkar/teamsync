@@ -1326,6 +1326,9 @@ export async function createChannelMessage(input: {
   sender_id?: string;
   reply_to_id?: string;
   message_type?: string;
+  file_url?: string;
+  file_name?: string;
+  file_size?: number;
 }): Promise<CoreMessage | null> {
   const { data: insertedRows, error: insertError } = await supabase
     .from("channel_messages")
@@ -1352,14 +1355,13 @@ export async function createChannelMessage(input: {
 }
 
 export async function editMessage(id: string, content: string): Promise<CoreMessage | null> {
-  const { data, error } = await supabase
+  const { data: rows, error } = await supabase
     .from("channel_messages")
     .update({ content, edited_at: new Date().toISOString() })
     .eq("id", id)
-    .select()
-    .single();
-  if (error) { console.error("[supabase] editMessage error:", error.message); return null; }
-  return data as CoreMessage;
+    .select();
+  if (error) { console.error("[supabase] editMessage error:", JSON.stringify(error)); return null; }
+  return (rows?.[0] as CoreMessage) ?? null;
 }
 
 export async function deleteMessage(id: string): Promise<boolean> {
@@ -1367,17 +1369,17 @@ export async function deleteMessage(id: string): Promise<boolean> {
     .from("channel_messages")
     .update({ is_deleted: true, content: "This message was deleted" })
     .eq("id", id);
-  if (error) { console.error("[supabase] deleteMessage error:", error.message); return false; }
+  if (error) { console.error("[supabase] deleteMessage error:", JSON.stringify(error)); return false; }
   return true;
 }
 
 export async function toggleReaction(messageId: string, emoji: string, userName: string): Promise<CoreMessage | null> {
-  const { data: msg, error: fetchErr } = await supabase
+  const { data: rows, error: fetchErr } = await supabase
     .from("channel_messages")
     .select("reactions")
-    .eq("id", messageId)
-    .single();
-  if (fetchErr || !msg) { console.error("[supabase] toggleReaction fetch error:", fetchErr?.message); return null; }
+    .eq("id", messageId);
+  if (fetchErr || !rows?.[0]) { console.error("[supabase] toggleReaction fetch error:", fetchErr?.message); return null; }
+  const msg = rows[0];
   const reactions: Record<string, string[]> = (msg.reactions as Record<string, string[]>) ?? {};
   const users: string[] = reactions[emoji] ?? [];
   if (users.includes(userName)) {
@@ -1386,14 +1388,37 @@ export async function toggleReaction(messageId: string, emoji: string, userName:
   } else {
     reactions[emoji] = [...users, userName];
   }
-  const { data, error } = await supabase
+  const { data: updatedRows, error } = await supabase
     .from("channel_messages")
     .update({ reactions })
     .eq("id", messageId)
-    .select()
-    .single();
-  if (error) { console.error("[supabase] toggleReaction update error:", error.message); return null; }
-  return data as CoreMessage;
+    .select();
+  if (error) { console.error("[supabase] toggleReaction update error:", JSON.stringify(error)); return null; }
+  return (updatedRows?.[0] as CoreMessage) ?? null;
+}
+
+export async function uploadChatFile(channelId: string, fileBuffer: Buffer, fileName: string): Promise<{ url: string; path: string } | null> {
+  const storagePath = `${channelId}/${Date.now()}-${fileName}`;
+  const { error } = await supabase.storage
+    .from("chat-attachments")
+    .upload(storagePath, fileBuffer, { contentType: getMimeType(fileName), upsert: false });
+  if (error) { console.error("[supabase] uploadChatFile error:", JSON.stringify(error)); return null; }
+  const { data: urlData } = supabase.storage
+    .from("chat-attachments")
+    .getPublicUrl(storagePath);
+  return { url: urlData.publicUrl, path: storagePath };
+}
+
+function getMimeType(fileName: string): string {
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
+  const mimeMap: Record<string, string> = {
+    pdf: "application/pdf", doc: "application/msword", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    xls: "application/vnd.ms-excel", xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ppt: "application/vnd.ms-powerpoint", pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif", webp: "image/webp", svg: "image/svg+xml",
+    mp4: "video/mp4", mp3: "audio/mpeg", zip: "application/zip", txt: "text/plain", csv: "text/csv", json: "application/json",
+  };
+  return mimeMap[ext] || "application/octet-stream";
 }
 
 // ── CORE: Channel Read State ────────────────────────────────────────────────────
