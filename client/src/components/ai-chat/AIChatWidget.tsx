@@ -5,10 +5,10 @@ import { DefaultChatTransport } from "ai";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   X, Maximize2, Minimize2, Plus, Send, Square, Trash2,
-  MessageSquare, Sparkles, Clock, ChevronRight, Bot,
+  MessageSquare, Clock, ChevronRight, Bot,
   Paperclip, Download, FileText, Menu, Pencil, Check,
   Database, Plug, Zap, Search, Loader2, Image as ImageIcon,
-  Wand2, Copy, AlertCircle, ChevronLeft, RefreshCw
+  Copy, AlertCircle, ChevronLeft, RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,13 +17,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import {
   Conversation,
@@ -96,35 +89,6 @@ interface GeneratedImageData {
   aspect_ratio: string;
 }
 
-const IMAGE_STYLES = [
-  { value: "auto", label: "Auto" },
-  { value: "photorealistic", label: "Photorealistic" },
-  { value: "digital-art", label: "Digital Art" },
-  { value: "illustration", label: "Illustration" },
-  { value: "3d-render", label: "3D Render" },
-  { value: "anime", label: "Anime" },
-  { value: "watercolor", label: "Watercolor" },
-  { value: "oil-painting", label: "Oil Painting" },
-  { value: "pixel-art", label: "Pixel Art" },
-  { value: "minimalist", label: "Minimalist" },
-];
-
-const IMAGE_ASPECT_RATIOS = [
-  { value: "1:1", label: "1:1 Square" },
-  { value: "16:9", label: "16:9 Landscape" },
-  { value: "9:16", label: "9:16 Portrait" },
-  { value: "4:3", label: "4:3 Standard" },
-  { value: "3:4", label: "3:4 Portrait" },
-];
-
-const IMAGE_QUICK_PROMPTS = [
-  "Modern abstract gradient background",
-  "Professional team collaboration",
-  "Futuristic technology dashboard",
-  "Nature landscape at sunset",
-  "Minimalist logo concept",
-  "Product mockup on clean surface",
-];
 
 function ImagePreviewModal({
   image,
@@ -273,13 +237,8 @@ function ImagePreviewModal({
 }
 
 function ImageStudioPanel() {
-  const [prompt, setPrompt] = useState("");
-  const [negativePrompt, setNegativePrompt] = useState("");
-  const [style, setStyle] = useState("auto");
-  const [aspectRatio, setAspectRatio] = useState("1:1");
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "completed" | "pending" | "failed">("all");
-  const promptRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -289,27 +248,6 @@ function ImageStudioPanel() {
       const data = query.state.data as GeneratedImageData[] | undefined;
       const hasPending = data?.some((img) => img.status === "pending");
       return hasPending ? 3000 : false;
-    },
-  });
-
-  const generateMutation = useMutation({
-    mutationFn: async (data: { prompt: string; negativePrompt?: string; style: string; aspectRatio: string }) => {
-      const res = await fetch("/api/images/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Generation failed");
-      return res.json() as Promise<GeneratedImageData>;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/images"] });
-      setPrompt("");
-      setNegativePrompt("");
-      toast({ title: "Image generation started", description: "Your image is being generated." });
-    },
-    onError: () => {
-      toast({ title: "Generation failed", description: "Could not start image generation.", variant: "destructive" });
     },
   });
 
@@ -327,17 +265,6 @@ function ImageStudioPanel() {
     },
   });
 
-  const handleGenerate = useCallback(() => {
-    if (!prompt.trim()) return;
-    const finalPrompt = style !== "auto" ? `${prompt.trim()}, ${style} style` : prompt.trim();
-    generateMutation.mutate({
-      prompt: finalPrompt,
-      negativePrompt: negativePrompt.trim() || undefined,
-      style,
-      aspectRatio,
-    });
-  }, [prompt, negativePrompt, style, aspectRatio, generateMutation]);
-
   const filteredImages = images.filter((img) => filter === "all" || img.status === filter);
   const completedImages = images.filter((i) => i.status === "completed");
   const previewImage = previewId ? images.find((i) => i.id === previewId) : null;
@@ -345,112 +272,18 @@ function ImageStudioPanel() {
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
       <div className="flex items-center gap-3 px-4 sm:px-6 py-4 border-b shrink-0">
-        <Wand2 className="size-4 text-primary" />
-        <span className="font-semibold text-sm">Image Studio</span>
-        <span className="text-xs text-muted-foreground">Generate & manage AI images</span>
+        <ImageIcon className="size-4 text-primary" />
+        <span className="font-semibold text-sm">Asset Library</span>
+        <Badge variant="secondary" className="text-[10px]">{images.length}</Badge>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
-          <Card>
-            <CardContent className="p-5 space-y-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Wand2 className="size-5 text-primary" />
-                <h2 className="font-semibold text-sm">Generate Image</h2>
-              </div>
-
-              <Textarea
-                ref={promptRef}
-                placeholder="Describe the image you want to create..."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-[80px] resize-none"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleGenerate();
-                }}
-                data-testid="studio-prompt-input"
-              />
-
-              <div className="flex flex-wrap gap-1.5">
-                {IMAGE_QUICK_PROMPTS.map((qp) => (
-                  <button
-                    key={qp}
-                    type="button"
-                    onClick={() => {
-                      setPrompt(qp);
-                      promptRef.current?.focus();
-                    }}
-                    className="text-[11px] px-2.5 py-1 rounded-full border border-border/60 bg-muted/30 hover:bg-primary/5 hover:border-primary/30 transition-colors text-foreground/70"
-                    data-testid={`studio-quick-${qp.slice(0, 15).replace(/\s+/g, "-").toLowerCase()}`}
-                  >
-                    {qp}
-                  </button>
-                ))}
-              </div>
-
-              <Input
-                placeholder="Negative prompt (optional) — what to avoid..."
-                value={negativePrompt}
-                onChange={(e) => setNegativePrompt(e.target.value)}
-                className="text-sm"
-                data-testid="studio-negative-prompt"
-              />
-
-              <div className="flex flex-wrap gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs text-muted-foreground font-medium">Style</label>
-                  <Select value={style} onValueChange={setStyle}>
-                    <SelectTrigger className="w-[150px] h-9 text-sm" data-testid="studio-style-select">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {IMAGE_STYLES.map((s) => (
-                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs text-muted-foreground font-medium">Aspect Ratio</label>
-                  <Select value={aspectRatio} onValueChange={setAspectRatio}>
-                    <SelectTrigger className="w-[160px] h-9 text-sm" data-testid="studio-aspect-select">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {IMAGE_ASPECT_RATIOS.map((ar) => (
-                        <SelectItem key={ar.value} value={ar.value}>{ar.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 pt-1">
-                <Button
-                  onClick={handleGenerate}
-                  disabled={!prompt.trim() || generateMutation.isPending}
-                  className="gap-2"
-                  data-testid="studio-generate-button"
-                >
-                  {generateMutation.isPending ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="size-4" />
-                  )}
-                  Generate
-                </Button>
-                <span className="text-xs text-muted-foreground">Ctrl+Enter to generate</span>
-              </div>
-            </CardContent>
-          </Card>
-
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <ImageIcon className="size-4 text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Library</h2>
-                <Badge variant="secondary" className="text-[10px]">{images.length}</Badge>
+                <h2 className="font-semibold text-sm">Generated Images</h2>
               </div>
               <div className="flex gap-1">
                 {(["all", "completed", "pending", "failed"] as const).map((f) => (
@@ -1450,8 +1283,8 @@ export function AIChatWidget() {
                       )}
                       data-testid="ai-sidebar-tab-studio"
                     >
-                      <Wand2 className="size-3.5" />
-                      Image Studio
+                      <ImageIcon className="size-3.5" />
+                      Assets
                     </button>
                   </div>
 
@@ -1684,72 +1517,45 @@ export function AIChatWidget() {
 
                   {sidebarTab === "studio" && (
                     <ScrollArea className="flex-1">
-                      <div className="p-3 space-y-4">
+                      <div className="p-3 space-y-3">
                         <div className="flex items-center gap-1.5">
-                          <Wand2 className="size-3.5 text-primary" />
-                          <span className="text-xs font-semibold">Image Studio</span>
+                          <ImageIcon className="size-3.5 text-primary" />
+                          <span className="text-xs font-semibold">Asset Library</span>
+                          {!libraryLoading && (
+                            <Badge variant="secondary" className="text-[9px] h-4 px-1.5 ml-auto">{libraryImages.length}</Badge>
+                          )}
                         </div>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">
-                          Generate, preview, and manage AI-created images. Use the studio panel on the right to create new images or browse your library.
-                        </p>
 
                         {libraryLoading ? (
                           <div className="flex items-center justify-center py-8">
                             <Loader2 className="size-5 animate-spin text-muted-foreground" />
                           </div>
-                        ) : (
-                          <>
-                            <div className="space-y-2 text-xs">
-                              <div className="flex justify-between py-1.5 border-b border-border/40">
-                                <span className="text-muted-foreground">Total Images</span>
-                                <span className="font-medium">{libraryImages.length}</span>
-                              </div>
-                              <div className="flex justify-between py-1.5 border-b border-border/40">
-                                <span className="text-muted-foreground">Completed</span>
-                                <span className="font-medium text-emerald-600">{libraryImages.filter(i => i.status === "completed").length}</span>
-                              </div>
-                              <div className="flex justify-between py-1.5 border-b border-border/40">
-                                <span className="text-muted-foreground">Pending</span>
-                                <span className="font-medium text-amber-600">{libraryImages.filter(i => i.status === "pending").length}</span>
-                              </div>
-                              <div className="flex justify-between py-1.5">
-                                <span className="text-muted-foreground">Failed</span>
-                                <span className="font-medium text-red-500">{libraryImages.filter(i => i.status === "failed").length}</span>
-                              </div>
-                            </div>
-
-                            {libraryImages.filter(i => i.status === "completed").length > 0 && (
-                              <div>
-                                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Recent</p>
-                                <div className="grid grid-cols-2 gap-1.5">
-                                  {libraryImages.filter(i => i.status === "completed").slice(0, 4).map((img) => {
-                                    const src = img.image_data || img.image_url;
-                                    if (!src) return null;
-                                    return (
-                                      <div
-                                        key={img.id}
-                                        className="relative rounded-lg overflow-hidden border bg-muted/20 aspect-square"
-                                        data-testid={`sidebar-image-${img.id}`}
-                                      >
-                                        <img src={src} alt={img.prompt} className="w-full h-full object-cover" loading="lazy" />
-                                      </div>
-                                    );
-                                  })}
+                        ) : libraryImages.filter(i => i.status === "completed").length > 0 ? (
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {libraryImages.filter(i => i.status === "completed").map((img) => {
+                              const src = img.image_data || img.image_url;
+                              if (!src) return null;
+                              return (
+                                <div
+                                  key={img.id}
+                                  className="relative rounded-lg overflow-hidden border bg-muted/20 aspect-square group"
+                                  data-testid={`sidebar-image-${img.id}`}
+                                >
+                                  <img src={src} alt={img.prompt} className="w-full h-full object-cover" loading="lazy" />
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-end">
+                                    <p className="text-[9px] text-white opacity-0 group-hover:opacity-100 transition-opacity p-1.5 line-clamp-2 leading-tight">{img.prompt}</p>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-8 text-center">
+                            <ImageIcon className="size-8 text-muted-foreground/30 mb-2" />
+                            <p className="text-[11px] text-muted-foreground">No images yet</p>
+                            <p className="text-[10px] text-muted-foreground/60 mt-0.5">Ask AI in chat to generate images</p>
+                          </div>
                         )}
-
-                        <div className="pt-2">
-                          <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Tips</h4>
-                          <ul className="space-y-1 text-[11px] text-muted-foreground">
-                            <li className="flex gap-1.5"><span className="text-primary">•</span> Be specific with prompts</li>
-                            <li className="flex gap-1.5"><span className="text-primary">•</span> Use negative prompts to avoid unwanted elements</li>
-                            <li className="flex gap-1.5"><span className="text-primary">•</span> Try different styles for varied results</li>
-                            <li className="flex gap-1.5"><span className="text-primary">•</span> Or just ask AI in chat to generate images</li>
-                          </ul>
-                        </div>
                       </div>
                     </ScrollArea>
                   )}
