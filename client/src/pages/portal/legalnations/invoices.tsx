@@ -1,15 +1,15 @@
 import { DollarSign, CheckCircle2, Clock, AlertTriangle, Download } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { StatusBadge } from "@/components/hr/status-badge";
 import { cn } from "@/lib/utils";
+import { PageTransition } from "@/components/ui/animated";
 import { portalInvoices } from "@/lib/mock-data-portal-legalnations";
 
-const statusConfig: Record<string, { label: string; icon: typeof CheckCircle2; className: string }> = {
-  paid: { label: "Paid", icon: CheckCircle2, className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
-  pending: { label: "Pending", icon: Clock, className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
-  overdue: { label: "Overdue", icon: AlertTriangle, className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
+const statusConfig: Record<string, { label: string; icon: typeof CheckCircle2; variant: "success" | "warning" | "error" }> = {
+  paid: { label: "Paid", icon: CheckCircle2, variant: "success" },
+  pending: { label: "Pending", icon: Clock, variant: "warning" },
+  overdue: { label: "Overdue", icon: AlertTriangle, variant: "error" },
 };
 
 export default function PortalInvoices() {
@@ -18,41 +18,58 @@ export default function PortalInvoices() {
   const totalOverdue = portalInvoices.filter(i => i.status === "overdue").reduce((s, i) => s + i.amount, 0);
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto space-y-6">
+    <PageTransition className="px-4 sm:px-8 py-6 lg:px-24 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Invoices & Payments</h1>
+        <h1 className="text-2xl font-bold font-heading">Invoices & Payments</h1>
         <p className="text-sm text-muted-foreground mt-1">View your billing history and outstanding invoices</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <Card className="p-4 border-t-2 border-t-emerald-500">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Total Paid</p>
-          <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">${totalPaid.toLocaleString()}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="p-5 border-t-2 border-t-emerald-500">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Total Paid</p>
+              <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">${totalPaid.toLocaleString()}</p>
+            </div>
+            <div className="size-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+              <CheckCircle2 className="size-4 text-emerald-600" />
+            </div>
+          </div>
         </Card>
-        <Card className="p-4 border-t-2 border-t-amber-500">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Pending</p>
-          <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">${totalPending.toLocaleString()}</p>
+        <Card className="p-5 border-t-2 border-t-amber-500">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Pending</p>
+              <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">${totalPending.toLocaleString()}</p>
+            </div>
+            <div className="size-9 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <Clock className="size-4 text-amber-600" />
+            </div>
+          </div>
         </Card>
-        <Card className="p-4 border-t-2 border-t-red-500">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Overdue</p>
-          <p className="text-2xl font-bold text-red-700 dark:text-red-400">${totalOverdue.toLocaleString()}</p>
+        <Card className="p-5 border-t-2 border-t-red-500">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Overdue</p>
+              <p className="text-2xl font-bold text-red-700 dark:text-red-400">${totalOverdue.toLocaleString()}</p>
+            </div>
+            <div className="size-9 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <AlertTriangle className="size-4 text-red-600" />
+            </div>
+          </div>
         </Card>
       </div>
 
       <div className="space-y-3">
         {portalInvoices.map(inv => {
           const st = statusConfig[inv.status];
-          const StIcon = st.icon;
           return (
             <Card key={inv.id} className="p-5" data-testid={`invoice-${inv.id}`}>
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="text-sm font-bold">{inv.number}</p>
-                    <Badge className={cn("text-[10px] border-none gap-1", st.className)}>
-                      <StIcon className="size-3" />
-                      {st.label}
-                    </Badge>
+                    <StatusBadge status={st.label} variant={st.variant} />
                   </div>
                   <p className="text-sm">{inv.description}</p>
                   <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
@@ -82,6 +99,6 @@ export default function PortalInvoices() {
           );
         })}
       </div>
-    </div>
+    </PageTransition>
   );
 }

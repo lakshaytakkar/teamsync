@@ -1,27 +1,28 @@
 import { useState } from "react";
-import { CheckCircle2, Clock, Building2, MapPin, Package, Calendar, Hash } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { CheckCircle2, Clock, Building2, MapPin, Package, Calendar, Hash, ChevronDown, ChevronUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { StatusBadge } from "@/components/hr/status-badge";
 import { cn } from "@/lib/utils";
+import { PageTransition } from "@/components/ui/animated";
 import { portalCompanies, type PortalCompany } from "@/lib/mock-data-portal-legalnations";
 
+const statusVariant: Record<string, "success" | "info" | "neutral"> = {
+  completed: "success",
+  "in-progress": "info",
+  pending: "neutral",
+};
+
 function CompanyCard({ company }: { company: PortalCompany }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(company.status === "in-progress");
   const completedStages = company.stages.filter(s => s.status === "completed").length;
   const progress = Math.round((completedStages / company.stages.length) * 100);
 
-  const statusStyle = company.status === "completed"
-    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400"
-    : company.status === "in-progress"
-    ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400"
-    : "bg-slate-50 text-slate-600 border-slate-200";
-
   return (
     <Card className="overflow-hidden" data-testid={`company-${company.id}`}>
-      <div className="p-6">
+      <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className={cn(
@@ -35,9 +36,10 @@ function CompanyCard({ company }: { company: PortalCompany }) {
               <p className="text-sm text-muted-foreground">{company.entityType}</p>
             </div>
           </div>
-          <Badge variant="outline" className={statusStyle}>
-            {company.status === "completed" ? "Completed" : company.status === "in-progress" ? "In Progress" : "Pending"}
-          </Badge>
+          <StatusBadge
+            status={company.status === "completed" ? "Completed" : company.status === "in-progress" ? "In Progress" : "Pending"}
+            variant={statusVariant[company.status]}
+          />
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
@@ -69,51 +71,58 @@ function CompanyCard({ company }: { company: PortalCompany }) {
         </div>
         <p className="text-xs text-muted-foreground">{completedStages} of {company.stages.length} stages completed</p>
 
-        <Button variant="ghost" size="sm" onClick={() => setExpanded(!expanded)} className="mt-3 text-xs" data-testid={`toggle-stages-${company.id}`}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setExpanded(!expanded)}
+          className="mt-3 text-xs gap-1"
+          data-testid={`toggle-stages-${company.id}`}
+        >
+          {expanded ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
           {expanded ? "Hide Stages" : "View All Stages"}
         </Button>
-      </div>
+      </CardContent>
 
       {expanded && (
-        <>
-          <Separator />
-          <div className="p-6 space-y-3 bg-slate-50/50 dark:bg-slate-900/50">
-            {company.stages.map((stage) => (
-              <div key={stage.id} className="flex items-start gap-3">
-                <div className={cn(
-                  "mt-0.5 size-6 rounded-full flex items-center justify-center shrink-0",
-                  stage.status === "completed" ? "bg-emerald-100" :
-                  stage.status === "in-progress" ? "bg-blue-100 ring-2 ring-blue-400" :
-                  "bg-slate-200"
-                )}>
-                  {stage.status === "completed" ? (
-                    <CheckCircle2 className="size-3.5 text-emerald-600" />
-                  ) : stage.status === "in-progress" ? (
-                    <Clock className="size-3.5 text-blue-600 animate-pulse" />
-                  ) : (
-                    <span className="size-2 rounded-full bg-slate-400" />
+        <div className="border-t p-6 space-y-3 bg-muted/30">
+          {company.stages.map((stage, i) => {
+            const isDone = stage.status === "completed";
+            const isCurrent = stage.status === "in-progress";
+            return (
+              <div key={stage.id} className="flex items-start gap-3" data-testid={`stage-${company.id}-${stage.id}`}>
+                <div className="flex flex-col items-center gap-0">
+                  <div className={cn(
+                    "size-7 rounded-full flex items-center justify-center shrink-0 text-xs font-medium",
+                    isDone && "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+                    isCurrent && "bg-blue-100 text-blue-700 ring-2 ring-blue-400/40 dark:bg-blue-950 dark:text-blue-300",
+                    !isDone && !isCurrent && "bg-muted text-muted-foreground"
+                  )}>
+                    {isDone ? <CheckCircle2 className="size-3.5" /> : isCurrent ? <Clock className="size-3.5 animate-pulse" /> : i + 1}
+                  </div>
+                  {i < company.stages.length - 1 && (
+                    <div className={cn("w-0.5 h-6 mt-1", isDone ? "bg-emerald-300" : "bg-muted")} />
                   )}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 pb-2">
                   <p className={cn(
                     "text-sm font-medium",
-                    stage.status === "completed" ? "text-emerald-700" :
-                    stage.status === "in-progress" ? "text-blue-700 font-semibold" :
-                    "text-slate-400"
+                    isDone && "text-emerald-700 dark:text-emerald-300",
+                    isCurrent && "text-blue-700 dark:text-blue-300 font-semibold",
+                    !isDone && !isCurrent && "text-muted-foreground"
                   )}>
                     {stage.name}
                   </p>
-                  <p className="text-xs text-muted-foreground">{stage.description}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{stage.description}</p>
                   {stage.completedAt && (
                     <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {new Date(stage.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      Completed {new Date(stage.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </p>
                   )}
                 </div>
               </div>
-            ))}
-          </div>
-        </>
+            );
+          })}
+        </div>
       )}
     </Card>
   );
@@ -121,9 +130,9 @@ function CompanyCard({ company }: { company: PortalCompany }) {
 
 export default function PortalCompanies() {
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto space-y-6">
+    <PageTransition className="px-4 sm:px-8 py-6 lg:px-24 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">My Companies</h1>
+        <h1 className="text-2xl font-bold font-heading">My Companies</h1>
         <p className="text-sm text-muted-foreground mt-1">Track the formation and compliance status of your businesses</p>
       </div>
 
@@ -132,6 +141,6 @@ export default function PortalCompanies() {
           <CompanyCard key={company.id} company={company} />
         ))}
       </div>
-    </div>
+    </PageTransition>
   );
 }

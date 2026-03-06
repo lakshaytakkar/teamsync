@@ -941,9 +941,10 @@ Client-facing portal prototype accessible via vertical switcher under "Client Po
 
 ### Architecture
 - Routes: `/portal/legalnations/*` — detected via `loc.startsWith("/portal/")` in App.tsx
-- Layout: `client/src/components/portal/portal-layout.tsx` — sidebar with LegalNations branding, nav items, client info
+- Layout: `client/src/components/portal/portal-layout.tsx` — **top navigation** (no sidebar) with "LN" text logo in blue, horizontal nav links, user avatar, Preview Mode badge, mobile nav row
 - Router: `PortalRouter` function in App.tsx (separate from main `Router`)
 - Mock data: `client/src/lib/mock-data-portal-legalnations.ts` — client profile (Rajesh Kumar), 2 companies, documents, invoices, messages
+- Spacing: `px-4 sm:px-8 lg:px-24` responsive (matching PageShell at lg breakpoint)
 
 ### Portal Pages (5)
 | Page | Route | File |
@@ -956,5 +957,5 @@ Client-facing portal prototype accessible via vertical switcher under "Client Po
 
 ### Navigation Entry
 - Vertical switcher (`vertical-switcher.tsx`) has "Client Portals" section with LegalNations entry
-- Portal sidebar has "Back to Internal Portal" link navigating to `/hr`
+- Top nav has LogOut icon button navigating back to `/hr`
 - "Preview Mode" badge shown at top of portal pages

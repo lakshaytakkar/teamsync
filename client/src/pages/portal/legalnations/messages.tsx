@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { PageTransition } from "@/components/ui/animated";
 import { portalMessages, portalClient, type PortalMessage } from "@/lib/mock-data-portal-legalnations";
 
 function MessageBubble({ msg }: { msg: PortalMessage }) {
@@ -23,7 +24,7 @@ function MessageBubble({ msg }: { msg: PortalMessage }) {
         {msg.isClient ? portalClient.avatar : msg.from.split(" ").map(n => n[0]).join("")}
       </div>
       <div className={cn("max-w-[75%]", msg.isClient ? "items-end" : "")}>
-        <div className="flex items-center gap-2 mb-1">
+        <div className={cn("flex items-center gap-2 mb-1", msg.isClient ? "flex-row-reverse" : "")}>
           <span className="text-xs font-semibold">{msg.from}</span>
           {!msg.isClient && (
             <Badge variant="outline" className="text-[9px] h-4">{msg.fromRole}</Badge>
@@ -68,14 +69,14 @@ export default function PortalMessages() {
   };
 
   return (
-    <div className="p-6 lg:p-8 max-w-3xl mx-auto space-y-4 flex flex-col h-[calc(100vh-3.5rem)]">
-      <div className="shrink-0">
-        <h1 className="text-2xl font-bold">Messages</h1>
+    <PageTransition className="px-4 sm:px-8 py-6 lg:px-24 flex flex-col h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)]">
+      <div className="shrink-0 mb-4">
+        <h1 className="text-2xl font-bold font-heading">Messages</h1>
         <p className="text-sm text-muted-foreground mt-1">Chat with your LegalNations formation team</p>
       </div>
 
       <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <div className="p-4 border-b bg-slate-50 dark:bg-slate-900/50 shrink-0">
+        <div className="p-4 border-b bg-muted/30 shrink-0">
           <div className="flex items-center gap-3">
             <div className="size-8 rounded-full bg-blue-100 flex items-center justify-center">
               <User className="size-4 text-blue-600" />
@@ -121,6 +122,6 @@ export default function PortalMessages() {
           </div>
         </div>
       </Card>
-    </div>
+    </PageTransition>
   );
 }
