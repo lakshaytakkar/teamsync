@@ -209,39 +209,54 @@ ${liveSchema}
 
 ### 1. ALWAYS QUERY THE DATABASE
 - NEVER guess, estimate, or fabricate data. If you don't know something, QUERY FOR IT.
-- NEVER say "I don't have access to..." or "I can't check..." — you CAN query the database.
+- NEVER say "I don't have access to..." or "I can't check..." — you CAN query AND WRITE to the database.
 - NEVER give generic instructions like "go to the dashboard" — query the actual data instead.
-- If the user asks about any data, metrics, counts, lists, statuses, employees, tasks, orders, etc. — USE the queryDatabase tool.
+- If the user asks about any data, metrics, counts, lists, statuses, employees, tasks, orders, etc. — USE the run_sql_query tool.
 
 ### 2. QUERY STRATEGY
-- Start with a discovery query if you're unsure about the data (e.g., SELECT column_name FROM information_schema.columns WHERE table_name = 'X').
-- Use COUNT(*) for counting questions, then follow up with detail queries if needed.
+- Use **getSchema** first if you're unsure about table structure, column names, or data shape.
+- Use **run_sql_query** for data retrieval: counts, lists, joins, filters.
+- Use **analyticsQuery** for aggregations, GROUP BY, trends, KPIs, reports.
+- Use **createRecord** to insert new records (tasks, contacts, tickets, etc.).
+- Use **updateRecord** to modify existing records (change status, reassign, etc.).
+- Use **deleteRecord** to remove records (always confirm with user first).
 - For Faire tables in the faire schema, use fully qualified names: faire.orders, faire.products, faire.stores, faire.retailers.
 - For public schema tables, use just the table name: users, tasks, tickets, etc.
-- Always use LIMIT (max 50). Use ORDER BY for meaningful results.
+- Use LIMIT in queries. Use ORDER BY for meaningful results.
 - Join tables when you need related data (e.g., tasks + users for assignee names).
 - Use ILIKE for text search (case-insensitive).
 
 ### 3. HANDLE ERRORS GRACEFULLY
 - If a query fails, READ the error message carefully. Common fixes:
-  - Wrong column name → use the listColumns tool to check actual column names
+  - Wrong column name → use getSchema to check actual column names
   - Wrong table name → check if it needs faire. prefix
   - Type mismatch → cast appropriately (e.g., ::text, ::int)
 - Try a simpler query if the first one fails.
-- You can make up to 10 sequential queries to answer complex questions.
+- You can make up to 12 sequential tool calls to answer complex questions.
 
 ### 4. RESPONSE FORMAT
 - Present data in clear markdown tables when showing lists.
 - Include actual numbers, names, and statuses from the database.
 - Summarize findings with key insights.
 - If asked to compare or analyze, show the relevant data first, then provide your analysis.
+- When creating or updating records, always show the result to confirm what was done.
 
-### 5. TOOLS
-- **queryDatabase**: Run read-only SQL queries (SELECT only, max 50 rows)
-- **listColumns**: Get column names and types for any table (use when unsure about schema)
-- **generateImage**: Generate images with DALL-E 3
+### 5. AVAILABLE TOOLS
+- **getSchema**: Discover database structure — tables, columns, types, FKs, sample data, row counts. Call with no args for full table list, or with a table name for details.
+- **run_sql_query**: Execute read-only SQL (SELECT). Max 100 rows. For data retrieval, filtering, joins.
+- **analyticsQuery**: Run aggregate/analytics SQL (COUNT, SUM, AVG, GROUP BY). For KPIs, reports, trends. Up to 500 rows.
+- **createRecord**: Insert a new record into a writable table. Uses Supabase client (not raw SQL). Returns the created record.
+- **updateRecord**: Update an existing record by ID. Returns the updated record.
+- **deleteRecord**: Delete a record by ID. Always confirm with user first.
+- **generateImage**: Generate images with DALL-E 3.
 
-### 6. ATTACHMENTS & IMAGES
+### 6. WRITE OPERATIONS
+- Writable tables: tasks, task_subtasks, task_activity, tickets, contacts, channels, channel_messages, resources, notifications, users, user_verticals, bank_transactions, ledger_parties, ledger_party_transactions, faire_vendors, faire_product_vendors, faire_seller_applications, faire_application_followups, faire_application_links, retailer_enrichments.
+- Protected tables (read-only): ai_conversations, ai_messages, ai_attachments, generated_images, verticals.
+- Faire schema tables (faire.orders, faire.products, etc.) are synced from Faire API — cannot write directly.
+- Always use snake_case column names. Omit auto-generated fields (id, created_at, updated_at, task_code, ticket_code).
+
+### 7. ATTACHMENTS & IMAGES
 - Users can attach files (images, CSVs, PDFs, text files). Their content is included in the message.
 - When generating images, include the ID in your response: [GENERATED_IMAGE:imageId]
 ${verticalContext}`;
@@ -370,125 +385,367 @@ const generateImageTool = tool({
   },
 });
 
-const BLOCKED_SQL = /\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|GRANT|REVOKE|EXECUTE|COPY)\b/i;
+const VALID_TABLE_NAME = /^[a-zA-Z0-9_.]+$/;
 
-const listColumnsTool = tool({
-  description: "List all columns and their types for a specific database table. Use this BEFORE querying a table if you are unsure about column names. For faire schema tables, include the schema prefix (e.g., 'faire.orders').",
-  inputSchema: jsonSchema<{ tableName: string }>({
+const WRITABLE_TABLES = new Set([
+  "tasks", "task_subtasks", "task_activity",
+  "tickets",
+  "contacts",
+  "channels", "channel_messages",
+  "resources",
+  "notifications",
+  "users", "user_verticals",
+  "bank_transactions",
+  "ledger_parties", "ledger_party_transactions",
+  "faire_vendors", "faire_product_vendors", "faire_seller_applications",
+  "faire_application_followups", "faire_application_links",
+  "retailer_enrichments",
+]);
+
+const PROTECTED_TABLES = new Set([
+  "ai_conversations", "ai_messages", "ai_attachments", "generated_images",
+  "verticals",
+]);
+
+function validateTableAccess(tableName: string, operation: string): string | null {
+  if (!VALID_TABLE_NAME.test(tableName)) {
+    return "Invalid table name. Use only letters, numbers, underscores, and dots.";
+  }
+  const baseName = tableName.includes(".") ? tableName.split(".")[1] : tableName;
+  if (PROTECTED_TABLES.has(baseName)) {
+    return `Table "${tableName}" is protected and cannot be modified via ${operation}. It is managed by the system.`;
+  }
+  if (tableName.startsWith("faire.")) {
+    return `Faire schema tables (${tableName}) cannot be written to directly. They are synced from the Faire API. Use public schema tables like faire_vendors, faire_seller_applications, etc.`;
+  }
+  if (!WRITABLE_TABLES.has(baseName)) {
+    return `Table "${tableName}" is not in the list of writable tables. Writable tables: ${[...WRITABLE_TABLES].join(", ")}`;
+  }
+  if (tableName.includes(".")) {
+    return `Write operations only work on public schema tables. Use the table name without schema prefix (e.g., "${baseName}" instead of "${tableName}").`;
+  }
+  return null;
+}
+
+const getSchemaTool = tool({
+  description: "Get the full schema for one or all database tables. Returns column names, types, constraints, row counts, and sample data. Use this to understand the database structure before querying or writing data. Pass tableName for a specific table, or omit it to get an overview of all tables.",
+  inputSchema: jsonSchema<{ tableName?: string }>({
     type: "object",
     properties: {
-      tableName: { type: "string", description: "Table name (e.g., 'users', 'faire.orders', 'tasks'). Include schema prefix for non-public tables." },
+      tableName: { type: "string", description: "Optional. Specific table name (e.g., 'users', 'faire.orders'). Omit to list all tables with row counts." },
     },
-    required: ["tableName"],
     additionalProperties: false,
   }),
   execute: async ({ tableName }) => {
-    console.log(`[ai-db] Listing columns for: ${tableName}`);
+    if (tableName) {
+      console.log(`[ai-db] getSchema for: ${tableName}`);
 
-    if (!/^[a-zA-Z0-9_.]+$/.test(tableName)) {
-      return { error: "Invalid table name. Use only letters, numbers, underscores, and dots.", columns: [] };
-    }
-
-    let schema = "public";
-    let table = tableName;
-    if (tableName.includes(".")) {
-      const parts = tableName.split(".");
-      schema = parts[0];
-      table = parts[1];
-    }
-
-    try {
-      const query = `SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_schema = '${schema}' AND table_name = '${table}' ORDER BY ordinal_position`;
-      const { data, error } = await supabase.rpc("exec_readonly_sql", { query_text: query });
-
-      if (error) {
-        return { error: `Failed to list columns: ${error.message}`, columns: [] };
+      if (!VALID_TABLE_NAME.test(tableName)) {
+        return { error: "Invalid table name.", tables: [] };
       }
 
-      const sampleQuery = `SELECT * FROM ${tableName} LIMIT 3`;
-      const { data: sampleData } = await supabase.rpc("exec_readonly_sql", { query_text: sampleQuery });
+      let schema = "public";
+      let table = tableName;
+      if (tableName.includes(".")) {
+        const parts = tableName.split(".");
+        schema = parts[0];
+        table = parts[1];
+      }
 
-      return {
-        table: tableName,
-        columns: data ?? [],
-        sampleRows: (sampleData ?? []).map((row: any) => {
+      try {
+        const colQuery = `SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_schema = '${schema}' AND table_name = '${table}' ORDER BY ordinal_position`;
+        const { data: colData, error: colError } = await supabase.rpc("exec_readonly_sql", { query_text: colQuery });
+
+        if (colError) return { error: `Schema query failed: ${colError.message}`, tables: [] };
+        if (!colData || colData.length === 0) return { error: `Table "${tableName}" not found. Check the name and schema prefix.`, tables: [] };
+
+        const countQuery = `SELECT COUNT(*)::int as total FROM ${tableName}`;
+        const { data: countData } = await supabase.rpc("exec_readonly_sql", { query_text: countQuery });
+        const rowCount = countData?.[0]?.total ?? 0;
+
+        const sampleQuery = `SELECT * FROM ${tableName} LIMIT 3`;
+        const { data: sampleData } = await supabase.rpc("exec_readonly_sql", { query_text: sampleQuery });
+
+        const fkQuery = `SELECT kcu.column_name, ccu.table_schema || '.' || ccu.table_name || '(' || ccu.column_name || ')' as references_to FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name AND ccu.table_schema = tc.table_schema WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = '${schema}' AND tc.table_name = '${table}'`;
+        const { data: fkData } = await supabase.rpc("exec_readonly_sql", { query_text: fkQuery });
+
+        const enumQuery = `SELECT DISTINCT column_name, data_type FROM information_schema.columns WHERE table_schema = '${schema}' AND table_name = '${table}' AND data_type = 'USER-DEFINED'`;
+        const { data: enumData } = await supabase.rpc("exec_readonly_sql", { query_text: enumQuery });
+
+        const truncatedSamples = (sampleData ?? []).map((row: any) => {
           const cleaned: Record<string, any> = {};
           for (const [k, v] of Object.entries(row)) {
-            if (typeof v === "string" && v.length > 150) {
-              cleaned[k] = (v as string).slice(0, 150) + "…";
-            } else {
-              cleaned[k] = v;
-            }
+            if (typeof v === "string" && v.length > 150) cleaned[k] = (v as string).slice(0, 150) + "…";
+            else cleaned[k] = v;
           }
           return cleaned;
-        }),
-        rowCount: sampleData?.length ?? 0,
-      };
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Unknown error";
-      return { error: `Column listing failed: ${msg}`, columns: [] };
+        });
+
+        return {
+          table: tableName,
+          schema,
+          rowCount,
+          columns: colData,
+          foreignKeys: fkData ?? [],
+          enumColumns: enumData ?? [],
+          sampleRows: truncatedSamples,
+          isWritable: WRITABLE_TABLES.has(table),
+        };
+      } catch (err: unknown) {
+        return { error: `Schema introspection failed: ${err instanceof Error ? err.message : "Unknown"}`, tables: [] };
+      }
+    } else {
+      console.log("[ai-db] getSchema: listing all tables");
+      try {
+        const query = `SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema IN ('public', 'faire') AND table_type = 'BASE TABLE' ORDER BY table_schema, table_name`;
+        const { data, error } = await supabase.rpc("exec_readonly_sql", { query_text: query });
+        if (error) return { error: `Failed: ${error.message}`, tables: [] };
+
+        const tables: Array<{ name: string; schema: string; rowCount: number; isWritable: boolean }> = [];
+        for (const t of data ?? []) {
+          const fullName = t.table_schema === "public" ? t.table_name : `${t.table_schema}.${t.table_name}`;
+          try {
+            const { data: cnt } = await supabase.rpc("exec_readonly_sql", { query_text: `SELECT COUNT(*)::int as total FROM ${fullName}` });
+            tables.push({ name: fullName, schema: t.table_schema, rowCount: cnt?.[0]?.total ?? 0, isWritable: WRITABLE_TABLES.has(t.table_name) });
+          } catch {
+            tables.push({ name: fullName, schema: t.table_schema, rowCount: -1, isWritable: WRITABLE_TABLES.has(t.table_name) });
+          }
+        }
+        return { tables, totalTables: tables.length };
+      } catch (err: unknown) {
+        return { error: `Schema listing failed: ${err instanceof Error ? err.message : "Unknown"}`, tables: [] };
+      }
     }
   },
 });
 
-const queryDatabaseTool = tool({
-  description: "Execute a read-only SQL query against the TeamSync PostgreSQL database. Use this to answer any data-related questions. Only SELECT queries are allowed. Always include LIMIT (max 50). For faire schema tables, use fully qualified names like faire.orders, faire.products, faire.stores.",
+const runSqlQueryTool = tool({
+  description: "Execute a read-only SQL query against the TeamSync PostgreSQL database. Use this for any data retrieval — questions, counts, lists, joins, aggregations. Only SELECT queries allowed. Always include LIMIT (max 100). For faire schema tables use fully qualified names (faire.orders, faire.products, etc.).",
   inputSchema: jsonSchema<{ sql: string; purpose: string }>({
     type: "object",
     properties: {
-      sql: { type: "string", description: "The SELECT SQL query to execute. Must be read-only. Always include LIMIT." },
-      purpose: { type: "string", description: "Brief description of what this query is checking" },
+      sql: { type: "string", description: "The SELECT SQL query to execute. Must be read-only." },
+      purpose: { type: "string", description: "Brief description of what this query retrieves" },
     },
     required: ["sql", "purpose"],
     additionalProperties: false,
   }),
   execute: async ({ sql: query, purpose }) => {
-    console.log(`[ai-db] Query (${purpose}): ${query.slice(0, 300)}`);
+    console.log(`[ai-db] SQL (${purpose}): ${query.slice(0, 300)}`);
 
-    if (BLOCKED_SQL.test(query)) {
-      return { error: "Only SELECT queries are allowed. Write operations are blocked.", rows: [], suggestion: "Rewrite your query using only SELECT statements." };
+    const WRITE_SQL = /\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|GRANT|REVOKE|EXECUTE|COPY)\b/i;
+    if (WRITE_SQL.test(query)) {
+      return { error: "Only SELECT queries are allowed here. Use createRecord or updateRecord for writes.", rows: [] };
     }
-
     if (!query.trim().toUpperCase().startsWith("SELECT")) {
-      return { error: "Query must start with SELECT.", rows: [], suggestion: "Start your query with SELECT." };
+      return { error: "Query must start with SELECT.", rows: [] };
     }
 
     query = query.replace(/;\s*$/, "").trim();
-
     const limitMatch = query.match(/LIMIT\s+(\d+)/i);
     if (limitMatch) {
       const n = parseInt(limitMatch[1], 10);
-      if (n > 50) {
-        query = query.replace(/LIMIT\s+\d+/i, "LIMIT 50");
-      }
+      if (n > 100) query = query.replace(/LIMIT\s+\d+/i, "LIMIT 100");
     } else {
-      query = query + " LIMIT 50";
+      query += " LIMIT 100";
     }
 
     try {
       const { data, error } = await supabase.rpc("exec_readonly_sql", { query_text: query });
-
       if (error) {
-        console.error("[ai-db] RPC error:", error.message);
         const suggestion = buildQueryErrorSuggestion(error.message, query);
-        return {
-          error: `Query failed: ${error.message}`,
-          rows: [],
-          executedQuery: query,
-          suggestion,
-        };
+        return { error: `Query failed: ${error.message}`, rows: [], executedQuery: query, suggestion };
       }
-
       const rows = data ?? [];
       return {
         rows,
         rowCount: rows.length,
         executedQuery: query,
-        note: rows.length === 50 ? "Results limited to 50 rows. There may be more data. Use COUNT(*) to get the total, or add WHERE filters to narrow results." : undefined,
+        note: rows.length >= 100 ? "Results capped at 100 rows. Use COUNT(*) for totals or add WHERE filters." : undefined,
       };
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Unknown error";
-      return { error: `Query execution failed: ${msg}`, rows: [], executedQuery: query };
+      return { error: `Execution failed: ${err instanceof Error ? err.message : "Unknown"}`, rows: [], executedQuery: query };
+    }
+  },
+});
+
+const analyticsQueryTool = tool({
+  description: "Run an analytics/aggregation query. Optimized for COUNT, SUM, AVG, GROUP BY, date-range analysis, trends, and cross-table summaries. No row limit — returns aggregated results. Use this for dashboards, KPIs, reports, and business intelligence questions.",
+  inputSchema: jsonSchema<{ sql: string; purpose: string }>({
+    type: "object",
+    properties: {
+      sql: { type: "string", description: "Analytics SQL query. Must use aggregate functions (COUNT, SUM, AVG, MIN, MAX) or GROUP BY. No raw SELECT * allowed." },
+      purpose: { type: "string", description: "What business metric or insight this calculates" },
+    },
+    required: ["sql", "purpose"],
+    additionalProperties: false,
+  }),
+  execute: async ({ sql: query, purpose }) => {
+    console.log(`[ai-db] Analytics (${purpose}): ${query.slice(0, 300)}`);
+
+    const WRITE_SQL = /\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|GRANT|REVOKE|EXECUTE|COPY)\b/i;
+    if (WRITE_SQL.test(query)) {
+      return { error: "Only SELECT queries allowed.", rows: [] };
+    }
+    if (!query.trim().toUpperCase().startsWith("SELECT")) {
+      return { error: "Must start with SELECT.", rows: [] };
+    }
+
+    query = query.replace(/;\s*$/, "").trim();
+
+    if (!query.match(/LIMIT\s+\d+/i)) {
+      query += " LIMIT 500";
+    }
+
+    try {
+      const { data, error } = await supabase.rpc("exec_readonly_sql", { query_text: query });
+      if (error) {
+        return { error: `Analytics query failed: ${error.message}`, rows: [], executedQuery: query, suggestion: buildQueryErrorSuggestion(error.message, query) };
+      }
+      return { rows: data ?? [], rowCount: (data ?? []).length, executedQuery: query };
+    } catch (err: unknown) {
+      return { error: `Execution failed: ${err instanceof Error ? err.message : "Unknown"}`, rows: [], executedQuery: query };
+    }
+  },
+});
+
+const createRecordTool = tool({
+  description: "Insert a new record into a database table. Use this when the user asks to create, add, or insert data. Validates the table is writable and uses the Supabase client for safe inserts. Returns the created record with its generated ID.",
+  inputSchema: jsonSchema<{ table: string; data: Record<string, any>; purpose: string }>({
+    type: "object",
+    properties: {
+      table: { type: "string", description: "Table name to insert into (e.g., 'tasks', 'contacts', 'tickets'). Public schema only." },
+      data: { type: "object", description: "Key-value pairs for the new record. Omit auto-generated fields (id, created_at, updated_at, task_code, ticket_code). Use snake_case column names.", additionalProperties: true },
+      purpose: { type: "string", description: "What record is being created" },
+    },
+    required: ["table", "data", "purpose"],
+    additionalProperties: false,
+  }),
+  execute: async ({ table, data, purpose }) => {
+    console.log(`[ai-db] CREATE in ${table} (${purpose}):`, JSON.stringify(data).slice(0, 300));
+
+    const accessError = validateTableAccess(table, "create");
+    if (accessError) return { error: accessError, record: null };
+
+    const cleanData = { ...data };
+    delete cleanData.id;
+    delete cleanData.created_at;
+    delete cleanData.updated_at;
+
+    try {
+      const { data: result, error } = await supabase
+        .from(table)
+        .insert(cleanData)
+        .select("*")
+        .single();
+
+      if (error) {
+        console.error(`[ai-db] Insert error in ${table}:`, error.message);
+        return { error: `Insert failed: ${error.message}. Check column names with getSchema tool.`, record: null, hint: error.hint || null };
+      }
+
+      return { success: true, record: result, table, message: `Record created successfully in ${table}` };
+    } catch (err: unknown) {
+      return { error: `Insert failed: ${err instanceof Error ? err.message : "Unknown"}`, record: null };
+    }
+  },
+});
+
+const updateRecordTool = tool({
+  description: "Update an existing record in the database. Use this when the user asks to modify, change, or update data. Requires the record ID. Returns the updated record.",
+  inputSchema: jsonSchema<{ table: string; id: string; data: Record<string, any>; purpose: string }>({
+    type: "object",
+    properties: {
+      table: { type: "string", description: "Table name (e.g., 'tasks', 'contacts', 'tickets')" },
+      id: { type: "string", description: "The ID (uuid or text) of the record to update" },
+      data: { type: "object", description: "Key-value pairs to update. Only include fields that should change. Use snake_case column names.", additionalProperties: true },
+      purpose: { type: "string", description: "What is being updated and why" },
+    },
+    required: ["table", "id", "data", "purpose"],
+    additionalProperties: false,
+  }),
+  execute: async ({ table, id, data, purpose }) => {
+    console.log(`[ai-db] UPDATE ${table}[${id}] (${purpose}):`, JSON.stringify(data).slice(0, 300));
+
+    const accessError = validateTableAccess(table, "update");
+    if (accessError) return { error: accessError, record: null };
+
+    const cleanData = { ...data };
+    delete cleanData.id;
+    delete cleanData.created_at;
+
+    try {
+      const { data: colCheck } = await supabase.rpc("exec_readonly_sql", {
+        query_text: `SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '${table}' AND column_name = 'updated_at'`
+      });
+      if (colCheck && colCheck.length > 0) {
+        cleanData.updated_at = new Date().toISOString();
+      }
+
+      const { data: result, error } = await supabase
+        .from(table)
+        .update(cleanData)
+        .eq("id", id)
+        .select("*")
+        .single();
+
+      if (error) {
+        console.error(`[ai-db] Update error in ${table}:`, error.message);
+        return { error: `Update failed: ${error.message}`, record: null };
+      }
+      if (!result) {
+        return { error: `No record found with id "${id}" in table "${table}"`, record: null };
+      }
+
+      return { success: true, record: result, table, message: `Record ${id} updated successfully in ${table}` };
+    } catch (err: unknown) {
+      return { error: `Update failed: ${err instanceof Error ? err.message : "Unknown"}`, record: null };
+    }
+  },
+});
+
+const deleteRecordTool = tool({
+  description: "Delete a record from the database. Use with caution. Requires confirmation from the user first. Returns whether the deletion was successful.",
+  inputSchema: jsonSchema<{ table: string; id: string; purpose: string }>({
+    type: "object",
+    properties: {
+      table: { type: "string", description: "Table name (e.g., 'tasks', 'contacts', 'tickets')" },
+      id: { type: "string", description: "The ID of the record to delete" },
+      purpose: { type: "string", description: "Why this record is being deleted" },
+    },
+    required: ["table", "id", "purpose"],
+    additionalProperties: false,
+  }),
+  execute: async ({ table, id, purpose }) => {
+    console.log(`[ai-db] DELETE ${table}[${id}] (${purpose})`);
+
+    const accessError = validateTableAccess(table, "delete");
+    if (accessError) return { error: accessError, deleted: false };
+
+    try {
+      const { data: existing } = await supabase
+        .from(table)
+        .select("id")
+        .eq("id", id)
+        .single();
+
+      if (!existing) {
+        return { error: `No record found with id "${id}" in table "${table}"`, deleted: false };
+      }
+
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error(`[ai-db] Delete error in ${table}:`, error.message);
+        return { error: `Delete failed: ${error.message}`, deleted: false };
+      }
+
+      return { success: true, deleted: true, table, id, message: `Record ${id} deleted from ${table}` };
+    } catch (err: unknown) {
+      return { error: `Delete failed: ${err instanceof Error ? err.message : "Unknown"}`, deleted: false };
     }
   },
 });
@@ -675,11 +932,15 @@ router.post("/chat", async (req: Request, res: Response) => {
       system: systemPrompt,
       messages: aiMessages,
       tools: {
-        queryDatabase: queryDatabaseTool,
-        listColumns: listColumnsTool,
+        getSchema: getSchemaTool,
+        run_sql_query: runSqlQueryTool,
+        analyticsQuery: analyticsQueryTool,
+        createRecord: createRecordTool,
+        updateRecord: updateRecordTool,
+        deleteRecord: deleteRecordTool,
         generateImage: generateImageTool,
       },
-      stopWhen: stepCountIs(10),
+      stopWhen: stepCountIs(12),
       maxOutputTokens: 8192,
       onFinish: async ({ text }) => {
         if (text) {
