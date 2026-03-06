@@ -1138,7 +1138,10 @@ export async function registerRoutes(
       const msg = await createChannelMessage({ ...req.body, channel_id: req.params.id });
       if (!msg) return res.status(500).json({ error: "Failed to send message" });
       return res.status(201).json(msg);
-    } catch { return res.status(500).json({ error: "Failed to send message" }); }
+    } catch (e) {
+      console.error("[routes] POST messages caught exception:", e);
+      return res.status(500).json({ error: "Failed to send message" });
+    }
   });
 
   app.patch("/api/core/channels/:id/messages/:mid", async (req, res) => {

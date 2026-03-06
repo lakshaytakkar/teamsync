@@ -1327,12 +1327,19 @@ export async function createChannelMessage(input: {
   reply_to_id?: string;
   message_type?: string;
 }): Promise<CoreMessage | null> {
-  const { data, error } = await supabase
+  const { data: insertedRows, error: insertError } = await supabase
     .from("channel_messages")
-    .insert([{ message_type: "text", reactions: {}, attachments: [], is_deleted: false, ...input }])
-    .select()
-    .single();
-  if (error) { console.error("[supabase] createChannelMessage error:", error.message); return null; }
+    .insert([{ message_type: "text", reactions: {}, is_deleted: false, ...input }])
+    .select();
+  if (insertError) {
+    console.error("[supabase] createChannelMessage insert error:", JSON.stringify(insertError));
+    return null;
+  }
+  const data = insertedRows?.[0] ?? null;
+  if (!data) {
+    console.error("[supabase] createChannelMessage: insert returned no rows");
+    return null;
+  }
   await supabase
     .from("channels")
     .update({
@@ -1340,7 +1347,7 @@ export async function createChannelMessage(input: {
       last_message_at: new Date().toISOString(),
     })
     .eq("id", input.channel_id);
-  await supabase.rpc("increment_channel_unread", { p_channel_id: input.channel_id }).catch(() => null);
+  try { await supabase.rpc("increment_channel_unread", { p_channel_id: input.channel_id }); } catch {}
   return data as CoreMessage;
 }
 
