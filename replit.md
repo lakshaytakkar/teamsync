@@ -808,3 +808,31 @@ Every page that lists or shows details for a person (client, lead, user, attende
 - **Email** link: `mailto:{email}` — icon: `Mail` from `lucide-react`
 - Add `data-testid="btn-whatsapp-{id}"` and `data-testid="btn-email-{id}"` to every link
 - Only add WhatsApp if the entity has a `phone` field in its type; only add Email if it has an `email` field
+
+## AI Chat Widget
+
+TeamSync includes a floating AI co-pilot powered by **Vercel AI SDK** and **OpenAI** (via Replit AI Integrations).
+
+### Architecture
+- **Trigger**: Flower icon button (`@assets/image_1772789030064.png`), fixed bottom-right, Framer Motion spring animations
+- **Drawer mode**: Right-side panel, 420px, slides in with Framer Motion. Default view.
+- **Full-page mode**: Covers entire viewport. Left sidebar (280px) shows conversation history; right side shows the active chat.
+- **Streaming**: `useChat` from `@ai-sdk/react` hitting `POST /api/ai/chat`. Uses `streamText` + `pipeDataStreamToResponse` for Express streaming.
+- **Persistence**: All conversations and messages saved to Supabase (`ai_conversations`, `ai_messages` tables).
+
+### Files
+- `client/src/components/ai-chat/AIChatWidget.tsx` — main widget (trigger, drawer, full-page modes)
+- `client/src/components/ai-elements/` — AI Elements components (conversation, message, shimmer, suggestion)
+- `server/ai-chat.ts` — Express router with `/api/ai/chat`, `/api/ai/conversations`, `/api/ai/conversations/:id/messages`
+
+### Supabase Tables
+```sql
+ai_conversations(id uuid PK, title text, vertical_id text, created_at, updated_at)
+ai_messages(id uuid PK, conversation_id uuid FK, role text, content text, created_at)
+```
+
+### Key Dependencies
+- `ai` (Vercel AI SDK v6), `@ai-sdk/openai`, `@ai-sdk/react` — streaming AI
+- `use-stick-to-bottom`, `streamdown`, `@streamdown/*` — chat scroll + markdown rendering
+- `motion` — shimmer animation in AI elements
+- OpenAI integration configured via Replit AI Integrations (env: `OPENAI_API_KEY`, `OPENAI_BASE_URL`)

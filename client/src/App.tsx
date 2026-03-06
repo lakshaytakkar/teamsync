@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { TopNavigation } from "@/components/layout/top-navigation";
 import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
+import { AIChatWidget } from "@/components/ai-chat/AIChatWidget";
 import { VerticalContext, getStoredVertical, setStoredVerticalId } from "@/lib/vertical-store";
 import { getVerticalById, detectVerticalFromUrl, type Vertical } from "@/lib/verticals-config";
 import NotFound from "@/pages/not-found";
@@ -502,6 +503,7 @@ function App() {
           </div>
           <Toaster />
           <PwaInstallPrompt />
+          <AIChatWidget />
         </TooltipProvider>
       </QueryClientProvider>
     </VerticalContext.Provider>

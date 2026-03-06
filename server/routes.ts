@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
+import { aiChatRouter } from "./ai-chat";
 import {
   getStoreCredentials,
   listStores,
@@ -1296,6 +1297,8 @@ export async function registerRoutes(
       return res.json({ ok: true });
     } catch { return res.status(500).json({ error: "Failed to mark all read" }); }
   });
+
+  app.use("/api/ai", aiChatRouter);
 
   return httpServer;
 }
