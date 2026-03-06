@@ -1218,6 +1218,10 @@ export interface CoreChannel {
   last_message: string | null;
   last_message_at: string | null;
   unread_count: number;
+  topic: string | null;
+  is_private: boolean;
+  is_archived: boolean;
+  created_by: string | null;
   created_at: string;
 }
 
@@ -1226,10 +1230,62 @@ export async function getChannelsByVertical(verticalId: string): Promise<CoreCha
     .from("channels")
     .select("*")
     .eq("vertical_id", verticalId)
+    .eq("is_archived", false)
     .order("is_pinned", { ascending: false })
     .order("last_message_at", { ascending: false, nullsFirst: false });
   if (error) { console.error("[supabase] getChannelsByVertical error:", error.message); return []; }
   return (data as CoreChannel[]) ?? [];
+}
+
+export async function createChannel(input: {
+  vertical_id: string;
+  name: string;
+  type?: string;
+  description?: string;
+  member_names?: string[];
+  is_pinned?: boolean;
+  topic?: string;
+  is_private?: boolean;
+  created_by?: string;
+}): Promise<CoreChannel | null> {
+  const { data, error } = await supabase
+    .from("channels")
+    .insert([{ type: "channel", is_pinned: false, is_private: false, is_archived: false, ...input }])
+    .select()
+    .single();
+  if (error) { console.error("[supabase] createChannel error:", error.message); return null; }
+  return data as CoreChannel;
+}
+
+export async function updateChannel(id: string, patch: Partial<CoreChannel>): Promise<CoreChannel | null> {
+  const { data, error } = await supabase
+    .from("channels")
+    .update(patch)
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) { console.error("[supabase] updateChannel error:", error.message); return null; }
+  return data as CoreChannel;
+}
+
+export async function archiveChannel(id: string): Promise<boolean> {
+  const { error } = await supabase.from("channels").update({ is_archived: true }).eq("id", id);
+  if (error) { console.error("[supabase] archiveChannel error:", error.message); return false; }
+  return true;
+}
+
+export async function findOrCreateDM(verticalId: string, memberNames: string[]): Promise<CoreChannel | null> {
+  const sorted = [...memberNames].sort();
+  const { data: existing } = await supabase
+    .from("channels")
+    .select("*")
+    .eq("vertical_id", verticalId)
+    .eq("type", "dm")
+    .contains("member_names", sorted)
+    .limit(1);
+  if (existing && existing.length > 0) return existing[0] as CoreChannel;
+  const dmName = sorted[0];
+  return createChannel({ vertical_id: verticalId, name: dmName, type: "dm", member_names: sorted, description: "" });
 }
 
 // ── CORE: Channel Messages ─────────────────────────────────────────────────────
@@ -1240,8 +1296,15 @@ export interface CoreMessage {
   sender_id: string | null;
   sender_name: string;
   content: string;
-  is_me: boolean;
   attachments: unknown[];
+  reply_to_id: string | null;
+  edited_at: string | null;
+  is_deleted: boolean;
+  reactions: Record<string, string[]>;
+  message_type: string;
+  file_url: string | null;
+  file_name: string | null;
+  file_size: number | null;
   created_at: string;
 }
 
@@ -1260,20 +1323,116 @@ export async function createChannelMessage(input: {
   channel_id: string;
   sender_name: string;
   content: string;
-  is_me?: boolean;
   sender_id?: string;
+  reply_to_id?: string;
+  message_type?: string;
 }): Promise<CoreMessage | null> {
   const { data, error } = await supabase
     .from("channel_messages")
-    .insert([input])
+    .insert([{ message_type: "text", reactions: {}, attachments: [], is_deleted: false, ...input }])
     .select()
     .single();
   if (error) { console.error("[supabase] createChannelMessage error:", error.message); return null; }
   await supabase
     .from("channels")
-    .update({ last_message: input.content, last_message_at: new Date().toISOString() })
+    .update({
+      last_message: input.content,
+      last_message_at: new Date().toISOString(),
+    })
     .eq("id", input.channel_id);
+  await supabase.rpc("increment_channel_unread", { p_channel_id: input.channel_id }).catch(() => null);
   return data as CoreMessage;
+}
+
+export async function editMessage(id: string, content: string): Promise<CoreMessage | null> {
+  const { data, error } = await supabase
+    .from("channel_messages")
+    .update({ content, edited_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) { console.error("[supabase] editMessage error:", error.message); return null; }
+  return data as CoreMessage;
+}
+
+export async function deleteMessage(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("channel_messages")
+    .update({ is_deleted: true, content: "This message was deleted" })
+    .eq("id", id);
+  if (error) { console.error("[supabase] deleteMessage error:", error.message); return false; }
+  return true;
+}
+
+export async function toggleReaction(messageId: string, emoji: string, userName: string): Promise<CoreMessage | null> {
+  const { data: msg, error: fetchErr } = await supabase
+    .from("channel_messages")
+    .select("reactions")
+    .eq("id", messageId)
+    .single();
+  if (fetchErr || !msg) { console.error("[supabase] toggleReaction fetch error:", fetchErr?.message); return null; }
+  const reactions: Record<string, string[]> = (msg.reactions as Record<string, string[]>) ?? {};
+  const users: string[] = reactions[emoji] ?? [];
+  if (users.includes(userName)) {
+    reactions[emoji] = users.filter((u) => u !== userName);
+    if (reactions[emoji].length === 0) delete reactions[emoji];
+  } else {
+    reactions[emoji] = [...users, userName];
+  }
+  const { data, error } = await supabase
+    .from("channel_messages")
+    .update({ reactions })
+    .eq("id", messageId)
+    .select()
+    .single();
+  if (error) { console.error("[supabase] toggleReaction update error:", error.message); return null; }
+  return data as CoreMessage;
+}
+
+// ── CORE: Channel Read State ────────────────────────────────────────────────────
+
+export interface ChannelReadState {
+  user_id: string;
+  channel_id: string;
+  last_read_message_id: string | null;
+  last_read_at: string;
+}
+
+export async function markChannelRead(channelId: string, userName: string, lastMessageId?: string): Promise<boolean> {
+  const { data: user } = await supabase.from("users").select("id").eq("name", userName).single();
+  if (!user) {
+    // Mark by resetting unread_count in channels
+    await supabase.from("channels").update({ unread_count: 0 }).eq("id", channelId);
+    return true;
+  }
+  const { error } = await supabase.from("channel_read_state").upsert({
+    user_id: user.id,
+    channel_id: channelId,
+    last_read_message_id: lastMessageId ?? null,
+    last_read_at: new Date().toISOString(),
+  }, { onConflict: "user_id,channel_id" });
+  if (error) { console.error("[supabase] markChannelRead error:", error.message); return false; }
+  await supabase.from("channels").update({ unread_count: 0 }).eq("id", channelId);
+  return true;
+}
+
+export async function getUnreadCount(channelId: string, userName: string): Promise<number> {
+  const { data: user } = await supabase.from("users").select("id").eq("name", userName).single();
+  if (!user) return 0;
+  const { data: state } = await supabase
+    .from("channel_read_state")
+    .select("last_read_at")
+    .eq("user_id", user.id)
+    .eq("channel_id", channelId)
+    .single();
+  if (!state) return 0;
+  const { count } = await supabase
+    .from("channel_messages")
+    .select("id", { count: "exact", head: true })
+    .eq("channel_id", channelId)
+    .gt("created_at", state.last_read_at)
+    .eq("is_deleted", false);
+  return count ?? 0;
 }
 
 // ── CORE: Resources ────────────────────────────────────────────────────────────

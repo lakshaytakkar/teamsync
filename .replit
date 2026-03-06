@@ -46,3 +46,5 @@ expertMode = true
 
 [userenv.shared]
 SUPABASE_URL = "https://ngvrnwjisntjmqrtnume.supabase.co"
+VITE_SUPABASE_URL = "https://ngvrnwjisntjmqrtnume.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ndnJud2ppc250am1xcnRudW1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNzUzMzgsImV4cCI6MjA4Nzk1MTMzOH0.fiA5sndv8RSn_kBbKTwZAfSHYMJqm2_Tg4pvv73u6D8"

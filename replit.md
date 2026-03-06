@@ -734,6 +734,69 @@ All task detail modals now include a real-time Activity panel (right-side) with 
 - Per-attachment download link + delete button
 - Comments section remains local-state only (not persisted)
 
+---
+
+## Chat System (Slack/WhatsApp-level Real-time) — Phase 1 Complete (Mar 2026)
+
+### Architecture
+- **Backend**: Supabase Postgres (`channels` + `channel_messages` + `channel_read_state` tables)
+- **Realtime**: Supabase Realtime with `REPLICA IDENTITY FULL` on `channel_messages` and `channels` tables
+- **Frontend Supabase client**: `client/src/lib/supabase-client.ts` (anon key, used for realtime only)
+- **Env vars**: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (shared)
+- **Current user**: `localStorage.getItem('chat_user_{verticalId}')` → defaults to first vertical member; switchable via header dropdown
+
+### DB Tables
+| Table | Key Columns |
+|-------|-------------|
+| `channels` | id (UUID), vertical_id, name, type (channel/dm/announcement), description, member_names[], is_pinned, is_private, is_archived, topic, last_message, last_message_at, unread_count |
+| `channel_messages` | id (UUID), channel_id, sender_name, content, reply_to_id (self-ref), reactions JSONB, message_type, is_deleted, edited_at, file_url, file_name, file_size |
+| `channel_read_state` | (user_id, channel_id) PK, last_read_message_id, last_read_at |
+| `increment_channel_unread(p_channel_id)` | SQL function to atomically increment unread count |
+
+### Seeded Data
+- 34 channels across 8 verticals (hr, sales, events, eventhub, admin, dev, faire, ets)
+- ~60 messages seeded from mock data with realistic timestamps
+
+### API Routes (`/api/core/channels/*`)
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/core/channels?verticalId=X` | List channels for vertical (non-archived, sorted pinned first) |
+| POST | `/api/core/channels` | Create channel |
+| PATCH | `/api/core/channels/:id` | Update channel |
+| DELETE | `/api/core/channels/:id` | Archive channel |
+| POST | `/api/core/channels/dm` | Find or create DM between members |
+| GET | `/api/core/channels/:id/messages?limit=100` | Get messages (chronological) |
+| POST | `/api/core/channels/:id/messages` | Send message |
+| PATCH | `/api/core/channels/:id/messages/:mid` | Edit message (sets edited_at) |
+| DELETE | `/api/core/channels/:id/messages/:mid` | Soft delete (is_deleted=true) |
+| POST | `/api/core/channels/:id/messages/:mid/react` | Toggle emoji reaction |
+| POST | `/api/core/channels/:id/read` | Mark channel as read for user |
+| GET | `/api/core/channels/:id/unread?user_name=X` | Get unread count |
+
+### Chat Frontend Features
+- **Live from DB**: All channels and messages fetched from Supabase via TanStack Query
+- **Realtime**: Supabase Realtime INSERT subscription auto-appends new messages
+- **Send**: Persists to DB, optimistically updates cache, scrolls to bottom
+- **Message grouping**: Consecutive messages from same sender within 5min hide avatar + repeated header
+- **Relative timestamps**: "just now", "5m ago", "3:45 AM", "Yesterday 3:45 AM", "Mar 5"
+- **Reactions**: Quick emoji picker on hover; toggle own; reaction pills with count + tooltip
+- **Reply/quote**: Sets reply_to_id in DB; shows quoted bubble above message
+- **Edit/delete**: Own messages only; edit dialog; soft delete shows "This message was deleted"
+- **Typing indicator**: Supabase presence broadcast; shows "[name] is typing…" with dots
+- **Unread badges**: Shows count in sidebar; cleared when channel opened
+- **Create channel**: Dialog with name, description, member multi-select
+- **New DM**: Dialog listing vertical team members; find-or-create logic
+- **Channel info panel**: Right drawer with members list, online status, description
+- **User switcher**: Header dropdown to switch identity (for multi-account testing)
+- **Jump to bottom**: Floating button when scrolled up; "New message" badge when out-of-view
+- **Online status**: Green/yellow/grey dot on DMs (from verticalMembers mock status)
+
+### Phase 2 (Planned)
+- File/image attachments via Supabase Storage `chat-attachments` bucket
+- Per-message read receipts (WhatsApp-style double ticks)
+- @mentions with notification
+- Channel search / global message search
+
 ### 5. Detail Pages Rule
 Every entity with a list page must also have a dedicated detail page or detail dialog. This applies to: clients, leads, products, events, attendees, vendors, etc.
 

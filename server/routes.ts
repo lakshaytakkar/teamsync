@@ -66,8 +66,17 @@ import {
   deleteCoreSubtask,
   toggleCoreSubtask,
   getChannelsByVertical,
+  createChannel,
+  updateChannel,
+  archiveChannel,
+  findOrCreateDM,
   getChannelMessages,
   createChannelMessage,
+  editMessage,
+  deleteMessage,
+  toggleReaction,
+  markChannelRead,
+  getUnreadCount,
   getCoreResources,
   createCoreResource,
   deleteCoreResource,
@@ -1090,12 +1099,92 @@ export async function registerRoutes(
     } catch { return res.status(500).json({ error: "Failed to fetch messages" }); }
   });
 
+  app.post("/api/core/channels", async (req, res) => {
+    try {
+      const ch = await createChannel(req.body);
+      if (!ch) return res.status(500).json({ error: "Failed to create channel" });
+      return res.status(201).json(ch);
+    } catch { return res.status(500).json({ error: "Failed to create channel" }); }
+  });
+
+  app.post("/api/core/channels/dm", async (req, res) => {
+    try {
+      const { vertical_id, member_names } = req.body;
+      if (!vertical_id || !member_names) return res.status(400).json({ error: "vertical_id and member_names required" });
+      const dm = await findOrCreateDM(vertical_id, member_names);
+      if (!dm) return res.status(500).json({ error: "Failed to find or create DM" });
+      return res.status(200).json(dm);
+    } catch { return res.status(500).json({ error: "Failed to create DM" }); }
+  });
+
+  app.patch("/api/core/channels/:id", async (req, res) => {
+    try {
+      const ch = await updateChannel(req.params.id, req.body);
+      if (!ch) return res.status(500).json({ error: "Failed to update channel" });
+      return res.json(ch);
+    } catch { return res.status(500).json({ error: "Failed to update channel" }); }
+  });
+
+  app.delete("/api/core/channels/:id", async (req, res) => {
+    try {
+      const ok = await archiveChannel(req.params.id);
+      if (!ok) return res.status(500).json({ error: "Failed to archive channel" });
+      return res.json({ ok: true });
+    } catch { return res.status(500).json({ error: "Failed to archive channel" }); }
+  });
+
   app.post("/api/core/channels/:id/messages", async (req, res) => {
     try {
       const msg = await createChannelMessage({ ...req.body, channel_id: req.params.id });
       if (!msg) return res.status(500).json({ error: "Failed to send message" });
       return res.status(201).json(msg);
     } catch { return res.status(500).json({ error: "Failed to send message" }); }
+  });
+
+  app.patch("/api/core/channels/:id/messages/:mid", async (req, res) => {
+    try {
+      const { content } = req.body;
+      if (!content) return res.status(400).json({ error: "content required" });
+      const msg = await editMessage(req.params.mid, content);
+      if (!msg) return res.status(500).json({ error: "Failed to edit message" });
+      return res.json(msg);
+    } catch { return res.status(500).json({ error: "Failed to edit message" }); }
+  });
+
+  app.delete("/api/core/channels/:id/messages/:mid", async (req, res) => {
+    try {
+      const ok = await deleteMessage(req.params.mid);
+      if (!ok) return res.status(500).json({ error: "Failed to delete message" });
+      return res.json({ ok: true });
+    } catch { return res.status(500).json({ error: "Failed to delete message" }); }
+  });
+
+  app.post("/api/core/channels/:id/messages/:mid/react", async (req, res) => {
+    try {
+      const { emoji, user_name } = req.body;
+      if (!emoji || !user_name) return res.status(400).json({ error: "emoji and user_name required" });
+      const msg = await toggleReaction(req.params.mid, emoji, user_name);
+      if (!msg) return res.status(500).json({ error: "Failed to toggle reaction" });
+      return res.json(msg);
+    } catch { return res.status(500).json({ error: "Failed to toggle reaction" }); }
+  });
+
+  app.post("/api/core/channels/:id/read", async (req, res) => {
+    try {
+      const { user_name, last_message_id } = req.body;
+      if (!user_name) return res.status(400).json({ error: "user_name required" });
+      const ok = await markChannelRead(req.params.id, user_name, last_message_id);
+      return res.json({ ok });
+    } catch { return res.status(500).json({ error: "Failed to mark channel read" }); }
+  });
+
+  app.get("/api/core/channels/:id/unread", async (req, res) => {
+    try {
+      const userName = req.query.user_name as string;
+      if (!userName) return res.status(400).json({ error: "user_name required" });
+      const count = await getUnreadCount(req.params.id, userName);
+      return res.json({ count });
+    } catch { return res.status(500).json({ error: "Failed to get unread count" }); }
   });
 
   // Resources
