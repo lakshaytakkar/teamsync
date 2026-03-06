@@ -27,6 +27,9 @@ import { Shimmer } from "@/components/ai-elements/shimmer";
 import { VerticalContext } from "@/lib/vertical-store";
 import aiIcon from "@assets/ai-chat-icon.png";
 
+const _preload = new Image();
+_preload.src = aiIcon;
+
 interface AiConversation {
   id: string;
   title: string;
@@ -476,7 +479,16 @@ export function AIChatWidget() {
             aria-label="Open TeamSync AI"
             data-testid="ai-chat-trigger"
           >
-            <img src={aiIcon} alt="TeamSync AI" className="w-14 h-14 object-contain" />
+            <div className="relative w-14 h-14">
+              <img
+                src={aiIcon}
+                alt="TeamSync AI"
+                className="w-14 h-14 object-contain"
+                loading="eager"
+                decoding="async"
+              />
+              <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none ai-shimmer" />
+            </div>
           </motion.button>
         )}
       </AnimatePresence>
