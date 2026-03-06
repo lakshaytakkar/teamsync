@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { 
   Search, 
@@ -17,7 +17,6 @@ import {
   File,
   Copy,
   Check,
-  Loader2
 } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade } from "@/components/ui/animated";
@@ -30,8 +29,6 @@ import {
   DataTH,
   DataTD,
   DataTR,
-  DetailModal,
-  DetailSection
 } from "@/components/layout";
 import { detectVerticalFromUrl } from "@/lib/verticals-config";
 import { sharedResources, type SharedResource } from "@/lib/mock-data-shared";
@@ -70,6 +67,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { ResourcePreviewModal } from "@/components/resources/resource-preview-modal";
 
 const resourceSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -122,13 +120,6 @@ export default function UniversalResources() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [iframeError, setIframeError] = useState(false);
-
-  useEffect(() => {
-    setIframeLoaded(false);
-    setIframeError(false);
-  }, [selectedResource]);
 
   const verticalResources = useMemo(() => {
     if (!vertical) return [];
@@ -412,108 +403,32 @@ export default function UniversalResources() {
         </>
       )}
 
-      {/* Resource Preview Dialog */}
-      <DetailModal
+      {/* Resource Preview Modal */}
+      <ResourcePreviewModal
+        resource={selectedResource}
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        title={selectedResource?.title || ""}
-        subtitle={selectedResource?.category}
-        footer={
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => selectedResource && window.open(selectedResource.url, '_blank')}
-            >
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Open in New Tab
-            </Button>
-            <Button 
-              style={{ backgroundColor: vertical.color }}
-              className="text-white"
-              onClick={() => setPreviewOpen(false)}
-            >
-              Close
-            </Button>
-          </div>
-        }
-      >
-        {selectedResource && (() => {
-          const Icon = getFileIcon(selectedResource.type);
-          const getPreviewSrc = () => {
-            const t = selectedResource.type.toLowerCase();
-            if (t === "link") return selectedResource.url;
-            return `https://docs.google.com/viewer?url=${encodeURIComponent(selectedResource.url)}&embedded=true`;
-          };
-
-          return (
-            <>
-              <DetailSection title="Preview">
-                <div className="aspect-video bg-muted rounded-lg overflow-hidden relative border">
-                  {!iframeLoaded && !iframeError && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-muted z-10">
-                      <Loader2 className="size-8 animate-spin text-muted-foreground" />
-                    </div>
-                  )}
-                  {iframeError ? (
-                    <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
-                      <Icon className="size-12" />
-                      <p className="text-sm">Preview unavailable</p>
-                    </div>
-                  ) : selectedResource.type.toLowerCase() === "image" ? (
-                    <img
-                      src={selectedResource.url}
-                      alt={selectedResource.title}
-                      className="w-full h-full object-contain"
-                      onLoad={() => setIframeLoaded(true)}
-                      onError={() => setIframeError(true)}
-                    />
-                  ) : (
-                    <iframe
-                      src={getPreviewSrc()}
-                      className="w-full h-full border-0"
-                      onLoad={() => setIframeLoaded(true)}
-                      onError={() => setIframeError(true)}
-                    />
-                  )}
-                </div>
-              </DetailSection>
-
-              <DetailSection title="Details">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Added By</p>
-                    <p className="font-medium">{selectedResource.addedBy}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Date</p>
-                    <p className="font-medium">{selectedResource.addedDate}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Type</p>
-                    <Badge variant="secondary" className="capitalize">{selectedResource.type}</Badge>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Version</p>
-                    <p className="font-medium">{selectedResource.version}</p>
-                  </div>
-                </div>
-              </DetailSection>
-
-              <DetailSection title="Description">
-                <p className="text-sm text-muted-foreground">{selectedResource.description}</p>
-              </DetailSection>
-
-              <DetailSection title="Tags">
-                <div className="flex flex-wrap gap-2">
-                  {selectedResource.tags.map(tag => (
-                    <Badge key={tag} variant="outline">{tag}</Badge>
-                  ))}
-                </div>
-              </DetailSection>
-            </>
-          );
+        onNext={() => {
+          const idx = filteredResources.findIndex(r => r.id === selectedResource?.id);
+          if (idx >= 0 && idx < filteredResources.length - 1) {
+            setSelectedResource(filteredResources[idx + 1]);
+          }
+        }}
+        onPrev={() => {
+          const idx = filteredResources.findIndex(r => r.id === selectedResource?.id);
+          if (idx > 0) {
+            setSelectedResource(filteredResources[idx - 1]);
+          }
+        }}
+        hasNext={(() => {
+          const idx = filteredResources.findIndex(r => r.id === selectedResource?.id);
+          return idx >= 0 && idx < filteredResources.length - 1;
         })()}
-      </DetailModal>
+        hasPrev={(() => {
+          const idx = filteredResources.findIndex(r => r.id === selectedResource?.id);
+          return idx > 0;
+        })()}
+      />
 
       {/* Add Resource Dialog */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
