@@ -6,7 +6,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   X, Maximize2, Minimize2, Plus, Send, Square, Trash2,
   MessageSquare, Sparkles, Clock, ChevronRight, Bot,
-  Paperclip, Download, FileText, Menu, Pencil, Check
+  Paperclip, Download, FileText, Menu, Pencil, Check,
+  Database, Plug, Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ import {
   MessageContent,
   MessageResponse,
 } from "@/components/ai-elements/message";
-import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { VerticalContext } from "@/lib/vertical-store";
 import aiIcon from "@assets/ai-chat-icon.png";
@@ -59,8 +59,18 @@ const SUGGESTIONS = [
   "What tasks are overdue right now?",
   "Show me open escalations",
   "What's the compliance status?",
-  "Which clients are at risk?",
-  "Help me draft a client update",
+];
+
+interface ActiveIntegration {
+  name: string;
+  icon: typeof Database;
+  status: "connected" | "disconnected";
+  description: string;
+}
+
+const ACTIVE_INTEGRATIONS: ActiveIntegration[] = [
+  { name: "Supabase DB", icon: Database, status: "connected", description: "PostgreSQL database" },
+  { name: "OpenAI", icon: Zap, status: "connected", description: "GPT-4o model" },
 ];
 
 function formatRelativeTime(dateStr: string): string {
@@ -267,22 +277,46 @@ function ChatWindow({
               <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-2 mx-auto">
                 <img src={aiIcon} alt="TeamSync AI" className="w-8 h-8" />
               </div>
-              <div className="space-y-1 mb-5">
+              <div className="space-y-1 mb-4">
                 <h3 className="font-semibold text-base">TeamSync AI</h3>
                 <p className="text-muted-foreground text-sm max-w-xs mx-auto">
                   Your intelligent co-pilot for business operations. Ask me anything.
                 </p>
               </div>
-              <Suggestions className="justify-center flex-wrap">
+
+              <div className={cn("grid gap-2 w-full mb-4", isExpanded ? "grid-cols-2 max-w-md mx-auto" : "grid-cols-2")}>
                 {SUGGESTIONS.map((s) => (
-                  <Suggestion
+                  <button
                     key={s}
-                    suggestion={s}
-                    onClick={handleSuggestionClick}
-                    className="text-xs"
-                  />
+                    type="button"
+                    onClick={() => handleSuggestionClick(s)}
+                    className="text-left text-xs px-3 py-2.5 rounded-lg border border-border/60 bg-muted/30 hover:bg-primary/5 hover:border-primary/30 transition-colors text-foreground/80 leading-snug whitespace-normal"
+                    data-testid={`suggestion-${s.slice(0, 20).replace(/\s+/g, "-").toLowerCase()}`}
+                  >
+                    {s}
+                  </button>
                 ))}
-              </Suggestions>
+              </div>
+
+              <div className="w-full">
+                <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                  <Plug className="size-3" />
+                  Active Integrations
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {ACTIVE_INTEGRATIONS.map((integration) => (
+                    <div
+                      key={integration.name}
+                      className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px]"
+                      data-testid={`integration-${integration.name.replace(/\s+/g, "-").toLowerCase()}`}
+                    >
+                      <div className="size-1.5 rounded-full bg-emerald-500" />
+                      <integration.icon className="size-3 text-emerald-600" />
+                      <span className="text-foreground/70 font-medium">{integration.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </ConversationEmptyState>
           ) : (
             <>
@@ -321,16 +355,19 @@ function ChatWindow({
 
       {messages.length > 0 && messages.length < 3 && (
         <div className={cn("px-4 pb-2", isExpanded && "px-4 sm:px-8 max-w-3xl mx-auto w-full")}>
-          <Suggestions>
-            {SUGGESTIONS.slice(0, 3).map((s) => (
-              <Suggestion
+          <div className="grid grid-cols-2 gap-1.5">
+            {SUGGESTIONS.slice(0, 4).map((s) => (
+              <button
                 key={s}
-                suggestion={s}
-                onClick={handleSuggestionClick}
-                className="text-xs"
-              />
+                type="button"
+                onClick={() => handleSuggestionClick(s)}
+                className="text-left text-[11px] px-2.5 py-2 rounded-lg border border-border/60 bg-muted/30 hover:bg-primary/5 hover:border-primary/30 transition-colors text-foreground/80 leading-snug whitespace-normal"
+                data-testid={`followup-suggestion-${s.slice(0, 20).replace(/\s+/g, "-").toLowerCase()}`}
+              >
+                {s}
+              </button>
             ))}
-          </Suggestions>
+          </div>
         </div>
       )}
 
