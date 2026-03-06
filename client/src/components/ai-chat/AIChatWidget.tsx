@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   X, Maximize2, Minimize2, Plus, Send, Square, Trash2,
   MessageSquare, Sparkles, Clock, ChevronRight, Bot,
-  Paperclip, Download, FileText, Menu
+  Paperclip, Download, FileText, Menu, Pencil, Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -420,6 +420,9 @@ export function AIChatWidget() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [chatKey, setChatKey] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
   const { currentVertical } = useContext(VerticalContext);
   const queryClient = useQueryClient();
 
@@ -443,6 +446,7 @@ export function AIChatWidget() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ verticalId: currentVertical?.id }),
       });
+      if (!res.ok) throw new Error("Failed to create conversation");
       return res.json() as Promise<AiConversation>;
     },
     onSuccess: (data) => {
@@ -454,14 +458,57 @@ export function AIChatWidget() {
 
   const deleteConversationMutation = useMutation({
     mutationFn: async (id: string) => {
-      await fetch(`/api/ai/conversations/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/ai/conversations/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete conversation");
+    },
+    onSuccess: (_data, deletedId) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai/conversations"] });
+      if (activeConversationId === deletedId) {
+        setActiveConversationId(null);
+        setChatKey((k) => k + 1);
+      }
+    },
+  });
+
+  const renameConversationMutation = useMutation({
+    mutationFn: async ({ id, title }: { id: string; title: string }) => {
+      const res = await fetch(`/api/ai/conversations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      });
+      if (!res.ok) throw new Error("Failed to rename conversation");
+      return res.json() as Promise<AiConversation>;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/ai/conversations"] });
-      setActiveConversationId(null);
-      setChatKey((k) => k + 1);
+      setEditingId(null);
+    },
+    onError: () => {
+      setEditingId(null);
     },
   });
+
+  const startRenaming = useCallback((conv: AiConversation, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingId(conv.id);
+    setEditTitle(conv.title);
+    setTimeout(() => editInputRef.current?.focus(), 50);
+  }, []);
+
+  const renamePendingRef = useRef(false);
+  const submitRename = useCallback(() => {
+    if (renamePendingRef.current) return;
+    if (!editingId || !editTitle.trim()) {
+      setEditingId(null);
+      return;
+    }
+    renamePendingRef.current = true;
+    renameConversationMutation.mutate(
+      { id: editingId, title: editTitle.trim() },
+      { onSettled: () => { renamePendingRef.current = false; } }
+    );
+  }, [editingId, editTitle, renameConversationMutation]);
 
   const handleOpen = useCallback(async () => {
     setIsOpen(true);
@@ -608,14 +655,30 @@ export function AIChatWidget() {
                               ? "bg-primary/10 text-primary"
                               : "hover:bg-muted text-foreground"
                           )}
-                          onClick={() => handleSelectConversation(conv.id)}
+                          onClick={() => editingId !== conv.id && handleSelectConversation(conv.id)}
                           data-testid={`ai-conversation-${conv.id}`}
                         >
                           <MessageSquare className="size-3.5 mt-0.5 shrink-0 opacity-60" />
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate leading-tight text-xs">
-                              {conv.title}
-                            </p>
+                            {editingId === conv.id ? (
+                              <input
+                                ref={editInputRef}
+                                value={editTitle}
+                                onChange={(e) => setEditTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") submitRename();
+                                  if (e.key === "Escape") setEditingId(null);
+                                }}
+                                onBlur={submitRename}
+                                className="w-full text-xs font-medium bg-background border rounded px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-ring"
+                                data-testid={`ai-rename-input-${conv.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            ) : (
+                              <p className="font-medium truncate leading-tight text-xs">
+                                {conv.title}
+                              </p>
+                            )}
                             <div className="flex items-center gap-1 mt-0.5">
                               <Clock className="size-2.5 opacity-50" />
                               <span className="text-[10px] text-muted-foreground">
@@ -623,18 +686,46 @@ export function AIChatWidget() {
                               </span>
                             </div>
                           </div>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-5 w-5 opacity-0 group-hover:opacity-100 shrink-0 text-muted-foreground hover:text-destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteConversationMutation.mutate(conv.id);
-                            }}
-                            data-testid={`ai-delete-conversation-${conv.id}`}
-                          >
-                            <Trash2 className="size-3" />
-                          </Button>
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            {editingId === conv.id ? (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-5 w-5 text-primary"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  submitRename();
+                                }}
+                                data-testid={`ai-rename-save-${conv.id}`}
+                              >
+                                <Check className="size-3" />
+                              </Button>
+                            ) : (
+                              <>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-5 w-5 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
+                                  onClick={(e) => startRenaming(conv, e)}
+                                  data-testid={`ai-rename-conversation-${conv.id}`}
+                                >
+                                  <Pencil className="size-2.5" />
+                                </Button>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-5 w-5 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteConversationMutation.mutate(conv.id);
+                                  }}
+                                  data-testid={`ai-delete-conversation-${conv.id}`}
+                                >
+                                  <Trash2 className="size-2.5" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -774,21 +865,48 @@ export function AIChatWidget() {
                 )}
               </div>
 
-              <div className="px-4 py-2.5 border-t shrink-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                    <Sparkles className="size-3" />
-                    <span>Powered by OpenAI</span>
+              {conversations.length > 1 && (
+                <div className="border-t shrink-0 max-h-[180px] overflow-y-auto">
+                  <div className="px-3 pt-2 pb-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Recent Chats</p>
                   </div>
-                  {conversations.length > 0 && (
-                    <button
-                      onClick={() => setIsExpanded(true)}
-                      className="text-[10px] text-primary hover:underline"
-                      data-testid="ai-view-history"
-                    >
-                      View history ({conversations.length})
-                    </button>
+                  <div className="px-2 pb-2 space-y-0.5">
+                    {conversations.slice(0, 8).map((conv) => (
+                      <div
+                        key={conv.id}
+                        className={cn(
+                          "group flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer text-xs transition-colors",
+                          activeConversationId === conv.id
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                        )}
+                        onClick={() => handleSelectConversation(conv.id)}
+                        data-testid={`ai-drawer-conversation-${conv.id}`}
+                      >
+                        <MessageSquare className="size-3 shrink-0 opacity-60" />
+                        <span className="truncate flex-1">{conv.title}</span>
+                        <span className="text-[9px] opacity-50 shrink-0">{formatRelativeTime(conv.updated_at)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {conversations.length > 8 && (
+                    <div className="px-3 pb-2">
+                      <button
+                        onClick={() => setIsExpanded(true)}
+                        className="text-[10px] text-primary hover:underline"
+                        data-testid="ai-view-all-history"
+                      >
+                        View all ({conversations.length})
+                      </button>
+                    </div>
                   )}
+                </div>
+              )}
+
+              <div className="px-4 py-2 border-t shrink-0">
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                  <Sparkles className="size-3" />
+                  <span>Powered by OpenAI</span>
                 </div>
               </div>
             </motion.div>

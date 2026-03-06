@@ -828,8 +828,10 @@ TeamSync includes a floating AI co-pilot powered by **Vercel AI SDK** and **Open
 - **Trigger**: Flower icon button (`@assets/image_1772789030064.png`), fixed bottom-right, Framer Motion spring animations
 - **Drawer mode**: Right-side panel, 420px, slides in with Framer Motion. Default view.
 - **Full-page mode**: Covers entire viewport. Left sidebar (280px) shows conversation history; right side shows the active chat.
-- **Streaming**: `useChat` from `@ai-sdk/react` hitting `POST /api/ai/chat`. Uses `streamText` + `pipeDataStreamToResponse` for Express streaming.
+- **Streaming**: `useChat` from `@ai-sdk/react` v3 with `TextStreamChatTransport` from `ai` hitting `POST /api/ai/chat`. Uses `streamText` + `pipeTextStreamToResponse` for Express streaming. Input managed via local `useState` + `sendMessage({ text })`.
 - **Persistence**: All conversations and messages saved to Supabase (`ai_conversations`, `ai_messages` tables).
+- **Chat History**: Sidebar in expanded view shows all conversations with inline rename (pencil icon → edit input) and delete. Drawer view shows recent 8 chats at bottom.
+- **Rename**: `PATCH /api/ai/conversations/:id` with `{ title }`. Inline edit in sidebar with Enter to save, Escape to cancel.
 
 ### Files
 - `client/src/components/ai-chat/AIChatWidget.tsx` — main widget (trigger, drawer, full-page modes)
@@ -887,9 +889,10 @@ tickets(id uuid PK, ticket_code text UNIQUE auto-gen TK-0001+, vertical_id text,
 ### AI Chat API Routes
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/ai/chat` | Stream chat response (OpenAI gpt-4o) |
-| GET | `/api/ai/conversations` | List all conversations |
+| POST | `/api/ai/chat` | Stream chat response (OpenAI gpt-4o). Accepts v3 (parts) and v1 (content) message formats |
+| GET | `/api/ai/conversations` | List all conversations (last 50, sorted by updated_at) |
 | POST | `/api/ai/conversations` | Create conversation |
+| PATCH | `/api/ai/conversations/:id` | Rename conversation (body: `{ title }`) |
 | GET | `/api/ai/conversations/:id/messages` | Get messages |
 | DELETE | `/api/ai/conversations/:id` | Delete conversation |
 | POST | `/api/ai/upload` | Upload file (multipart, conversationId required) |

@@ -202,6 +202,26 @@ router.get("/conversations/:id/messages", async (req: Request, res: Response) =>
   }
 });
 
+router.patch("/conversations/:id", async (req: Request, res: Response) => {
+  try {
+    const { title } = req.body as { title?: string };
+    if (!title || !title.trim()) return res.status(400).json({ error: "title required" });
+
+    const { data, error } = await supabase
+      .from("ai_conversations")
+      .update({ title: title.trim(), updated_at: new Date().toISOString() })
+      .eq("id", req.params.id)
+      .select("id, title, vertical_id, created_at, updated_at")
+      .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    if (!data) return res.status(404).json({ error: "Conversation not found" });
+    return res.json(data);
+  } catch {
+    return res.status(500).json({ error: "Failed to rename conversation" });
+  }
+});
+
 router.delete("/conversations/:id", async (req: Request, res: Response) => {
   try {
     const { error } = await supabase
