@@ -92,7 +92,6 @@ import UniversalTeam from "@/pages/universal/team";
 import UniversalResources from "@/pages/universal/resources";
 import UniversalTasks from "@/pages/universal/tasks";
 import UniversalReports from "@/pages/universal/reports";
-import ImageStudio from "@/pages/universal/image-studio";
 import UniversalNotifications from "@/pages/universal/notifications";
 import UniversalTickets from "@/pages/universal/tickets";
 import UniversalTicketDetail from "@/pages/universal/ticket-detail";
@@ -212,7 +211,6 @@ function Router() {
       <Route path="/suprans/enrichment" component={SupransEnrichment} />
       <Route path="/suprans/assignments" component={SupransAssignments} />
       <Route path="/suprans/reports" component={UniversalReports} />
-      <Route path="/suprans/image-studio" component={ImageStudio} />
       <Route path="/suprans/contacts-important" component={UniversalImportantContacts} />
       <Route path="/hr" component={Dashboard} />
       <Route path="/hr/notifications" component={UniversalNotifications} />
@@ -224,7 +222,6 @@ function Router() {
       <Route path="/hr/tickets" component={UniversalTickets} />
       <Route path="/hr/contacts" component={UniversalImportantContacts} />
       <Route path="/hr/reports" component={UniversalReports} />
-      <Route path="/hr/image-studio" component={ImageStudio} />
       <Route path="/hr/clients/:id" component={ClientDetail} />
       <Route path="/hr/clients" component={Clients} />
       <Route path="/hr/intake" component={ClientIntake} />
@@ -246,7 +243,6 @@ function Router() {
       <Route path="/sales/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/sales/contacts" component={UniversalImportantContacts} />
       <Route path="/sales/reports" component={UniversalReports} />
-      <Route path="/sales/image-studio" component={ImageStudio} />
       <Route path="/sales/products" component={SalesProducts} />
       <Route path="/sales/categories" component={SalesCategories} />
       <Route path="/sales/suppliers" component={SalesSuppliers} />
@@ -282,7 +278,6 @@ function Router() {
       <Route path="/events/analytics" component={EventsAnalytics} />
       <Route path="/events/contacts" component={UniversalImportantContacts} />
       <Route path="/events/reports" component={UniversalReports} />
-      <Route path="/events/image-studio" component={ImageStudio} />
       <Route path="/hub" component={HubDashboard} />
       <Route path="/hub/chat" component={UniversalChat} />
       <Route path="/hub/team" component={UniversalTeam} />
@@ -292,7 +287,6 @@ function Router() {
       <Route path="/hub/tickets" component={UniversalTickets} />
       <Route path="/hub/contacts" component={UniversalImportantContacts} />
       <Route path="/hub/reports" component={UniversalReports} />
-      <Route path="/hub/image-studio" component={ImageStudio} />
       <Route path="/hub/events/:id" component={HubEventDetail} />
       <Route path="/hub/events" component={HubEventsList} />
       <Route path="/hub/attendees" component={HubAttendees} />
@@ -313,7 +307,6 @@ function Router() {
       <Route path="/admin/team-reports" component={UniversalReports} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/reports" component={UniversalReports} />
-      <Route path="/admin/image-studio" component={ImageStudio} />
       <Route path="/dev" component={DevDashboard} />
       <Route path="/dev/chat" component={UniversalChat} />
       <Route path="/dev/team" component={UniversalTeam} />
@@ -323,7 +316,6 @@ function Router() {
       <Route path="/dev/tickets" component={UniversalTickets} />
       <Route path="/dev/contacts" component={UniversalImportantContacts} />
       <Route path="/dev/reports" component={UniversalReports} />
-      <Route path="/dev/image-studio" component={ImageStudio} />
       <Route path="/dev/style-guide" component={StyleGuide} />
       <Route path="/dev/components" component={ComponentsGuide} />
       <Route path="/dev/icons" component={IconsGuide} />
@@ -343,7 +335,6 @@ function Router() {
       <Route path="/ets/tickets" component={UniversalTickets} />
       <Route path="/ets/contacts" component={UniversalImportantContacts} />
       <Route path="/ets/reports" component={UniversalReports} />
-      <Route path="/ets/image-studio" component={ImageStudio} />
       <Route path="/ets/pipeline" component={EtsPipeline} />
       <Route path="/ets/clients/:id" component={EtsClientDetail} />
       <Route path="/ets/products" component={EtsProducts} />
@@ -363,7 +354,6 @@ function Router() {
       <Route path="/hrms/tickets" component={UniversalTickets} />
       <Route path="/hrms/contacts" component={UniversalImportantContacts} />
       <Route path="/hrms/reports" component={UniversalReports} />
-      <Route path="/hrms/image-studio" component={ImageStudio} />
       <Route path="/hrms/employees/:id" component={HrmsEmployeeDetail} />
       <Route path="/hrms/employees" component={HrmsEmployees} />
       <Route path="/hrms/onboarding" component={HrmsOnboarding} />
@@ -387,7 +377,6 @@ function Router() {
       <Route path="/ats/tickets" component={UniversalTickets} />
       <Route path="/ats/contacts" component={UniversalImportantContacts} />
       <Route path="/ats/reports" component={UniversalReports} />
-      <Route path="/ats/image-studio" component={ImageStudio} />
       <Route path="/ats/jobs/:id" component={AtsJobDetail} />
       <Route path="/ats/jobs" component={AtsJobs} />
       <Route path="/ats/candidates/:id" component={AtsCandidateDetail} />
@@ -407,7 +396,6 @@ function Router() {
       <Route path="/crm/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/crm/tickets" component={UniversalTickets} />
       <Route path="/crm/reports" component={UniversalReports} />
-      <Route path="/crm/image-studio" component={ImageStudio} />
       <Route path="/crm/contacts-important" component={UniversalImportantContacts} />
       <Route path="/crm/leads" component={CrmLeads} />
       <Route path="/crm/prospects" component={CrmProspects} />
@@ -436,7 +424,6 @@ function Router() {
       <Route path="/finance/cashbook" component={FinanceCashBook} />
       <Route path="/finance/compliance" component={FinanceCompliance} />
       <Route path="/finance/reports" component={UniversalReports} />
-      <Route path="/finance/image-studio" component={ImageStudio} />
       <Route path="/oms" component={OmsDashboard} />
       <Route path="/oms/notifications" component={UniversalNotifications} />
       <Route path="/oms/chat" component={UniversalChat} />
@@ -455,7 +442,6 @@ function Router() {
       <Route path="/oms/returns" component={OmsReturns} />
       <Route path="/oms/locations" component={OmsLocations} />
       <Route path="/oms/reports" component={UniversalReports} />
-      <Route path="/oms/image-studio" component={ImageStudio} />
       <Route path="/social" component={SocialDashboard} />
       <Route path="/social/notifications" component={UniversalNotifications} />
       <Route path="/social/chat" component={UniversalChat} />
@@ -466,7 +452,6 @@ function Router() {
       <Route path="/social/tickets" component={UniversalTickets} />
       <Route path="/social/contacts" component={UniversalImportantContacts} />
       <Route path="/social/reports" component={UniversalReports} />
-      <Route path="/social/image-studio" component={ImageStudio} />
       <Route path="/social/posts/:id" component={SocialPostDetail} />
       <Route path="/social/posts" component={SocialPosts} />
       <Route path="/social/composer" component={SocialComposer} />
@@ -487,7 +472,6 @@ function Router() {
       <Route path="/faire/tickets" component={UniversalTickets} />
       <Route path="/faire/contacts" component={UniversalImportantContacts} />
       <Route path="/faire/reports" component={UniversalReports} />
-      <Route path="/faire/image-studio" component={ImageStudio} />
       <Route path="/faire/stores" component={FaireStores} />
       <Route path="/faire/products/:id" component={FaireProductDetail} />
       <Route path="/faire/products" component={FaireProducts} />

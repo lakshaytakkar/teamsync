@@ -908,7 +908,7 @@ tickets(id uuid PK, ticket_code text UNIQUE auto-gen TK-0001+, vertical_id text,
 
 ## Image Studio (Mar 2026)
 
-AI-powered image generation, library management, preview, and download. Available across all 16 verticals at `/:vertical/image-studio`.
+AI-powered image generation, library management, preview, and download. Integrated into the TeamSync AI full-page view (accessible via the "Image Studio" tab in the AI sidebar). No longer a separate page in vertical navigation.
 
 ### Supabase Table
 ```sql
@@ -925,9 +925,10 @@ generated_images(id uuid PK, prompt text, negative_prompt text, style text, aspe
 | GET | `/api/images/:id/download` | Download image file |
 
 ### Frontend
-- **Page**: `client/src/pages/universal/image-studio.tsx` — Generate form (prompt, negative prompt, style, aspect ratio) + Library grid + Preview modal + Stats sidebar
+- **Standalone Page**: `client/src/pages/universal/image-studio.tsx` — legacy standalone file (no longer routed)
+- **Integrated Panel**: `ImageStudioPanel` component inside `AIChatWidget.tsx` — full Image Studio UI (generate form, library grid, preview modal) embedded in the AI full-page expanded view
 - **Server**: `server/image-gen.ts` — Express router, async generation with Supabase storage
-- **Navigation**: "Image Studio" nav entry in all 16 verticals (icon: Wand2)
+- **Navigation**: Accessible via "Image Studio" tab in the AI chat sidebar (full-page mode). Removed from vertical top-nav.
 - **API Key**: Set `IMAGE_GEN_API_KEY` env var. Falls back to OpenAI integration key for DALL-E 3.
 
 ### Features

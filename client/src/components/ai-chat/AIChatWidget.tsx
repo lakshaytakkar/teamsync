@@ -8,12 +8,23 @@ import {
   MessageSquare, Sparkles, Clock, ChevronRight, Bot,
   Paperclip, Download, FileText, Menu, Pencil, Check,
   Database, Plug, Zap, Search, Loader2, Image as ImageIcon,
-  LayoutGrid
+  Wand2, Copy, AlertCircle, ChevronLeft, RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import {
   Conversation,
   ConversationContent,
@@ -27,7 +38,6 @@ import {
 } from "@/components/ai-elements/message";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { VerticalContext } from "@/lib/vertical-store";
-import { Input } from "@/components/ui/input";
 import aiIcon from "@assets/ai-chat-icon.png";
 
 const _preload = new Image();
@@ -73,13 +83,495 @@ function HighlightText({ text, query }: { text: string; query: string }) {
 interface GeneratedImageData {
   id: string;
   prompt: string;
+  negative_prompt: string | null;
   status: "pending" | "completed" | "failed";
   image_data: string | null;
   image_url: string | null;
+  width: number | null;
+  height: number | null;
   error_message: string | null;
   created_at: string;
+  updated_at: string;
   style: string;
   aspect_ratio: string;
+}
+
+const IMAGE_STYLES = [
+  { value: "auto", label: "Auto" },
+  { value: "photorealistic", label: "Photorealistic" },
+  { value: "digital-art", label: "Digital Art" },
+  { value: "illustration", label: "Illustration" },
+  { value: "3d-render", label: "3D Render" },
+  { value: "anime", label: "Anime" },
+  { value: "watercolor", label: "Watercolor" },
+  { value: "oil-painting", label: "Oil Painting" },
+  { value: "pixel-art", label: "Pixel Art" },
+  { value: "minimalist", label: "Minimalist" },
+];
+
+const IMAGE_ASPECT_RATIOS = [
+  { value: "1:1", label: "1:1 Square" },
+  { value: "16:9", label: "16:9 Landscape" },
+  { value: "9:16", label: "9:16 Portrait" },
+  { value: "4:3", label: "4:3 Standard" },
+  { value: "3:4", label: "3:4 Portrait" },
+];
+
+const IMAGE_QUICK_PROMPTS = [
+  "Modern abstract gradient background",
+  "Professional team collaboration",
+  "Futuristic technology dashboard",
+  "Nature landscape at sunset",
+  "Minimalist logo concept",
+  "Product mockup on clean surface",
+];
+
+function ImagePreviewModal({
+  image,
+  images,
+  onClose,
+  onNavigate,
+  onDelete,
+}: {
+  image: GeneratedImageData;
+  images: GeneratedImageData[];
+  onClose: () => void;
+  onNavigate: (id: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const currentIndex = images.findIndex((i) => i.id === image.id);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft" && currentIndex > 0)
+        onNavigate(images[currentIndex - 1].id);
+      if (e.key === "ArrowRight" && currentIndex < images.length - 1)
+        onNavigate(images[currentIndex + 1].id);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose, onNavigate, currentIndex, images]);
+
+  const copyPrompt = useCallback(() => {
+    navigator.clipboard.writeText(image.prompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [image.prompt]);
+
+  const imgSrc = image.image_data || image.image_url;
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="relative w-full max-w-5xl max-h-[90vh] mx-4 flex flex-col md:flex-row gap-4 bg-background rounded-2xl overflow-hidden shadow-2xl">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+          data-testid="close-image-preview"
+        >
+          <X className="size-5" />
+        </button>
+
+        <div className="flex-1 min-h-0 flex items-center justify-center bg-black/20 relative p-4">
+          {currentIndex > 0 && (
+            <button
+              onClick={() => onNavigate(images[currentIndex - 1].id)}
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+              data-testid="prev-image"
+            >
+              <ChevronLeft className="size-5" />
+            </button>
+          )}
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={image.prompt}
+              className="max-w-full max-h-[70vh] rounded-lg object-contain"
+              data-testid="preview-image"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-64 text-muted-foreground">
+              <ImageIcon className="size-16 opacity-30" />
+            </div>
+          )}
+          {currentIndex < images.length - 1 && (
+            <button
+              onClick={() => onNavigate(images[currentIndex + 1].id)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+              data-testid="next-image"
+            >
+              <ChevronRight className="size-5" />
+            </button>
+          )}
+        </div>
+
+        <div className="w-full md:w-80 p-5 flex flex-col gap-4 border-l overflow-y-auto">
+          <div>
+            <h3 className="font-semibold text-sm mb-1">Prompt</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{image.prompt}</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-1 h-7 text-xs gap-1"
+              onClick={copyPrompt}
+              data-testid="copy-prompt"
+            >
+              {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+              {copied ? "Copied" : "Copy prompt"}
+            </Button>
+          </div>
+
+          {image.negative_prompt && (
+            <div>
+              <h3 className="font-semibold text-sm mb-1">Negative Prompt</h3>
+              <p className="text-xs text-muted-foreground">{image.negative_prompt}</p>
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary">{image.style}</Badge>
+            <Badge variant="outline">{image.aspect_ratio}</Badge>
+            {image.width && image.height && (
+              <Badge variant="outline">{image.width}x{image.height}</Badge>
+            )}
+          </div>
+
+          <div className="text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="size-3" />
+            {formatRelativeTime(image.created_at)}
+          </div>
+
+          <div className="flex gap-2 mt-auto pt-4 border-t">
+            {imgSrc && (
+              <Button asChild className="flex-1 gap-1.5" size="sm" data-testid="download-image">
+                <a href={`/api/images/${image.id}/download`} download>
+                  <Download className="size-4" />
+                  Download
+                </a>
+              </Button>
+            )}
+            <Button
+              variant="destructive"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => { onDelete(image.id); onClose(); }}
+              data-testid="delete-image"
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ImageStudioPanel() {
+  const [prompt, setPrompt] = useState("");
+  const [negativePrompt, setNegativePrompt] = useState("");
+  const [style, setStyle] = useState("auto");
+  const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"all" | "completed" | "pending" | "failed">("all");
+  const promptRef = useRef<HTMLTextAreaElement>(null);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: images = [], isLoading } = useQuery<GeneratedImageData[]>({
+    queryKey: ["/api/images"],
+    refetchInterval: (query) => {
+      const data = query.state.data as GeneratedImageData[] | undefined;
+      const hasPending = data?.some((img) => img.status === "pending");
+      return hasPending ? 3000 : false;
+    },
+  });
+
+  const generateMutation = useMutation({
+    mutationFn: async (data: { prompt: string; negativePrompt?: string; style: string; aspectRatio: string }) => {
+      const res = await fetch("/api/images/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Generation failed");
+      return res.json() as Promise<GeneratedImageData>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/images"] });
+      setPrompt("");
+      setNegativePrompt("");
+      toast({ title: "Image generation started", description: "Your image is being generated." });
+    },
+    onError: () => {
+      toast({ title: "Generation failed", description: "Could not start image generation.", variant: "destructive" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/images/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Delete failed");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/images"] });
+      toast({ title: "Image deleted" });
+    },
+    onError: () => {
+      toast({ title: "Delete failed", variant: "destructive" });
+    },
+  });
+
+  const handleGenerate = useCallback(() => {
+    if (!prompt.trim()) return;
+    const finalPrompt = style !== "auto" ? `${prompt.trim()}, ${style} style` : prompt.trim();
+    generateMutation.mutate({
+      prompt: finalPrompt,
+      negativePrompt: negativePrompt.trim() || undefined,
+      style,
+      aspectRatio,
+    });
+  }, [prompt, negativePrompt, style, aspectRatio, generateMutation]);
+
+  const filteredImages = images.filter((img) => filter === "all" || img.status === filter);
+  const completedImages = images.filter((i) => i.status === "completed");
+  const previewImage = previewId ? images.find((i) => i.id === previewId) : null;
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="flex items-center gap-3 px-4 sm:px-6 py-4 border-b shrink-0">
+        <Wand2 className="size-4 text-primary" />
+        <span className="font-semibold text-sm">Image Studio</span>
+        <span className="text-xs text-muted-foreground">Generate & manage AI images</span>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
+          <Card>
+            <CardContent className="p-5 space-y-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Wand2 className="size-5 text-primary" />
+                <h2 className="font-semibold text-sm">Generate Image</h2>
+              </div>
+
+              <Textarea
+                ref={promptRef}
+                placeholder="Describe the image you want to create..."
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                className="min-h-[80px] resize-none"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleGenerate();
+                }}
+                data-testid="studio-prompt-input"
+              />
+
+              <div className="flex flex-wrap gap-1.5">
+                {IMAGE_QUICK_PROMPTS.map((qp) => (
+                  <button
+                    key={qp}
+                    type="button"
+                    onClick={() => {
+                      setPrompt(qp);
+                      promptRef.current?.focus();
+                    }}
+                    className="text-[11px] px-2.5 py-1 rounded-full border border-border/60 bg-muted/30 hover:bg-primary/5 hover:border-primary/30 transition-colors text-foreground/70"
+                    data-testid={`studio-quick-${qp.slice(0, 15).replace(/\s+/g, "-").toLowerCase()}`}
+                  >
+                    {qp}
+                  </button>
+                ))}
+              </div>
+
+              <Input
+                placeholder="Negative prompt (optional) — what to avoid..."
+                value={negativePrompt}
+                onChange={(e) => setNegativePrompt(e.target.value)}
+                className="text-sm"
+                data-testid="studio-negative-prompt"
+              />
+
+              <div className="flex flex-wrap gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground font-medium">Style</label>
+                  <Select value={style} onValueChange={setStyle}>
+                    <SelectTrigger className="w-[150px] h-9 text-sm" data-testid="studio-style-select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {IMAGE_STYLES.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground font-medium">Aspect Ratio</label>
+                  <Select value={aspectRatio} onValueChange={setAspectRatio}>
+                    <SelectTrigger className="w-[160px] h-9 text-sm" data-testid="studio-aspect-select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {IMAGE_ASPECT_RATIOS.map((ar) => (
+                        <SelectItem key={ar.value} value={ar.value}>{ar.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-1">
+                <Button
+                  onClick={handleGenerate}
+                  disabled={!prompt.trim() || generateMutation.isPending}
+                  className="gap-2"
+                  data-testid="studio-generate-button"
+                >
+                  {generateMutation.isPending ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="size-4" />
+                  )}
+                  Generate
+                </Button>
+                <span className="text-xs text-muted-foreground">Ctrl+Enter to generate</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="size-4 text-muted-foreground" />
+                <h2 className="font-semibold text-sm">Library</h2>
+                <Badge variant="secondary" className="text-[10px]">{images.length}</Badge>
+              </div>
+              <div className="flex gap-1">
+                {(["all", "completed", "pending", "failed"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={cn(
+                      "text-[11px] px-2.5 py-1 rounded-full border transition-colors capitalize",
+                      filter === f
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border/60 bg-muted/30 hover:bg-muted/60 text-foreground/70"
+                    )}
+                    data-testid={`studio-filter-${f}`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="size-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredImages.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                  <ImageIcon className="size-12 text-muted-foreground/30 mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    {filter === "all" ? "No images generated yet. Create your first one above!" : `No ${filter} images.`}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {filteredImages.map((img) => {
+                  const imgSrc = img.image_data || img.image_url;
+                  return (
+                    <Card key={img.id} className="group overflow-hidden cursor-pointer" data-testid={`studio-image-${img.id}`}>
+                      <div
+                        className="relative aspect-square bg-muted/30 overflow-hidden"
+                        onClick={img.status === "completed" ? () => setPreviewId(img.id) : undefined}
+                      >
+                        {img.status === "completed" && imgSrc ? (
+                          <>
+                            <img
+                              src={imgSrc}
+                              alt={img.prompt}
+                              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                                <Button size="icon" variant="secondary" className="size-8 rounded-full" data-testid={`studio-preview-${img.id}`}>
+                                  <Maximize2 className="size-4" />
+                                </Button>
+                                <Button size="icon" variant="secondary" className="size-8 rounded-full" asChild>
+                                  <a href={`/api/images/${img.id}/download`} download onClick={(e) => e.stopPropagation()}>
+                                    <Download className="size-4" />
+                                  </a>
+                                </Button>
+                                <Button
+                                  size="icon"
+                                  variant="destructive"
+                                  className="size-8 rounded-full"
+                                  onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(img.id); }}
+                                  data-testid={`studio-delete-${img.id}`}
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          </>
+                        ) : img.status === "pending" ? (
+                          <div className="flex flex-col items-center justify-center h-full gap-2">
+                            <RefreshCw className="size-6 animate-spin text-primary/50" />
+                            <span className="text-[10px] text-muted-foreground">Generating...</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center h-full gap-2 px-3">
+                            <AlertCircle className="size-6 text-red-400" />
+                            <span className="text-[10px] text-red-400 text-center line-clamp-2">{img.error_message || "Failed"}</span>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="size-6"
+                              onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(img.id); }}
+                            >
+                              <Trash2 className="size-3 text-muted-foreground" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                      <CardContent className="p-2.5">
+                        <p className="text-[11px] text-foreground/80 line-clamp-2 leading-snug">{img.prompt}</p>
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <Badge variant={img.status === "completed" ? "default" : img.status === "pending" ? "secondary" : "destructive"} className="text-[9px] h-4 px-1.5">
+                            {img.status}
+                          </Badge>
+                          <span className="text-[10px] text-muted-foreground">{img.aspect_ratio}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {previewImage && (
+        <ImagePreviewModal
+          image={previewImage}
+          images={completedImages}
+          onClose={() => setPreviewId(null)}
+          onNavigate={(id) => setPreviewId(id)}
+          onDelete={(id) => deleteMutation.mutate(id)}
+        />
+      )}
+    </div>
+  );
 }
 
 function InlineGeneratedImage({ imageId }: { imageId: string }) {
@@ -633,7 +1125,7 @@ export function AIChatWidget() {
   const editInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchMode, setSearchMode] = useState(false);
-  const [sidebarTab, setSidebarTab] = useState<"chats" | "library">("chats");
+  const [sidebarTab, setSidebarTab] = useState<"chats" | "studio">("chats");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>();
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -655,7 +1147,7 @@ export function AIChatWidget() {
 
   const { data: libraryImages = [], isLoading: libraryLoading } = useQuery<GeneratedImageData[]>({
     queryKey: ["/api/images"],
-    enabled: isOpen && isExpanded && sidebarTab === "library",
+    enabled: isOpen && isExpanded && sidebarTab === "studio",
     refetchOnWindowFocus: false,
     staleTime: 15000,
   });
@@ -910,17 +1402,17 @@ export function AIChatWidget() {
                       Chats
                     </button>
                     <button
-                      onClick={() => setSidebarTab("library")}
+                      onClick={() => setSidebarTab("studio")}
                       className={cn(
                         "flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors border-b-2",
-                        sidebarTab === "library"
+                        sidebarTab === "studio"
                           ? "border-primary text-primary"
                           : "border-transparent text-muted-foreground hover:text-foreground"
                       )}
-                      data-testid="ai-sidebar-tab-library"
+                      data-testid="ai-sidebar-tab-studio"
                     >
-                      <LayoutGrid className="size-3.5" />
-                      Media Library
+                      <Wand2 className="size-3.5" />
+                      Image Studio
                     </button>
                   </div>
 
@@ -1151,86 +1643,74 @@ export function AIChatWidget() {
                     </>
                   )}
 
-                  {sidebarTab === "library" && (
+                  {sidebarTab === "studio" && (
                     <ScrollArea className="flex-1">
-                      <div className="p-3">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-1.5">
-                            <ImageIcon className="size-3.5 text-primary" />
-                            <span className="text-xs font-semibold">AI Generated Media</span>
-                            <span className="text-[10px] text-muted-foreground bg-muted rounded-full px-1.5 py-0.5">{libraryImages.filter(i => i.status === "completed").length}</span>
-                          </div>
+                      <div className="p-3 space-y-4">
+                        <div className="flex items-center gap-1.5">
+                          <Wand2 className="size-3.5 text-primary" />
+                          <span className="text-xs font-semibold">Image Studio</span>
                         </div>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          Generate, preview, and manage AI-created images. Use the studio panel on the right to create new images or browse your library.
+                        </p>
+
                         {libraryLoading ? (
-                          <div className="flex items-center justify-center py-12">
+                          <div className="flex items-center justify-center py-8">
                             <Loader2 className="size-5 animate-spin text-muted-foreground" />
                           </div>
-                        ) : libraryImages.filter(i => i.status === "completed").length === 0 ? (
-                          <div className="text-center py-10">
-                            <ImageIcon className="size-10 mx-auto text-muted-foreground/20 mb-2" />
-                            <p className="text-xs text-muted-foreground">No images yet</p>
-                            <p className="text-[10px] text-muted-foreground/60 mt-0.5">Ask AI to generate an image in chat</p>
-                          </div>
                         ) : (
-                          <div className="grid grid-cols-2 gap-2">
-                            {libraryImages.filter(i => i.status === "completed").map((img) => {
-                              const src = img.image_data || img.image_url;
-                              if (!src) return null;
-                              return (
-                                <a
-                                  key={img.id}
-                                  href={`/api/images/${img.id}/download`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="group relative rounded-lg overflow-hidden border bg-muted/20 hover:border-primary/40 transition-colors"
-                                  data-testid={`library-image-${img.id}`}
-                                >
-                                  <div className="aspect-square">
-                                    <img
-                                      src={src}
-                                      alt={img.prompt}
-                                      className="w-full h-full object-cover"
-                                      loading="lazy"
-                                    />
-                                  </div>
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  <div className="absolute bottom-0 left-0 right-0 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <p className="text-[9px] text-white line-clamp-2 leading-tight">{img.prompt}</p>
-                                  </div>
-                                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <div className="bg-black/50 rounded-full p-1">
-                                      <Download className="size-2.5 text-white" />
-                                    </div>
-                                  </div>
-                                </a>
-                              );
-                            })}
-                          </div>
+                          <>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex justify-between py-1.5 border-b border-border/40">
+                                <span className="text-muted-foreground">Total Images</span>
+                                <span className="font-medium">{libraryImages.length}</span>
+                              </div>
+                              <div className="flex justify-between py-1.5 border-b border-border/40">
+                                <span className="text-muted-foreground">Completed</span>
+                                <span className="font-medium text-emerald-600">{libraryImages.filter(i => i.status === "completed").length}</span>
+                              </div>
+                              <div className="flex justify-between py-1.5 border-b border-border/40">
+                                <span className="text-muted-foreground">Pending</span>
+                                <span className="font-medium text-amber-600">{libraryImages.filter(i => i.status === "pending").length}</span>
+                              </div>
+                              <div className="flex justify-between py-1.5">
+                                <span className="text-muted-foreground">Failed</span>
+                                <span className="font-medium text-red-500">{libraryImages.filter(i => i.status === "failed").length}</span>
+                              </div>
+                            </div>
+
+                            {libraryImages.filter(i => i.status === "completed").length > 0 && (
+                              <div>
+                                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Recent</p>
+                                <div className="grid grid-cols-2 gap-1.5">
+                                  {libraryImages.filter(i => i.status === "completed").slice(0, 4).map((img) => {
+                                    const src = img.image_data || img.image_url;
+                                    if (!src) return null;
+                                    return (
+                                      <div
+                                        key={img.id}
+                                        className="relative rounded-lg overflow-hidden border bg-muted/20 aspect-square"
+                                        data-testid={`sidebar-image-${img.id}`}
+                                      >
+                                        <img src={src} alt={img.prompt} className="w-full h-full object-cover" loading="lazy" />
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
 
-                        {libraryImages.filter(i => i.status === "pending").length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Generating</p>
-                            {libraryImages.filter(i => i.status === "pending").map((img) => (
-                              <div key={img.id} className="flex items-center gap-2 p-2 rounded-lg border bg-muted/20">
-                                <Loader2 className="size-3.5 animate-spin text-primary shrink-0" />
-                                <p className="text-[10px] text-muted-foreground truncate flex-1">{img.prompt}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {libraryImages.filter(i => i.status === "failed").length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            <p className="text-[10px] font-medium text-destructive/70 uppercase tracking-wider">Failed</p>
-                            {libraryImages.filter(i => i.status === "failed").map((img) => (
-                              <div key={img.id} className="flex items-center gap-2 p-2 rounded-lg border border-destructive/20 bg-destructive/5">
-                                <X className="size-3.5 text-destructive shrink-0" />
-                                <p className="text-[10px] text-muted-foreground truncate flex-1">{img.prompt}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        <div className="pt-2">
+                          <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Tips</h4>
+                          <ul className="space-y-1 text-[11px] text-muted-foreground">
+                            <li className="flex gap-1.5"><span className="text-primary">•</span> Be specific with prompts</li>
+                            <li className="flex gap-1.5"><span className="text-primary">•</span> Use negative prompts to avoid unwanted elements</li>
+                            <li className="flex gap-1.5"><span className="text-primary">•</span> Try different styles for varied results</li>
+                            <li className="flex gap-1.5"><span className="text-primary">•</span> Or just ask AI in chat to generate images</li>
+                          </ul>
+                        </div>
                       </div>
                     </ScrollArea>
                   )}
@@ -1246,37 +1726,59 @@ export function AIChatWidget() {
             )}
 
             <div className="flex-1 flex flex-col min-w-0">
-              <div className="flex items-center gap-3 px-4 sm:px-6 py-4 border-b">
-                {!sidebarOpen && (
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7 mr-1"
-                    onClick={() => setSidebarOpen(true)}
-                    data-testid="ai-chat-open-sidebar"
-                    title="Open sidebar"
-                  >
-                    <Menu className="size-4" />
-                  </Button>
-                )}
-                <Bot className="size-4 text-primary" />
-                <span className="font-semibold text-sm truncate">
-                  {conversations.find((c) => c.id === activeConversationId)?.title ?? "New Chat"}
-                </span>
-                <div className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <ChevronRight className="size-3.5" />
-                  <span className="capitalize hidden sm:inline">{currentVertical?.id ?? "all"}</span>
-                </div>
-              </div>
+              {sidebarTab === "studio" ? (
+                <>
+                  {!sidebarOpen && (
+                    <div className="absolute top-4 left-4 z-10">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        onClick={() => setSidebarOpen(true)}
+                        data-testid="ai-studio-open-sidebar"
+                        title="Open sidebar"
+                      >
+                        <Menu className="size-4" />
+                      </Button>
+                    </div>
+                  )}
+                  <ImageStudioPanel />
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 px-4 sm:px-6 py-4 border-b">
+                    {!sidebarOpen && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 mr-1"
+                        onClick={() => setSidebarOpen(true)}
+                        data-testid="ai-chat-open-sidebar"
+                        title="Open sidebar"
+                      >
+                        <Menu className="size-4" />
+                      </Button>
+                    )}
+                    <Bot className="size-4 text-primary" />
+                    <span className="font-semibold text-sm truncate">
+                      {conversations.find((c) => c.id === activeConversationId)?.title ?? "New Chat"}
+                    </span>
+                    <div className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <ChevronRight className="size-3.5" />
+                      <span className="capitalize hidden sm:inline">{currentVertical?.id ?? "all"}</span>
+                    </div>
+                  </div>
 
-              {activeConversationId && (
-                <ChatWindow
-                  key={`expanded-${activeConversationId}-${chatKey}`}
-                  conversationId={activeConversationId}
-                  initialMessages={savedMessages}
-                  verticalId={currentVertical?.id ?? ""}
-                  isExpanded
-                />
+                  {activeConversationId && (
+                    <ChatWindow
+                      key={`expanded-${activeConversationId}-${chatKey}`}
+                      conversationId={activeConversationId}
+                      initialMessages={savedMessages}
+                      verticalId={currentVertical?.id ?? ""}
+                      isExpanded
+                    />
+                  )}
+                </>
               )}
             </div>
           </motion.div>

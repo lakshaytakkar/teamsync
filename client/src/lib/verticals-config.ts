@@ -50,7 +50,6 @@ import {
   BookMarked,
   Tag,
   RotateCcw,
-  Wand2,
   type LucideIcon,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -134,12 +133,6 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Image Studio",
-        defaultUrl: "/suprans/image-studio",
-        icon: Wand2,
-        items: [],
-      },
-      {
         title: "Tasks",
         defaultUrl: "/suprans/tasks",
         icon: ListChecks,
@@ -207,12 +200,6 @@ export const verticals: Vertical[] = [
         title: "Resources",
         defaultUrl: "/hr/resources",
         icon: FolderOpen,
-        items: [],
-      },
-      {
-        title: "Image Studio",
-        defaultUrl: "/hr/image-studio",
-        icon: Wand2,
         items: [],
       },
       {
@@ -319,12 +306,6 @@ export const verticals: Vertical[] = [
         title: "Resources",
         defaultUrl: "/sales/resources",
         icon: FolderOpen,
-        items: [],
-      },
-      {
-        title: "Image Studio",
-        defaultUrl: "/sales/image-studio",
-        icon: Wand2,
         items: [],
       },
       {
@@ -440,12 +421,6 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Image Studio",
-        defaultUrl: "/events/image-studio",
-        icon: Wand2,
-        items: [],
-      },
-      {
         title: "Tasks",
         defaultUrl: "/events/tasks",
         icon: ListChecks,
@@ -545,12 +520,6 @@ export const verticals: Vertical[] = [
         title: "Resources",
         defaultUrl: "/hub/resources",
         icon: FolderOpen,
-        items: [],
-      },
-      {
-        title: "Image Studio",
-        defaultUrl: "/hub/image-studio",
-        icon: Wand2,
         items: [],
       },
       {
@@ -660,12 +629,6 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Image Studio",
-        defaultUrl: "/admin/image-studio",
-        icon: Wand2,
-        items: [],
-      },
-      {
         title: "Tasks",
         defaultUrl: "/admin/tasks",
         icon: ListChecks,
@@ -733,12 +696,6 @@ export const verticals: Vertical[] = [
         title: "Resources",
         defaultUrl: "/dev/resources",
         icon: FolderOpen,
-        items: [],
-      },
-      {
-        title: "Image Studio",
-        defaultUrl: "/dev/image-studio",
-        icon: Wand2,
         items: [],
       },
       {
@@ -841,12 +798,6 @@ export const verticals: Vertical[] = [
         title: "Resources",
         defaultUrl: "/ets/resources",
         icon: FolderOpen,
-        items: [],
-      },
-      {
-        title: "Image Studio",
-        defaultUrl: "/ets/image-studio",
-        icon: Wand2,
         items: [],
       },
       {
@@ -1026,12 +977,6 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Image Studio",
-        defaultUrl: "/faire/image-studio",
-        icon: Wand2,
-        items: [],
-      },
-      {
         title: "Reports",
         defaultUrl: "/faire/reports",
         icon: FileText,
@@ -1110,12 +1055,6 @@ export const verticals: Vertical[] = [
         title: "Resources",
         defaultUrl: "/hrms/resources",
         icon: FolderOpen,
-        items: [],
-      },
-      {
-        title: "Image Studio",
-        defaultUrl: "/hrms/image-studio",
-        icon: Wand2,
         items: [],
       },
       {
@@ -1232,12 +1171,6 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Image Studio",
-        defaultUrl: "/ats/image-studio",
-        icon: Wand2,
-        items: [],
-      },
-      {
         title: "Tasks",
         defaultUrl: "/ats/tasks",
         icon: ListChecks,
@@ -1343,12 +1276,6 @@ export const verticals: Vertical[] = [
         title: "Resources",
         defaultUrl: "/crm/resources",
         icon: FolderOpen,
-        items: [],
-      },
-      {
-        title: "Image Studio",
-        defaultUrl: "/crm/image-studio",
-        icon: Wand2,
         items: [],
       },
       {
@@ -1464,12 +1391,6 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Image Studio",
-        defaultUrl: "/finance/image-studio",
-        icon: Wand2,
-        items: [],
-      },
-      {
         title: "Tasks",
         defaultUrl: "/finance/tasks",
         icon: ListChecks,
@@ -1579,12 +1500,6 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Image Studio",
-        defaultUrl: "/oms/image-studio",
-        icon: Wand2,
-        items: [],
-      },
-      {
         title: "Tasks",
         defaultUrl: "/oms/tasks",
         icon: ListChecks,
@@ -1691,12 +1606,6 @@ export const verticals: Vertical[] = [
         title: "Resources",
         defaultUrl: "/social/resources",
         icon: FolderOpen,
-        items: [],
-      },
-      {
-        title: "Image Studio",
-        defaultUrl: "/social/image-studio",
-        icon: Wand2,
         items: [],
       },
       {
