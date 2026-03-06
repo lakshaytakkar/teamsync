@@ -900,6 +900,39 @@ tickets(id uuid PK, ticket_code text UNIQUE auto-gen TK-0001+, vertical_id text,
 | GET | `/api/ai/attachments/:id/download` | Download attachment |
 | DELETE | `/api/ai/attachments/:id` | Delete attachment |
 
+## Image Studio (Mar 2026)
+
+AI-powered image generation, library management, preview, and download. Available across all 16 verticals at `/:vertical/image-studio`.
+
+### Supabase Table
+```sql
+generated_images(id uuid PK, prompt text, negative_prompt text, style text, aspect_ratio text, image_data text, image_url text, width int, height int, status text [pending/completed/failed], vertical_id text, error_message text, created_at, updated_at)
+```
+
+### API Routes
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/images/generate` | Create image generation request |
+| GET | `/api/images` | List all generated images (last 100) |
+| GET | `/api/images/:id` | Get single image |
+| DELETE | `/api/images/:id` | Delete image |
+| GET | `/api/images/:id/download` | Download image file |
+
+### Frontend
+- **Page**: `client/src/pages/universal/image-studio.tsx` — Generate form (prompt, negative prompt, style, aspect ratio) + Library grid + Preview modal + Stats sidebar
+- **Server**: `server/image-gen.ts` — Express router, async generation with Supabase storage
+- **Navigation**: "Image Studio" nav entry in all 16 verticals (icon: Wand2)
+- **API Key**: Set `IMAGE_GEN_API_KEY` env var. Falls back to OpenAI integration key for DALL-E 3.
+
+### Features
+- Quick prompt suggestions (6 presets)
+- Style presets: Auto, Photorealistic, Digital Art, Illustration, 3D Render, Anime, Watercolor, Oil Painting, Pixel Art, Minimalist
+- Aspect ratios: 1:1, 16:9, 9:16, 4:3, 3:4
+- Library with status filters (All/Completed/Pending/Failed)
+- Full preview modal with prev/next navigation, copy prompt, download, delete
+- Auto-polling while images are pending (3s interval)
+- Generation stats sidebar
+
 ## Client Portal System (Mar 2026)
 
 Client-facing portal prototype accessible via vertical switcher under "Client Portals" section. Uses separate layout (`PortalLayout`) without TopNavigation/AnnouncementBanner/AIChatWidget.

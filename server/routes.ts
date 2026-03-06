@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { aiChatRouter } from "./ai-chat";
+import { imageGenRouter } from "./image-gen";
 import {
   getStoreCredentials,
   listStores,
@@ -1383,6 +1384,7 @@ export async function registerRoutes(
   });
 
   app.use("/api/ai", aiChatRouter);
+  app.use("/api/images", imageGenRouter);
 
   return httpServer;
 }
