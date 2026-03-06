@@ -23,6 +23,9 @@ import {
   Image as ImageIcon,
   Menu,
   ArrowLeft,
+  Phone,
+  Video,
+  Smile,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { detectVerticalFromUrl, verticals } from "@/lib/verticals-config";
