@@ -147,16 +147,23 @@ function ChatWindow({
     parts: [{ type: "text" as const, text: m.content }],
   }));
 
-  const { messages, input, handleInputChange, handleSubmit, status, stop, setInput } =
-    useChat({
-      api: "/api/ai/chat",
-      body: { conversationId, verticalId },
-      initialMessages: mappedInitial,
-      streamProtocol: "text",
-      onFinish: () => {
-        queryClient.invalidateQueries({ queryKey: ["/api/ai/conversations"] });
-      },
-    });
+  const chatHelpers = useChat({
+    api: "/api/ai/chat",
+    body: { conversationId, verticalId },
+    initialMessages: mappedInitial,
+    streamProtocol: "text",
+    onFinish: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai/conversations"] });
+    },
+  });
+
+  const messages = chatHelpers.messages ?? [];
+  const input = chatHelpers.input ?? "";
+  const handleInputChange = chatHelpers.handleInputChange;
+  const handleSubmit = chatHelpers.handleSubmit;
+  const status = chatHelpers.status ?? "ready";
+  const stop = chatHelpers.stop;
+  const setInput = chatHelpers.setInput ?? (() => {});
 
   const { data: attachments = [] } = useQuery<AiAttachment[]>({
     queryKey: ["/api/ai/conversations", conversationId, "attachments"],
