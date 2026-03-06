@@ -829,7 +829,10 @@ TeamSync includes a floating AI co-pilot powered by **Vercel AI SDK** and **Open
 - **Drawer mode**: Right-side panel, 420px, slides in with Framer Motion. Default view.
 - **Full-page mode**: Covers entire viewport. Left sidebar (280px) shows conversation history; right side shows the active chat.
 - **Streaming**: `useChat` from `@ai-sdk/react` v3 with `DefaultChatTransport` from `ai` hitting `POST /api/ai/chat`. Uses `streamText` + `pipeUIMessageStreamToResponse` for Express streaming with tool-call support. Input managed via local `useState` + `sendMessage({ text })`.
-- **DB Tool Calling**: AI has read-only access to 27 Supabase tables via `queryDatabase` tool. Uses `tool()` from AI SDK v6 with `jsonSchema` (not Zod — Replit modelfarm proxy requires explicit `type: "object"`). `maxSteps: 5` allows multi-step queries. Blocked SQL patterns: INSERT/UPDATE/DELETE/DROP/ALTER/CREATE/TRUNCATE/GRANT/REVOKE/EXECUTE/COPY.
+- **DB Tool Calling**: AI has read-only access to 27 Supabase tables via `queryDatabase` tool. Uses `tool()` from AI SDK v6 with `jsonSchema` (not Zod — Replit modelfarm proxy requires explicit `type: "object"`). `stopWhen: stepCountIs(5)` allows multi-step queries. Blocked SQL patterns: INSERT/UPDATE/DELETE/DROP/ALTER/CREATE/TRUNCATE/GRANT/REVOKE/EXECUTE/COPY.
+- **Image Generation Tool**: AI can generate images via `generateImage` tool (DALL-E 3). Images stored in `generated_images` table with `source: "chat"`. Inline rendering via `[GENERATED_IMAGE:id]` marker in assistant responses.
+- **Chat Search**: `GET /api/ai/conversations/search?q=...` searches titles and message content with debounced input, highlighted matches, and message snippets.
+- **Media Library**: Sidebar tab in expanded chat view shows all AI-generated images (from both chat and Image Studio) in a gallery grid with download links.
 - **Supabase RPC**: `exec_readonly_sql(query_text)` — SECURITY DEFINER function that validates SELECT-only, executes via `jsonb_agg(row_to_json(t))`, returns JSONB array.
 - **Persistence**: All conversations and messages saved to Supabase (`ai_conversations`, `ai_messages` tables).
 - **Chat History**: Sidebar in expanded view shows all conversations with inline rename (pencil icon → edit input) and delete. Drawer view shows recent 8 chats at bottom.
@@ -891,7 +894,8 @@ tickets(id uuid PK, ticket_code text UNIQUE auto-gen TK-0001+, vertical_id text,
 ### AI Chat API Routes
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/ai/chat` | Stream chat response (OpenAI gpt-4o). Accepts v3 (parts) and v1 (content) message formats |
+| POST | `/api/ai/chat` | Stream chat response (OpenAI gpt-4o). Tools: queryDatabase, generateImage |
+| GET | `/api/ai/conversations/search?q=` | Search conversations by title and message content |
 | GET | `/api/ai/conversations` | List all conversations (last 50, sorted by updated_at) |
 | POST | `/api/ai/conversations` | Create conversation |
 | PATCH | `/api/ai/conversations/:id` | Rename conversation (body: `{ title }`) |
@@ -908,7 +912,7 @@ AI-powered image generation, library management, preview, and download. Availabl
 
 ### Supabase Table
 ```sql
-generated_images(id uuid PK, prompt text, negative_prompt text, style text, aspect_ratio text, image_data text, image_url text, width int, height int, status text [pending/completed/failed], vertical_id text, error_message text, created_at, updated_at)
+generated_images(id uuid PK, prompt text, negative_prompt text, style text, aspect_ratio text, image_data text, image_url text, width int, height int, status text [pending/completed/failed], vertical_id text, error_message text, source text [studio/chat] DEFAULT 'studio', created_at, updated_at)
 ```
 
 ### API Routes

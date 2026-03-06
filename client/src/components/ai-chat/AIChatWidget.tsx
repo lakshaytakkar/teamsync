@@ -7,7 +7,8 @@ import {
   X, Maximize2, Minimize2, Plus, Send, Square, Trash2,
   MessageSquare, Sparkles, Clock, ChevronRight, Bot,
   Paperclip, Download, FileText, Menu, Pencil, Check,
-  Database, Plug, Zap, Search
+  Database, Plug, Zap, Search, Loader2, Image as ImageIcon,
+  LayoutGrid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,133 @@ function HighlightText({ text, query }: { text: string; query: string }) {
   );
 }
 
+interface GeneratedImageData {
+  id: string;
+  prompt: string;
+  status: "pending" | "completed" | "failed";
+  image_data: string | null;
+  image_url: string | null;
+  error_message: string | null;
+  created_at: string;
+  style: string;
+  aspect_ratio: string;
+}
+
+function InlineGeneratedImage({ imageId }: { imageId: string }) {
+  const { data: image, isLoading } = useQuery<GeneratedImageData>({
+    queryKey: ["/api/images", imageId],
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (data && data.status === "pending") return 2000;
+      return false;
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="my-2 rounded-xl border bg-muted/30 p-4 flex items-center gap-3 max-w-[320px]">
+        <Loader2 className="size-5 animate-spin text-primary" />
+        <span className="text-xs text-muted-foreground">Loading image…</span>
+      </div>
+    );
+  }
+
+  if (!image) return null;
+
+  if (image.status === "pending") {
+    return (
+      <div className="my-2 rounded-xl border bg-muted/30 overflow-hidden max-w-[320px]">
+        <div className="aspect-square max-h-[240px] flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 relative">
+          <div className="absolute inset-0 ai-shimmer" />
+          <ImageIcon className="size-10 text-primary/30 mb-2" />
+          <span className="text-xs text-muted-foreground font-medium">Generating image…</span>
+        </div>
+        <div className="px-3 py-2">
+          <p className="text-[10px] text-muted-foreground truncate">{image.prompt}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (image.status === "failed") {
+    return (
+      <div className="my-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 max-w-[320px]">
+        <div className="flex items-center gap-2 text-destructive text-xs">
+          <X className="size-3.5" />
+          <span>Image generation failed</span>
+        </div>
+        {image.error_message && (
+          <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">{image.error_message}</p>
+        )}
+      </div>
+    );
+  }
+
+  const imgSrc = image.image_data || image.image_url;
+  if (!imgSrc) return null;
+
+  return (
+    <div className="my-2 rounded-xl border overflow-hidden max-w-[320px] group" data-testid={`generated-image-inline-${imageId}`}>
+      <a
+        href={`/api/images/${imageId}/download`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block relative"
+      >
+        <img
+          src={imgSrc}
+          alt={image.prompt}
+          className="w-full h-auto max-h-[280px] object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+          <Download className="size-6 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+        </div>
+      </a>
+      <div className="px-3 py-2 bg-muted/30">
+        <p className="text-[10px] text-muted-foreground truncate">{image.prompt}</p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <ImageIcon className="size-2.5 text-primary/60" />
+          <span className="text-[9px] text-primary/60 font-medium">AI Generated</span>
+          <span className="text-[9px] text-muted-foreground/50">{image.aspect_ratio}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function renderMessageWithImages(text: string) {
+  const pattern = /\[GENERATED_IMAGE:([^\]]+)\]/g;
+  const parts: (string | { imageId: string })[] = [];
+  let lastIdx = 0;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIdx) {
+      parts.push(text.slice(lastIdx, match.index));
+    }
+    parts.push({ imageId: match[1] });
+    lastIdx = match.index + match[0].length;
+  }
+  if (lastIdx < text.length) {
+    parts.push(text.slice(lastIdx));
+  }
+
+  if (parts.length === 1 && typeof parts[0] === "string") return null;
+
+  return (
+    <>
+      {parts.map((part, i) =>
+        typeof part === "string" ? (
+          <MessageResponse key={i}>{part}</MessageResponse>
+        ) : (
+          <InlineGeneratedImage key={i} imageId={part.imageId} />
+        )
+      )}
+    </>
+  );
+}
+
 interface AiConversation {
   id: string;
   title: string;
@@ -109,6 +237,7 @@ interface ActiveIntegration {
 const ACTIVE_INTEGRATIONS: ActiveIntegration[] = [
   { name: "Supabase DB", icon: Database, status: "connected", description: "PostgreSQL — live query access" },
   { name: "OpenAI", icon: Zap, status: "connected", description: "GPT-4o with tool calling" },
+  { name: "DALL-E 3", icon: ImageIcon, status: "connected", description: "AI image generation" },
 ];
 
 function formatRelativeTime(dateStr: string): string {
@@ -365,17 +494,21 @@ function ChatWindow({
                   ))}
                 </div>
               )}
-              {messages.map((message) => (
-                <Message key={message.id} from={message.role}>
-                  <MessageContent>
-                    {message.role === "assistant" ? (
-                      <MessageResponse>{getMessageText(message)}</MessageResponse>
-                    ) : (
-                      <span>{getMessageText(message)}</span>
-                    )}
-                  </MessageContent>
-                </Message>
-              ))}
+              {messages.map((message) => {
+                const text = getMessageText(message);
+                const imageContent = message.role === "assistant" ? renderMessageWithImages(text) : null;
+                return (
+                  <Message key={message.id} from={message.role}>
+                    <MessageContent>
+                      {message.role === "assistant" ? (
+                        imageContent || <MessageResponse>{text}</MessageResponse>
+                      ) : (
+                        <span>{text}</span>
+                      )}
+                    </MessageContent>
+                  </Message>
+                );
+              })}
               {status === "submitted" && (
                 <Message from="assistant">
                   <MessageContent>
@@ -500,6 +633,7 @@ export function AIChatWidget() {
   const editInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchMode, setSearchMode] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState<"chats" | "library">("chats");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>();
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -517,6 +651,13 @@ export function AIChatWidget() {
     enabled: !!activeConversationId,
     refetchOnWindowFocus: false,
     staleTime: 30000,
+  });
+
+  const { data: libraryImages = [], isLoading: libraryLoading } = useQuery<GeneratedImageData[]>({
+    queryKey: ["/api/images"],
+    enabled: isOpen && isExpanded && sidebarTab === "library",
+    refetchOnWindowFocus: false,
+    staleTime: 15000,
   });
 
   const handleSearchChange = useCallback((value: string) => {
@@ -754,68 +895,103 @@ export function AIChatWidget() {
                     </div>
                   </div>
 
-                  <div className="p-3 border-b flex items-center gap-2">
-                    <Button
-                      className="flex-1 h-9 gap-2 justify-start text-sm font-medium"
-                      onClick={handleNewChat}
-                      disabled={createConversationMutation.isPending}
-                      data-testid="ai-chat-new"
+                  <div className="flex border-b">
+                    <button
+                      onClick={() => setSidebarTab("chats")}
+                      className={cn(
+                        "flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors border-b-2",
+                        sidebarTab === "chats"
+                          ? "border-primary text-primary"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      )}
+                      data-testid="ai-sidebar-tab-chats"
                     >
-                      <Plus className="size-3.5" />
-                      New Chat
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant={searchMode ? "secondary" : "ghost"}
-                      className="h-9 w-9 shrink-0"
-                      onClick={searchMode ? closeSearch : openSearch}
-                      data-testid="ai-chat-search-toggle"
-                      title="Search chats"
+                      <MessageSquare className="size-3.5" />
+                      Chats
+                    </button>
+                    <button
+                      onClick={() => setSidebarTab("library")}
+                      className={cn(
+                        "flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors border-b-2",
+                        sidebarTab === "library"
+                          ? "border-primary text-primary"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      )}
+                      data-testid="ai-sidebar-tab-library"
                     >
-                      {searchMode ? <X className="size-3.5" /> : <Search className="size-3.5" />}
-                    </Button>
+                      <LayoutGrid className="size-3.5" />
+                      Media Library
+                    </button>
                   </div>
 
-                  <AnimatePresence>
-                    {searchMode && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                        className="overflow-hidden border-b"
-                      >
-                        <div className="p-3">
-                          <div className="relative">
-                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
-                            <Input
-                              ref={searchInputRef}
-                              value={searchQuery}
-                              onChange={(e) => handleSearchChange(e.target.value)}
-                              placeholder="Search titles & messages…"
-                              className="h-8 pl-8 pr-3 text-xs"
-                              data-testid="ai-chat-search-input"
-                              onKeyDown={(e) => {
-                                if (e.key === "Escape") closeSearch();
-                              }}
-                            />
-                          </div>
-                          {debouncedQuery.length >= 2 && (
-                            <p className={cn("text-[10px] mt-1.5 px-0.5", isSearchError ? "text-destructive" : "text-muted-foreground")}>
-                              {isSearching
-                                ? "Searching…"
-                                : isSearchError
-                                  ? "Search failed — try again"
-                                  : `${searchResults.length} result${searchResults.length !== 1 ? "s" : ""} found`}
-                            </p>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {sidebarTab === "chats" && (
+                    <>
+                      <div className="p-3 border-b flex items-center gap-2">
+                        <Button
+                          className="flex-1 h-9 gap-2 justify-start text-sm font-medium"
+                          onClick={handleNewChat}
+                          disabled={createConversationMutation.isPending}
+                          data-testid="ai-chat-new"
+                        >
+                          <Plus className="size-3.5" />
+                          New Chat
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant={searchMode ? "secondary" : "ghost"}
+                          className="h-9 w-9 shrink-0"
+                          onClick={searchMode ? closeSearch : openSearch}
+                          data-testid="ai-chat-search-toggle"
+                          title="Search chats"
+                        >
+                          {searchMode ? <X className="size-3.5" /> : <Search className="size-3.5" />}
+                        </Button>
+                      </div>
+                    </>
+                  )}
 
-                  <ScrollArea className="flex-1">
-                    {searchMode && debouncedQuery.length >= 2 ? (
+                  {sidebarTab === "chats" && (
+                    <>
+                      <AnimatePresence>
+                        {searchMode && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="overflow-hidden border-b"
+                          >
+                            <div className="p-3">
+                              <div className="relative">
+                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                                <Input
+                                  ref={searchInputRef}
+                                  value={searchQuery}
+                                  onChange={(e) => handleSearchChange(e.target.value)}
+                                  placeholder="Search titles & messages…"
+                                  className="h-8 pl-8 pr-3 text-xs"
+                                  data-testid="ai-chat-search-input"
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Escape") closeSearch();
+                                  }}
+                                />
+                              </div>
+                              {debouncedQuery.length >= 2 && (
+                                <p className={cn("text-[10px] mt-1.5 px-0.5", isSearchError ? "text-destructive" : "text-muted-foreground")}>
+                                  {isSearching
+                                    ? "Searching…"
+                                    : isSearchError
+                                      ? "Search failed — try again"
+                                      : `${searchResults.length} result${searchResults.length !== 1 ? "s" : ""} found`}
+                                </p>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      <ScrollArea className="flex-1">
+                        {searchMode && debouncedQuery.length >= 2 ? (
                       <div className="p-2 space-y-0.5">
                         {isSearchError && !isSearching && (
                           <div className="text-center py-8 px-3">
@@ -972,6 +1148,92 @@ export function AIChatWidget() {
                       </div>
                     )}
                   </ScrollArea>
+                    </>
+                  )}
+
+                  {sidebarTab === "library" && (
+                    <ScrollArea className="flex-1">
+                      <div className="p-3">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-1.5">
+                            <ImageIcon className="size-3.5 text-primary" />
+                            <span className="text-xs font-semibold">AI Generated Media</span>
+                            <span className="text-[10px] text-muted-foreground bg-muted rounded-full px-1.5 py-0.5">{libraryImages.filter(i => i.status === "completed").length}</span>
+                          </div>
+                        </div>
+                        {libraryLoading ? (
+                          <div className="flex items-center justify-center py-12">
+                            <Loader2 className="size-5 animate-spin text-muted-foreground" />
+                          </div>
+                        ) : libraryImages.filter(i => i.status === "completed").length === 0 ? (
+                          <div className="text-center py-10">
+                            <ImageIcon className="size-10 mx-auto text-muted-foreground/20 mb-2" />
+                            <p className="text-xs text-muted-foreground">No images yet</p>
+                            <p className="text-[10px] text-muted-foreground/60 mt-0.5">Ask AI to generate an image in chat</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-2">
+                            {libraryImages.filter(i => i.status === "completed").map((img) => {
+                              const src = img.image_data || img.image_url;
+                              if (!src) return null;
+                              return (
+                                <a
+                                  key={img.id}
+                                  href={`/api/images/${img.id}/download`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="group relative rounded-lg overflow-hidden border bg-muted/20 hover:border-primary/40 transition-colors"
+                                  data-testid={`library-image-${img.id}`}
+                                >
+                                  <div className="aspect-square">
+                                    <img
+                                      src={src}
+                                      alt={img.prompt}
+                                      className="w-full h-full object-cover"
+                                      loading="lazy"
+                                    />
+                                  </div>
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  <div className="absolute bottom-0 left-0 right-0 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <p className="text-[9px] text-white line-clamp-2 leading-tight">{img.prompt}</p>
+                                  </div>
+                                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="bg-black/50 rounded-full p-1">
+                                      <Download className="size-2.5 text-white" />
+                                    </div>
+                                  </div>
+                                </a>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {libraryImages.filter(i => i.status === "pending").length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Generating</p>
+                            {libraryImages.filter(i => i.status === "pending").map((img) => (
+                              <div key={img.id} className="flex items-center gap-2 p-2 rounded-lg border bg-muted/20">
+                                <Loader2 className="size-3.5 animate-spin text-primary shrink-0" />
+                                <p className="text-[10px] text-muted-foreground truncate flex-1">{img.prompt}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {libraryImages.filter(i => i.status === "failed").length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            <p className="text-[10px] font-medium text-destructive/70 uppercase tracking-wider">Failed</p>
+                            {libraryImages.filter(i => i.status === "failed").map((img) => (
+                              <div key={img.id} className="flex items-center gap-2 p-2 rounded-lg border border-destructive/20 bg-destructive/5">
+                                <X className="size-3.5 text-destructive shrink-0" />
+                                <p className="text-[10px] text-muted-foreground truncate flex-1">{img.prompt}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

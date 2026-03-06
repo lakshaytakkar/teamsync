@@ -101,7 +101,9 @@ ${DB_SCHEMA}
 - Be concise, professional, and actionable.
 - Use markdown formatting for clear presentation.
 - If a query fails, explain what happened and try a different approach.
-- You can make multiple queries in sequence to gather related data before answering.`;
+- You can make multiple queries in sequence to gather related data before answering.
+- When you generate an image, always include the image ID in your response using this exact format: [GENERATED_IMAGE:imageId] so the UI can render it inline. For example: [GENERATED_IMAGE:abc-123-def]
+- When asked to create, generate, draw, or design any image, use the generateImage tool.`;
 
 async function getOrCreateConversation(
   conversationId: string | undefined,
@@ -155,6 +157,129 @@ function extractMessageContent(msg: any): string {
   }
   return "";
 }
+
+function getDimensions(aspectRatio: string): { width: number; height: number } {
+  switch (aspectRatio) {
+    case "16:9": return { width: 1024, height: 576 };
+    case "9:16": return { width: 576, height: 1024 };
+    case "4:3": return { width: 1024, height: 768 };
+    case "3:4": return { width: 768, height: 1024 };
+    case "1:1":
+    default: return { width: 1024, height: 1024 };
+  }
+}
+
+function getOpenAISize(aspectRatio: string): string {
+  switch (aspectRatio) {
+    case "16:9": return "1792x1024";
+    case "9:16": return "1024x1792";
+    default: return "1024x1024";
+  }
+}
+
+const generateImageTool = tool({
+  description: "Generate an image using DALL-E 3. Use this when the user asks you to create, generate, draw, or design an image. The image will be stored in the library automatically.",
+  inputSchema: jsonSchema<{ prompt: string; aspectRatio?: string }>({
+    type: "object",
+    properties: {
+      prompt: { type: "string", description: "Detailed description of the image to generate. Be specific about style, composition, colors, and subject." },
+      aspectRatio: { type: "string", description: "Aspect ratio: 1:1, 16:9, 9:16, 4:3, 3:4. Default 1:1.", enum: ["1:1", "16:9", "9:16", "4:3", "3:4"] },
+    },
+    required: ["prompt"],
+    additionalProperties: false,
+  }),
+  execute: async ({ prompt, aspectRatio = "1:1" }) => {
+    console.log(`[ai-chat] Generating image: ${prompt.slice(0, 100)}`);
+
+    const dimensions = getDimensions(aspectRatio);
+    const { data: record, error: insertError } = await supabase
+      .from("generated_images")
+      .insert({
+        prompt: prompt.trim(),
+        style: "auto",
+        aspect_ratio: aspectRatio,
+        width: dimensions.width,
+        height: dimensions.height,
+        status: "pending",
+        source: "chat",
+      })
+      .select("id")
+      .single();
+
+    if (insertError || !record) {
+      return { error: "Failed to create image record", imageId: null };
+    }
+
+    const apiKey = process.env.IMAGE_GEN_API_KEY
+      ?? process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+      ?? process.env.OPENAI_API_KEY;
+    const baseUrl = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL
+      ?? process.env.OPENAI_BASE_URL
+      ?? "https://api.openai.com/v1";
+
+    if (!apiKey) {
+      await supabase
+        .from("generated_images")
+        .update({ status: "failed", error_message: "API key not configured", updated_at: new Date().toISOString() })
+        .eq("id", record.id);
+      return { error: "Image generation API key not configured", imageId: record.id };
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/images/generations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: "dall-e-3",
+          prompt,
+          n: 1,
+          size: getOpenAISize(aspectRatio),
+          response_format: "b64_json",
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        await supabase
+          .from("generated_images")
+          .update({ status: "failed", error_message: `API error ${response.status}: ${errText.slice(0, 300)}`, updated_at: new Date().toISOString() })
+          .eq("id", record.id);
+        return { error: `Image generation failed (${response.status})`, imageId: record.id };
+      }
+
+      const result = (await response.json()) as { data?: Array<{ b64_json?: string; url?: string }> };
+      const imageResult = result.data?.[0];
+
+      if (imageResult?.b64_json) {
+        const imageData = `data:image/png;base64,${imageResult.b64_json}`;
+        await supabase
+          .from("generated_images")
+          .update({ status: "completed", image_data: imageData, updated_at: new Date().toISOString() })
+          .eq("id", record.id);
+        return { success: true, imageId: record.id, message: "Image generated successfully" };
+      } else if (imageResult?.url) {
+        await supabase
+          .from("generated_images")
+          .update({ status: "completed", image_url: imageResult.url, updated_at: new Date().toISOString() })
+          .eq("id", record.id);
+        return { success: true, imageId: record.id, message: "Image generated successfully" };
+      }
+
+      await supabase
+        .from("generated_images")
+        .update({ status: "failed", error_message: "No image returned", updated_at: new Date().toISOString() })
+        .eq("id", record.id);
+      return { error: "No image returned from API", imageId: record.id };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      await supabase
+        .from("generated_images")
+        .update({ status: "failed", error_message: msg, updated_at: new Date().toISOString() })
+        .eq("id", record.id);
+      return { error: `Image generation failed: ${msg}`, imageId: record.id };
+    }
+  },
+});
 
 const BLOCKED_SQL = /\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|GRANT|REVOKE|EXECUTE|COPY)\b/i;
 
@@ -240,7 +365,7 @@ router.post("/chat", async (req: Request, res: Response) => {
       model: openai.chat("gpt-4o"),
       system: SYSTEM_PROMPT + verticalContext,
       messages: aiMessages,
-      tools: { queryDatabase: queryDatabaseTool },
+      tools: { queryDatabase: queryDatabaseTool, generateImage: generateImageTool },
       stopWhen: stepCountIs(5),
       maxOutputTokens: 4096,
       onFinish: async ({ text }) => {
