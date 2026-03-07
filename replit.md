@@ -42,11 +42,36 @@ One config per vertical, each exporting `VERTICAL_COLOR` + TypeScript status typ
 - `social-config.ts`, `suprans-config.ts` (also exports `VENDOR_COLOR`), `dev-config.ts`, `admin-config.ts`
 
 #### Design Tokens (`client/src/lib/design-tokens.ts`)
-- Exports `DS` object with all locked design values (typography, table config, toolbar, pills, primary buttons, cards, grids, modals, infoRow)
-- `PageShell`, `PageHeader`, `StatCard`, `StatGrid`, `SectionCard`, `FilterPill`, `PrimaryAction`, `IndexToolbar`, `DataTableContainer`, `DataTH/TD/TR`, `DetailModal`, `InfoRow` all reference `DS` tokens
-- `DataTable` (`@/components/hr/data-table`) also references `DS` tokens for search, filters, pagination, empty states, row actions
-- `ds.ts` re-exports `DS`, `defineTablePage`, `TablePageConfig` alongside all layout/HR components
-- Also exports `TablePageConfig<T>` interface + `defineTablePage()` helper for typed table page configs
+Exports `DS` object — single source of truth for the entire theme. All layout/HR components reference `DS` tokens.
+
+**Central Theme Coverage:**
+
+| Category | DS Path | What It Defines |
+|----------|---------|-----------------|
+| **Colors — Accent** | `DS.color.accent` | `.DEFAULT`, `.foreground`, `.muted`, `.hover` (maps to `--primary` CSS var) |
+| **Colors — Text** | `DS.color.text` | `.DEFAULT`, `.secondary`, `.inverse`, `.link`, `.disabled` (Tailwind classes) |
+| **Colors — Background** | `DS.color.bg` | `.page`, `.surface`, `.surfaceRaised`, `.muted`, `.overlay`, `.input` |
+| **Colors — Surface** | `DS.color.surface` | `.card`, `.popover`, `.sidebar`, `.accent` (includes border + radius) |
+| **Colors — System** | `DS.color.system` | `.success`, `.warning`, `.info`, `.destructive` + foregrounds (CSS vars) |
+| **Colors — Border** | `DS.color.border` | `.DEFAULT`, `.input`, `.ring` |
+| **Colors — Chart** | `DS.color.chart` | 5-color palette array |
+| **Colors — Status** | `DS.color.status` | `.online`, `.away`, `.busy`, `.offline` (presence indicators) |
+| **Typography — Headings** | `DS.heading` | `h1`–`h6` with family, weight, size, tracking |
+| **Typography — Font Family** | `DS.font.family` | `.sans`, `.heading`, `.serif`, `.mono` |
+| **Typography — Font Weight** | `DS.font.weight` | `.normal`, `.medium`, `.semibold`, `.bold` |
+| **Typography — Body Sizes** | `DS.font.size` | `xs` through `4xl` |
+| **Typography — Line Height** | `DS.font.leading` | `.tight`, `.snug`, `.normal`, `.relaxed` |
+| **Typography — Styles** | `DS.typography` | Semantic presets: `pageTitle`, `pageSubtitle`, `sectionTitle`, `bodyText`, `caption`, `heroHeadline`, etc. |
+| **Roundness** | `DS.radius` | Scale: `none`→`sm`→`DEFAULT`→`lg`→`xl`→`2xl`→`full` + semantic: `.card`, `.button`, `.badge`, `.avatar`, `.input` |
+| **Shadow** | `DS.shadow` | Scale: `xs`→`sm`→`md`→`lg`→`xl`→`2xl` + semantic: `.card`, `.dropdown`, `.modal`, `.btnPrimary`, `.btnSecondary` |
+
+**CSS Custom Properties** (`client/src/index.css`):
+- `:root` + `.dark` define all color vars (background, foreground, primary, secondary, muted, accent, destructive, success, warning, info, border, chart 1-5, sidebar, shadows xs-2xl, fonts, radius)
+- System colors (`--success`, `--warning`, `--info`) available as Tailwind utilities: `bg-success`, `text-warning`, `border-info`, etc.
+
+**Additional DS sections:** `page`, `table`, `toolbar`, `pill`, `primaryAction`, `card`, `grid`, `hero`, `modal`, `infoRow`
+
+`ds.ts` re-exports `DS`, `defineTablePage`, `TablePageConfig` alongside all layout/HR/block components.
 
 #### Block Components (`@/components/blocks` — all re-exported via `@/lib/ds`)
 Comprehensive reusable block library organized by category:

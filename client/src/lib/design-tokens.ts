@@ -1,6 +1,127 @@
 import type { ReactNode } from "react";
 
 export const DS = {
+  color: {
+    accent: {
+      DEFAULT: "hsl(var(--primary))",
+      foreground: "hsl(var(--primary-foreground))",
+      muted: "hsl(var(--primary) / 0.1)",
+      hover: "hsl(var(--primary) / 0.9)",
+    },
+    text: {
+      DEFAULT: "text-foreground",
+      secondary: "text-muted-foreground",
+      inverse: "text-primary-foreground",
+      link: "text-primary hover:text-primary/80",
+      disabled: "text-muted-foreground/50",
+    },
+    bg: {
+      page: "bg-background",
+      surface: "bg-card",
+      surfaceRaised: "bg-card shadow-sm",
+      muted: "bg-muted",
+      overlay: "bg-background/80 backdrop-blur-sm",
+      input: "bg-input",
+    },
+    surface: {
+      card: "bg-card border rounded-xl",
+      popover: "bg-popover border rounded-lg shadow-md",
+      sidebar: "bg-sidebar",
+      accent: "bg-accent",
+    },
+    system: {
+      success: "hsl(var(--success))",
+      successForeground: "hsl(var(--success-foreground))",
+      warning: "hsl(var(--warning))",
+      warningForeground: "hsl(var(--warning-foreground))",
+      info: "hsl(var(--info))",
+      infoForeground: "hsl(var(--info-foreground))",
+      destructive: "hsl(var(--destructive))",
+      destructiveForeground: "hsl(var(--destructive-foreground))",
+    },
+    border: {
+      DEFAULT: "border-border",
+      input: "border-input",
+      ring: "ring-ring",
+    },
+    chart: ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"],
+    status: {
+      online: "rgb(34 197 94)",
+      away: "rgb(245 158 11)",
+      busy: "rgb(239 68 68)",
+      offline: "rgb(156 163 175)",
+    },
+  },
+
+  font: {
+    family: {
+      sans: "font-sans",
+      heading: "font-heading",
+      serif: "font-serif",
+      mono: "font-mono",
+    },
+    weight: {
+      normal: "font-normal",
+      medium: "font-medium",
+      semibold: "font-semibold",
+      bold: "font-bold",
+    },
+    size: {
+      xs: "text-xs",
+      sm: "text-sm",
+      base: "text-base",
+      lg: "text-lg",
+      xl: "text-xl",
+      "2xl": "text-2xl",
+      "3xl": "text-3xl",
+      "4xl": "text-4xl",
+    },
+    leading: {
+      tight: "leading-tight",
+      snug: "leading-snug",
+      normal: "leading-normal",
+      relaxed: "leading-relaxed",
+    },
+  },
+
+  heading: {
+    h1: "text-3xl font-bold font-heading tracking-tight",
+    h2: "text-2xl font-bold font-heading",
+    h3: "text-xl font-semibold font-heading",
+    h4: "text-lg font-semibold font-heading",
+    h5: "text-base font-semibold",
+    h6: "text-sm font-semibold",
+  },
+
+  radius: {
+    none: "rounded-none",
+    sm: "rounded-sm",
+    DEFAULT: "rounded-md",
+    lg: "rounded-lg",
+    xl: "rounded-xl",
+    "2xl": "rounded-2xl",
+    full: "rounded-full",
+    card: "rounded-xl",
+    button: "rounded-lg",
+    badge: "rounded-full",
+    avatar: "rounded-full",
+    input: "rounded-md",
+  },
+
+  shadow: {
+    xs: "shadow-[var(--shadow-xs)]",
+    sm: "shadow-[var(--shadow-sm)]",
+    md: "shadow-[var(--shadow-md)]",
+    lg: "shadow-[var(--shadow-lg)]",
+    xl: "shadow-[var(--shadow-xl)]",
+    "2xl": "shadow-[var(--shadow-2xl)]",
+    btnPrimary: "shadow-btn-primary",
+    btnSecondary: "shadow-btn-secondary",
+    card: "shadow-[var(--shadow-sm)]",
+    dropdown: "shadow-[var(--shadow-lg)]",
+    modal: "shadow-[var(--shadow-xl)]",
+  },
+
   page: {
     shell: "px-16 py-6 lg:px-24 space-y-6",
     gap: "space-y-6",
