@@ -123,18 +123,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, onTaskUpdate }: Tas
   const qc = useQueryClient();
 
   const currentTask = localTask?.id === task?.id ? localTask : task;
-
-  if (!currentTask) return null;
-  const task_ = currentTask;
+  const taskId = currentTask?.id ?? "";
 
   const { data: attachmentData } = useQuery<{ items: ActivityItem[] }>({
-    queryKey: ["/api/tasks", task_.id, "activity"],
+    queryKey: ["/api/tasks", taskId, "activity"],
     queryFn: async () => {
-      const res = await fetch(`/api/tasks/${task_.id}/activity`);
+      const res = await fetch(`/api/tasks/${taskId}/activity`);
       if (!res.ok) throw new Error("Failed to fetch activity");
       return res.json();
     },
-    enabled: open,
+    enabled: open && !!taskId,
     select: (d) => ({ items: d.items.filter((i) => i.type === "attachment") }),
   });
 
@@ -142,10 +140,10 @@ export function TaskDetailDialog({ task, open, onOpenChange, onTaskUpdate }: Tas
 
   const deleteAttachmentMutation = useMutation({
     mutationFn: async (id: string) => {
-      await fetch(`/api/tasks/${task_.id}/activity/${id}`, { method: "DELETE" });
+      await fetch(`/api/tasks/${taskId}/activity/${id}`, { method: "DELETE" });
     },
     onMutate: async (id) => {
-      const activityKey = ["/api/tasks", task_.id, "activity"];
+      const activityKey = ["/api/tasks", taskId, "activity"];
       await qc.cancelQueries({ queryKey: activityKey });
       const previous = qc.getQueryData<{ items: ActivityItem[] }>(activityKey);
       if (previous) {
@@ -157,13 +155,16 @@ export function TaskDetailDialog({ task, open, onOpenChange, onTaskUpdate }: Tas
     },
     onError: (_err, _id, context) => {
       if (context?.previous) {
-        qc.setQueryData(["/api/tasks", task_.id, "activity"], context.previous);
+        qc.setQueryData(["/api/tasks", taskId, "activity"], context.previous);
       }
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ["/api/tasks", task_.id, "activity"] });
+      qc.invalidateQueries({ queryKey: ["/api/tasks", taskId, "activity"] });
     },
   });
+
+  if (!currentTask) return null;
+  const task_ = currentTask;
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
