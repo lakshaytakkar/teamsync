@@ -44,7 +44,7 @@ const mainNavItems = [
 ];
 
 const designNavItems = [
-  { title: "Style Guide", url: "/dev/style-guide", icon: Palette },
+  { title: "Design System", url: "/dev/design-system", icon: Palette },
   { title: "Components", url: "/dev/components", icon: Component },
   { title: "Icons", url: "/dev/icons", icon: Grid3X3 },
 ];

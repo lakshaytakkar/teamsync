@@ -21,6 +21,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
@@ -32,10 +33,7 @@ import {
   appCredentials,
   devResources,
   importantLinks,
-  devProjects,
-  devTasks,
 } from "@/lib/mock-data-dev";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
 import {
   PageShell,
@@ -46,6 +44,39 @@ import {
   SectionGrid,
 } from "@/components/layout";
 import { ShortcutGrid } from "@/components/blocks";
+
+interface ProjectWithCounts {
+  id: string;
+  name: string;
+  key: string;
+  description: string | null;
+  color: string;
+  status: string;
+  owner: string;
+  verticalId: string;
+  createdAt: string;
+  updatedAt: string;
+  taskCount: number;
+  completedTaskCount: number;
+}
+
+interface TaskRecord {
+  id: string;
+  projectId: string | null;
+  taskCode: string | null;
+  title: string;
+  description: string | null;
+  status: string;
+  priority: string;
+  type: string;
+  assignee: string;
+  reporter: string;
+  tags: string[] | null;
+  dueDate: string | null;
+  storyPoints: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const priorityIcons: Record<string, JSX.Element> = {
   critical: <AlertTriangle className="size-3 text-red-500" />,
@@ -76,10 +107,21 @@ function formatLabel(s: string): string {
 }
 
 export default function DevDashboard() {
-  const loading = useSimulatedLoading();
   const [, navigate] = useLocation();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  const { data: dbProjects, isLoading: projectsLoading } = useQuery<ProjectWithCounts[]>({
+    queryKey: ["/api/dev/projects"],
+  });
+
+  const { data: dbTasks, isLoading: tasksLoading } = useQuery<TaskRecord[]>({
+    queryKey: ["/api/dev/tasks"],
+  });
+
+  const loading = projectsLoading || tasksLoading;
+  const projects = dbProjects ?? [];
+  const tasks = dbTasks ?? [];
 
   const totalPrompts = devPrompts.length;
   const activeCredentials = appCredentials.filter((c) => c.status === "active").length;
@@ -87,19 +129,19 @@ export default function DevDashboard() {
   const pendingCredentials = appCredentials.filter((c) => c.status === "pending").length;
   const totalResources = devResources.length;
   const pinnedLinks = importantLinks.filter((l) => l.isPinned);
-  const activeProjects = devProjects.filter((p) => p.status === "active").length;
-  const totalTasks = devTasks.length;
-  const inProgressTasks = devTasks.filter((t) => t.status === "in-progress").length;
+  const activeProjects = projects.filter((p) => p.status === "active").length;
+  const totalTasks = tasks.length;
+  const inProgressTasks = tasks.filter((t) => t.status === "in-progress").length;
 
   const recentPrompts = [...devPrompts]
     .sort((a, b) => new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime())
     .slice(0, 5);
 
-  const myTasks = devTasks
-    .filter((t) => t.assignee === "Lakshay Takkar" && t.status !== "done" && t.status !== "cancelled")
+  const myTasks = tasks
+    .filter((t) => t.assignee === "Replit Agent" && t.status !== "done" && t.status !== "cancelled")
     .sort((a, b) => {
-      const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-      return priorityOrder[a.priority] - priorityOrder[b.priority];
+      const priorityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+      return (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3);
     })
     .slice(0, 6);
 
@@ -108,7 +150,7 @@ export default function DevDashboard() {
       title: "Design System",
       description: "Style guide, components & icons",
       icon: Palette,
-      url: "/dev/style-guide",
+      url: "/dev/design-system",
       color: "#8b5cf6",
     },
     {
@@ -122,7 +164,7 @@ export default function DevDashboard() {
       title: "Tasks",
       description: `${inProgressTasks} in progress`,
       icon: CheckSquare,
-      url: "/dev/tasks",
+      url: "/dev/projects",
       color: "#f97316",
     },
     {
@@ -170,14 +212,14 @@ export default function DevDashboard() {
           <StatCard
             label="Active Projects"
             value={activeProjects}
-            trend={`${devProjects.length} total`}
+            trend={`${projects.length} total`}
             icon={FolderKanban}
             iconBg="rgba(99, 102, 241, 0.1)"
             iconColor="#6366f1"
           />
           <StatCard
             label="Open Tasks"
-            value={totalTasks - devTasks.filter((t) => t.status === "done" || t.status === "cancelled").length}
+            value={totalTasks - tasks.filter((t) => t.status === "done" || t.status === "cancelled").length}
             trend={`${inProgressTasks} in progress`}
             icon={CheckSquare}
             iconBg="rgba(249, 115, 22, 0.1)"
@@ -230,12 +272,12 @@ export default function DevDashboard() {
           <SectionCard
             title="My Tasks"
             viewAllLabel="View All"
-            onViewAll={() => navigate("/dev/tasks")}
+            onViewAll={() => navigate("/dev/projects")}
             noPadding
           >
             <div className="divide-y">
               {myTasks.map((task) => {
-                const proj = devProjects.find((p) => p.id === task.projectId);
+                const proj = projects.find((p) => p.id === task.projectId);
                 return (
                   <div
                     key={task.id}
@@ -255,7 +297,7 @@ export default function DevDashboard() {
                             className="text-[10px] shrink-0 px-1"
                             style={{ borderColor: proj?.color, color: proj?.color }}
                           >
-                            {task.id}
+                            {task.taskCode ?? task.id.slice(0, 8)}
                           </Badge>
                           <p className="text-sm font-medium truncate">{task.title}</p>
                         </div>
@@ -277,7 +319,7 @@ export default function DevDashboard() {
             onViewAll={() => navigate("/dev/projects")}
           >
             <div className="space-y-4">
-              {devProjects.map((proj) => {
+              {projects.map((proj) => {
                 const pct = proj.taskCount > 0 ? Math.round((proj.completedTaskCount / proj.taskCount) * 100) : 0;
                 return (
                   <div

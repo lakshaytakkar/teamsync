@@ -785,12 +785,6 @@ export const verticals: Vertical[] = [
         ],
       },
       {
-        title: "Dev Board",
-        defaultUrl: "/dev/board",
-        icon: CheckSquare,
-        items: [],
-      },
-      {
         title: "Toolkit",
         defaultUrl: "/dev/toolkit",
         icon: Wrench,

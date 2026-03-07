@@ -1,5 +1,7 @@
 import { useMemo, useState, useCallback } from "react";
 import { Link, useParams } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
@@ -13,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Select,
   SelectContent,
@@ -21,18 +24,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import {
-  devProjects,
-  devTasks,
-  devSprints,
   projectLinks,
   projectCredentials,
   type DevTask,
   type DevProject,
-  type ProjectLink as ProjectLinkType,
-  type ProjectCredential,
 } from "@/lib/mock-data-dev";
+import type { DevTaskRecord, DevProjectRecord, DevSubtaskRecord, DevCommentRecord } from "@shared/schema";
 import {
   ArrowLeft,
   LayoutGrid,
@@ -125,32 +123,98 @@ const TYPE_ICONS: Record<string, typeof Bug> = {
 };
 
 
-function isOverdue(dueDate: string): boolean {
+function isOverdue(dueDate: string | null): boolean {
   if (!dueDate) return false;
   return new Date(dueDate) < new Date();
 }
 
+interface BoardTask {
+  id: string;
+  dbId: string;
+  projectId: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  type: string;
+  assignee: string;
+  reporter: string;
+  tags: string[];
+  dueDate: string;
+  storyPoints: number;
+  createdDate: string;
+  updatedDate: string;
+}
+
+function mapDbTask(t: DevTaskRecord): BoardTask {
+  return {
+    id: t.taskCode || t.id,
+    dbId: t.id,
+    projectId: t.projectId || "",
+    title: t.title,
+    description: t.description || "",
+    status: t.status,
+    priority: t.priority,
+    type: t.type,
+    assignee: t.assignee,
+    reporter: t.reporter,
+    tags: t.tags || [],
+    dueDate: t.dueDate || "",
+    storyPoints: t.storyPoints || 0,
+    createdDate: t.createdAt ? new Date(t.createdAt).toISOString().split("T")[0] : "",
+    updatedDate: t.updatedAt ? new Date(t.updatedAt).toISOString().split("T")[0] : "",
+  };
+}
+
+function boardTaskToDevTask(t: BoardTask, projectKey: string): DevTask {
+  return {
+    id: t.id,
+    projectId: t.projectId,
+    projectKey,
+    title: t.title,
+    description: t.description,
+    status: t.status as DevTask["status"],
+    priority: t.priority as DevTask["priority"],
+    type: t.type as DevTask["type"],
+    assignee: t.assignee,
+    reporter: t.reporter,
+    tags: t.tags,
+    dueDate: t.dueDate,
+    createdDate: t.createdDate,
+    updatedDate: t.updatedDate,
+    storyPoints: t.storyPoints,
+    subtasks: [],
+    comments: [],
+    attachments: [],
+  };
+}
+
+interface DbProjectResponse extends DevProjectRecord {
+  taskCount?: number;
+  completedTaskCount?: number;
+}
+
 export default function DevProjectBoard() {
   const params = useParams<{ id: string }>();
-  const loading = useSimulatedLoading();
   const { toast } = useToast();
 
-  const project = devProjects.find((p) => p.id === params.id);
-  const projectTasks = useMemo(
-    () => devTasks.filter((t) => t.projectId === params.id),
-    [params.id]
-  );
-  const projectSprints = useMemo(
-    () => devSprints.filter((s) => s.projectId === params.id),
-    [params.id]
-  );
+  const { data: project, isLoading: projectLoading } = useQuery<DbProjectResponse>({
+    queryKey: ["/api/dev/projects", params.id],
+  });
+
+  const { data: dbTasks = [], isLoading: tasksLoading } = useQuery<DevTaskRecord[]>({
+    queryKey: ["/api/dev/projects", params.id, "tasks"],
+  });
+
+  const loading = projectLoading || tasksLoading;
+
+  const projectTasks = useMemo(() => dbTasks.map(mapDbTask), [dbTasks]);
 
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [assigneeFilter, setAssigneeFilter] = useState("all");
-  const [sprintFilter, setSprintFilter] = useState("all");
   const [addTaskOpen, setAddTaskOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<DevTask | null>(null);
   const [taskDetailOpen, setTaskDetailOpen] = useState(false);
@@ -213,15 +277,8 @@ export default function DevProjectBoard() {
     if (assigneeFilter !== "all") {
       result = result.filter((t) => t.assignee === assigneeFilter);
     }
-    if (sprintFilter !== "all") {
-      if (sprintFilter === "none") {
-        result = result.filter((t) => !t.sprintId);
-      } else {
-        result = result.filter((t) => t.sprintId === sprintFilter);
-      }
-    }
     return result;
-  }, [projectTasks, searchQuery, priorityFilter, typeFilter, assigneeFilter, sprintFilter]);
+  }, [projectTasks, searchQuery, priorityFilter, typeFilter, assigneeFilter]);
 
   const kanbanColumns = useMemo(() => {
     return KANBAN_STATUSES.map((status) => ({
@@ -243,28 +300,71 @@ export default function DevProjectBoard() {
   }, [kanbanColumns]);
 
   const taskMap = useMemo(() => {
-    const map = new Map<string, DevTask>();
+    const map = new Map<string, BoardTask>();
     filteredTasks.forEach((t) => map.set(t.id, t));
     return map;
   }, [filteredTasks]);
 
+  const invalidateAllDevQueries = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/dev/projects", params.id, "tasks"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/dev/projects"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/dev/tasks"] });
+  };
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ dbId, updates }: { dbId: string; updates: Record<string, unknown> }) => {
+      await apiRequest("PATCH", `/api/dev/tasks/${dbId}`, updates);
+    },
+    onSuccess: invalidateAllDevQueries,
+    onError: (err: Error) => {
+      toast({ title: "Update failed", description: err.message, variant: "destructive" });
+    },
+  });
+
   const handleCardMove = useCallback(
     (cardId: string, sourceColumnId: string, targetColumnId: string) => {
       const task = taskMap.get(cardId);
-      toast({
-        title: "Task Moved",
-        description: `${task?.id || cardId} moved from ${STATUS_LABELS[sourceColumnId as TaskStatus]} to ${STATUS_LABELS[targetColumnId as TaskStatus]}`,
-      });
+      if (task) {
+        updateTaskMutation.mutate({ dbId: task.dbId, updates: { status: targetColumnId } });
+        toast({
+          title: "Task Moved",
+          description: `${task.id} moved from ${STATUS_LABELS[sourceColumnId as TaskStatus]} to ${STATUS_LABELS[targetColumnId as TaskStatus]}`,
+        });
+      }
     },
-    [taskMap, toast]
+    [taskMap, toast, updateTaskMutation]
   );
+
+  const createTaskMutation = useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const res = await apiRequest("POST", "/api/dev/tasks", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      invalidateAllDevQueries();
+      toast({ title: "Task Created" });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Create failed", description: err.message, variant: "destructive" });
+    },
+  });
 
   const handleAddTask = () => {
     if (!newTask.title.trim()) return;
-    toast({
-      title: "Task Created",
-      description: `${project?.key || ""}-NEW: ${newTask.title}`,
-    });
+    const taskData: Record<string, unknown> = {
+      projectId: params.id,
+      title: newTask.title.trim(),
+      description: newTask.description.trim() || null,
+      status: newTask.status,
+      priority: newTask.priority,
+      type: newTask.type,
+      assignee: newTask.assignee || "Replit Agent",
+      reporter: "Sneha Patel",
+      tags: newTask.tags ? newTask.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+      dueDate: newTask.dueDate || null,
+      storyPoints: newTask.storyPoints ? parseInt(newTask.storyPoints, 10) : null,
+    };
+    createTaskMutation.mutate(taskData);
     setAddTaskOpen(false);
     setNewTask({
       title: "",
@@ -279,7 +379,52 @@ export default function DevProjectBoard() {
     });
   };
 
-  if (!project) {
+  const handleTaskUpdate = useCallback(
+    (updatedTask: DevTask) => {
+      const original = projectTasks.find((t) => t.id === updatedTask.id);
+      if (!original) return;
+      const updates: Record<string, unknown> = {};
+      if (updatedTask.status !== original.status) updates.status = updatedTask.status;
+      if (updatedTask.priority !== original.priority) updates.priority = updatedTask.priority;
+      if (updatedTask.type !== original.type) updates.type = updatedTask.type;
+      if (updatedTask.assignee !== original.assignee) updates.assignee = updatedTask.assignee;
+      if (Object.keys(updates).length > 0) {
+        updateTaskMutation.mutate({ dbId: original.dbId, updates });
+      }
+    },
+    [projectTasks, updateTaskMutation]
+  );
+
+  const openTaskDetail = useCallback(
+    async (task: BoardTask) => {
+      const devTask = boardTaskToDevTask(task, project?.key || "");
+      setSelectedTask(devTask);
+      setTaskDetailOpen(true);
+      try {
+        const res = await fetch(`/api/dev/tasks/${task.dbId}`);
+        if (res.ok) {
+          const fullTask = await res.json();
+          setSelectedTask({
+            ...devTask,
+            subtasks: (fullTask.subtasks || []).map((s: any) => ({
+              id: s.id,
+              title: s.title,
+              completed: s.completed,
+            })),
+            comments: (fullTask.comments || []).map((c: any) => ({
+              id: c.id,
+              author: c.author,
+              content: c.content,
+              timestamp: c.createdAt ? new Date(c.createdAt).toLocaleString() : "",
+            })),
+          });
+        }
+      } catch {}
+    },
+    [project]
+  );
+
+  if (!loading && !project) {
     return (
       <PageShell>
         <div className="flex flex-col items-center justify-center gap-4 py-20">
@@ -301,12 +446,23 @@ export default function DevProjectBoard() {
     );
   }
 
+  if (loading || !project) {
+    return (
+      <PageShell>
+        <div className="flex flex-col items-center justify-center gap-4 py-20">
+          <Spinner className="size-8" />
+          <p className="text-sm text-muted-foreground">Loading project...</p>
+        </div>
+      </PageShell>
+    );
+  }
+
   const totalTasks = projectTasks.length;
   const doneTasks = projectTasks.filter((t) => t.status === "done").length;
   const inProgressTasks = projectTasks.filter((t) => t.status === "in-progress").length;
   const overdueTasks = projectTasks.filter((t) => isOverdue(t.dueDate) && t.status !== "done" && t.status !== "cancelled").length;
 
-  const columns: Column<DevTask>[] = [
+  const columns: Column<BoardTask>[] = [
     {
       key: "id",
       header: "ID",
@@ -410,9 +566,8 @@ export default function DevProjectBoard() {
   const rowActions = [
     {
       label: "View Detail",
-      onClick: (item: DevTask) => {
-        setSelectedTask(item);
-        setTaskDetailOpen(true);
+      onClick: (item: BoardTask) => {
+        openTaskDetail(item);
       },
     },
   ];
@@ -684,20 +839,6 @@ export default function DevProjectBoard() {
                   ))}
                 </SelectContent>
               </Select>
-              {projectSprints.length > 0 && (
-                <Select value={sprintFilter} onValueChange={setSprintFilter}>
-                  <SelectTrigger className="h-9 w-auto min-w-[160px] text-sm" data-testid="filter-sprint">
-                    <SelectValue placeholder="Sprint" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Sprints</SelectItem>
-                    <SelectItem value="none">No Sprint</SelectItem>
-                    {projectSprints.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
             </div>
             <div className="flex items-center gap-2">
               <Button size="sm" onClick={() => setAddTaskOpen(true)} data-testid="button-add-task">
@@ -745,23 +886,19 @@ export default function DevProjectBoard() {
                 onCardClick={(card) => {
                   const task = taskMap.get(card.id);
                   if (task) {
-                    setSelectedTask(task);
-                    setTaskDetailOpen(true);
+                    openTaskDetail(task);
                   }
                 }}
                 renderCard={(card) => {
                   const task = taskMap.get(card.id);
                   if (!task) return null;
                   const TypeIcon = TYPE_ICONS[task.type] || CircleDot;
-                  const completedSubtasks = task.subtasks.filter((s) => s.completed).length;
-                  const totalSubtasks = task.subtasks.length;
                   return (
                     <Card
                       className="p-3 hover-elevate cursor-pointer"
                       data-testid={`card-task-${task.id}`}
                       onClick={() => {
-                        setSelectedTask(task);
-                        setTaskDetailOpen(true);
+                        openTaskDetail(task);
                       }}
                     >
                       <div className="flex items-center gap-1.5 mb-1.5">
@@ -793,19 +930,6 @@ export default function DevProjectBoard() {
                           </Badge>
                         )}
                       </div>
-                      {totalSubtasks > 0 && (
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                          <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
-                            <div
-                              className="h-full rounded-full bg-emerald-500"
-                              style={{ width: `${(completedSubtasks / totalSubtasks) * 100}%` }}
-                            />
-                          </div>
-                          <span className="text-[10px] text-muted-foreground shrink-0">
-                            {completedSubtasks}/{totalSubtasks}
-                          </span>
-                        </div>
-                      )}
                       <div className="flex items-center justify-between gap-1.5 mt-2 pt-1.5 border-t">
                         <PersonCell name={task.assignee} size="xs" />
                         {task.dueDate && (
@@ -843,8 +967,7 @@ export default function DevProjectBoard() {
               searchKey="title"
               rowActions={rowActions}
               onRowClick={(task) => {
-                setSelectedTask(task);
-                setTaskDetailOpen(true);
+                openTaskDetail(task);
               }}
               filters={[
                 {
@@ -1019,6 +1142,7 @@ export default function DevProjectBoard() {
           task={selectedTask}
           open={taskDetailOpen}
           onOpenChange={setTaskDetailOpen}
+          onTaskUpdate={handleTaskUpdate}
         />
       </PageTransition>
     </PageShell>

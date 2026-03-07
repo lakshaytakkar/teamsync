@@ -263,6 +263,51 @@ channels  ←── channel_messages.channel_id (ON DELETE CASCADE)
 - "Users & Access" nav category added to all verticals with Shield icon
 - USDrop: `/usdrop/user-management` (separate from existing `/usdrop/users` which is SalesUsers)
 
+## Developer Vertical (`/dev/*`) — DB-Backed Task Management (Mar 2026)
+
+### Architecture
+Dev vertical uses PostgreSQL (via Drizzle ORM) for project and task management. Design System is a single tabbed page. Dev Board was removed — all task views are accessed through project boards.
+
+### Pages (5 active)
+| Page | Route | File | Data Source |
+|------|-------|------|-------------|
+| Dashboard | `/dev` | `client/src/pages/dev/dashboard.tsx` | DB via React Query |
+| Design System | `/dev/design-system` | `client/src/pages/dev/design-system.tsx` | Static (4 tabs: Style Guide, Components, Icons, Library) |
+| Prompts | `/dev/prompts` | `client/src/pages/dev/prompts.tsx` | Mock data |
+| Projects | `/dev/projects` | `client/src/pages/dev/projects.tsx` | DB via React Query |
+| Project Board | `/dev/projects/:id` | `client/src/pages/dev/project-board.tsx` | DB via React Query |
+| Toolkit | `/dev/toolkit` | `client/src/pages/dev/toolkit.tsx` | Mock data |
+
+### Database Tables (Drizzle ORM — `shared/schema.ts`)
+| Table | Description |
+|-------|-------------|
+| `dev_projects` | Project containers (name, key, description, color, status, owner) |
+| `dev_tasks` | Tasks with taskCode, status, priority, type, assignee, tags, storyPoints |
+| `dev_subtasks` | Checklist items per task (title, completed, sortOrder) |
+| `dev_comments` | Discussion entries per task (author, content) |
+
+### API Routes (`/api/dev/*` — `server/dev-projects.ts`)
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/dev/projects` | List projects with task counts |
+| GET | `/api/dev/projects/:id` | Single project |
+| POST | `/api/dev/projects` | Create project |
+| PATCH | `/api/dev/projects/:id` | Update project |
+| DELETE | `/api/dev/projects/:id` | Delete project |
+| GET | `/api/dev/projects/:id/tasks` | Tasks for a project |
+| GET | `/api/dev/tasks` | All tasks |
+| GET | `/api/dev/tasks/:id` | Task with subtasks and comments |
+| POST | `/api/dev/tasks` | Create task |
+| PATCH | `/api/dev/tasks/:id` | Update task |
+| DELETE | `/api/dev/tasks/:id` | Delete task |
+| POST | `/api/dev/tasks/:id/subtasks` | Add subtask |
+| PATCH | `/api/dev/subtasks/:id` | Update subtask |
+| POST | `/api/dev/tasks/:id/comments` | Add comment |
+| POST | `/api/dev/reseed` | Force reseed all dev data |
+
+### Seed Data (`server/dev-seed.ts`)
+6 projects (TeamSync Portal, LegalNations, USDrop AI, GoyoTours, EazyToSell, Internal Tools) with 48 tasks documenting the entire build history. Replit Agent acts as the dev employee, logging all work done on the platform. Force reseed available via `POST /api/dev/reseed`.
+
 ## Recent Additions (Feb 2026)
 
 ### CRM Payment Links (`/crm/payment-links`)

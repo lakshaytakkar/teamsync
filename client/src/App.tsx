@@ -66,7 +66,6 @@ import DevPrompts from "@/pages/dev/prompts";
 import DevToolkit from "@/pages/dev/toolkit";
 import DevProjects from "@/pages/dev/projects";
 import DevProjectBoard from "@/pages/dev/project-board";
-import DevTasks from "@/pages/dev/tasks";
 import EtsDashboard from "@/pages/ets/dashboard";
 import EtsPipeline from "@/pages/ets/pipeline";
 import EtsClientDetail from "@/pages/ets/client-detail";
@@ -350,7 +349,6 @@ function Router() {
       <Route path="/dev/toolkit" component={DevToolkit} />
       <Route path="/dev/projects/:id" component={DevProjectBoard} />
       <Route path="/dev/projects" component={DevProjects} />
-      <Route path="/dev/board" component={DevTasks} />
 
       <Route path="/ets" component={EtsDashboard} />
       <Route path="/ets/notifications" component={UniversalNotifications} />

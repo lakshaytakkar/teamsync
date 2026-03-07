@@ -172,6 +172,17 @@ devProjectsRouter.patch("/subtasks/:id", async (req, res) => {
   }
 });
 
+devProjectsRouter.post("/reseed", async (_req, res) => {
+  try {
+    const { seedDevData } = await import("./dev-seed");
+    await seedDevData(true);
+    res.json({ ok: true, message: "Database reseeded successfully" });
+  } catch (err: any) {
+    console.error("[dev-projects] reseed error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 devProjectsRouter.post("/tasks/:id/comments", async (req, res) => {
   try {
     const [comment] = await db.insert(devComments).values({ ...req.body, taskId: req.params.id }).returning();

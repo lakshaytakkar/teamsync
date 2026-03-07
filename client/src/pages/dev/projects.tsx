@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,13 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
-import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
-import {
-  devProjects,
-  devTasks,
-  type DevProject,
-} from "@/lib/mock-data-dev";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import type { DevProjectRecord, DevTaskRecord } from "@shared/schema";
 import {
   FolderKanban,
   Search,
@@ -39,6 +36,11 @@ import {
 } from "lucide-react";
 import { PageShell } from "@/components/layout";
 
+interface ProjectWithCounts extends DevProjectRecord {
+  taskCount: number;
+  completedTaskCount: number;
+}
+
 const statusVariant: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   active: "success",
   paused: "warning",
@@ -47,7 +49,6 @@ const statusVariant: Record<string, "success" | "error" | "warning" | "neutral" 
 };
 
 export default function DevProjects() {
-  const loading = useSimulatedLoading();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -61,8 +62,41 @@ export default function DevProjects() {
     status: "active" as string,
   });
 
+  const { data: projects = [], isLoading: projectsLoading } = useQuery<ProjectWithCounts[]>({
+    queryKey: ["/api/dev/projects"],
+  });
+
+  const { data: tasks = [], isLoading: tasksLoading } = useQuery<DevTaskRecord[]>({
+    queryKey: ["/api/dev/tasks"],
+  });
+
+  const loading = projectsLoading || tasksLoading;
+
+  const createProjectMutation = useMutation({
+    mutationFn: async (data: { name: string; key: string; description: string; color: string; status: string }) => {
+      const res = await apiRequest("POST", "/api/dev/projects", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/dev/projects"] });
+      toast({
+        title: "Project Created",
+        description: `${newProject.name} (${newProject.key}) has been created.`,
+      });
+      setAddDialogOpen(false);
+      setNewProject({ name: "", key: "", description: "", color: "#6366F1", status: "active" });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const filteredProjects = useMemo(() => {
-    let result = [...devProjects];
+    let result = [...projects];
     if (statusFilter !== "all") {
       result = result.filter((p) => p.status === statusFilter);
     }
@@ -72,27 +106,22 @@ export default function DevProjects() {
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.key.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q)
+          (p.description ?? "").toLowerCase().includes(q)
       );
     }
     return result;
-  }, [statusFilter, searchQuery]);
+  }, [projects, statusFilter, searchQuery]);
 
-  const totalProjects = devProjects.length;
-  const activeProjects = devProjects.filter((p) => p.status === "active").length;
-  const tasksInProgress = devTasks.filter((t) => t.status === "in-progress").length;
-  const totalTasks = devProjects.reduce((sum, p) => sum + p.taskCount, 0);
-  const completedTasks = devProjects.reduce((sum, p) => sum + p.completedTaskCount, 0);
+  const totalProjects = projects.length;
+  const activeProjects = projects.filter((p) => p.status === "active").length;
+  const tasksInProgress = tasks.filter((t) => t.status === "in-progress").length;
+  const totalTasks = projects.reduce((sum, p) => sum + p.taskCount, 0);
+  const completedTasks = projects.reduce((sum, p) => sum + p.completedTaskCount, 0);
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const handleAddProject = () => {
     if (newProject.name.trim() && newProject.key.trim()) {
-      toast({
-        title: "Project Created",
-        description: `${newProject.name} (${newProject.key}) has been created.`,
-      });
-      setAddDialogOpen(false);
-      setNewProject({ name: "", key: "", description: "", color: "#6366F1", status: "active" });
+      createProjectMutation.mutate(newProject);
     }
   };
 
@@ -142,7 +171,7 @@ export default function DevProjects() {
               <StatsCard
                 title="Active Projects"
                 value={activeProjects}
-                change={`${devProjects.filter((p) => p.status === "paused").length} paused`}
+                change={`${projects.filter((p) => p.status === "paused").length} paused`}
                 changeType="warning"
                 icon={<CheckCircle2 className="size-5" />}
                 sparkline={{ values: [2, 3, 3, 4, 4, 5, activeProjects], color: "#10B981" }}
@@ -152,7 +181,7 @@ export default function DevProjects() {
               <StatsCard
                 title="Tasks In Progress"
                 value={tasksInProgress}
-                change={`${devTasks.filter((t) => t.status === "todo").length} to do`}
+                change={`${tasks.filter((t) => t.status === "todo").length} to do`}
                 changeType="neutral"
                 icon={<ListTodo className="size-5" />}
                 sparkline={{ values: [4, 5, 6, 5, 7, 6, tasksInProgress], color: "#3B82F6" }}
@@ -322,11 +351,15 @@ export default function DevProjects() {
   );
 }
 
-function ProjectCard({ project, onClick }: { project: DevProject; onClick: () => void }) {
+function ProjectCard({ project, onClick }: { project: ProjectWithCounts; onClick: () => void }) {
   const progressPercent =
     project.taskCount > 0
       ? Math.round((project.completedTaskCount / project.taskCount) * 100)
       : 0;
+
+  const updatedLabel = project.updatedAt
+    ? new Date(project.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "";
 
   return (
     <Card
@@ -385,17 +418,13 @@ function ProjectCard({ project, onClick }: { project: DevProject; onClick: () =>
         <div className="flex items-center justify-between gap-2 pt-3 border-t flex-wrap">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Users className="size-3" />
-              <span data-testid={`text-project-members-${project.id}`}>{project.memberCount}</span>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <ListTodo className="size-3" />
               <span>{project.taskCount} tasks</span>
             </div>
           </div>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Calendar className="size-3" />
-            <span data-testid={`text-project-updated-${project.id}`}>{project.updatedDate}</span>
+            <span data-testid={`text-project-updated-${project.id}`}>{updatedLabel}</span>
           </div>
         </div>
 
