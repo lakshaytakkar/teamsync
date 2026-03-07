@@ -350,7 +350,6 @@ function Router() {
       <Route path="/lbm/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/lbm/tickets" component={UniversalTickets} />
       <Route path="/lbm/contacts" component={UniversalImportantContacts} />
-      <Route path="/lbm/team-reports" component={UniversalReports} />
       <Route path="/lbm/image-studio" component={UniversalImageStudio} />
       <Route path="/lbm/user-management" component={UniversalUsers} />
       <Route path="/lbm/user-groups" component={UniversalUserGroups} />
@@ -483,7 +482,7 @@ function Router() {
       <Route path="/finance/tasks" component={UniversalTasks} />
       <Route path="/finance/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/finance/tickets" component={UniversalTickets} />
-      <Route path="/finance/contacts-important" component={UniversalImportantContacts} />
+      <Route path="/finance/contacts" component={UniversalImportantContacts} />
       <Route path="/finance/image-studio" component={UniversalImageStudio} />
       <Route path="/finance/user-management" component={UniversalUsers} />
       <Route path="/finance/user-groups" component={UniversalUserGroups} />
@@ -505,7 +504,7 @@ function Router() {
       <Route path="/oms/tasks" component={UniversalTasks} />
       <Route path="/oms/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/oms/tickets" component={UniversalTickets} />
-      <Route path="/oms/contacts-important" component={UniversalImportantContacts} />
+      <Route path="/oms/contacts" component={UniversalImportantContacts} />
       <Route path="/oms/image-studio" component={UniversalImageStudio} />
       <Route path="/oms/user-management" component={UniversalUsers} />
       <Route path="/oms/user-groups" component={UniversalUserGroups} />

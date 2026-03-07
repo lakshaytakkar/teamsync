@@ -355,7 +355,6 @@ export const verticals: Vertical[] = [
         icon: UserCheck,
         items: [
           { title: "All Users", url: "/usdrop/users" },
-          { title: "Leads", url: "/usdrop/leads" },
           { title: "Plans", url: "/usdrop/plans" },
           { title: "Subscriptions", url: "/usdrop/subscriptions" },
         ],
@@ -756,12 +755,11 @@ export const verticals: Vertical[] = [
         icon: Settings,
         items: [
           { title: "Settings", url: "/lbm/settings" },
-          { title: "Reports", url: "/lbm/reports" },
         ],
       },
       {
-        title: "Team Reports",
-        defaultUrl: "/lbm/team-reports",
+        title: "Reports",
+        defaultUrl: "/lbm/reports",
         icon: FileText,
         items: [],
       },
@@ -1673,7 +1671,7 @@ export const verticals: Vertical[] = [
       },
       {
         title: "Important Contacts",
-        defaultUrl: "/finance/contacts-important",
+        defaultUrl: "/finance/contacts",
         icon: Phone,
         items: [],
       },
@@ -1798,7 +1796,7 @@ export const verticals: Vertical[] = [
       },
       {
         title: "Important Contacts",
-        defaultUrl: "/oms/contacts-important",
+        defaultUrl: "/oms/contacts",
         icon: Phone,
         items: [],
       },

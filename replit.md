@@ -1184,6 +1184,26 @@ generated_images(id uuid PK, prompt text, negative_prompt text, style text, aspe
 - Auto-polling while images are pending (3s interval)
 - Generation stats sidebar
 
+## Navigation Architecture (Mar 2026)
+
+### Route/Nav Structure
+- **17 verticals** defined in `client/src/lib/verticals-config.ts` (2075 lines)
+- **~300+ routes** in `client/src/App.tsx` inside `<Switch>` block
+- **Vertical detection**: `detectVerticalFromUrl()` maps URL prefixes to vertical IDs (handles prefix≠id cases: `legalnations→hr`, `usdrop→sales`, `goyotours→events`, `lbm→admin`)
+- **Root redirect**: `/` → `/legalnations` via `VerticalSync`
+- **Portal routes**: `/portal/legalnations/*` uses separate `PortalRouter` + `PortalLayout`
+- **404 catch-all**: `<Route component={NotFound} />` at end of Switch
+
+### Important Contacts URL Convention
+- **Standard pattern**: `/{prefix}/contacts` → `UniversalImportantContacts` (used by 14 verticals)
+- **Exception**: `/crm/contacts-important` — CRM needs this because `/crm/contacts` is used by `CrmContacts` (CRM-specific contacts page)
+- Finance and OMS were normalized to `/contacts` (previously used `/contacts-important` unnecessarily)
+
+### Nav Fixes Applied (Mar 2026)
+1. **USDrop "Leads" deduplication**: Removed duplicate "Leads" sub-item from "Users & Subscriptions" category — "Pipeline" L1 nav already links to `/usdrop/leads`
+2. **Finance/OMS contacts URL normalization**: Changed from `/contacts-important` to `/contacts` (matching all other verticals; no URL conflict existed)
+3. **LBM Reports consolidation**: Removed duplicate "Reports" from "System" sub-items; renamed "Team Reports" L1 to "Reports" at `/lbm/reports`; removed orphaned `/lbm/team-reports` route
+
 ## Client Portal System (Mar 2026)
 
 Client-facing portal prototype accessible via vertical switcher under "Client Portals" section. Uses separate layout (`PortalLayout`) without TopNavigation/AnnouncementBanner/AIChatWidget.
