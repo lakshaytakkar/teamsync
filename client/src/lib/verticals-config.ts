@@ -162,7 +162,7 @@ export const verticals: Vertical[] = [
       },
       {
         title: "Important Contacts",
-        defaultUrl: "/suprans/contacts-important",
+        defaultUrl: "/suprans/contacts",
         icon: Phone,
         items: [],
       },
@@ -718,6 +718,7 @@ export const verticals: Vertical[] = [
           { title: "Style Guide", url: "/dev/style-guide" },
           { title: "Components", url: "/dev/components" },
           { title: "Icons", url: "/dev/icons" },
+          { title: "Library", url: "/dev/library" },
         ],
       },
       {
@@ -900,6 +901,8 @@ export const verticals: Vertical[] = [
         icon: Package,
         items: [
           { title: "All Products", url: "/faire/products" },
+          { title: "Pricing & Prepacks", url: "/faire/pricing" },
+          { title: "Inventory", url: "/faire/inventory" },
         ],
       },
       {

@@ -57,6 +57,7 @@ import EventsHotels from "@/pages/events/hotels";
 import EventsVendors from "@/pages/events/vendors";
 import EventsAnalytics from "@/pages/events/analytics";
 import UniversalImportantContacts from "@/pages/universal/important-contacts";
+import UniversalImageStudio from "@/pages/universal/image-studio";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminTeam from "@/pages/admin/team";
 import AdminSettings from "@/pages/admin/settings";
@@ -68,6 +69,7 @@ import DevToolkit from "@/pages/dev/toolkit";
 import DevProjects from "@/pages/dev/projects";
 import DevProjectBoard from "@/pages/dev/project-board";
 import DevTasks from "@/pages/dev/tasks";
+import DevLibrary from "@/pages/dev/library";
 import EtsDashboard from "@/pages/ets/dashboard";
 import EtsPipeline from "@/pages/ets/pipeline";
 import EtsClientDetail from "@/pages/ets/client-detail";
@@ -184,6 +186,7 @@ import PortalLNCompanies from "@/pages/portal/legalnations/companies";
 import PortalLNDocuments from "@/pages/portal/legalnations/documents";
 import PortalLNInvoices from "@/pages/portal/legalnations/invoices";
 import PortalLNMessages from "@/pages/portal/legalnations/messages";
+import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
 import FaireApplications from "@/pages/faire/applications";
@@ -211,7 +214,8 @@ function Router() {
       <Route path="/suprans/enrichment" component={SupransEnrichment} />
       <Route path="/suprans/assignments" component={SupransAssignments} />
       <Route path="/suprans/reports" component={UniversalReports} />
-      <Route path="/suprans/contacts-important" component={UniversalImportantContacts} />
+      <Route path="/suprans/contacts" component={UniversalImportantContacts} />
+      <Route path="/suprans/image-studio" component={UniversalImageStudio} />
       <Route path="/legalnations" component={Dashboard} />
       <Route path="/legalnations/notifications" component={UniversalNotifications} />
       <Route path="/legalnations/chat" component={UniversalChat} />
@@ -222,6 +226,7 @@ function Router() {
       <Route path="/legalnations/tickets" component={UniversalTickets} />
       <Route path="/legalnations/contacts" component={UniversalImportantContacts} />
       <Route path="/legalnations/reports" component={UniversalReports} />
+      <Route path="/legalnations/image-studio" component={UniversalImageStudio} />
       <Route path="/legalnations/clients/:id" component={ClientDetail} />
       <Route path="/legalnations/clients" component={Clients} />
       <Route path="/legalnations/intake" component={ClientIntake} />
@@ -236,6 +241,7 @@ function Router() {
       <Route path="/legalnations/analytics" component={FormationAnalytics} />
       <Route path="/legalnations/team-performance" component={TeamPerformance} />
       <Route path="/usdrop" component={SalesDashboard} />
+      <Route path="/usdrop/notifications" component={UniversalNotifications} />
       <Route path="/usdrop/chat" component={UniversalChat} />
       <Route path="/usdrop/team" component={UniversalTeam} />
       <Route path="/usdrop/resources" component={UniversalResources} />
@@ -243,6 +249,7 @@ function Router() {
       <Route path="/usdrop/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/usdrop/contacts" component={UniversalImportantContacts} />
       <Route path="/usdrop/reports" component={UniversalReports} />
+      <Route path="/usdrop/image-studio" component={UniversalImageStudio} />
       <Route path="/usdrop/products" component={SalesProducts} />
       <Route path="/usdrop/categories" component={SalesCategories} />
       <Route path="/usdrop/suppliers" component={SalesSuppliers} />
@@ -261,6 +268,7 @@ function Router() {
       <Route path="/usdrop/user-analytics" component={SalesUserAnalytics} />
       <Route path="/usdrop/product-performance" component={SalesProductPerformance} />
       <Route path="/goyotours" component={EventsDashboard} />
+      <Route path="/goyotours/notifications" component={UniversalNotifications} />
       <Route path="/goyotours/chat" component={UniversalChat} />
       <Route path="/goyotours/team" component={UniversalTeam} />
       <Route path="/goyotours/resources" component={UniversalResources} />
@@ -278,7 +286,9 @@ function Router() {
       <Route path="/goyotours/analytics" component={EventsAnalytics} />
       <Route path="/goyotours/contacts" component={UniversalImportantContacts} />
       <Route path="/goyotours/reports" component={UniversalReports} />
+      <Route path="/goyotours/image-studio" component={UniversalImageStudio} />
       <Route path="/eventhub" component={HubDashboard} />
+      <Route path="/eventhub/notifications" component={UniversalNotifications} />
       <Route path="/eventhub/chat" component={UniversalChat} />
       <Route path="/eventhub/team" component={UniversalTeam} />
       <Route path="/eventhub/resources" component={UniversalResources} />
@@ -287,6 +297,7 @@ function Router() {
       <Route path="/eventhub/tickets" component={UniversalTickets} />
       <Route path="/eventhub/contacts" component={UniversalImportantContacts} />
       <Route path="/eventhub/reports" component={UniversalReports} />
+      <Route path="/eventhub/image-studio" component={UniversalImageStudio} />
       <Route path="/eventhub/events/:id" component={HubEventDetail} />
       <Route path="/eventhub/events" component={HubEventsList} />
       <Route path="/eventhub/attendees" component={HubAttendees} />
@@ -297,6 +308,7 @@ function Router() {
       <Route path="/eventhub/analytics" component={HubAnalytics} />
       <Route path="/eventhub/leads" component={EventHubLeads} />
       <Route path="/lbm" component={AdminDashboard} />
+      <Route path="/lbm/notifications" component={UniversalNotifications} />
       <Route path="/lbm/chat" component={UniversalChat} />
       <Route path="/lbm/team" component={UniversalTeam} />
       <Route path="/lbm/resources" component={UniversalResources} />
@@ -305,9 +317,11 @@ function Router() {
       <Route path="/lbm/tickets" component={UniversalTickets} />
       <Route path="/lbm/contacts" component={UniversalImportantContacts} />
       <Route path="/lbm/team-reports" component={UniversalReports} />
+      <Route path="/lbm/image-studio" component={UniversalImageStudio} />
       <Route path="/lbm/settings" component={AdminSettings} />
       <Route path="/lbm/reports" component={UniversalReports} />
       <Route path="/dev" component={DevDashboard} />
+      <Route path="/dev/notifications" component={UniversalNotifications} />
       <Route path="/dev/chat" component={UniversalChat} />
       <Route path="/dev/team" component={UniversalTeam} />
       <Route path="/dev/resources" component={UniversalResources} />
@@ -316,6 +330,7 @@ function Router() {
       <Route path="/dev/tickets" component={UniversalTickets} />
       <Route path="/dev/contacts" component={UniversalImportantContacts} />
       <Route path="/dev/reports" component={UniversalReports} />
+      <Route path="/dev/image-studio" component={UniversalImageStudio} />
       <Route path="/dev/style-guide" component={StyleGuide} />
       <Route path="/dev/components" component={ComponentsGuide} />
       <Route path="/dev/icons" component={IconsGuide} />
@@ -325,6 +340,7 @@ function Router() {
       <Route path="/dev/projects/:id" component={DevProjectBoard} />
       <Route path="/dev/projects" component={DevProjects} />
       <Route path="/dev/board" component={DevTasks} />
+      <Route path="/dev/library" component={DevLibrary} />
       <Route path="/ets" component={EtsDashboard} />
       <Route path="/ets/notifications" component={UniversalNotifications} />
       <Route path="/ets/chat" component={UniversalChat} />
@@ -335,6 +351,7 @@ function Router() {
       <Route path="/ets/tickets" component={UniversalTickets} />
       <Route path="/ets/contacts" component={UniversalImportantContacts} />
       <Route path="/ets/reports" component={UniversalReports} />
+      <Route path="/ets/image-studio" component={UniversalImageStudio} />
       <Route path="/ets/pipeline" component={EtsPipeline} />
       <Route path="/ets/clients/:id" component={EtsClientDetail} />
       <Route path="/ets/products" component={EtsProducts} />
@@ -354,6 +371,7 @@ function Router() {
       <Route path="/hrms/tickets" component={UniversalTickets} />
       <Route path="/hrms/contacts" component={UniversalImportantContacts} />
       <Route path="/hrms/reports" component={UniversalReports} />
+      <Route path="/hrms/image-studio" component={UniversalImageStudio} />
       <Route path="/hrms/employees/:id" component={HrmsEmployeeDetail} />
       <Route path="/hrms/employees" component={HrmsEmployees} />
       <Route path="/hrms/onboarding" component={HrmsOnboarding} />
@@ -377,6 +395,7 @@ function Router() {
       <Route path="/ats/tickets" component={UniversalTickets} />
       <Route path="/ats/contacts" component={UniversalImportantContacts} />
       <Route path="/ats/reports" component={UniversalReports} />
+      <Route path="/ats/image-studio" component={UniversalImageStudio} />
       <Route path="/ats/jobs/:id" component={AtsJobDetail} />
       <Route path="/ats/jobs" component={AtsJobs} />
       <Route path="/ats/candidates/:id" component={AtsCandidateDetail} />
@@ -396,6 +415,7 @@ function Router() {
       <Route path="/crm/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/crm/tickets" component={UniversalTickets} />
       <Route path="/crm/reports" component={UniversalReports} />
+      <Route path="/crm/image-studio" component={UniversalImageStudio} />
       <Route path="/crm/contacts-important" component={UniversalImportantContacts} />
       <Route path="/crm/leads" component={CrmLeads} />
       <Route path="/crm/prospects" component={CrmProspects} />
@@ -415,6 +435,7 @@ function Router() {
       <Route path="/finance/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/finance/tickets" component={UniversalTickets} />
       <Route path="/finance/contacts-important" component={UniversalImportantContacts} />
+      <Route path="/finance/image-studio" component={UniversalImageStudio} />
       <Route path="/finance/ledger" component={FinanceLedger} />
       <Route path="/finance/transactions" component={FinanceTransactions} />
       <Route path="/finance/journal" component={FinanceJournal} />
@@ -433,6 +454,7 @@ function Router() {
       <Route path="/oms/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/oms/tickets" component={UniversalTickets} />
       <Route path="/oms/contacts-important" component={UniversalImportantContacts} />
+      <Route path="/oms/image-studio" component={UniversalImageStudio} />
       <Route path="/oms/orders" component={OmsOrders} />
       <Route path="/oms/inventory" component={OmsInventory} />
       <Route path="/oms/products" component={OmsProducts} />
@@ -452,6 +474,7 @@ function Router() {
       <Route path="/social/tickets" component={UniversalTickets} />
       <Route path="/social/contacts" component={UniversalImportantContacts} />
       <Route path="/social/reports" component={UniversalReports} />
+      <Route path="/social/image-studio" component={UniversalImageStudio} />
       <Route path="/social/posts/:id" component={SocialPostDetail} />
       <Route path="/social/posts" component={SocialPosts} />
       <Route path="/social/composer" component={SocialComposer} />
@@ -472,6 +495,7 @@ function Router() {
       <Route path="/faire/tickets" component={UniversalTickets} />
       <Route path="/faire/contacts" component={UniversalImportantContacts} />
       <Route path="/faire/reports" component={UniversalReports} />
+      <Route path="/faire/image-studio" component={UniversalImageStudio} />
       <Route path="/faire/stores" component={FaireStores} />
       <Route path="/faire/products/:id" component={FaireProductDetail} />
       <Route path="/faire/products" component={FaireProducts} />
@@ -488,6 +512,7 @@ function Router() {
       <Route path="/faire/bank-transactions" component={FaireBankTransactions} />
       <Route path="/faire/vendors" component={FaireVendors} />
       <Route path="/faire/inventory" component={FaireInventory} />
+      <Route path="/faire/pricing" component={FairePricing} />
       <Route path="/faire/analytics" component={FaireAnalytics} />
       <Route path="/faire/applications/:id" component={FaireApplicationDetail} />
       <Route path="/faire/applications" component={FaireApplications} />

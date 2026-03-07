@@ -954,7 +954,7 @@ generated_images(id uuid PK, prompt text, negative_prompt text, style text, aspe
 | GET | `/api/images/:id/download` | Download image file |
 
 ### Frontend
-- **Standalone Page**: `client/src/pages/universal/image-studio.tsx` — legacy standalone file (no longer routed)
+- **Standalone Page**: `client/src/pages/universal/image-studio.tsx` — routed at `/{vertical}/image-studio` for all 14 verticals
 - **Integrated Panel**: `ImageStudioPanel` component inside `AIChatWidget.tsx` — full Image Studio UI (generate form, library grid, preview modal) embedded in the AI full-page expanded view
 - **Server**: `server/image-gen.ts` — Express router, async generation with Supabase storage
 - **Navigation**: Accessible via "Image Studio" tab in the AI chat sidebar (full-page mode). Removed from vertical top-nav.
