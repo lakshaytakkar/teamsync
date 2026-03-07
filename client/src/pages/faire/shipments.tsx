@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Copy } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -188,7 +189,7 @@ export default function FaireShipments() {
                     <DataTD>
                       <Badge variant="outline" className="text-xs">{ship.store?.name?.split(" ")[0] ?? "—"}</Badge>
                     </DataTD>
-                    <DataTD>{ship.retailerId ?? "—"}</DataTD>
+                    <DataTD>{ship.retailerId ? <CompanyCell name={ship.retailerId} size="xs" /> : "—"}</DataTD>
                     <DataTD className="font-medium">{ship.carrier}</DataTD>
                     <DataTD>
                       <div className="flex items-center gap-1">

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, FileText, Eye, AlertCircle } from "lucide-react";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -259,13 +260,7 @@ export default function FaireQuotations() {
                       </DataTD>
                       <DataTD>
                         {fulfiller ? (
-                          <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                              style={{ background: FAIRE_COLOR }}>
-                              {fulfiller.name.split(" ").map(w => w[0]).join("").slice(0, 2)}
-                            </div>
-                            <span className="font-medium">{fulfiller.name}</span>
-                          </div>
+                          <CompanyCell name={fulfiller.name} size="sm" />
                         ) : "—"}
                       </DataTD>
                       <DataTD>{q.items.length}</DataTD>

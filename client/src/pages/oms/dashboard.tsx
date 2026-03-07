@@ -1,6 +1,7 @@
 import { Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { useMemo } from "react";
 import { Package, Truck, AlertTriangle, TrendingUp, ArrowRight, ShoppingBag } from "lucide-react";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import {
   PageShell,
   HeroBanner,
@@ -270,7 +271,7 @@ export default function OmsDashboard() {
                       {shp.courier}
                     </span>
                   </td>
-                  <td className="py-2.5 px-4 text-xs font-medium truncate max-w-[140px]">{customerMap[shp.orderId] || "—"}</td>
+                  <td className="py-2.5 px-4"><PersonCell name={customerMap[shp.orderId] || "—"} size="xs" /></td>
                   <td className="py-2.5 px-4 text-xs text-muted-foreground">{shp.city}</td>
                   <td className="py-2.5 px-4">
                     <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize", shipStatusColor[shp.status])}>

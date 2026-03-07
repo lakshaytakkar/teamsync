@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2, Pencil, Star, Phone, Mail, Building2 } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
+import { CompanyCell, PersonCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -177,18 +178,10 @@ export default function FaireVendors() {
                   <DataTR key={v.id} data-testid={`row-vendor-${v.id}`}>
                     <DataTD>
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: FAIRE_COLOR }}>
-                          {v.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-medium">{v.name}</p>
-                          {v.is_default && (
-                            <span className="text-xs px-1.5 py-0.5 rounded font-semibold" style={{ background: "#FFFBEB", color: "#D97706" }}>DEFAULT</span>
-                          )}
-                        </div>
+                        <CompanyCell name={v.name} subtitle={v.is_default ? "DEFAULT" : undefined} size="sm" />
                       </div>
                     </DataTD>
-                    <DataTD className="text-muted-foreground">{v.contact_name ?? "—"}</DataTD>
+                    <DataTD>{v.contact_name ? <PersonCell name={v.contact_name} size="sm" /> : <span className="text-muted-foreground">—</span>}</DataTD>
                     <DataTD>
                       {v.email ? (
                         <a href={`mailto:${v.email}`} className="text-primary hover:underline flex items-center gap-1" data-testid={`link-email-${v.id}`}>

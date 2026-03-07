@@ -11,6 +11,7 @@ import { escalations } from "@/lib/mock-data";
 import type { Escalation } from "@shared/schema";
 import { AlertTriangle, ShieldAlert, AlertCircle, CheckCircle2 } from "lucide-react";
 import { PageShell } from "@/components/layout";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 
 const typeLabels: Record<Escalation["type"], string> = {
   delayed: "Delayed",
@@ -50,9 +51,7 @@ export default function Escalations() {
       header: "Company",
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-medium" data-testid={`text-escalation-company-${item.id}`}>
-          {item.companyName}
-        </span>
+        <CompanyCell name={item.companyName} size="sm" />
       ),
     },
     {
@@ -86,6 +85,7 @@ export default function Escalations() {
       key: "assignedTo",
       header: "Assigned To",
       sortable: true,
+      render: (item) => <PersonCell name={item.assignedTo} size="sm" />,
     },
     {
       key: "resolvedDate",

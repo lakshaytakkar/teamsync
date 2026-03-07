@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { formationClients, teamMembers } from "@/lib/mock-data";
 import { stageDefinitions } from "@shared/schema";
 import type { FormationClient } from "@shared/schema";
@@ -48,10 +49,7 @@ export default function ClientsPage() {
       header: "Company",
       sortable: true,
       render: (item) => (
-        <div>
-          <p className="text-sm font-medium" data-testid={`text-company-${item.id}`}>{item.companyName}</p>
-          <p className="text-xs text-muted-foreground">{item.clientName}</p>
-        </div>
+        <CompanyCell name={item.companyName} subtitle={item.clientName} />
       ),
     },
     {
@@ -74,7 +72,7 @@ export default function ClientsPage() {
       key: "assignedManager",
       header: "Manager",
       sortable: true,
-      render: (item) => <span className="text-sm text-muted-foreground">{item.assignedManager}</span>,
+      render: (item) => <PersonCell name={item.assignedManager} size="sm" />,
     },
     {
       key: "currentStage",
@@ -218,7 +216,7 @@ export default function ClientsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {teamMembers.filter((m) => m.role !== "admin").map((m) => (
-                    <SelectItem key={m.id} value={m.name}>{m.name}</SelectItem>
+                    <SelectItem key={m.id} value={m.name}><PersonCell name={m.name} size="sm" /></SelectItem>
                   ))}
                 </SelectContent>
               </Select>

@@ -37,6 +37,7 @@ import {
 } from "@/lib/mock-data-ets";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem } from "@/components/ui/animated";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const stageVariantMap: Record<EtsPipelineStage, "success" | "error" | "warning" | "neutral" | "info"> = {
   "new-lead": "neutral",
@@ -291,12 +292,9 @@ export default function EtsDashboard() {
                   onClick={() => navigate(`/ets/clients/${client.id}`)}
                   data-testid={`card-recent-client-${client.id}`}
                 >
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-700 text-xs font-semibold dark:bg-orange-950/50 dark:text-orange-300">
-                    {client.name.split(" ").map((n) => n[0]).join("")}
-                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-medium">{client.name}</p>
+                      <PersonCell name={client.name} size="sm" />
                       <StatusBadge
                         status={ETS_STAGE_LABELS[client.stage]}
                         variant={stageVariantMap[client.stage]}

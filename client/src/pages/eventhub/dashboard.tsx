@@ -15,7 +15,7 @@ import {
   SectionGrid,
 } from "@/components/layout";
 import { hubEvents, hubVendors } from "@/lib/mock-data-eventhub";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 
@@ -251,10 +251,7 @@ export default function HubDashboard() {
               <div className="space-y-2">
                 {hubVendors.slice(0, 5).map((vendor) => (
                   <div key={vendor.id} className="flex items-center justify-between" data-testid={`row-vendor-${vendor.id}`}>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-foreground">{vendor.name}</p>
-                      <p className="text-xs text-muted-foreground">{vendor.category}</p>
-                    </div>
+                    <CompanyCell name={vendor.name} subtitle={vendor.category} size="sm" />
                     <StatusBadge
                       status={vendor.status}
                       variant={vendor.status === "active" ? "success" : vendor.status === "pending" ? "warning" : "neutral"}
@@ -281,15 +278,7 @@ export default function HubDashboard() {
                   const count = hubEvents.filter((e) => e.organizer === organizer).length;
                   return (
                     <div key={organizer} className="flex items-center gap-3" data-testid={`row-organizer-${organizer.replace(/\s+/g, "-").toLowerCase()}`}>
-                      <img
-                        src={getPersonAvatar(organizer)}
-                        alt={organizer}
-                        className="size-8 rounded-full object-cover"
-                      />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{organizer}</p>
-                        <p className="text-xs text-muted-foreground">{count} event{count !== 1 ? "s" : ""}</p>
-                      </div>
+                      <PersonCell name={organizer} subtitle={`${count} event${count !== 1 ? "s" : ""}`} size="sm" />
                     </div>
                   );
                 })}

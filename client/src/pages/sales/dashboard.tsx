@@ -19,7 +19,7 @@ import {
   supportTickets,
   revenueMetrics,
 } from "@/lib/mock-data-sales";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 import { useLocation } from "wouter";
@@ -184,17 +184,7 @@ export default function SalesDashboard() {
                   className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/20"
                   data-testid={`card-user-${user.id}`}
                 >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={getPersonAvatar(user.name, 32)}
-                      alt={user.name}
-                      className="size-8 rounded-full"
-                    />
-                    <div>
-                      <p className="text-sm font-medium">{user.name}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                    </div>
-                  </div>
+                  <PersonCell name={user.name} subtitle={user.email} size="sm" />
                   <div className="flex items-center gap-2 shrink-0">
                     <StatusBadge
                       status={user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}

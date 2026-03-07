@@ -9,10 +9,9 @@ import {
   type AppUser,
   type UserStatus,
 } from "@/lib/mock-data-users";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade } from "@/components/ui/animated";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,15 +66,7 @@ const columns: Column<AppUser>[] = [
     header: "Email",
     sortable: true,
     render: (user) => (
-      <div className="flex items-center gap-2.5">
-        <Avatar className="size-8 shrink-0">
-          <AvatarImage src={user.avatar ?? getPersonAvatar(user.name, 32)} alt={user.name} />
-          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <span className="text-sm font-medium" data-testid={`text-user-email-${user.id}`}>
-          {user.email}
-        </span>
-      </div>
+      <PersonCell name={user.name} subtitle={user.email} size="sm" />
     ),
   },
   {

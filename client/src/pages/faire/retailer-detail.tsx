@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { ArrowLeft, Mail, Phone, Globe, Instagram, MapPin, Briefcase, User, Pencil, MessageCircle } from "lucide-react";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -203,7 +204,7 @@ export default function FaireRetailerDetail() {
             </Button>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl font-bold font-heading" data-testid="text-retailer-name">{retailerName}</h1>
+                <CompanyCell name={retailerName} subtitle={locationParts || undefined} size="lg" />
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${isActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"}`} data-testid="text-retailer-status">
                   {isActive ? "active" : "inactive"}
                 </span>
@@ -213,7 +214,6 @@ export default function FaireRetailerDetail() {
                   </span>
                 )}
               </div>
-              {locationParts && <p className="text-xs text-muted-foreground mt-0.5" data-testid="text-retailer-location">{locationParts}</p>}
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">

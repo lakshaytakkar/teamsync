@@ -5,9 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { FormDialog } from "@/components/hr/form-dialog";
 import { goals, employees } from "@/lib/mock-data-hrms";
 import { HRMS_GOAL_CONFIG } from "@/lib/hrms-config";
@@ -85,11 +84,7 @@ export default function HrmsGoals() {
                   <StatusBadge status={goal.status} />
                 </div>
                 <div className="flex items-center gap-2">
-                  <Avatar className="size-6">
-                    <AvatarImage src={getPersonAvatar(goal.employeeName, 24)} alt={goal.employeeName} />
-                    <AvatarFallback className="text-[9px]">{goal.employeeName.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-xs text-muted-foreground">{goal.employeeName}</span>
+                  <PersonCell name={goal.employeeName} size="xs" />
                   <span className="text-xs text-muted-foreground ml-auto">Due {new Date(goal.targetDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
                 </div>
                 <div className="space-y-1">

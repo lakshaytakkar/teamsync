@@ -21,6 +21,7 @@ import {
 import { stageDefinitions } from "@shared/schema";
 import type { ClientDocument, FormationTask, StageChecklist } from "@shared/schema";
 import { PageShell } from "@/components/layout";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 
 const riskVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   "on-track": "success",
@@ -107,7 +108,7 @@ export default function ClientDetailPage() {
     {
       key: "uploadedBy",
       header: "By",
-      render: (item) => <span className="text-sm text-muted-foreground">{item.uploadedBy}</span>,
+      render: (item) => <PersonCell name={item.uploadedBy} size="sm" />,
     },
     {
       key: "fileSize",
@@ -141,7 +142,7 @@ export default function ClientDetailPage() {
     {
       key: "assignedTo",
       header: "Assigned To",
-      render: (item) => <span className="text-sm text-muted-foreground">{item.assignedTo}</span>,
+      render: (item) => <PersonCell name={item.assignedTo} size="sm" />,
     },
     {
       key: "dueDate",
@@ -308,7 +309,7 @@ export default function ClientDetailPage() {
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <User className="size-3.5 text-muted-foreground" />
-                    <span>Manager: {client.assignedManager}</span>
+                    <span>Manager:</span> <PersonCell name={client.assignedManager} size="sm" />
                   </div>
                   <div className="text-sm">
                     <span className="text-muted-foreground">Completion: </span>

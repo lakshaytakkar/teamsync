@@ -5,6 +5,7 @@ import { competitorStores, type CompetitorStore } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { PageShell } from "@/components/layout";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
@@ -19,7 +20,7 @@ export default function CompetitorsPage() {
       header: "Name",
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-medium" data-testid={`text-competitor-name-${item.id}`}>{item.name}</span>
+        <CompanyCell name={item.name} size="sm" />
       ),
     },
     {

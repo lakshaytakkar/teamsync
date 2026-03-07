@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Plus, List, CalendarDays, CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import {
   ALL_FINANCE_COMPANIES,
@@ -175,8 +176,8 @@ export default function FinanceTransactions() {
                         <Clock className="h-3.5 w-3.5 text-amber-400 mx-auto" />
                       )}
                     </DataTD>
-                    <DataTD className="text-xs text-muted-foreground">
-                      {tx.enteredBy.split(" ")[0]}
+                    <DataTD>
+                      <PersonCell name={tx.enteredBy} size="xs" />
                     </DataTD>
                   </DataTR>
                 );

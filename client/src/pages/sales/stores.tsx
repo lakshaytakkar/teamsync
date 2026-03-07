@@ -3,7 +3,7 @@ import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { shopifyStores, type ShopifyStore } from "@/lib/mock-data-sales";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { PageShell } from "@/components/layout";
@@ -27,7 +27,7 @@ export default function StoresPage() {
       header: "Store Name",
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-medium" data-testid={`text-store-name-${item.id}`}>{item.name}</span>
+        <CompanyCell name={item.name} size="sm" />
       ),
     },
     {
@@ -35,10 +35,7 @@ export default function StoresPage() {
       header: "Owner",
       sortable: true,
       render: (item) => (
-        <div className="flex items-center gap-2">
-          <img src={getPersonAvatar(item.owner, 24)} alt={item.owner} className="size-6 rounded-full" />
-          <span className="text-sm">{item.owner}</span>
-        </div>
+        <PersonCell name={item.owner} size="sm" />
       ),
     },
     {

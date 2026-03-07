@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/hr/status-badge";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Button } from "@/components/ui/button";
 import { teamMembers, type TeamMember } from "@/lib/mock-data-admin";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, PageTransition } from "@/components/ui/animated";
 import { PageShell } from "@/components/layout";
@@ -22,17 +22,7 @@ const columns: Column<TeamMember>[] = [
     header: "Name",
     sortable: true,
     render: (member) => (
-      <div className="flex items-center gap-2.5">
-        <img
-          src={getPersonAvatar(member.name, 32)}
-          alt={member.name}
-          className="size-8 shrink-0 rounded-full"
-        />
-        <div>
-          <p className="text-sm font-medium" data-testid={`text-member-name-${member.id}`}>{member.name}</p>
-          <p className="text-xs text-muted-foreground" data-testid={`text-member-email-${member.id}`}>{member.email}</p>
-        </div>
-      </div>
+      <PersonCell name={member.name} subtitle={member.email} size="sm" />
     ),
   },
   {

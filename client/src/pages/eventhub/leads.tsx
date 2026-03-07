@@ -18,6 +18,7 @@ import {
   StatCard,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const EVENT_TYPES = [
   { value: "All", label: "All" },
@@ -137,15 +138,7 @@ export default function EventInquiries() {
             {filtered.map((inquiry) => (
               <DataTR key={inquiry.id}>
                 <DataTD>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center bg-muted text-xs font-bold">
-                      {inquiry.clientName.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="font-medium">{inquiry.clientName}</div>
-                      <div className="text-[10px] text-muted-foreground">{inquiry.id}</div>
-                    </div>
-                  </div>
+                  <PersonCell name={inquiry.clientName} subtitle={inquiry.id} size="sm" />
                 </DataTD>
                 <DataTD>{inquiry.eventType}</DataTD>
                 <DataTD>{inquiry.expectedGuests}</DataTD>

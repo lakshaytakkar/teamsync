@@ -11,6 +11,7 @@ import { formationTasks, stageDefinitions, teamMembers } from "@/lib/mock-data";
 import type { FormationTask } from "@shared/schema";
 import { ListTodo, Clock, CheckCircle2, AlertTriangle, Zap } from "lucide-react";
 import { PageShell } from "@/components/layout";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 
 const priorityDot: Record<string, string> = {
   high: "bg-red-500",
@@ -60,7 +61,7 @@ export default function TaskBoard() {
       key: "clientName",
       header: "Client",
       sortable: true,
-      render: (item) => <span className="text-sm">{item.clientName}</span>,
+      render: (item) => <CompanyCell name={item.clientName} size="sm" />,
     },
     {
       key: "stage",
@@ -79,6 +80,7 @@ export default function TaskBoard() {
       key: "assignedTo",
       header: "Assigned To",
       sortable: true,
+      render: (item) => <PersonCell name={item.assignedTo} size="sm" />,
     },
     {
       key: "dueDate",

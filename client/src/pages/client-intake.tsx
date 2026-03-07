@@ -14,6 +14,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem } from "@/components/ui/animated";
 import { FileText, AlertTriangle, Users } from "lucide-react";
 import { PageShell } from "@/components/layout";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 
 const riskVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   "on-track": "success",
@@ -67,10 +68,7 @@ export default function ClientIntakePage() {
       header: "Company",
       sortable: true,
       render: (item) => (
-        <div>
-          <p className="text-sm font-medium" data-testid={`text-intake-company-${item.id}`}>{item.companyName}</p>
-          <p className="text-xs text-muted-foreground">{item.clientName}</p>
-        </div>
+        <CompanyCell name={item.companyName} subtitle={item.clientName} />
       ),
     },
     {
@@ -137,7 +135,7 @@ export default function ClientIntakePage() {
     {
       key: "assignedManager",
       header: "Manager",
-      render: (item) => <span className="text-sm text-muted-foreground">{item.assignedManager}</span>,
+      render: (item) => <PersonCell name={item.assignedManager} size="sm" />,
     },
   ];
 

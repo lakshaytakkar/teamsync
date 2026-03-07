@@ -25,7 +25,7 @@ import {
   DetailModal,
   DetailSection,
 } from "@/components/layout";
-
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const formatDate = (d: string) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 
@@ -68,7 +68,7 @@ function LeadKanbanCard({ lead }: { lead: Lead }) {
       className="rounded-lg border border-border bg-card p-3 transition-all duration-200 hover:shadow-sm"
       data-testid={`card-lead-${lead.id}`}
     >
-      <p className="text-sm font-semibold mb-0.5">{lead.name}</p>
+      <PersonCell name={lead.name} size="xs" className="mb-0.5" />
       <p className="text-[10px] text-muted-foreground mb-2 font-medium uppercase tracking-tight">{lead.business_type} · {lead.city}</p>
 
       {pkg && (
@@ -231,7 +231,7 @@ export default function EventsLeads() {
               <tbody className="divide-y">
                 {leads.filter(l => search === "" || l.name.toLowerCase().includes(search.toLowerCase())).map((item) => (
                   <DataTR key={item.id}>
-                    <DataTD className="font-semibold">{item.name}</DataTD>
+                    <DataTD><PersonCell name={item.name} size="sm" /></DataTD>
                     <DataTD className="font-medium text-blue-600">{item.phone}</DataTD>
                     <DataTD>{item.city}</DataTD>
                     <DataTD className="text-xs font-medium uppercase text-muted-foreground">{item.business_type}</DataTD>

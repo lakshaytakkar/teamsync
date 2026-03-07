@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { CheckCircle2, XCircle, Clock, ShieldCheck } from "lucide-react";
 import { SiInstagram, SiYoutube, SiLinkedin, SiFacebook, SiThreads } from "react-icons/si";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
@@ -172,7 +173,7 @@ export default function SocialApprovals() {
                       {appr.postCaption.slice(0, 160)}{appr.postCaption.length > 160 ? "…" : ""}
                     </p>
                     <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                      <span>Submitted by <span className="font-medium text-foreground">{appr.submittedBy}</span></span>
+                      <span className="flex items-center gap-1.5">Submitted by <PersonCell name={appr.submittedBy} size="xs" /></span>
                       <span>·</span>
                       <span>{appr.submittedDate}</span>
                     </div>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { payrollEntries } from "@/lib/mock-data-hrms";
 import { PageShell } from "@/components/layout";
 
@@ -53,7 +54,7 @@ export default function HrmsPayslips() {
                     onClick={() => setSelected(p)}
                     data-testid={`payslip-row-${p.id}`}
                   >
-                    <td className="px-4 py-3 text-sm font-medium">{p.employeeName}</td>
+                    <td className="px-4 py-3"><PersonCell name={p.employeeName} size="sm" /></td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">{p.month}</td>
                     <td className="px-4 py-3 text-sm font-semibold text-emerald-600">₹{p.netSalary.toLocaleString("en-IN")}</td>
                     <td className="px-4 py-3">

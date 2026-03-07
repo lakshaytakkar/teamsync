@@ -8,11 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import { assignments as initialAssignments, socialPosts, campaigns, type Assignment, type AssignmentType } from "@/lib/mock-data-social";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { SOCIAL_COLOR } from "@/lib/social-config";
 import { PageShell } from "@/components/layout";
@@ -134,16 +133,10 @@ export default function SocialAssignments() {
             const { inProgress, overdue } = getWorkload(name);
             return (
               <div key={name} className="rounded-xl border bg-card p-3 flex items-center gap-3 min-w-[160px] shrink-0" data-testid={`member-card-${name}`}>
-                <Avatar className="size-9">
-                  <AvatarFallback className="text-xs text-white" style={{ background: SOCIAL_COLOR }}>{name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-xs font-semibold">{name}</p>
-                  <p className="text-[10px] text-muted-foreground">{role}</p>
-                  <div className="flex gap-2 mt-1">
-                    <span className="text-[10px] text-sky-600">{inProgress} active</span>
-                    {overdue > 0 && <span className="text-[10px] text-red-600 font-medium">{overdue} overdue</span>}
-                  </div>
+                <PersonCell name={name} subtitle={role} size="sm" />
+                <div className="flex gap-2 mt-1">
+                  <span className="text-[10px] text-sky-600">{inProgress} active</span>
+                  {overdue > 0 && <span className="text-[10px] text-red-600 font-medium">{overdue} overdue</span>}
                 </div>
               </div>
             );
@@ -195,15 +188,7 @@ export default function SocialAssignments() {
                     <Badge >{asn.type}</Badge>
                   </td>
                   <td className="p-3">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="size-6">
-                        <AvatarFallback className="text-[9px] text-white" style={{ background: SOCIAL_COLOR }}>{asn.assignedTo.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-xs font-medium">{asn.assignedTo}</p>
-                        <p className="text-[10px] text-muted-foreground">{asn.role}</p>
-                      </div>
-                    </div>
+                    <PersonCell name={asn.assignedTo} subtitle={asn.role} size="xs" />
                   </td>
                   <td className="p-3 text-xs text-muted-foreground">
                     {asn.postTitle ? <span className="truncate max-w-[140px] block">{asn.postTitle}</span> : "—"}

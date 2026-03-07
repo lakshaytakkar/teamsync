@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { detectVerticalFromUrl } from "@/lib/verticals-config";
 import { verticalMembers } from "@/lib/mock-data-shared";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import {
   PageShell,
@@ -18,7 +18,6 @@ import {
 import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { FormDialog } from "@/components/hr/form-dialog";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -296,15 +295,7 @@ export default function UniversalTickets() {
       sortable: true,
       render: (t) =>
         t.assigned_to ? (
-          <div className="flex items-center gap-2">
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={getPersonAvatar(t.assigned_to)} />
-              <AvatarFallback className="text-[10px]">
-                {t.assigned_to.substring(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-sm" data-testid={`text-assignee-${t.id}`}>{t.assigned_to}</span>
-          </div>
+          <PersonCell name={t.assigned_to} size="sm" />
         ) : (
           <span className="text-sm text-muted-foreground">Unassigned</span>
         ),
@@ -538,7 +529,7 @@ export default function UniversalTickets() {
                 <SelectContent>
                   {members.map((m) => (
                     <SelectItem key={m.id} value={m.name}>
-                      {m.name}
+                      <PersonCell name={m.name} size="sm" />
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -553,7 +544,7 @@ export default function UniversalTickets() {
                 <SelectContent>
                   {members.map((m) => (
                     <SelectItem key={m.id} value={m.name}>
-                      {m.name}
+                      <PersonCell name={m.name} size="sm" />
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -620,7 +611,7 @@ export default function UniversalTickets() {
               <SelectContent>
                 {members.map((m) => (
                   <SelectItem key={m.id} value={m.name}>
-                    {m.name}
+                    <PersonCell name={m.name} size="sm" />
                   </SelectItem>
                 ))}
               </SelectContent>

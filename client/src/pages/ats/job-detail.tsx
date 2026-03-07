@@ -6,10 +6,9 @@ import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
 import { jobOpenings, applications, candidates } from "@/lib/mock-data-ats";
 import { PageShell } from "@/components/layout";
 
@@ -104,15 +103,8 @@ export default function AtsJobDetail() {
 
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Hiring Manager</CardTitle></CardHeader>
-              <CardContent className="flex items-center gap-3">
-                <Avatar className="size-10">
-                  <AvatarImage src={getPersonAvatar(job.hiringManager, 40)} alt={job.hiringManager} />
-                  <AvatarFallback className="text-sm">{job.hiringManager.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium text-sm">{job.hiringManager}</p>
-                  <p className="text-xs text-muted-foreground">{job.department}</p>
-                </div>
+              <CardContent>
+                <PersonCell name={job.hiringManager} subtitle={job.department} size="lg" />
               </CardContent>
             </Card>
 
@@ -155,8 +147,7 @@ export default function AtsJobDetail() {
                       return (
                         <tr key={app.id} className="hover:bg-muted/20">
                           <td className="px-4 py-2.5">
-                            <p className="text-sm font-medium">{app.candidateName}</p>
-                            <p className="text-xs text-muted-foreground">{cand?.currentRole}</p>
+                            <PersonCell name={app.candidateName} subtitle={cand?.currentRole} size="sm" />
                           </td>
                           <td className="px-4 py-2.5">
                             <StatusBadge status={app.stage} />

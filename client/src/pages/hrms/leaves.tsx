@@ -21,6 +21,7 @@ import {
   PrimaryAction,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 export default function HrmsLeaves() {
   const isLoading = useSimulatedLoading(700);
@@ -166,7 +167,7 @@ export default function HrmsLeaves() {
             <tbody className="divide-y">
               {filtered.map((leave) => (
                 <DataTR key={leave.id} data-testid={`leave-row-${leave.id}`}>
-                  <DataTD className="font-medium">{leave.employeeName}</DataTD>
+                  <DataTD><PersonCell name={leave.employeeName} size="sm" /></DataTD>
                   <DataTD>
                     <StatusBadge status={leave.type} />
                   </DataTD>

@@ -3,14 +3,8 @@ import { useLocation } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, CheckCircle, XCircle, Eye, ShoppingCart, FileText, Plus } from "lucide-react";
 
-import buddhaAyurvedaLogo from "@/assets/store-logos/buddha-ayurveda.png";
-import buddhaYogaLogo from "@/assets/store-logos/buddha-yoga.png";
-import gulleeGadgetsLogo from "@/assets/store-logos/gullee-gadgets.png";
-import holidayFarmLogo from "@/assets/store-logos/holiday-farm.png";
-import superSantaLogo from "@/assets/store-logos/super-santa.png";
-import toyarinaLogo from "@/assets/store-logos/toyarina.png";
-
 import { Fade } from "@/components/ui/animated";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -41,14 +35,6 @@ import {
 
 const PAGE_SIZE = 25;
 
-const STORE_LOGOS: Record<string, string> = {
-  "Buddha Ayurveda": buddhaAyurvedaLogo,
-  "Buddha Yoga": buddhaYogaLogo,
-  "Gullee Gadgets": gulleeGadgetsLogo,
-  "Holiday Farm": holidayFarmLogo,
-  "Super Santa": superSantaLogo,
-  "Toyarina": toyarinaLogo,
-};
 
 
 interface FaireStore { id: string; name: string; active: boolean; last_synced_at: string | null }
@@ -369,29 +355,20 @@ export default function FaireOrders() {
                     </DataTD>
                     <DataTD>
                       <button
-                        className="font-medium text-left hover:underline hover:text-primary truncate max-w-[140px] block"
+                        className="text-left hover:underline hover:text-primary truncate max-w-[180px] block"
                         onClick={e => { e.stopPropagation(); setLocation(`/faire/retailers/${order.retailer_id}`); }}
                         data-testid={`link-retailer-${order.id}`}
                       >
-                        {retailerName(order)}
+                        <CompanyCell name={retailerName(order)} size="sm" />
                       </button>
                     </DataTD>
                     <DataTD>
                       <button
-                        className="flex items-center gap-1.5 hover:underline hover:text-primary text-muted-foreground"
+                        className="hover:underline hover:text-primary text-muted-foreground"
                         onClick={e => { e.stopPropagation(); setLocation("/faire/stores"); }}
                         data-testid={`link-store-${order.id}`}
                       >
-                        {(() => {
-                          const name = storeName(order._storeId);
-                          const logo = STORE_LOGOS[name];
-                          return logo ? (
-                            <img src={logo} alt={name} loading="lazy" decoding="async" className="w-5 h-5 rounded-full object-cover shrink-0" />
-                          ) : (
-                            <span className="w-5 h-5 rounded-full bg-muted shrink-0 inline-block" />
-                          );
-                        })()}
-                        {storeName(order._storeId)}
+                        <CompanyCell name={storeName(order._storeId)} size="xs" />
                       </button>
                     </DataTD>
                     <DataTD className="text-muted-foreground">

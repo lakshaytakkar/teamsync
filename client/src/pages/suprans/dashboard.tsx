@@ -17,6 +17,7 @@ import {
   SectionCard,
   SectionGrid,
 } from "@/components/layout";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 
 const SOURCE_ICONS: Record<string, typeof Globe> = {
@@ -150,8 +151,7 @@ export default function SupransDashboard() {
               return (
                 <div key={lead.id} className="p-4 flex items-center justify-between gap-3 hover:bg-muted/20 transition-colors" data-testid={`row-lead-${lead.id}`}>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{lead.name}</p>
-                    <p className="text-xs text-muted-foreground">{SERVICE_LABELS[lead.service]}</p>
+                    <PersonCell name={lead.name} subtitle={SERVICE_LABELS[lead.service]} size="sm" />
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <SrcIcon className="w-3.5 h-3.5 text-muted-foreground" />

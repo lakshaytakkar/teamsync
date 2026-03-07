@@ -24,7 +24,7 @@ import {
   DetailModal,
   DetailSection,
 } from "@/components/layout";
-
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -184,8 +184,7 @@ export default function EventsBookings() {
                 <DataTR key={item.id} onClick={() => navigate(`/events/bookings/${item.id}`)}>
                   <DataTD className="text-[10px]">{item.id}</DataTD>
                   <DataTD>
-                    <p className="text-sm font-medium">{item.client_name}</p>
-                    <p className="text-xs text-muted-foreground">{item.client_phone}</p>
+                    <PersonCell name={item.client_name} subtitle={item.client_phone} size="sm" />
                   </DataTD>
                   <DataTD className="text-xs max-w-[180px] line-clamp-1">{item.package_name}</DataTD>
                   <DataTD align="center" className="font-medium">{item.passengers}</DataTD>

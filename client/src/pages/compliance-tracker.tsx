@@ -11,6 +11,7 @@ import { Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
 import type { ComplianceItem } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { PageShell } from "@/components/layout";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 
 const typeLabels: Record<string, string> = {
   "annual-report": "Annual Report",
@@ -31,9 +32,7 @@ const columns: Column<ComplianceItem>[] = [
     header: "Company",
     sortable: true,
     render: (item) => (
-      <span className="text-sm font-medium" data-testid={`text-compliance-company-${item.id}`}>
-        {item.companyName}
-      </span>
+      <CompanyCell name={item.companyName} size="sm" />
     ),
   },
   {

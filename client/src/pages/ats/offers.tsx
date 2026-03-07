@@ -23,6 +23,7 @@ import {
   DetailSection,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 export default function AtsOffers() {
   const isLoading = useSimulatedLoading(700);
@@ -138,7 +139,7 @@ export default function AtsOffers() {
             <tbody className="divide-y">
               {filtered.map(offer => (
                 <DataTR key={offer.id} data-testid={`offer-row-${offer.id}`}>
-                  <DataTD className="font-medium">{offer.candidateName}</DataTD>
+                  <DataTD><PersonCell name={offer.candidateName} size="sm" /></DataTD>
                   <DataTD className="text-muted-foreground">{offer.jobTitle}</DataTD>
                   <DataTD className="font-semibold">₹{offer.offeredSalary.toLocaleString("en-IN")}</DataTD>
                   <DataTD className="text-muted-foreground">{offer.joiningDate}</DataTD>

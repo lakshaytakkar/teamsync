@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Printer, Truck } from "lucide-react";
 import { Stagger, StaggerItem, Fade } from "@/components/ui/animated";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { PageShell, PageHeader } from "@/components/layout";
 import { FAIRE_COLOR } from "@/lib/faire-config";
 import { Badge } from "@/components/ui/badge";
@@ -143,8 +144,11 @@ export default function FaireFulfillment() {
                         <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-50 text-red-600">Cancel Requested</span>
                       )}
                     </div>
-                    <p className="text-sm font-semibold">{order.address?.company_name ?? order.address?.name ?? order.retailer_id}</p>
-                    <p className="text-sm text-muted-foreground">{order.address?.city}{order.address?.state ? `, ${order.address.state}` : ""}</p>
+                    <CompanyCell
+                      name={order.address?.company_name ?? order.address?.name ?? order.retailer_id}
+                      subtitle={[order.address?.city, order.address?.state].filter(Boolean).join(", ") || undefined}
+                      size="sm"
+                    />
                     <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
                       <span>{(order.items ?? []).length} {(order.items ?? []).length === 1 ? "item" : "items"}</span>
                       <span className="font-semibold text-foreground"><DualCurrencyInline cents={itemsTotal} /></span>

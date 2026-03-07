@@ -18,6 +18,7 @@ import {
   IndexToolbar,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const calendarStatusDot: Record<string, string> = {
   present: "bg-emerald-500",
@@ -161,7 +162,7 @@ export default function HrmsAttendance() {
               <tbody className="divide-y">
                 {filtered.map((rec) => (
                   <DataTR key={rec.id} data-testid={`attendance-row-${rec.id}`}>
-                    <DataTD className="font-medium">{rec.employeeName}</DataTD>
+                    <DataTD><PersonCell name={rec.employeeName} size="sm" /></DataTD>
                     <DataTD className="text-muted-foreground">{rec.date}</DataTD>
                     <DataTD>{rec.checkIn}</DataTD>
                     <DataTD>{rec.checkOut}</DataTD>
@@ -194,7 +195,7 @@ export default function HrmsAttendance() {
               <tbody className="divide-y">
                 {uniqueEmps.slice(0, 8).map((empName) => (
                   <DataTR key={empName}>
-                    <DataTD className="font-medium">{empName}</DataTD>
+                    <DataTD><PersonCell name={empName} size="sm" /></DataTD>
                     {sampleDates.map((date) => {
                       const rec = attendanceRecords.find((a) => a.employeeName === empName && a.date === date);
                       return (

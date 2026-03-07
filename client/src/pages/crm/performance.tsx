@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { teamPerformance, crmDeals, ALL_VERTICALS_IN_CRM } from "@/lib/mock-data-crm";
 import { CRM_COLOR } from "@/lib/crm-config";
 import {
@@ -247,19 +247,7 @@ export default function CrmPerformance() {
                         </span>
                       </DataTD>
                       <DataTD>
-                        <div className="flex items-center gap-2.5">
-                          <img
-                            src={getPersonAvatar(rep.name, 32)}
-                            alt={rep.name}
-                            className="size-8 rounded-full"
-                          />
-                          <div>
-                            <p className="text-sm font-medium">{rep.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {rep.role}
-                            </p>
-                          </div>
-                        </div>
+                        <PersonCell name={rep.name} subtitle={rep.role} />
                       </DataTD>
                       <DataTD>
                         {vert && (
@@ -388,9 +376,7 @@ export default function CrmPerformance() {
                 const dotColor = entry.type === "win" ? "bg-emerald-500" : entry.type === "loss" ? "bg-red-400" : "bg-blue-400";
                 return (
                   <div key={i} className="flex items-start gap-3" data-testid={`audit-entry-${i}`}>
-                    <div className="flex flex-col items-center">
-                      <img src={getPersonAvatar(entry.avatar, 28)} alt={entry.avatar} className="size-7 rounded-full" />
-                    </div>
+                    <PersonCell name={entry.avatar} size="sm" className="shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm">{entry.text}</p>
                       <div className="flex items-center gap-2 mt-0.5">

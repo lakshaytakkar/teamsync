@@ -43,6 +43,7 @@ import {
   type EtsPipelineStage,
 } from "@/lib/mock-data-ets";
 import { PageShell } from "@/components/layout";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const STAGE_INDEX: Record<EtsPipelineStage, number> = {
   "new-lead": 0,
@@ -410,12 +411,7 @@ export default function EtsClientDetailPage() {
           <div className="mb-6 flex flex-col gap-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold font-heading" data-testid="text-client-name">
-                  {client.name}
-                </h1>
-                <p className="text-sm text-muted-foreground" data-testid="text-client-info">
-                  {client.city} &middot; {client.phone}
-                </p>
+                <PersonCell name={client.name} subtitle={`${client.city} · ${client.phone}`} size="lg" />
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <StatusBadge

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { crmContacts, ALL_VERTICALS_IN_CRM } from "@/lib/mock-data-crm";
 import { cn } from "@/lib/utils";
 import {
@@ -196,27 +196,10 @@ export default function CrmLeads() {
                       data-testid={`lead-row-${contact.id}`}
                     >
                       <DataTD>
-                        <div className="flex items-center gap-2.5">
-                          <img
-                            src={getPersonAvatar(contact.name, 32)}
-                            alt={contact.name}
-                            className="size-8 rounded-full shrink-0"
-                          />
-                          <div>
-                            <p className="text-sm font-medium">{contact.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {contact.email}
-                            </p>
-                          </div>
-                        </div>
+                        <PersonCell name={contact.name} subtitle={contact.email} />
                       </DataTD>
                       <DataTD>
-                        <div>
-                          <p className="text-sm">{contact.company}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {contact.designation}
-                          </p>
-                        </div>
+                        <CompanyCell name={contact.company} subtitle={contact.designation} />
                       </DataTD>
                       <DataTD>
                         {vert && (
@@ -236,14 +219,7 @@ export default function CrmLeads() {
                         <StatusBadge status={contact.status} />
                       </DataTD>
                       <DataTD>
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={getPersonAvatar(contact.assignedTo, 24)}
-                            alt={contact.assignedTo}
-                            className="size-6 rounded-full"
-                          />
-                          <span className="text-sm">{contact.assignedTo}</span>
-                        </div>
+                        <PersonCell name={contact.assignedTo} size="sm" />
                       </DataTD>
                       <DataTD className="text-muted-foreground">
                         {contact.lastActivity}
@@ -313,13 +289,7 @@ export default function CrmLeads() {
                       return (
                         <Card key={c.id} className="border-0 shadow-sm" data-testid={`kanban-card-${c.id}`}>
                           <CardContent className="p-3 space-y-2">
-                            <div className="flex items-center gap-2">
-                              <img src={getPersonAvatar(c.name, 28)} alt={c.name} className="size-7 rounded-full" />
-                              <div className="min-w-0">
-                                <p className="text-sm font-medium truncate">{c.name}</p>
-                                <p className="text-xs text-muted-foreground truncate">{c.company}</p>
-                              </div>
-                            </div>
+                            <PersonCell name={c.name} subtitle={c.company} size="sm" />
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {vert && (
                                 <span className="text-xs px-1.5 py-0.5 rounded-full text-white font-medium" style={{ backgroundColor: vert.color }}>
@@ -329,7 +299,7 @@ export default function CrmLeads() {
                               <StatusBadge status={c.source} />
                             </div>
                             <div className="flex items-center justify-between">
-                              <img src={getPersonAvatar(c.assignedTo, 20)} alt={c.assignedTo} className="size-5 rounded-full" title={c.assignedTo} />
+                              <PersonCell name={c.assignedTo} size="xs" />
                               <span className="text-xs text-muted-foreground">{c.lastActivity}</span>
                             </div>
                           </CardContent>

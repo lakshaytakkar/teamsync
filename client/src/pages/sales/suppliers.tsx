@@ -7,6 +7,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { Star, MapPin, Truck } from "lucide-react";
 import { PageShell } from "@/components/layout";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 
 const statusVariant: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   verified: "success",
@@ -23,7 +24,7 @@ export default function SuppliersPage() {
       key: "name",
       header: "Supplier",
       sortable: true,
-      render: (item) => <span className="text-sm font-medium">{item.name}</span>,
+      render: (item) => <CompanyCell name={item.name} size="sm" />,
     },
     {
       key: "country",

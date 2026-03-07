@@ -18,6 +18,7 @@ import { StatusBadge } from "@/components/hr/status-badge";
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Badge } from "@/components/ui/badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { TaskDetailDialog } from "@/components/dev/task-detail-dialog";
@@ -58,9 +59,6 @@ function formatLabel(s: string): string {
   return s.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
-function getInitials(name: string): string {
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-}
 
 export default function DevTasksPage() {
   const loading = useSimulatedLoading();
@@ -149,12 +147,7 @@ export default function DevTasksPage() {
       header: "Assignee",
       sortable: true,
       render: (item) => (
-        <div className="flex items-center gap-2">
-          <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-semibold">
-            {getInitials(item.assignee)}
-          </div>
-          <span className="text-xs truncate">{item.assignee.split(" ")[0]}</span>
-        </div>
+        <PersonCell name={item.assignee} size="xs" />
       ),
     },
     {

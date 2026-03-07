@@ -15,6 +15,7 @@ import { PageTransition, Fade } from "@/components/ui/animated";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { PageShell } from "@/components/layout";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -109,7 +110,7 @@ export default function BookingDetail() {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-muted-foreground text-xs mb-0.5">Name</p>
-                    <p className="font-semibold" data-testid="detail-client-name">{b.client_name}</p>
+                    <PersonCell name={b.client_name} size="lg" />
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs mb-0.5">City</p>

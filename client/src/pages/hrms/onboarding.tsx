@@ -3,9 +3,8 @@ import { CheckCircle2, Circle, Clock } from "lucide-react";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { employees } from "@/lib/mock-data-hrms";
 import { PageShell } from "@/components/layout";
 
@@ -68,16 +67,7 @@ export default function HrmsOnboarding() {
                 {onboardingData.map((emp) => (
                   <tr key={emp.id} className="hover:bg-muted/20" data-testid={`onboarding-row-${emp.id}`}>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <Avatar className="size-8">
-                          <AvatarImage src={getPersonAvatar(emp.name, 32)} alt={emp.name} />
-                          <AvatarFallback className="text-xs">{emp.avatar}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{emp.name}</p>
-                          <p className="text-xs text-muted-foreground">{emp.designation}</p>
-                        </div>
-                      </div>
+                      <PersonCell name={emp.name} subtitle={emp.designation} size="sm" />
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">{emp.department}</td>
                     <td className="px-4 py-3 text-sm">{new Date(emp.joiningDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>

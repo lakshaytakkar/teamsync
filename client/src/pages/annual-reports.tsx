@@ -11,6 +11,7 @@ import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/anim
 import type { ComplianceItem } from "@shared/schema";
 import { cn } from "@/lib/utils";
 import { PageShell } from "@/components/layout";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 
 const annualReports = complianceItems.filter((c) => c.type === "annual-report");
 
@@ -26,9 +27,7 @@ const columns: Column<ComplianceItem>[] = [
     header: "Company",
     sortable: true,
     render: (item) => (
-      <span className="text-sm font-medium" data-testid={`text-ar-company-${item.id}`}>
-        {item.companyName}
-      </span>
+      <CompanyCell name={item.companyName} size="sm" />
     ),
   },
   {

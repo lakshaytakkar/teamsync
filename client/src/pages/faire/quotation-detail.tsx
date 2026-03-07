@@ -3,8 +3,9 @@ import { useRoute, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, Star, CheckCircle, AlertTriangle, XCircle, Send,
-  ExternalLink, Package, MessageSquare, MapPin, User, Mail, Clock,
+  ExternalLink, Package, MessageSquare, MapPin, Mail, Clock,
 } from "lucide-react";
+import { CompanyCell, PersonCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -260,7 +261,7 @@ export default function FaireQuotationDetail() {
                     <InfoRow label="State">
                       <Badge style={{ background: "var(--muted)", color: "var(--foreground)" }} className="border-0 text-sm">{order.state}</Badge>
                     </InfoRow>
-                    <InfoRow label="Customer" value={order.address?.name ?? "—"} />
+                    <InfoRow label="Customer">{order.address?.name ? <PersonCell name={order.address.name} size="sm" /> : "—"}</InfoRow>
                     <InfoRow label="Location" value={`${order.address?.city ?? ""}, ${order.address?.state_code ?? ""}`} />
                   </div>
 
@@ -324,19 +325,10 @@ export default function FaireQuotationDetail() {
               <div className="rounded-xl border bg-card p-5 shadow-sm">
                 <div className="font-semibold text-base mb-4">Assigned Fulfiller</div>
                 <div className="flex items-start gap-4">
-                  <div
-                    className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-base shrink-0"
-                    style={{ background: FAIRE_COLOR }}
-                  >
-                    {fulfiller.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2)}
-                  </div>
                   <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="font-semibold text-base">{fulfiller.name}</div>
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" />{fulfiller.country ?? "—"}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <User className="h-3.5 w-3.5 shrink-0" />{fulfiller.contact_name}
+                    <CompanyCell name={fulfiller.name} subtitle={fulfiller.country ?? undefined} size="lg" />
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-2">
+                      {fulfiller.contact_name && <PersonCell name={fulfiller.contact_name} size="sm" />}
                     </div>
                     <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <Mail className="h-3.5 w-3.5 shrink-0" />{fulfiller.email}

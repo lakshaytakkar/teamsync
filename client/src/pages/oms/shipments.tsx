@@ -4,6 +4,7 @@ import { Search, AlertTriangle } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { omsShipments, omsOrders } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
 import { PageShell } from "@/components/layout";
@@ -210,7 +211,7 @@ export default function OmsShipments() {
                       <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded", COURIER_STYLES[s.courier]?.badge || "bg-slate-100 text-slate-600")}>{COURIER_STYLES[s.courier]?.abbr || s.courier}</span>
                     </td>
                     <td className="py-2.5 px-4">
-                      <p className="text-xs font-medium truncate max-w-[120px]">{customerMap[s.orderId] || "—"}</p>
+                      <PersonCell name={customerMap[s.orderId] || "—"} size="xs" />
                     </td>
                     <td className="py-2.5 px-4">
                       <p className="text-xs font-medium">{s.city}</p>

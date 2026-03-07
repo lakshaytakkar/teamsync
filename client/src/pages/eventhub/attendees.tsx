@@ -17,6 +17,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { useToast } from "@/hooks/use-toast";
 import { PageShell } from "@/components/layout";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const ticketVariantMap: Record<string, "info" | "success" | "warning" | "neutral"> = {
   VIP: "success",
@@ -32,7 +33,7 @@ const getEventName = (eventId: string) => {
 
 const columns: Column<EventAttendee>[] = [
   { key: "id", header: "ID", sortable: true },
-  { key: "name", header: "Name", sortable: true },
+  { key: "name", header: "Name", sortable: true, render: (item) => <PersonCell name={item.name} size="sm" /> },
   { key: "company", header: "Company", sortable: true },
   { key: "role", header: "Role" },
   {

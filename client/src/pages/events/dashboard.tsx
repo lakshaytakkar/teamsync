@@ -17,6 +17,7 @@ import {
 import { tourPackages, leads, bookings } from "@/lib/mock-data-goyo";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem } from "@/components/ui/animated";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -219,8 +220,7 @@ export default function GoyoToursDashboard() {
                         data-testid={`row-booking-${bkg.id}`}
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate" data-testid={`text-bkg-client-${bkg.id}`}>{bkg.client_name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{bkg.package_name}</p>
+                          <PersonCell name={bkg.client_name} subtitle={bkg.package_name} size="sm" />
                         </div>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">{bkg.passengers} pax</span>
                         <StatusBadge status={ps.label} variant={ps.variant} />

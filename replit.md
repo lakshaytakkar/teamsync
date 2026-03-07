@@ -76,6 +76,11 @@ Barrel export: `client/src/components/blocks/index.ts`
 - **StatusBadge** auto-resolves all status strings across all verticals via extended `variantMap`
 - **PageShell** is now used by ALL 170+ pages across all 17 verticals — provides consistent `DS.page.shell` padding and `space-y-6` vertical rhythm
 - **PageShell** accepts `className`, `data-testid`, and all standard HTML div props via `...rest`
+- **ALL person names** in tables, lists, dropdowns, kanban cards, and detail pages MUST use `<PersonCell>` — DiceBear **Micah** avatar, imported from `@/components/ui/avatar-cells` or `@/lib/ds`
+- **ALL company/entity names** (companies, stores, retailers, vendors, brands) MUST use `<CompanyCell>` — DiceBear **Glass** avatar with `rounded-lg`, imported from `@/components/ui/avatar-cells` or `@/lib/ds`
+- **Avatar cell sizes**: `xs` (h-5 w-5), `sm` (h-6 w-6), `md` (h-8 w-8, default for tables), `lg` (h-10 w-10, for detail pages/headers)
+- **NO** inline `<Avatar><AvatarImage src={getPersonAvatar(name)} />` patterns — use `<PersonCell name={name} />` instead
+- **NO** plain text person/company names without avatars — every name column must have a DiceBear avatar
 
 ### Optimistic Updates (Global Pattern)
 All mutations across the app follow the TanStack Query optimistic update pattern for instant UI feedback:

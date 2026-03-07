@@ -5,7 +5,7 @@ import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { Button } from "@/components/ui/button";
 import { externalUsers, type ExternalUser } from "@/lib/mock-data-sales";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { PageShell } from "@/components/layout";
@@ -36,13 +36,7 @@ export default function UsersPage() {
       header: "User",
       sortable: true,
       render: (item) => (
-        <div className="flex items-center gap-2.5">
-          <img src={getPersonAvatar(item.name, 28)} alt={item.name} className="size-7 shrink-0 rounded-full" />
-          <div>
-            <p className="text-sm font-medium" data-testid={`text-user-name-${item.id}`}>{item.name}</p>
-            <p className="text-xs text-muted-foreground">{item.email}</p>
-          </div>
-        </div>
+        <PersonCell name={item.name} subtitle={item.email} size="sm" />
       ),
     },
     {

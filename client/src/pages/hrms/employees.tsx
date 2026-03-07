@@ -3,10 +3,9 @@ import { useLocation } from "wouter";
 import { UserPlus, Mail } from "lucide-react";
 import { Fade } from "@/components/ui/animated";
 import { CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { Label } from "@/components/ui/label";
 import { employees, hrmsDepartments } from "@/lib/mock-data-hrms";
 import {
@@ -142,13 +141,7 @@ export default function HrmsEmployees() {
                   data-testid={`employee-row-${emp.id}`}
                 >
                   <DataTD>
-                    <div className="flex items-center gap-2.5">
-                      <Avatar className="size-8">
-                        <AvatarImage src={getPersonAvatar(emp.name, 32)} alt={emp.name} />
-                        <AvatarFallback className="text-xs">{emp.avatar}</AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">{emp.name}</span>
-                    </div>
+                    <PersonCell name={emp.name} />
                   </DataTD>
                   <DataTD className="text-muted-foreground">{emp.department}</DataTD>
                   <DataTD>{emp.designation}</DataTD>

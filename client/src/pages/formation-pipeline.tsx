@@ -12,6 +12,7 @@ import { formationClients, stageDefinitions } from "@/lib/mock-data";
 import type { FormationClient } from "@shared/schema";
 import { Building2, Clock, AlertTriangle, Users } from "lucide-react";
 import { PageShell } from "@/components/layout";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
 import { useToast } from "@/hooks/use-toast";
 
@@ -113,7 +114,7 @@ export default function FormationPipeline() {
         </div>
         <p className="text-[11px] text-muted-foreground mb-2 truncate">{client.clientName}</p>
         <div className="flex items-center justify-between gap-1">
-          <span className="text-[10px] text-muted-foreground truncate">{client.assignedManager}</span>
+          <PersonCell name={client.assignedManager} size="xs" />
           <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground shrink-0">
             <Clock className="size-2.5" />
             {daysInStage(client.startDate, client.currentStage)}d
@@ -133,10 +134,7 @@ export default function FormationPipeline() {
       header: "Company",
       sortable: true,
       render: (item) => (
-        <div className="flex flex-col">
-          <span className="text-sm font-medium" data-testid={`text-company-${item.id}`}>{item.companyName}</span>
-          <span className="text-xs text-muted-foreground">{item.clientName}</span>
-        </div>
+        <CompanyCell name={item.companyName} subtitle={item.clientName} />
       ),
     },
     {
@@ -161,6 +159,7 @@ export default function FormationPipeline() {
       key: "assignedManager",
       header: "Manager",
       sortable: true,
+      render: (item) => <PersonCell name={item.assignedManager} size="sm" />,
     },
     {
       key: "priority",

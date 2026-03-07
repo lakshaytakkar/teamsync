@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { RefreshCw, CheckCircle2, Clock, XCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import {
   ALL_FINANCE_COMPANIES,
@@ -175,7 +176,7 @@ export default function FinancePayments() {
                       {tx.transactionId.substring(0, 12)}…
                     </DataTD>
                     <DataTD className="text-[10px] text-muted-foreground">{tx.date}</DataTD>
-                    <DataTD className="max-w-32 truncate">{tx.customerName}</DataTD>
+                    <DataTD><PersonCell name={tx.customerName} size="xs" /></DataTD>
                     <DataTD align="right" className="font-semibold">
                       {fmtAmt(tx.amount, tx.currency)}
                     </DataTD>

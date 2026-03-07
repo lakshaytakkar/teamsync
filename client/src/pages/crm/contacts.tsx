@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { crmContacts, crmCompanies, ALL_VERTICALS_IN_CRM } from "@/lib/mock-data-crm";
 import { CRM_COLOR } from "@/lib/crm-config";
 import {
@@ -144,19 +144,7 @@ export default function CrmContacts() {
                         data-testid={`contact-row-${c.id}`}
                       >
                         <DataTD>
-                          <div className="flex items-center gap-2.5">
-                            <img
-                              src={getPersonAvatar(c.name, 32)}
-                              alt={c.name}
-                              className="size-8 rounded-full shrink-0"
-                            />
-                            <div>
-                              <p className="text-sm font-medium">{c.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {c.email}
-                              </p>
-                            </div>
-                          </div>
+                          <PersonCell name={c.name} subtitle={c.email} />
                         </DataTD>
                         <DataTD className="whitespace-nowrap text-muted-foreground">
                           {c.phone}
@@ -183,14 +171,7 @@ export default function CrmContacts() {
                           </span>
                         </DataTD>
                         <DataTD>
-                          <div className="flex items-center gap-2">
-                            <img
-                              src={getPersonAvatar(c.assignedTo, 24)}
-                              alt={c.assignedTo}
-                              className="size-6 rounded-full"
-                            />
-                            <span className="text-sm">{c.assignedTo}</span>
-                          </div>
+                          <PersonCell name={c.assignedTo} size="sm" />
                         </DataTD>
                         <DataTD className="text-muted-foreground">
                           {c.lastActivity}
@@ -322,14 +303,7 @@ export default function CrmContacts() {
                             {co.dealCount}
                           </DataTD>
                           <DataTD>
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={getPersonAvatar(co.assignedTo, 24)}
-                                alt={co.assignedTo}
-                                className="size-6 rounded-full"
-                              />
-                              <span className="text-sm">{co.assignedTo}</span>
-                            </div>
+                            <PersonCell name={co.assignedTo} size="sm" />
                           </DataTD>
                           <DataTD className="text-muted-foreground">
                             {co.addedDate}
@@ -358,19 +332,7 @@ export default function CrmContacts() {
                                     key={lc.id}
                                     className="flex items-center gap-2 bg-background rounded-lg px-3 py-1.5 border"
                                   >
-                                    <img
-                                      src={getPersonAvatar(lc.name, 24)}
-                                      alt={lc.name}
-                                      className="size-6 rounded-full"
-                                    />
-                                    <div>
-                                      <p className="text-xs font-medium">
-                                        {lc.name}
-                                      </p>
-                                      <p className="text-xs text-muted-foreground">
-                                        {lc.designation}
-                                      </p>
-                                    </div>
+                                    <PersonCell name={lc.name} subtitle={lc.designation} size="sm" />
                                   </div>
                                 ))}
                               </div>

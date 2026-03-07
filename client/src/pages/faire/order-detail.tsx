@@ -5,6 +5,7 @@ import {
   ArrowLeft, Printer, CheckCircle, XCircle, AlertTriangle,
   FileText, BookOpen, ExternalLink, Truck, MapPin, Package, Mail,
 } from "lucide-react";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { SiWhatsapp } from "react-icons/si";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
@@ -452,19 +453,13 @@ export default function FaireOrderDetail() {
           <Fade>
             <SectionCard title="Retailer">
               <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0 bg-primary/10">
-                    <Package size={16} className="text-primary" />
-                  </div>
-                  <div>
-                    <button className="text-sm font-semibold hover:underline hover:text-primary" onClick={() => setLocation(`/faire/retailers/${order.retailer_id}`)} data-testid="link-retailer-name">
-                      {retailerDisplayName}
-                    </button>
-                    {order.address?.city && (
-                      <p className="text-sm text-muted-foreground">{order.address.city}{order.address.state_code ? `, ${order.address.state_code}` : order.address.state ? `, ${order.address.state}` : ""}</p>
-                    )}
-                  </div>
-                </div>
+                <button className="hover:underline hover:text-primary" onClick={() => setLocation(`/faire/retailers/${order.retailer_id}`)} data-testid="link-retailer-name">
+                  <CompanyCell
+                    name={retailerDisplayName}
+                    subtitle={order.address?.city ? `${order.address.city}${order.address.state_code ? `, ${order.address.state_code}` : order.address.state ? `, ${order.address.state}` : ""}` : undefined}
+                    size="lg"
+                  />
+                </button>
                 {(() => {
                   const retailerOrders = orders.filter((o: any) => o.retailer_id === order.retailer_id);
                   const totalSpent = retailerOrders.reduce((sum: number, o: any) => sum + (o.items ?? []).reduce((s: number, i: any) => s + i.price_cents * i.quantity, 0), 0);

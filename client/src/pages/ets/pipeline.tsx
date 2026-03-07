@@ -45,6 +45,7 @@ import {
 import { SiWhatsapp } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 import { PageShell } from "@/components/layout";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
 
 const tierColors: Record<EtsPackageTier, string> = {
@@ -175,9 +176,8 @@ export default function EtsPipeline() {
       >
         <Link href={`/ets/clients/${client.id}`}>
           <div className="flex items-start justify-between gap-1 mb-1.5">
-            <p className="text-xs font-medium leading-snug truncate" data-testid={`text-pipeline-name-${client.id}`}>
-              {client.name}
-            </p>
+            <PersonCell name={client.name} size="xs" />
+
             <span className={`text-[10px] font-bold shrink-0 ${scoreColor(client.score)}`}>
               {client.score}
             </span>

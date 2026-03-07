@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Bell, TrendingUp, Package, Users, AlertTriangle, ShoppingCart, DollarSign, Clock } from "lucide-react";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import {
   PageShell,
@@ -225,8 +226,8 @@ export default function FaireDashboard() {
                   data-testid={`store-card-${store.id}`}
                 >
                   <div className="flex items-center gap-2 mb-3">
-                    <div className={`size-2 rounded-full ${store.active ? "bg-emerald-500" : "bg-gray-400"}`} />
-                    <p className="text-sm font-semibold truncate">{store.name}</p>
+                    <CompanyCell name={store.name} size="sm" />
+                    <div className={`size-2 rounded-full shrink-0 ${store.active ? "bg-emerald-500" : "bg-gray-400"}`} />
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div>

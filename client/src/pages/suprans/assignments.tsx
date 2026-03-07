@@ -32,6 +32,7 @@ import {
 import { verticals } from "@/lib/verticals-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const SERVICE_LABELS: Record<string, string> = {
   "company-formation": "Company Formation",
@@ -137,17 +138,9 @@ export default function SupransAssignments() {
                   className="p-4 flex items-center gap-4"
                   data-testid={`row-pending-${lead.id}`}
                 >
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: "#EEF2FF" }}
-                  >
-                    <span className="font-bold text-sm" style={{ color: vertical.color }}>
-                      {lead.name.charAt(0)}
-                    </span>
-                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm">{lead.name}</span>
+                      <PersonCell name={lead.name} size="sm" />
                       <span
                         className={cn(
                           "text-xs px-2 py-0.5 rounded-full font-medium",
@@ -219,8 +212,7 @@ export default function SupransAssignments() {
               return (
                 <DataTR key={lead.id} data-testid={`row-assigned-${lead.id}`}>
                   <DataTD>
-                    <div className="font-medium text-xs">{lead.name}</div>
-                    <div className="text-[10px] text-muted-foreground">{lead.email}</div>
+                    <PersonCell name={lead.name} subtitle={lead.email} size="sm" />
                   </DataTD>
                   <DataTD className="text-muted-foreground text-xs">
                     {SERVICE_LABELS[lead.service]}
@@ -236,10 +228,11 @@ export default function SupransAssignments() {
                     )}
                   </DataTD>
                   <DataTD>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <User2 className="w-3 h-3" />
-                      {lead.assignedRep || "—"}
-                    </div>
+                    {lead.assignedRep ? (
+                      <PersonCell name={lead.assignedRep} size="sm" />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
                   </DataTD>
                   <DataTD className="text-xs text-muted-foreground">
                     {lead.assignedAt ? format(new Date(lead.assignedAt), "dd MMM yyyy") : "—"}
@@ -334,7 +327,7 @@ export default function SupransAssignments() {
                     <SelectContent>
                       {availableReps.map((rep) => (
                         <SelectItem key={rep} value={rep}>
-                          {rep}
+                          <PersonCell name={rep} size="sm" />
                         </SelectItem>
                       ))}
                     </SelectContent>

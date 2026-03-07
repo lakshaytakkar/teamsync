@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Button } from "@/components/ui/button";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { omsOrders } from "@/lib/mock-data-oms";
 import {
   PageShell,
@@ -109,8 +110,7 @@ export default function OmsOrders() {
                     </DataTD>
                     <DataTD className="text-xs text-muted-foreground">{order.orderDate}</DataTD>
                     <DataTD>
-                      <p className="font-medium text-xs leading-tight">{order.customerName}</p>
-                      <p className="text-[10px] text-muted-foreground">{order.city}</p>
+                      <PersonCell name={order.customerName} subtitle={order.city} size="xs" />
                     </DataTD>
                     <DataTD>
                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase bg-blue-100 text-blue-700">

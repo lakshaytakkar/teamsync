@@ -4,7 +4,6 @@ import { Link, useLocation } from "wouter";
 
 import { teamMembers, activityLogs } from "@/lib/mock-data-admin";
 import { reports } from "@/lib/mock-data-admin";
-import { getPersonAvatar } from "@/lib/avatars";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
 import {

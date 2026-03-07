@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { candidates, applications, interviews, evaluations } from "@/lib/mock-data-ats";
 import { PageShell } from "@/components/layout";
 import { DetailBanner, InfoPropertyGrid, Timeline } from "@/components/blocks";
@@ -205,10 +206,7 @@ export default function AtsCandidateDetail() {
               <Card key={ev.id} className="border-0 shadow-sm">
                 <CardContent className="p-5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-sm">{ev.interviewerName}</p>
-                      <p className="text-xs text-muted-foreground">Submitted {ev.submittedDate}</p>
-                    </div>
+                    <PersonCell name={ev.interviewerName} subtitle={`Submitted ${ev.submittedDate}`} size="sm" />
                     <div className="flex items-center gap-2">
                       <div className="flex">{[1,2,3,4,5].map(s => <Star key={s} className={`size-4 ${s <= Math.round(ev.overallRating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />)}</div>
                       <StatusBadge status={ev.recommendation} />

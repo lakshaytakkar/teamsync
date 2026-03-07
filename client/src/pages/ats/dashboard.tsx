@@ -1,9 +1,8 @@
 import { useLocation } from "wouter";
 import { Briefcase, Users, CalendarCheck, FileSignature } from "lucide-react";
 import { Fade } from "@/components/ui/animated";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { jobOpenings, candidates, interviews, offers } from "@/lib/mock-data-ats";
 import {
   PageShell,
@@ -150,14 +149,7 @@ export default function AtsDashboard() {
           <div className="divide-y">
             {latestCandidates.map((c) => (
               <div key={c.id} className="flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/20 transition-colors" onClick={() => setLocation(`/ats/candidates/${c.id}`)} data-testid={`candidate-item-${c.id}`}>
-                <Avatar className="size-7">
-                  <AvatarImage src={getPersonAvatar(c.name, 28)} alt={c.name} />
-                  <AvatarFallback className="text-[9px]">{c.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{c.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{c.currentRole} · {c.currentCompany}</p>
-                </div>
+                <PersonCell name={c.name} subtitle={`${c.currentRole} · ${c.currentCompany}`} size="sm" className="flex-1 min-w-0" />
                 <StatusBadge status={c.stage} />
               </div>
             ))}

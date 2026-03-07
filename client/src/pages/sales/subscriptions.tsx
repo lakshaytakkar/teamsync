@@ -3,7 +3,7 @@ import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { subscriptions, type Subscription } from "@/lib/mock-data-sales";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { PageShell } from "@/components/layout";
@@ -35,10 +35,7 @@ export default function SubscriptionsPage() {
       header: "User",
       sortable: true,
       render: (item) => (
-        <div className="flex items-center gap-2.5">
-          <img src={getPersonAvatar(item.userName, 28)} alt={item.userName} className="size-7 shrink-0 rounded-full" />
-          <span className="text-sm font-medium" data-testid={`text-sub-user-${item.id}`}>{item.userName}</span>
-        </div>
+        <PersonCell name={item.userName} size="sm" />
       ),
     },
     {

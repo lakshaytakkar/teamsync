@@ -5,6 +5,7 @@ import {
   Plus, ClipboardList, CheckCircle2, Clock, AlertTriangle, XCircle,
   FileText, BookOpen, PlayCircle, ExternalLink, Eye,
 } from "lucide-react";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -266,12 +267,7 @@ export default function FaireApplications() {
                   return (
                     <DataTR key={a.id} onClick={() => setLocation(`/faire/applications/${a.id}`)} data-testid={`row-application-${a.id}`}>
                       <DataTD>
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: FAIRE_COLOR }}>
-                            {a.brand_name.charAt(0).toUpperCase()}
-                          </div>
-                          <p className="font-medium">{a.brand_name}</p>
-                        </div>
+                        <CompanyCell name={a.brand_name} size="sm" />
                       </DataTD>
                       <DataTD className="text-muted-foreground">{a.category ?? "—"}</DataTD>
                       <DataTD>

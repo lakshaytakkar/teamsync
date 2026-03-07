@@ -6,6 +6,7 @@ import {
   CheckCircle2, AlertTriangle, XCircle, ClipboardList, Globe, Link2,
   ShoppingBag, Package, BookOpen, PlayCircle, Store,
 } from "lucide-react";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -462,7 +463,7 @@ export default function FaireApplicationDetail() {
             </Button>
             <div>
               <div className="flex items-center gap-2.5 mb-1">
-                <h1 className="text-2xl font-bold font-heading">{app.brand_name}</h1>
+                <CompanyCell name={app.brand_name} size="lg" />
                 <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${sc.bg} ${sc.text}`}>
                   <StatusIcon size={11} /> {sc.label}
                 </span>

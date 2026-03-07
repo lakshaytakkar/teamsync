@@ -8,7 +8,7 @@ import { Fade } from "@/components/ui/animated";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import {
   crmDeals, crmActivities, teamPerformance, ALL_VERTICALS_IN_CRM,
   type CrmDeal, type CrmActivity,
@@ -202,11 +202,7 @@ export default function CrmDashboard() {
             {topPerformers.map((rep, i) => (
               <div key={rep.id} className="flex items-center gap-3" data-testid={`performer-${rep.id}`}>
                 <span className="text-lg">{["🥇", "🥈", "🥉"][i]}</span>
-                <img src={getPersonAvatar(rep.name, 32)} alt={rep.name} className="size-8 rounded-full" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{rep.name}</p>
-                  <p className="text-xs text-muted-foreground">{rep.dealsWon} won · {formatINR(rep.revenue)}</p>
-                </div>
+                <PersonCell name={rep.name} subtitle={`${rep.dealsWon} won · ${formatINR(rep.revenue)}`} />
                 <span className="text-xs font-semibold text-emerald-600">{rep.winRate}%</span>
               </div>
             ))}

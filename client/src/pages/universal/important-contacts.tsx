@@ -21,6 +21,7 @@ import {
 } from "@/components/layout";
 import { useToast } from "@/hooks/use-toast";
 import { detectVerticalFromUrl } from "@/lib/verticals-config";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { importantContacts, type ImportantContact, type ContactCategory, type ContactPriority } from "@/lib/mock-data-contacts";
 
 const categoryConfig: Record<ContactCategory, { label: string; color: string }> = {
@@ -78,8 +79,7 @@ function ContactCard({ contact }: { contact: ImportantContact }) {
       </div>
 
       <div className="mb-3 pr-16">
-        <p className="text-base font-bold text-foreground leading-tight" data-testid={`text-name-${contact.id}`}>{contact.name}</p>
-        <p className="text-xs text-muted-foreground mt-0.5" data-testid={`text-title-${contact.id}`}>{contact.title}</p>
+        <PersonCell name={contact.name} subtitle={contact.title} size="sm" />
         <p className="text-sm font-medium text-foreground/80 mt-0.5" data-testid={`text-org-${contact.id}`}>{contact.organization}</p>
       </div>
 

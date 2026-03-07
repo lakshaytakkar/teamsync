@@ -40,7 +40,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { CRM_COLOR } from "@/lib/crm-config";
 import { PageShell } from "@/components/layout";
 
@@ -352,16 +352,8 @@ export default function PaymentLinksPage() {
             <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group">
               <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className={`size-10 rounded-full flex items-center justify-center text-white font-bold text-sm`} style={{ backgroundColor: CRM_COLOR }}>
-                    {link.customerName.charAt(0)}
-                  </div>
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm">{link.customerName}</span>
-                      <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded uppercase">{link.id}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-1">{link.description}</p>
-                  </div>
+                  <PersonCell name={link.customerName} subtitle={link.description} />
+                  <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded uppercase shrink-0">{link.id}</span>
                 </div>
 
                 <div className="grid grid-cols-2 md:flex md:items-center gap-4 md:gap-8">

@@ -6,6 +6,7 @@ import { fulfillmentOrders, type FulfillmentOrder } from "@/lib/mock-data-sales"
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { PageShell } from "@/components/layout";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 
 const statusVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   pending: "neutral",
@@ -33,7 +34,7 @@ export default function FulfillmentPage() {
       key: "store",
       header: "Store",
       sortable: true,
-      render: (item) => <span className="text-sm">{item.store}</span>,
+      render: (item) => <CompanyCell name={item.store} size="sm" />,
     },
     {
       key: "product",
@@ -62,7 +63,7 @@ export default function FulfillmentPage() {
     {
       key: "supplier",
       header: "Supplier",
-      render: (item) => <span className="text-sm">{item.supplier}</span>,
+      render: (item) => <CompanyCell name={item.supplier} size="sm" />,
     },
     {
       key: "createdDate",

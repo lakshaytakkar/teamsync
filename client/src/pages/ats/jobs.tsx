@@ -18,6 +18,7 @@ import {
   DetailSection,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -134,7 +135,7 @@ export default function AtsJobs() {
                   <DataTD><StatusBadge status={job.status} /></DataTD>
                   <DataTD><StatusBadge status={job.priority} /></DataTD>
                   <DataTD className="font-medium">{job.filled}/{job.openings}</DataTD>
-                  <DataTD className="text-muted-foreground">{job.hiringManager}</DataTD>
+                  <DataTD><PersonCell name={job.hiringManager} size="sm" /></DataTD>
                   <DataTD className="text-muted-foreground">{job.targetDate}</DataTD>
                 </DataTR>
               ))}

@@ -22,6 +22,7 @@ export {
 } from "@/components/layout";
 
 export { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+export { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 export { StatusBadge } from "@/components/hr/status-badge";
 export { FormDialog } from "@/components/hr/form-dialog";
 export { StatsCard } from "@/components/hr/stats-card";

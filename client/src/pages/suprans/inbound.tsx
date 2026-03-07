@@ -17,6 +17,7 @@ import { supransLeads as initialLeads, type SupransLead } from "@/lib/mock-data-
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { SUPRANS_COLOR } from "@/lib/suprans-config";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 
 const SOURCES = ["all", "website", "referral", "instagram", "linkedin", "google-ads", "walk-in", "whatsapp"] as const;
@@ -152,14 +153,9 @@ export default function SupransInbound() {
             const SrcIcon = SOURCE_ICONS[lead.source] || Globe;
             return (
               <div key={lead.id} className="p-4 flex items-center gap-4" data-testid={`row-inbound-${lead.id}`}>
-                <div className="w-9 h-9 rounded-full flex items-center justify-center bg-indigo-50 shrink-0">
-                  <span className="text-sm font-bold text-indigo-700">
-                    {lead.name.charAt(0)}
-                  </span>
-                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{lead.name}</span>
+                    <PersonCell name={lead.name} size="sm" />
                     <span className={`text-xs font-bold ${PRIORITY_COLORS[lead.priority]}`}>
                       ● {lead.priority}
                     </span>
@@ -202,7 +198,7 @@ export default function SupransInbound() {
           {validateLead && (
             <div className="space-y-4">
               <div className="rounded-lg border p-3 space-y-1 text-sm">
-                <div className="font-medium text-base">{validateLead.name}</div>
+                <div><PersonCell name={validateLead.name} size="sm" /></div>
                 <div className="text-muted-foreground flex items-center gap-1"><Phone className="w-3 h-3" />{validateLead.phone}</div>
                 <div className="text-muted-foreground flex items-center gap-1"><Mail className="w-3 h-3" />{validateLead.email}</div>
                 <div className="text-muted-foreground">Service: <span className="text-foreground">{SERVICE_LABELS[validateLead.service]}</span></div>

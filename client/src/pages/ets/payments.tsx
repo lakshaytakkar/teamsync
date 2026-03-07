@@ -13,7 +13,7 @@ import { StatsCard } from "@/components/hr/stats-card";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { CardSkeleton } from "@/components/ui/card-skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
@@ -21,6 +21,7 @@ import { PageTransition, Fade, Stagger, StaggerItem } from "@/components/ui/anim
 import { cn } from "@/lib/utils";
 import { etsPayments, type EtsPayment } from "@/lib/mock-data-ets";
 import { PageShell } from "@/components/layout";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const paymentStatusVariant: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   received: "success",
@@ -115,9 +116,7 @@ export default function PaymentsPage() {
       header: "Client",
       sortable: true,
       render: (item) => (
-        <span className="text-sm font-medium" data-testid={`text-payment-client-${item.id}`}>
-          {item.clientName}
-        </span>
+        <PersonCell name={item.clientName} size="sm" />
       ),
     },
     {
@@ -264,9 +263,7 @@ export default function PaymentsPage() {
                     <Card key={cs.clientId} data-testid={`card-client-summary-${cs.clientId}`}>
                       <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 pb-2 p-4">
                         <div className="flex items-center gap-3 min-w-0 flex-1 flex-wrap">
-                          <CardTitle className="text-sm font-semibold">
-                            {cs.clientName}
-                          </CardTitle>
+                          <PersonCell name={cs.clientName} size="sm" />
                           <Badge variant="secondary" className="text-xs shrink-0">
                             {cs.payments.length} payments
                           </Badge>

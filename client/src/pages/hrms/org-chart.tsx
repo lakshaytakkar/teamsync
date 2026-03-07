@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { PageTransition, Fade } from "@/components/ui/animated";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { orgChart, hrmsDepartments, type OrgNode } from "@/lib/mock-data-hrms";
 import { PageShell } from "@/components/layout";
 
@@ -36,14 +35,7 @@ function OrgChartNode({ node, deptFilter, level = 0 }: { node: OrgNode; deptFilt
             className="w-full h-1 rounded-full mb-1"
             style={{ background: deptColors[node.department] || "#6b7280" }}
           />
-          <Avatar className="size-9">
-            <AvatarImage src={getPersonAvatar(node.name, 36)} alt={node.name} />
-            <AvatarFallback className="text-xs">{node.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-          </Avatar>
-          <div className="text-center">
-            <p className="text-xs font-semibold leading-tight truncate w-full">{node.name.split(" ")[0]}</p>
-            <p className="text-[10px] text-muted-foreground leading-tight truncate w-full">{node.role}</p>
-          </div>
+          <PersonCell name={node.name} subtitle={node.role} size="sm" />
           {hasChildren && (
             <div className="text-muted-foreground">
               {expanded ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}

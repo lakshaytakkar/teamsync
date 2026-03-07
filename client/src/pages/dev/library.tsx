@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,7 +36,7 @@ const sampleTableData = [
 ];
 
 const sampleColumns: Column<typeof sampleTableData[0]>[] = [
-  { key: "name", header: "Company", sortable: true, render: (r) => <span className="font-medium">{r.name}</span> },
+  { key: "name", header: "Company", sortable: true, render: (r) => <CompanyCell name={r.name} size="xs" /> },
   { key: "status", header: "Status", render: (r) => <StatusBadge status={r.status as "Active" | "Pending" | "Completed"} /> },
   { key: "priority", header: "Priority", render: (r) => (
     <Badge variant={r.priority === "High" ? "destructive" : r.priority === "Medium" ? "default" : "secondary"}>
@@ -45,7 +46,7 @@ const sampleColumns: Column<typeof sampleTableData[0]>[] = [
   { key: "amount", header: "Amount", sortable: true, render: (r) => <span className="tabular-nums font-medium">{r.amount}</span> },
   { key: "date", header: "Date", sortable: true },
   { key: "assignee", header: "Assignee", render: (r) => (
-    <Avatar className="h-7 w-7"><AvatarFallback className="text-[10px] bg-primary/10 text-primary">{r.assignee}</AvatarFallback></Avatar>
+    <PersonCell name={r.assignee} size="xs" />
   )},
 ];
 
@@ -144,12 +145,7 @@ function ManualTableExample() {
             ].map((e) => (
               <DataTR key={e.name}>
                 <DataTD>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="text-[10px] bg-primary/10 text-primary">{e.name.split(" ").map(w => w[0]).join("")}</AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium text-sm">{e.name}</span>
-                  </div>
+                  <PersonCell name={e.name} size="sm" />
                 </DataTD>
                 <DataTD><span className="text-sm">{e.dept}</span></DataTD>
                 <DataTD><Badge variant="secondary">{e.role}</Badge></DataTD>
@@ -248,7 +244,7 @@ function KanbanExample() {
                     <Badge variant={item.priority === "High" ? "destructive" : item.priority === "Medium" ? "default" : "secondary"} className="text-[10px] px-1.5 py-0">
                       {item.priority}
                     </Badge>
-                    <Avatar className="h-5 w-5"><AvatarFallback className="text-[8px] bg-primary/10 text-primary">{item.assignee}</AvatarFallback></Avatar>
+                    <PersonCell name={item.assignee} size="xs" />
                   </div>
                 </div>
               ))}

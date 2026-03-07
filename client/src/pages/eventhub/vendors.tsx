@@ -22,6 +22,7 @@ import {
   DetailSection,
 } from "@/components/layout";
 import { verticals } from "@/lib/verticals-config";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -170,14 +171,11 @@ export default function HubVendors() {
             <tbody className="divide-y">
               {filtered.map((item) => (
                 <DataTR key={item.id}>
-                  <DataTD className="font-medium">{item.name}</DataTD>
+                  <DataTD><CompanyCell name={item.name} size="sm" /></DataTD>
                   <DataTD>{item.category}</DataTD>
                   <DataTD className="text-muted-foreground">{item.specialty}</DataTD>
                   <DataTD>
-                    <div>
-                      <p className="text-sm font-medium">{item.contactName}</p>
-                      <p className="text-xs text-muted-foreground">{item.contactEmail}</p>
-                    </div>
+                    <PersonCell name={item.contactName} subtitle={item.contactEmail} size="sm" />
                   </DataTD>
                   <DataTD>{formatCurrency(item.ratePerDay)}</DataTD>
                   <DataTD>

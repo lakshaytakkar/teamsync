@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -398,8 +399,8 @@ function ProjectCard({ project, onClick }: { project: DevProject; onClick: () =>
           </div>
         </div>
 
-        <div className="mt-3 text-xs text-muted-foreground" data-testid={`text-project-owner-${project.id}`}>
-          Owner: {project.owner}
+        <div className="mt-3" data-testid={`text-project-owner-${project.id}`}>
+          <PersonCell name={project.owner} subtitle="Owner" size="xs" />
         </div>
       </div>
     </Card>

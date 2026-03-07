@@ -12,11 +12,10 @@ import {
 } from "lucide-react";
 import { detectVerticalFromUrl } from "@/lib/verticals-config";
 import { verticalMembers, type VerticalMember } from "@/lib/mock-data-shared";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,18 +84,6 @@ export default function UniversalTeam() {
     }
   };
 
-  const getAvatarFallbackColor = (name: string) => {
-    const colors = [
-      "bg-blue-500", "bg-purple-500", "bg-pink-500", 
-      "bg-indigo-500", "bg-cyan-500", "bg-teal-500",
-      "bg-emerald-500", "bg-orange-500", "bg-rose-500"
-    ];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
-  };
 
   if (!vertical) return null;
 
@@ -207,12 +194,7 @@ export default function UniversalTeam() {
               >
                 <div className="flex flex-col items-center text-center space-y-3">
                     <div className="relative">
-                      <Avatar className="h-20 w-20 border-2 border-background shadow-sm">
-                        <AvatarImage src={getPersonAvatar(member.name, 80)} alt={member.name} />
-                        <AvatarFallback className={cn("text-xl font-bold text-white", getAvatarFallbackColor(member.name))}>
-                          {member.name.split(" ").map(n => n[0]).join("").toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      <PersonCell name={member.name} subtitle={member.role} size="lg" />
                       <div className={cn(
                         "absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-background shadow-sm",
                         getStatusColor(member.status)
@@ -220,12 +202,6 @@ export default function UniversalTeam() {
                     </div>
                     
                     <div className="space-y-1">
-                      <h3 className="text-lg font-semibold leading-none" data-testid={`text-name-${member.id}`}>
-                        {member.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground" data-testid={`text-role-${member.id}`}>
-                        {member.role}
-                      </p>
                       <Badge variant="secondary" className="mt-1 font-medium">
                         {member.department}
                       </Badge>

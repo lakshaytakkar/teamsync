@@ -78,6 +78,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -316,10 +317,7 @@ export default function UniversalTasks() {
             <Calendar className="h-3.5 w-3.5" />
             {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </div>
-          <Avatar className="h-6 w-6 border shadow-sm">
-            <AvatarImage src={getPersonAvatar(task.assigneeName)} />
-            <AvatarFallback className="text-[10px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
-          </Avatar>
+          <PersonCell name={task.assigneeName} size="xs" />
         </div>
       </Card>
     );
@@ -658,13 +656,7 @@ function TasksListView({ tasks, onTaskClick }: { tasks: SharedTask[], onTaskClic
                   </span>
                 </td>
                 <td className="p-4">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-7 w-7 border">
-                      <AvatarImage src={getPersonAvatar(task.assigneeName)} />
-                      <AvatarFallback className="text-[10px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-[13px]">{task.assigneeName}</span>
-                  </div>
+                  <PersonCell name={task.assigneeName} size="sm" />
                 </td>
                 <td className="p-4">
                   <Badge 
@@ -917,24 +909,12 @@ function TaskDetailDialog({
                       <span className={labelCls}>Assignee</span>
                       <Select value={task.assigneeName} onValueChange={onAssigneeChange}>
                         <SelectTrigger className={triggerCls} data-testid="select-task-assignee">
-                          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-                            <Avatar className="h-4 w-4 shrink-0">
-                              <AvatarImage src={getPersonAvatar(task.assigneeName)} />
-                              <AvatarFallback className="text-[8px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
-                            </Avatar>
-                            <span className="truncate">{task.assigneeName}</span>
-                          </div>
+                          <PersonCell name={task.assigneeName} size="xs" />
                         </SelectTrigger>
                         <SelectContent>
                           {verticalMembers.filter(m => m.verticalId === task.verticalId).map(m => (
                             <SelectItem key={m.id} value={m.name}>
-                              <div className="flex items-center gap-2">
-                                <Avatar className="h-5 w-5">
-                                  <AvatarImage src={getPersonAvatar(m.name)} />
-                                  <AvatarFallback className="text-[9px]">{m.name.substring(0, 2)}</AvatarFallback>
-                                </Avatar>
-                                {m.name}
-                              </div>
+                              <PersonCell name={m.name} size="sm" />
                             </SelectItem>
                           ))}
                         </SelectContent>

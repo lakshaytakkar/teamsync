@@ -22,6 +22,7 @@ import {
 } from "@/lib/mock-data-suprans";
 import { cn } from "@/lib/utils";
 import { SUPRANS_COLOR } from "@/lib/suprans-config";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 
 const PRIORITY_OPTIONS = [
@@ -129,7 +130,7 @@ export default function SupransEnrichment() {
             <div key={lead.id} className="rounded-xl border bg-card p-4 flex items-start justify-between gap-4" data-testid={`card-enrichment-${lead.id}`}>
               <div className="flex-1 min-w-0 space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm">{lead.name}</span>
+                  <PersonCell name={lead.name} size="sm" />
                   <span className={cn("text-xs font-bold flex items-center gap-1", priorityInfo?.color)}>
                     <span className={cn("w-1.5 h-1.5 rounded-full", priorityInfo?.dot)} />
                     {lead.priority}
@@ -173,7 +174,7 @@ export default function SupransEnrichment() {
           {enrichLead && (
             <div className="space-y-4">
               <div className="rounded-lg border p-3 text-sm space-y-1">
-                <div className="font-medium text-base">{enrichLead.name}</div>
+                <div><PersonCell name={enrichLead.name} size="sm" /></div>
                 <div className="text-muted-foreground">Service: {SERVICE_LABELS[enrichLead.service]}</div>
               </div>
 

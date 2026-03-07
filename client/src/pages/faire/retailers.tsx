@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, Pencil } from "lucide-react";
 import { formatINRFromDollars, DualFromDollars } from "@/lib/faire-currency";
+import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -244,8 +245,7 @@ export default function FaireRetailers() {
               {paginatedRetailers.map(retailer => (
                 <DataTR key={retailer.id} onClick={() => setLocation(`/faire/retailers/${retailer.id}`)} data-testid={`retailer-row-${retailer.id}`}>
                   <DataTD>
-                    <p className="font-medium">{retailer.name}</p>
-                    <p className="text-xs text-muted-foreground">{retailer.id}</p>
+                    <CompanyCell name={retailer.name} subtitle={retailer.id} size="sm" />
                   </DataTD>
                   <DataTD className="text-muted-foreground font-medium">
                     {[retailer.city, retailer.state].filter(Boolean).join(", ") || "—"}

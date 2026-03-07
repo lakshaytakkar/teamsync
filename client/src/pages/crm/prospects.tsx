@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { crmContacts, crmDeals, ALL_VERTICALS_IN_CRM } from "@/lib/mock-data-crm";
 import { CRM_COLOR } from "@/lib/crm-config";
 import {
@@ -138,14 +138,7 @@ export default function CrmProspects() {
             <StaggerItem key={c.id}>
               <Card className="border-0 shadow-sm hover:shadow-md transition-shadow" data-testid={`prospect-card-${c.id}`}>
                 <CardContent className="p-5 space-y-4">
-                  <div className="flex items-start gap-3">
-                    <img src={getPersonAvatar(c.name, 40)} alt={c.name} className="size-10 rounded-full shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{c.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{c.designation}</p>
-                      <p className="text-xs text-muted-foreground truncate">{c.company}</p>
-                    </div>
-                  </div>
+                  <PersonCell name={c.name} subtitle={`${c.designation} · ${c.company}`} size="lg" />
 
                   <div className="flex items-center gap-2 flex-wrap">
                     {vert && (

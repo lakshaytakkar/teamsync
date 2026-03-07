@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { Star, Building2, Clock, ClipboardList } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Button } from "@/components/ui/button";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { omsSuppliers, omsPurchaseOrders } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
 import { PageShell } from "@/components/layout";
@@ -117,8 +118,8 @@ export default function OmsSuppliers() {
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-2 mb-3">
                           <div>
-                            <p className="font-semibold text-sm leading-tight">{sup.name}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{sup.contactPerson}</p>
+                            <CompanyCell name={sup.name} size="sm" />
+                            <div className="mt-0.5"><PersonCell name={sup.contactPerson} size="xs" /></div>
                           </div>
                           <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0", sup.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600")}>
                             {sup.isActive ? "Active" : "Inactive"}
@@ -197,10 +198,9 @@ export default function OmsSuppliers() {
                     return (
                       <tr key={sup.id} className="border-b border-border/50 hover:bg-muted/20 cursor-pointer" onClick={() => setSelectedSupplier(selectedSupplier === sup.id ? null : sup.id)} data-testid={`row-supplier-${sup.id}`}>
                         <td className="py-2.5 px-4">
-                          <p className="text-xs font-semibold">{sup.name}</p>
-                          <p className="text-[10px] text-muted-foreground">{sup.email}</p>
+                          <CompanyCell name={sup.name} subtitle={sup.email} size="xs" />
                         </td>
-                        <td className="py-2.5 px-4 text-xs text-muted-foreground">{sup.contactPerson}<br /><span className="text-[10px]">{sup.phone}</span></td>
+                        <td className="py-2.5 px-4"><PersonCell name={sup.contactPerson} subtitle={sup.phone} size="xs" /></td>
                         <td className="py-2.5 px-4 text-xs">{sup.city}, {sup.state}</td>
                         <td className="py-2.5 px-4">
                           <div className="flex flex-wrap gap-1">

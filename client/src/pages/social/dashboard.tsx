@@ -13,7 +13,6 @@ import {
 } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { socialPosts, socialAccounts, campaigns, approvalRequests } from "@/lib/mock-data-social";
 import { SOCIAL_COLOR } from "@/lib/social-config";

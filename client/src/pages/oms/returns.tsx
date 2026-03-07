@@ -3,6 +3,7 @@ import { useState, useMemo, Fragment } from "react";
 import { ChevronDown, ChevronRight, Search, FileText, Truck, ClipboardList, CheckCircle2 } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Input } from "@/components/ui/input";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { omsReturns } from "@/lib/mock-data-oms";
@@ -167,7 +168,7 @@ export default function OmsReturns() {
                     </td>
                     <td className="py-3 px-3 text-xs font-semibold text-cyan-700">{ret.returnNumber}</td>
                     <td className="py-3 px-3 text-xs text-muted-foreground">{ret.orderNumber}</td>
-                    <td className="py-3 px-3 text-xs font-medium">{ret.customerName}</td>
+                    <td className="py-3 px-3"><PersonCell name={ret.customerName} size="xs" /></td>
                     <td className="py-3 px-3 text-right text-xs font-semibold">{ret.items.length}</td>
                     <td className="py-3 px-3 text-xs text-muted-foreground max-w-[140px] truncate">{ret.reason}</td>
                     <td className="py-3 px-3 text-center">
@@ -182,7 +183,7 @@ export default function OmsReturns() {
                         {ret.resolutionType === "restock-only" ? "Restock" : ret.resolutionType}
                       </span>
                     </td>
-                    <td className="py-3 px-3 text-xs text-muted-foreground">{ret.handledBy}</td>
+                    <td className="py-3 px-3"><PersonCell name={ret.handledBy} size="xs" /></td>
                   </tr>
                   {expanded === ret.id && (
                     <tr key={`${ret.id}-detail`} className={cn("bg-muted/10", ret.status === "qc-fail" && "bg-red-50/40")}>
@@ -222,7 +223,7 @@ export default function OmsReturns() {
                             <p className="text-xs font-semibold text-muted-foreground mb-2">RESOLUTION</p>
                             <div className="space-y-2 text-xs">
                               <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span className="font-medium capitalize">{ret.resolutionType}</span></div>
-                              <div className="flex justify-between"><span className="text-muted-foreground">Handled By</span><span className="font-medium">{ret.handledBy}</span></div>
+                              <div className="flex justify-between items-center"><span className="text-muted-foreground">Handled By</span><PersonCell name={ret.handledBy} size="xs" /></div>
                             </div>
                             {ret.status === "qc-pass" && (
                               <Button className="mt-3 w-full text-xs" style={{ backgroundColor: "#059669" }} data-testid={`btn-restock-${ret.id}`}>

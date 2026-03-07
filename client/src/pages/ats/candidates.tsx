@@ -5,9 +5,8 @@ import { Fade } from "@/components/ui/animated";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { candidates as allCandidatesData, jobOpenings } from "@/lib/mock-data-ats";
 import type { Candidate } from "@/lib/mock-data-ats";
 import {
@@ -169,16 +168,7 @@ export default function AtsCandidates() {
                   data-testid={`candidate-card-${c.id}`}
                 >
                   <CardContent className="p-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="size-7 shrink-0">
-                        <AvatarImage src={getPersonAvatar(c.name, 28)} alt={c.name} />
-                        <AvatarFallback className="text-[9px]">{c.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold truncate">{c.name}</p>
-                        <p className="text-[10px] text-muted-foreground truncate">{c.currentRole}</p>
-                      </div>
-                    </div>
+                    <PersonCell name={c.name} subtitle={c.currentRole} size="sm" />
                     <p className="text-[10px] text-muted-foreground truncate">{c.currentCompany}</p>
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">{c.experience}y exp</span>
@@ -208,13 +198,7 @@ export default function AtsCandidates() {
                 {filtered.map(c => (
                   <DataTR key={c.id} onClick={() => setLocation(`/ats/candidates/${c.id}`)} data-testid={`candidate-row-${c.id}`}>
                     <DataTD>
-                      <div className="flex items-center gap-2.5">
-                        <Avatar className="size-8"><AvatarImage src={getPersonAvatar(c.name, 32)} /><AvatarFallback className="text-xs">{c.name.split(" ").map(n => n[0]).join("")}</AvatarFallback></Avatar>
-                        <div>
-                          <p className="font-medium">{c.name}</p>
-                          <p className="text-xs text-muted-foreground">{c.email}</p>
-                        </div>
-                      </div>
+                      <PersonCell name={c.name} subtitle={c.email} />
                     </DataTD>
                     <DataTD className="text-muted-foreground">{c.currentRole} · {c.currentCompany}</DataTD>
                     <DataTD>{c.appliedJobTitle}</DataTD>

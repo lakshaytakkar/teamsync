@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { hubEvents, hubAttendees, hubVendors, hubBudgetItems } from "@/lib/mock-data-eventhub";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { useToast } from "@/hooks/use-toast";
@@ -327,10 +327,7 @@ export default function HubEventDetail() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Organizer</span>
-                          <div className="flex items-center gap-2">
-                            <img src={getPersonAvatar(event.organizer)} alt={event.organizer} className="size-5 rounded-full" />
-                            <span className="font-medium">{event.organizer}</span>
-                          </div>
+                          <PersonCell name={event.organizer} size="xs" />
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Status</span>
@@ -362,10 +359,7 @@ export default function HubEventDetail() {
                           {eventAttendees.map((attendee) => (
                             <tr key={attendee.id} data-testid={`row-attendee-${attendee.id}`} className="hover:bg-muted/30">
                               <td className="px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                  <img src={getPersonAvatar(attendee.name)} alt={attendee.name} className="size-7 rounded-full" />
-                                  <span className="font-medium text-foreground">{attendee.name}</span>
-                                </div>
+                                <PersonCell name={attendee.name} size="sm" />
                               </td>
                               <td className="px-4 py-3 text-muted-foreground">{attendee.company}</td>
                               <td className="px-4 py-3 text-muted-foreground">{attendee.role}</td>
@@ -421,7 +415,7 @@ export default function HubEventDetail() {
                         <tbody className="divide-y divide-border">
                           {eventVendors.map((vendor) => (
                             <tr key={vendor.id} data-testid={`row-vendor-${vendor.id}`} className="hover:bg-muted/30">
-                              <td className="px-4 py-3 font-medium text-foreground">{vendor.name}</td>
+                              <td className="px-4 py-3"><CompanyCell name={vendor.name} size="sm" /></td>
                               <td className="px-4 py-3">
                                 <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${categoryColorMap[vendor.category] || ""}`}>
                                   {vendor.category}
@@ -429,8 +423,7 @@ export default function HubEventDetail() {
                               </td>
                               <td className="px-4 py-3 text-muted-foreground text-xs">{vendor.specialty}</td>
                               <td className="px-4 py-3">
-                                <p className="text-foreground">{vendor.contactName}</p>
-                                <p className="text-xs text-muted-foreground">{vendor.contactEmail}</p>
+                                <PersonCell name={vendor.contactName} subtitle={vendor.contactEmail} size="sm" />
                               </td>
                               <td className="px-4 py-3 font-medium text-foreground">{formatCurrency(vendor.ratePerDay)}</td>
                             </tr>

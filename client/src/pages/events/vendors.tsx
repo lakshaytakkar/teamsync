@@ -18,7 +18,7 @@ import {
   DetailModal,
   DetailSection,
 } from "@/components/layout";
-
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 
 const categoryConfig: Record<VendorCategory, { label: string; color: string }> = {
   ground_partner: { label: "Ground Partner", color: "bg-pink-100 text-pink-700" },
@@ -130,7 +130,7 @@ export default function EventsVendors() {
                 <div className="flex items-start justify-between gap-2 mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-1.5 mb-1">
-                      <h3 className="text-sm font-bold leading-tight" data-testid={`text-vendor-name-${vendor.id}`}>{vendor.name}</h3>
+                      <CompanyCell name={vendor.name} size="sm" />
                       {isKeyPartner && (
                         <span className="flex items-center gap-0.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-tight">
                           <Crown className="size-2.5" />KEY
@@ -146,7 +146,7 @@ export default function EventsVendors() {
 
                 <div className="mb-4">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Primary Contact</p>
-                  <p className="text-sm font-bold text-foreground/80">{vendor.contact_person}</p>
+                  <PersonCell name={vendor.contact_person} size="sm" />
                   <div className="flex items-center gap-1.5 mt-2">
                     {vendor.whatsapp && (
                       <a href={`https://wa.me/${vendor.whatsapp}`} target="_blank" rel="noreferrer">

@@ -22,8 +22,7 @@ import {
   DetailSection,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
-
-
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const today = "2026-02-28";
 const thisWeekEnd = "2026-03-06";
@@ -166,7 +165,7 @@ export default function AtsInterviews() {
             <tbody className="divide-y">
               {filtered.map(iv => (
                 <DataTR key={iv.id} data-testid={`interview-row-${iv.id}`}>
-                  <DataTD className="font-medium">{iv.candidateName}</DataTD>
+                  <DataTD><PersonCell name={iv.candidateName} size="sm" /></DataTD>
                   <DataTD className="text-muted-foreground">{iv.jobTitle}</DataTD>
                   <DataTD>{iv.scheduledDate} {iv.scheduledTime}</DataTD>
                   <DataTD><StatusBadge status={iv.type} /></DataTD>

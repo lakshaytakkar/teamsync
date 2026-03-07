@@ -5,6 +5,7 @@ import { supportTickets, type SupportTicket } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { PageShell } from "@/components/layout";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const priorityVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   low: "neutral",
@@ -51,7 +52,7 @@ export default function TicketsPage() {
       key: "user",
       header: "User",
       sortable: true,
-      render: (item) => <span className="text-sm">{item.user}</span>,
+      render: (item) => <PersonCell name={item.user} size="sm" />,
     },
     {
       key: "priority",
@@ -92,7 +93,7 @@ export default function TicketsPage() {
     {
       key: "assignedTo",
       header: "Assigned To",
-      render: (item) => <span className="text-sm">{item.assignedTo}</span>,
+      render: (item) => <PersonCell name={item.assignedTo} size="xs" />,
     },
   ];
 

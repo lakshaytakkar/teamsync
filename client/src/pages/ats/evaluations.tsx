@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { evaluations, interviews, type Evaluation } from "@/lib/mock-data-ats";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { PageShell, DetailModal } from "@/components/layout";
 
 function StarDisplay({ rating }: { rating: number }) {
@@ -68,9 +69,9 @@ export default function AtsEvaluations() {
                   <tbody className="divide-y">
                     {evaluations.map(ev => (
                       <tr key={ev.id} className="hover:bg-muted/20" data-testid={`eval-row-${ev.id}`}>
-                        <td className="px-4 py-3 text-sm font-medium">{ev.candidateName}</td>
+                        <td className="px-4 py-3"><PersonCell name={ev.candidateName} size="sm" /></td>
                         <td className="px-4 py-3 text-sm text-muted-foreground">{ev.jobTitle}</td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">{ev.interviewerName}</td>
+                        <td className="px-4 py-3"><PersonCell name={ev.interviewerName} size="sm" /></td>
                         <td className="px-4 py-3"><StarDisplay rating={ev.overallRating} /></td>
                         <td className="px-4 py-3">
                           <StatusBadge status={ev.recommendation} />
@@ -104,7 +105,7 @@ export default function AtsEvaluations() {
                   <tbody className="divide-y">
                     {pendingInterviews.map(iv => (
                       <tr key={iv.id} className="hover:bg-muted/20" data-testid={`pending-eval-row-${iv.id}`}>
-                        <td className="px-4 py-3 text-sm font-medium">{iv.candidateName}</td>
+                        <td className="px-4 py-3"><PersonCell name={iv.candidateName} size="sm" /></td>
                         <td className="px-4 py-3 text-sm text-muted-foreground">{iv.jobTitle}</td>
                         <td className="px-4 py-3 text-sm text-muted-foreground">{iv.scheduledDate}</td>
                         <td className="px-4 py-3 text-sm text-muted-foreground">{iv.interviewers.join(", ")}</td>

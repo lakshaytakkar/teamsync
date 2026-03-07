@@ -10,6 +10,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { useToast } from "@/hooks/use-toast";
 import { PageShell } from "@/components/layout";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -22,7 +23,7 @@ const paymentBadge: Record<string, "success" | "warning" | "error" | "neutral"> 
 };
 
 const bookingColumns: Column<Booking>[] = [
-  { key: "client_name", header: "Client", sortable: true },
+  { key: "client_name", header: "Client", sortable: true, render: (item) => <PersonCell name={item.client_name} size="sm" /> },
   { key: "passengers", header: "Pax", sortable: true },
   { key: "travel_date", header: "Travel Date", sortable: true, render: (item) => new Date(item.travel_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) },
   { key: "advance_paid", header: "Advance", sortable: true, render: (item) => formatCurrency(item.advance_paid) },

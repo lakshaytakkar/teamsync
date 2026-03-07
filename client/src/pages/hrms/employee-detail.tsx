@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { employees, attendanceRecords, leaveRequests, payrollEntries, performanceReviews, goals } from "@/lib/mock-data-hrms";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { PageShell } from "@/components/layout";
@@ -250,7 +251,7 @@ export default function HrmsEmployeeDetail() {
                   <div className="flex items-center justify-between mb-2">
                     <div>
                       <p className="font-semibold">{review.reviewCycle}</p>
-                      <p className="text-xs text-muted-foreground">Reviewer: {review.reviewer}</p>
+                      <p className="text-xs text-muted-foreground">Reviewer: <PersonCell name={review.reviewer} size="xs" className="inline-flex" /></p>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex">

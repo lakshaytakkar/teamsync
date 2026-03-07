@@ -21,6 +21,7 @@ import {
   DetailSection,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 export default function HrmsPayroll() {
   const isLoading = useSimulatedLoading(700);
@@ -156,7 +157,7 @@ export default function HrmsPayroll() {
             <tbody className="divide-y">
               {filtered.map((p) => (
                 <DataTR key={p.id} data-testid={`payroll-row-${p.id}`}>
-                  <DataTD className="font-medium">{p.employeeName}</DataTD>
+                  <DataTD><PersonCell name={p.employeeName} size="sm" /></DataTD>
                   <DataTD className="text-muted-foreground">{p.month}</DataTD>
                   <DataTD>₹{p.grossSalary.toLocaleString("en-IN")}</DataTD>
                   <DataTD className="text-red-600">-₹{p.deductions.toLocaleString("en-IN")}</DataTD>

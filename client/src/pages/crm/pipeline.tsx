@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { crmDeals, crmContacts, crmActivities, ALL_VERTICALS_IN_CRM, type CrmDeal } from "@/lib/mock-data-crm";
 import { CRM_COLOR } from "@/lib/crm-config";
 import { PageShell } from "@/components/layout";
@@ -180,10 +180,7 @@ export default function CrmPipeline() {
                 <p className="text-sm font-medium leading-tight line-clamp-2">{deal.title}</p>
                 <div className={`size-2 rounded-full shrink-0 mt-1 ${priorityDot[deal.priority]}`} title={`${deal.priority} priority`} />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground truncate">{deal.companyName}</p>
-                <p className="text-xs text-muted-foreground truncate">{deal.contactName}</p>
-              </div>
+              <CompanyCell name={deal.companyName} subtitle={deal.contactName} size="xs" />
               <div className="flex items-center justify-between gap-1">
                 <span className="text-base font-bold">{formatValue(deal)}</span>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
@@ -197,7 +194,7 @@ export default function CrmPipeline() {
                   </span>
                 )}
                 <div className="flex items-center gap-1.5">
-                  <img src={getPersonAvatar(deal.assignedTo, 20)} alt={deal.assignedTo} className="size-5 rounded-full" title={deal.assignedTo} />
+                  <PersonCell name={deal.assignedTo} size="xs" />
                   <span className="text-xs text-muted-foreground">{deal.expectedClose.slice(5)}</span>
                 </div>
               </div>
@@ -264,14 +261,7 @@ export default function CrmPipeline() {
                   {contact && (
                     <div className="border rounded-xl p-3 space-y-1">
                       <p className="text-xs text-muted-foreground font-medium mb-2">Contact</p>
-                      <div className="flex items-center gap-2.5">
-                        <img src={getPersonAvatar(contact.name, 32)} alt={contact.name} className="size-8 rounded-full" />
-                        <div>
-                          <p className="text-sm font-medium">{contact.name}</p>
-                          <p className="text-xs text-muted-foreground">{contact.designation} · {contact.company}</p>
-                          <p className="text-xs text-muted-foreground">{contact.email}</p>
-                        </div>
-                      </div>
+                      <PersonCell name={contact.name} subtitle={`${contact.designation} · ${contact.company} · ${contact.email}`} />
                     </div>
                   )}
 

@@ -4,9 +4,8 @@ import { Users, UserCheck, Clock, Briefcase, TrendingUp, CheckCircle2, AlertCirc
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import {
   employees,
   hrmsDepartments,
@@ -136,14 +135,7 @@ export default function HrmsDashboard() {
                 onClick={() => setLocation(`/hrms/employees/${emp.id}`)}
                 data-testid={`recent-joiner-${emp.id}`}
               >
-                <Avatar className="size-8">
-                  <AvatarImage src={getPersonAvatar(emp.name, 32)} alt={emp.name} />
-                  <AvatarFallback className="text-xs">{emp.avatar}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{emp.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{emp.designation} · {emp.department}</p>
-                </div>
+                <PersonCell name={emp.name} subtitle={`${emp.designation} · ${emp.department}`} size="sm" className="flex-1 min-w-0" />
                 <span className="text-xs text-muted-foreground whitespace-nowrap">{new Date(emp.joiningDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
               </div>
             ))}
@@ -156,16 +148,7 @@ export default function HrmsDashboard() {
           <div className="space-y-2">
             {upcomingBirthdays.map((b, i) => (
               <div key={i} className="flex items-center justify-between py-1.5 border-b last:border-0">
-                <div className="flex items-center gap-2">
-                  <Avatar className="size-7">
-                    <AvatarImage src={getPersonAvatar(b.name, 28)} alt={b.name} />
-                    <AvatarFallback className="text-[10px]">{b.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium">{b.name}</p>
-                    <p className="text-xs text-muted-foreground">{b.dept}</p>
-                  </div>
-                </div>
+                <PersonCell name={b.name} subtitle={b.dept} size="sm" />
                 <Badge variant="outline" className="text-[10px]">{b.date}</Badge>
               </div>
             ))}
@@ -177,7 +160,7 @@ export default function HrmsDashboard() {
             {leaveRequests.filter(l => l.status === "pending").slice(0, 3).map((leave) => (
               <div key={leave.id} className="flex items-center justify-between gap-2 py-1.5 border-b last:border-0">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{leave.employeeName}</p>
+                  <PersonCell name={leave.employeeName} size="xs" />
                   <p className="text-xs text-muted-foreground">{leave.type} · {leave.days} day{leave.days > 1 ? "s" : ""}</p>
                 </div>
                 <div className="flex gap-1.5">

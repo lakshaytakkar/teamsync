@@ -4,7 +4,7 @@ import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { Button } from "@/components/ui/button";
 import { leads, type Lead } from "@/lib/mock-data-sales";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import {
   PageShell,
@@ -102,22 +102,7 @@ export default function LeadsPage() {
               {filtered.map((item) => (
                 <DataTR key={item.id}>
                   <DataTD>
-                    <div className="flex items-center gap-2.5">
-                      <img
-                        src={getPersonAvatar(item.name, 28)}
-                        alt={item.name}
-                        className="size-7 shrink-0 rounded-full"
-                      />
-                      <div>
-                        <p
-                          className="text-sm font-medium"
-                          data-testid={`text-lead-name-${item.id}`}
-                        >
-                          {item.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{item.email}</p>
-                      </div>
-                    </div>
+                    <PersonCell name={item.name} subtitle={item.email} size="sm" />
                   </DataTD>
                   <DataTD>
                     <StatusBadge
@@ -132,14 +117,7 @@ export default function LeadsPage() {
                     />
                   </DataTD>
                   <DataTD>
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={getPersonAvatar(item.assignedTo, 24)}
-                        alt={item.assignedTo}
-                        className="size-6 rounded-full"
-                      />
-                      <span className="text-sm">{item.assignedTo}</span>
-                    </div>
+                    <PersonCell name={item.assignedTo} size="sm" />
                   </DataTD>
                   <DataTD>
                     <span className="text-sm text-muted-foreground">{item.createdDate}</span>

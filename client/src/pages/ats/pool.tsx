@@ -5,10 +5,9 @@ import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/anim
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { candidates } from "@/lib/mock-data-ats";
 import { PageShell } from "@/components/layout";
 
@@ -72,16 +71,7 @@ export default function AtsTalentPool() {
           <StaggerItem key={c.id}>
             <Card className="border-0 shadow-sm hover:shadow-md transition-shadow" data-testid={`pool-card-${c.id}`}>
               <CardContent className="p-5 space-y-3">
-                <div className="flex items-center gap-3">
-                  <Avatar className="size-10">
-                    <AvatarImage src={getPersonAvatar(c.name, 40)} alt={c.name} />
-                    <AvatarFallback className="text-sm">{c.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{c.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{c.currentRole} · {c.currentCompany}</p>
-                  </div>
-                </div>
+                <PersonCell name={c.name} subtitle={`${c.currentRole} · ${c.currentCompany}`} size="md" />
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{c.experience}y experience</span>
                   <span className="text-muted-foreground">Added {c.addedDate}</span>

@@ -10,6 +10,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
 import type { ClientDocument } from "@shared/schema";
 import { PageShell } from "@/components/layout";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 
 const statusVariantMap: Record<string, "success" | "warning" | "info"> = {
   verified: "success",
@@ -47,7 +48,7 @@ const columns: Column<ClientDocument>[] = [
     header: "Client",
     sortable: true,
     render: (doc) => (
-      <span className="text-sm" data-testid={`text-doc-client-${doc.id}`}>{doc.clientName}</span>
+      <CompanyCell name={doc.clientName} size="sm" />
     ),
   },
   {
@@ -83,7 +84,7 @@ const columns: Column<ClientDocument>[] = [
     render: (doc) => (
       <div className="flex flex-col gap-0.5">
         <span className="text-sm">{doc.uploadDate}</span>
-        <span className="text-xs text-muted-foreground">by {doc.uploadedBy}</span>
+        <PersonCell name={doc.uploadedBy} size="xs" />
       </div>
     ),
   },

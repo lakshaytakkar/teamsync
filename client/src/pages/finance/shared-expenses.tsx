@@ -1,4 +1,5 @@
 import { Plus, Info } from "lucide-react";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { PageTransition, Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -133,7 +134,10 @@ export default function FinanceSharedExpenses() {
                     );
                   })}
                 </div>
-                <p className="text-xs text-muted-foreground mt-3">Effective from {rule.effectiveFrom} · Approved by {rule.approvedBy}</p>
+                <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground">
+                  <span>Effective from {rule.effectiveFrom} · Approved by</span>
+                  <PersonCell name={rule.approvedBy} size="xs" />
+                </div>
               </CardContent>
             </Card>
           </StaggerItem>

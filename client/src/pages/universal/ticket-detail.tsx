@@ -28,8 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/hr/status-badge";
 import {
@@ -445,15 +444,15 @@ export default function TicketDetailPage() {
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground font-medium">Reported By</Label>
-                    <p className="mt-1.5 text-sm" data-testid="text-reported-by">
-                      {ticket.reported_by || "—"}
-                    </p>
+                    <div className="mt-1.5" data-testid="text-reported-by">
+                      {ticket.reported_by ? <PersonCell name={ticket.reported_by} size="sm" /> : <span className="text-sm">—</span>}
+                    </div>
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground font-medium">Created By</Label>
-                    <p className="mt-1.5 text-sm" data-testid="text-created-by">
-                      {ticket.created_by || "—"}
-                    </p>
+                    <div className="mt-1.5" data-testid="text-created-by">
+                      {ticket.created_by ? <PersonCell name={ticket.created_by} size="sm" /> : <span className="text-sm">—</span>}
+                    </div>
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground font-medium">Due Date</Label>
@@ -482,13 +481,7 @@ export default function TicketDetailPage() {
                       <SelectContent>
                         {members.map(m => (
                           <SelectItem key={m.id} value={m.name}>
-                            <div className="flex items-center gap-2">
-                              <Avatar className="h-5 w-5">
-                                <AvatarImage src={getPersonAvatar(m.name)} />
-                                <AvatarFallback className="text-[9px]">{m.name.substring(0, 2)}</AvatarFallback>
-                              </Avatar>
-                              {m.name}
-                            </div>
+                            <PersonCell name={m.name} size="sm" />
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -596,13 +589,7 @@ export default function TicketDetailPage() {
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-muted-foreground">Assigned To</span>
                   {ticket.assigned_to ? (
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-6 w-6 border">
-                        <AvatarImage src={getPersonAvatar(ticket.assigned_to)} />
-                        <AvatarFallback className="text-[10px]">{ticket.assigned_to.substring(0, 2)}</AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs font-medium" data-testid="text-sidebar-assignee">{ticket.assigned_to}</span>
-                    </div>
+                    <PersonCell name={ticket.assigned_to} size="sm" />
                   ) : (
                     <span className="text-xs text-muted-foreground">Unassigned</span>
                   )}

@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
 import { crmActivities, ALL_VERTICALS_IN_CRM, type CrmActivity, type ActivityType } from "@/lib/mock-data-crm";
 import { CRM_COLOR } from "@/lib/crm-config";
 import { StatusBadge } from "@/components/hr/status-badge";

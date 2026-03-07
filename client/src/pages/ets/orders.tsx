@@ -44,6 +44,7 @@ import {
 } from "@/lib/mock-data-ets";
 import { useToast } from "@/hooks/use-toast";
 import { PageShell } from "@/components/layout";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const ORDER_STATUS_STEPS: EtsOrderStatus[] = [
   "ordered",
@@ -191,7 +192,7 @@ export default function OrdersPage() {
           }}
           data-testid={`link-client-${item.clientId}`}
         >
-          {item.clientName}
+          <PersonCell name={item.clientName} size="sm" />
         </button>
       ),
     },

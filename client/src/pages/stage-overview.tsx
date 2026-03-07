@@ -14,6 +14,7 @@ import type { FormationClient } from "@shared/schema";
 import { Users, Clock, AlertTriangle, ArrowRight, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageShell } from "@/components/layout";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 
 const riskVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   "on-track": "success",
@@ -75,10 +76,7 @@ export default function StageOverviewPage() {
       header: "Company",
       sortable: true,
       render: (item) => (
-        <div>
-          <p className="text-sm font-medium" data-testid={`text-stage-client-${item.id}`}>{item.companyName}</p>
-          <p className="text-xs text-muted-foreground">{item.clientName}</p>
-        </div>
+        <CompanyCell name={item.companyName} subtitle={item.clientName} />
       ),
     },
     {
@@ -94,7 +92,7 @@ export default function StageOverviewPage() {
     {
       key: "assignedManager",
       header: "Manager",
-      render: (item) => <span className="text-sm text-muted-foreground">{item.assignedManager}</span>,
+      render: (item) => <PersonCell name={item.assignedManager} size="sm" />,
     },
     {
       key: "riskFlag",

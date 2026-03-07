@@ -22,6 +22,7 @@ import {
   DetailSection,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -167,10 +168,10 @@ export default function HrmsPerformance() {
             <tbody className="divide-y">
               {filtered.map((r) => (
                 <DataTR key={r.id} data-testid={`review-row-${r.id}`}>
-                  <DataTD className="font-medium">{r.employeeName}</DataTD>
+                  <DataTD><PersonCell name={r.employeeName} size="sm" /></DataTD>
                   <DataTD className="text-muted-foreground">{r.reviewCycle}</DataTD>
                   <DataTD>{r.rating > 0 ? <StarRating rating={r.rating} /> : <span className="text-xs text-muted-foreground">—</span>}</DataTD>
-                  <DataTD className="text-muted-foreground">{r.reviewer}</DataTD>
+                  <DataTD><PersonCell name={r.reviewer} size="sm" /></DataTD>
                   <DataTD>
                     <StatusBadge status={r.status} />
                   </DataTD>

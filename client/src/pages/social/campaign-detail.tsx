@@ -1,4 +1,5 @@
 import { useLocation, useRoute } from "wouter";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SiInstagram, SiYoutube, SiLinkedin, SiFacebook, SiThreads } from "react-icons/si";
 import { PageTransition, Fade } from "@/components/ui/animated";
@@ -127,7 +128,7 @@ export default function SocialCampaignDetail() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Managed By</p>
-                <p className="text-sm font-medium">{campaign.managedBy}</p>
+                <PersonCell name={campaign.managedBy} size="sm" />
               </div>
             </CardContent>
           </Card>

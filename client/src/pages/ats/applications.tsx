@@ -16,6 +16,7 @@ import {
   DataTR,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PersonCell } from "@/components/ui/avatar-cells";
 
 const interviewers = Array.from(new Set(applications.map(a => a.currentInterviewer).filter(Boolean)))
 
@@ -117,7 +118,7 @@ export default function AtsApplications() {
                     onClick={() => setLocation(`/ats/candidates/${app.candidateId}`)}
                     data-testid={`app-row-${app.id}`}
                   >
-                    <DataTD className="font-medium">{app.candidateName}</DataTD>
+                    <DataTD><PersonCell name={app.candidateName} size="sm" /></DataTD>
                     <DataTD className="text-muted-foreground">{app.jobTitle}</DataTD>
                     <DataTD className="text-muted-foreground">{app.appliedDate}</DataTD>
                     <DataTD>

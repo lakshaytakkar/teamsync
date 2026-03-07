@@ -12,7 +12,7 @@ import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/compo
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import {
   Select,
   SelectContent,
@@ -124,14 +124,6 @@ const TYPE_ICONS: Record<string, typeof Bug> = {
   story: BookOpen,
 };
 
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 function isOverdue(dueDate: string): boolean {
   if (!dueDate) return false;
@@ -384,14 +376,7 @@ export default function DevProjectBoard() {
       header: "Assignee",
       sortable: true,
       render: (item) => (
-        <div className="flex items-center gap-2">
-          <Avatar className="size-6">
-            <AvatarFallback className="text-[10px] font-medium" style={{ backgroundColor: `${project.color}20`, color: project.color }}>
-              {getInitials(item.assignee)}
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-sm truncate max-w-[120px]">{item.assignee}</span>
-        </div>
+        <PersonCell name={item.assignee} size="xs" />
       ),
     },
     {
@@ -822,14 +807,7 @@ export default function DevProjectBoard() {
                         </div>
                       )}
                       <div className="flex items-center justify-between gap-1.5 mt-2 pt-1.5 border-t">
-                        <Avatar className="size-5">
-                          <AvatarFallback
-                            className="text-[8px] font-medium"
-                            style={{ backgroundColor: `${project.color}20`, color: project.color }}
-                          >
-                            {getInitials(task.assignee)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <PersonCell name={task.assignee} size="xs" />
                         {task.dueDate && (
                           <div className="flex items-center gap-0.5">
                             <Calendar className="size-2.5 text-muted-foreground" />

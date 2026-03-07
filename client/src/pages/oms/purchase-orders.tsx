@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Input } from "@/components/ui/input";
+import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { omsPurchaseOrders, omsSuppliers } from "@/lib/mock-data-oms";
@@ -134,7 +135,7 @@ export default function OmsPurchaseOrders() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">{selectedPO.poNumber}</p>
-                      <h2 className="text-lg font-bold mt-0.5">{selectedPO.supplierName}</h2>
+                      <div className="mt-0.5"><CompanyCell name={selectedPO.supplierName} size="lg" /></div>
                     </div>
                     <span className={cn("text-sm font-semibold px-3 py-1 rounded-full", STATUS_STYLES[selectedPO.status])}>
                       {selectedPO.status === "partially-received" ? "Partially Received" : selectedPO.status.charAt(0).toUpperCase() + selectedPO.status.slice(1)}
@@ -143,7 +144,7 @@ export default function OmsPurchaseOrders() {
                   <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
                     <div><p className="text-xs text-muted-foreground">Ordered Date</p><p className="font-medium">{selectedPO.orderedDate}</p></div>
                     <div><p className="text-xs text-muted-foreground">Expected Delivery</p><p className="font-medium">{selectedPO.expectedDate}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Created By</p><p className="font-medium">{selectedPO.createdBy}</p></div>
+                    <div><p className="text-xs text-muted-foreground">Created By</p><PersonCell name={selectedPO.createdBy} size="sm" /></div>
                   </div>
                 </div>
                 <div className="overflow-x-auto">

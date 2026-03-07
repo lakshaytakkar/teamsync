@@ -4,7 +4,7 @@ import { Fade } from "@/components/ui/animated";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { getPersonAvatar } from "@/lib/avatars";
+import { PersonCell } from "@/components/ui/avatar-cells";
 import { crmDeals, crmContacts, crmActivities, ALL_VERTICALS_IN_CRM, type CrmDeal } from "@/lib/mock-data-crm";
 import {
   PageShell,
@@ -288,14 +288,7 @@ export default function CrmDeals() {
                       {deal.expectedClose}
                     </DataTD>
                     <DataTD>
-                      <div className="flex items-center gap-2">
-                        <img
-                          src={getPersonAvatar(deal.assignedTo, 24)}
-                          alt={deal.assignedTo}
-                          className="size-6 rounded-full"
-                        />
-                        <span className="text-sm">{deal.assignedTo}</span>
-                      </div>
+                      <PersonCell name={deal.assignedTo} size="sm" />
                     </DataTD>
                     <DataTD>
                       <div className="flex items-center gap-1.5">
@@ -439,22 +432,7 @@ export default function CrmDeals() {
 
               <DetailSection title="Contact Info">
                 {contact && (
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={getPersonAvatar(contact.name, 40)}
-                      alt={contact.name}
-                      className="size-10 rounded-full"
-                    />
-                    <div>
-                      <p className="text-sm font-medium">{contact.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {contact.designation} · {contact.company}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {contact.email} · {contact.phone}
-                      </p>
-                    </div>
-                  </div>
+                  <PersonCell name={contact.name} subtitle={`${contact.designation} · ${contact.company} · ${contact.email} · ${contact.phone}`} size="lg" />
                 )}
               </DetailSection>
 
