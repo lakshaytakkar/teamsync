@@ -782,12 +782,6 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
-        title: "Knowledge Base",
-        defaultUrl: "/dev/knowledge-base",
-        icon: BookOpen,
-        items: [],
-      },
-      {
         title: "Projects",
         defaultUrl: "/dev/projects",
         icon: FolderKanban,

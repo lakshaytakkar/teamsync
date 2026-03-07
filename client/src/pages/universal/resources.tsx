@@ -17,6 +17,12 @@ import {
   File,
   Copy,
   Check,
+  ClipboardList,
+  Shield,
+  Lightbulb,
+  Workflow,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade } from "@/components/ui/animated";
@@ -81,7 +87,17 @@ const resourceSchema = z.object({
 
 type ResourceFormValues = z.infer<typeof resourceSchema>;
 
-const getFileIcon = (type: string) => {
+const getFileIcon = (type: string, category?: string) => {
+  if (type === "knowledge") {
+    switch (category) {
+      case "Process": return ClipboardList;
+      case "SOP": return Shield;
+      case "Playbook": return FileText;
+      case "Workflow": return Workflow;
+      case "Learning": return Lightbulb;
+      default: return FileText;
+    }
+  }
   switch (type.toLowerCase()) {
     case "pdf": return FileText;
     case "excel": return FileSpreadsheet;
@@ -94,7 +110,17 @@ const getFileIcon = (type: string) => {
   }
 };
 
-const getIconColors = (type: string) => {
+const getIconColors = (type: string, category?: string) => {
+  if (type === "knowledge") {
+    switch (category) {
+      case "Process": return "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
+      case "SOP": return "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400";
+      case "Playbook": return "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
+      case "Workflow": return "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
+      case "Learning": return "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400";
+      default: return "bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400";
+    }
+  }
   switch (type.toLowerCase()) {
     case "pdf": return "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400";
     case "excel": return "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400";
@@ -105,7 +131,10 @@ const getIconColors = (type: string) => {
     case "template": return "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
     default: return "bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400";
   }
+
 };
+
+const isKnowledgeType = (type: string) => type === "knowledge";
 
 export default function UniversalResources() {
   const [location] = useLocation();
@@ -120,6 +149,16 @@ export default function UniversalResources() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const verticalResources = useMemo(() => {
     if (!vertical) return [];
@@ -238,17 +277,21 @@ export default function UniversalResources() {
           </div>
           <div className="flex flex-wrap gap-4">
             {pinnedResources.map(res => {
-              const Icon = getFileIcon(res.type);
+              const Icon = getFileIcon(res.type, res.category);
               return (
                 <div 
                   key={res.id}
                   className="flex items-center gap-3 bg-card p-3 rounded-lg border shadow-sm hover-elevate cursor-pointer group min-w-[200px]"
                   onClick={() => {
-                    setSelectedResource(res);
-                    setPreviewOpen(true);
+                    if (isKnowledgeType(res.type)) {
+                      toggleExpand(res.id);
+                    } else {
+                      setSelectedResource(res);
+                      setPreviewOpen(true);
+                    }
                   }}
                 >
-                  <div className={cn("p-2 rounded-lg", getIconColors(res.type))}>
+                  <div className={cn("p-2 rounded-lg", getIconColors(res.type, res.category))}>
                     <Icon className="size-5" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -281,8 +324,8 @@ export default function UniversalResources() {
         <>
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredResources.map(res => {
-                const Icon = getFileIcon(res.type);
+              {filteredResources.filter(r => !isKnowledgeType(r.type)).map(res => {
+                const Icon = getFileIcon(res.type, res.category);
                 return (
                   <Card 
                     key={res.id} 
@@ -298,7 +341,7 @@ export default function UniversalResources() {
                         <Star className="size-4 text-amber-500 fill-amber-500" />
                       </div>
                     )}
-                    <div className={cn("size-12 rounded-lg flex items-center justify-center mb-4", getIconColors(res.type))}>
+                    <div className={cn("size-12 rounded-lg flex items-center justify-center mb-4", getIconColors(res.type, res.category))}>
                       <Icon className="size-6" />
                     </div>
                     <h3 className="text-sm font-semibold mb-1 truncate pr-6">{res.title}</h3>
@@ -352,8 +395,8 @@ export default function UniversalResources() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {filteredResources.map(r => {
-                    const Icon = getFileIcon(r.type);
+                  {filteredResources.filter(r => !isKnowledgeType(r.type)).map(r => {
+                    const Icon = getFileIcon(r.type, r.category);
                     return (
                       <DataTR key={r.id} onClick={() => {
                         setSelectedResource(r);
@@ -361,7 +404,7 @@ export default function UniversalResources() {
                       }}>
                         <DataTD>
                           <div className="flex items-center gap-3">
-                            <div className={cn("p-2 rounded-lg", getIconColors(r.type))}>
+                            <div className={cn("p-2 rounded-lg", getIconColors(r.type, r.category))}>
                               <Icon className="size-4" />
                             </div>
                             <div>
@@ -390,6 +433,83 @@ export default function UniversalResources() {
               </table>
             </DataTableContainer>
           )}
+
+          {(() => {
+            const knowledgeItems = filteredResources.filter(r => isKnowledgeType(r.type));
+            if (knowledgeItems.length === 0) return null;
+            const knowledgeCategories = Array.from(new Set(knowledgeItems.map(r => r.category)));
+            return (
+              <div className="flex flex-col gap-6 mt-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-semibold uppercase text-muted-foreground tracking-wider px-2">Processes, SOPs & Knowledge</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+                {knowledgeCategories.map(cat => {
+                  const catItems = knowledgeItems.filter(r => r.category === cat);
+                  const CatIcon = getFileIcon("knowledge", cat);
+                  return (
+                    <div key={cat} data-testid={`section-knowledge-${cat}`}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className={cn("flex size-7 items-center justify-center rounded-md", getIconColors("knowledge", cat))}>
+                          <CatIcon className="size-4" />
+                        </div>
+                        <h2 className="text-base font-semibold font-heading">{cat}</h2>
+                        <Badge variant="secondary" className="text-xs">{catItems.length}</Badge>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        {catItems.map(resource => {
+                          const isExpanded = expandedIds.has(resource.id);
+                          return (
+                            <div
+                              key={resource.id}
+                              className="rounded-lg border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                              data-testid={`card-knowledge-${resource.id}`}
+                            >
+                              <button
+                                className="flex w-full items-start gap-3 p-4 text-left"
+                                onClick={() => toggleExpand(resource.id)}
+                                data-testid={`button-expand-${resource.id}`}
+                              >
+                                <div className="mt-0.5 shrink-0 text-muted-foreground">
+                                  {isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h3 className="text-sm font-semibold">{resource.title}</h3>
+                                    {resource.isPinned && <Star className="size-3 text-amber-500 fill-amber-500" />}
+                                    <Badge variant="outline" className="text-[10px]">{resource.category}</Badge>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground mt-1">{resource.description}</p>
+                                  <div className="flex items-center gap-3 mt-2 flex-wrap">
+                                    <span className="text-[11px] text-muted-foreground">{resource.addedBy} · {resource.addedDate}</span>
+                                    {resource.tags.length > 0 && (
+                                      <div className="flex items-center gap-1 flex-wrap">
+                                        {resource.tags.map(tag => (
+                                          <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0">{tag}</Badge>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </button>
+                              {isExpanded && resource.content && (
+                                <div className="border-t px-4 py-4 pl-11" data-testid={`content-knowledge-${resource.id}`}>
+                                  <pre className="whitespace-pre-wrap text-sm text-muted-foreground font-sans leading-relaxed">
+                                    {resource.content}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
 
           {filteredResources.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-xl">

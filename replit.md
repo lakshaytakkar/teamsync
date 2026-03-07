@@ -545,13 +545,13 @@ The portal supports multiple business verticals, each with its own navigation, b
 - `VerticalMember[]` — 4 members per vertical, with status (online/away/offline), skills, location
 - `ChatChannel[]` — channels + DMs per vertical, with unread counts, isPinned, lastMessage
 - `ChatMessage[]` — messages per channel, with isMe boolean for sender styling
-- `SharedResource[]` — 5-6 resources per vertical, categories: Brochure/Script/Spreadsheet/Link/Presentation/Document/Template
+- `SharedResource[]` — 5-6 resources per vertical, categories: Brochure/Script/Spreadsheet/Link/Presentation/Document/Template + Process/SOP/Playbook/Workflow/Learning (knowledge type with expandable content)
 - `SharedTask[]` — 8-9 tasks per vertical, across all 5 statuses and 4 priorities, with subtask arrays
 
 **Route renames** (3 existing routes moved to avoid conflicts with universal `/tasks` and `/resources`):
 - `/legalnations/tasks` (LegalNations Task Board) → `/legalnations/task-board`
 - `/dev/tasks` (Developer ClickUp-style board) → `/dev/board`
-- `/dev/resources` (Developer Knowledge Base) → `/dev/knowledge-base`
+- `/dev/resources` (Developer Knowledge Base) → merged into universal `/dev/resources` (KB items appear as expandable Process/SOP/Playbook/Workflow/Learning entries)
 
 ### Universal Important Contacts (`/[prefix]/contacts`)
 - **Available on ALL 11 verticals**: hr, sales, events, hub, admin, dev, ets, faire, hrms, ats, social
@@ -682,7 +682,7 @@ client/src/pages/
 │   ├── components-guide.tsx   # Components Guide (route: /dev/components)
 │   ├── icons-guide.tsx        # Icons Guide (route: /dev/icons)
 │   ├── prompts.tsx            # AI Prompt Library (route: /dev/prompts)
-│   ├── resources.tsx          # Dev Knowledge Base (route: /dev/knowledge-base)
+│   ├── (resources.tsx removed — KB merged into universal resources)
 │   ├── projects.tsx           # All Projects (route: /dev/projects)
 │   ├── project-board.tsx      # Project Kanban/List Board (route: /dev/projects/:id)
 │   ├── tasks.tsx              # All Tasks DataTable (route: /dev/board)
