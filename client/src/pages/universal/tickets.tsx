@@ -142,19 +142,58 @@ export default function UniversalTickets() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
       apiRequest("PATCH", `/api/core/tickets/${id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ticketsQueryKey! });
+    onMutate: async ({ id, data }) => {
+      if (!ticketsQueryKey) return;
+      await queryClient.cancelQueries({ queryKey: ticketsQueryKey });
+      const previous = queryClient.getQueryData<{ tickets: CoreTicket[]; total: number }>(ticketsQueryKey);
+      if (previous) {
+        queryClient.setQueryData(ticketsQueryKey, {
+          ...previous,
+          tickets: previous.tickets.map((t) =>
+            t.id === id ? { ...t, ...data, updated_at: new Date().toISOString() } : t
+          ),
+        });
+      }
       setAssignDialogTicket(null);
       setStatusDialogTicket(null);
+      return { previous };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ticketsQueryKey! });
       toast({ title: "Ticket updated", description: "Ticket has been updated successfully." });
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous && ticketsQueryKey) {
+        queryClient.setQueryData(ticketsQueryKey, context.previous);
+      }
+      toast({ title: "Error", description: "Failed to update ticket.", variant: "destructive" });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/core/tickets/${id}`),
+    onMutate: async (id) => {
+      if (!ticketsQueryKey) return;
+      await queryClient.cancelQueries({ queryKey: ticketsQueryKey });
+      const previous = queryClient.getQueryData<{ tickets: CoreTicket[]; total: number }>(ticketsQueryKey);
+      if (previous) {
+        const filtered = previous.tickets.filter((t) => t.id !== id);
+        queryClient.setQueryData(ticketsQueryKey, {
+          tickets: filtered,
+          total: Math.max(0, (previous.total ?? previous.tickets.length) - 1),
+        });
+      }
+      return { previous };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ticketsQueryKey! });
       toast({ title: "Ticket deleted", description: "Ticket has been deleted." });
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous && ticketsQueryKey) {
+        queryClient.setQueryData(ticketsQueryKey, context.previous);
+      }
+      toast({ title: "Error", description: "Failed to delete ticket.", variant: "destructive" });
     },
   });
 

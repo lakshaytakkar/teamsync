@@ -266,22 +266,46 @@ function MercuryView() {
     queryFn: () => fetch("/api/bank-transactions?source=mercury&limit=200").then((r) => r.json()),
   });
 
+  const mercuryKey = ["/api/bank-transactions", { source: "mercury" }] as const;
+
   const toggleBiz = useMutation({
     mutationFn: ({ id, is_business }: { id: string; is_business: boolean }) =>
       apiRequest("PATCH", `/api/bank-transactions/${id}`, { is_business }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/bank-transactions", { source: "mercury" }] }),
-    onError: () => toast({ title: "Update failed", variant: "destructive" }),
+    onMutate: async ({ id, is_business }) => {
+      await qc.cancelQueries({ queryKey: mercuryKey });
+      const prev = qc.getQueryData<{ transactions: BankTx[]; total: number }>(mercuryKey);
+      qc.setQueryData<{ transactions: BankTx[]; total: number } | undefined>(mercuryKey, (old) =>
+        old ? { ...old, transactions: old.transactions.map((t) => t.id === id ? { ...t, is_business } : t) } : old
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(mercuryKey, ctx.prev);
+      toast({ title: "Update failed", variant: "destructive" });
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: mercuryKey }),
   });
 
   const saveEdit = useMutation({
     mutationFn: ({ id, ...patch }: { id: string; tags: string[]; notes: string; category: string }) =>
       apiRequest("PATCH", `/api/bank-transactions/${id}`, { tags: patch.tags, notes: patch.notes, category: patch.category }),
+    onMutate: async ({ id, tags, notes, category }) => {
+      await qc.cancelQueries({ queryKey: mercuryKey });
+      const prev = qc.getQueryData<{ transactions: BankTx[]; total: number }>(mercuryKey);
+      qc.setQueryData<{ transactions: BankTx[]; total: number } | undefined>(mercuryKey, (old) =>
+        old ? { ...old, transactions: old.transactions.map((t) => t.id === id ? { ...t, tags, notes, category } : t) } : old
+      );
+      return { prev };
+    },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/bank-transactions", { source: "mercury" }] });
       setEditModal(null);
       toast({ title: "Transaction updated" });
     },
-    onError: () => toast({ title: "Update failed", variant: "destructive" }),
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(mercuryKey, ctx.prev);
+      toast({ title: "Update failed", variant: "destructive" });
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: mercuryKey }),
   });
 
   const allTxns: BankTx[] = data?.transactions ?? [];
@@ -514,11 +538,24 @@ export default function FaireBankTransactions() {
   const { data: allOrdersData } = useQuery<{ orders: any[] }>({ queryKey: ["/api/faire/orders"] });
   const allOrders: any[] = allOrdersData?.orders ?? [];
 
+  const faireKey = ["/api/bank-transactions", { source: "faire_payout" }] as const;
+
   const toggleBiz = useMutation({
     mutationFn: ({ id, is_business }: { id: string; is_business: boolean }) =>
       apiRequest("PATCH", `/api/bank-transactions/${id}`, { is_business }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/bank-transactions", { source: "faire_payout" }] }),
-    onError: () => toast({ title: "Update failed", variant: "destructive" }),
+    onMutate: async ({ id, is_business }) => {
+      await qc.cancelQueries({ queryKey: faireKey });
+      const prev = qc.getQueryData<{ transactions: BankTx[]; total: number }>(faireKey);
+      qc.setQueryData<{ transactions: BankTx[]; total: number } | undefined>(faireKey, (old) =>
+        old ? { ...old, transactions: old.transactions.map((t) => t.id === id ? { ...t, is_business } : t) } : old
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(faireKey, ctx.prev);
+      toast({ title: "Update failed", variant: "destructive" });
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: faireKey }),
   });
 
   const mapToOrder = useMutation({
@@ -548,12 +585,23 @@ export default function FaireBankTransactions() {
   const saveEdit = useMutation({
     mutationFn: ({ id, ...patch }: { id: string; tags: string[]; notes: string; category: string }) =>
       apiRequest("PATCH", `/api/bank-transactions/${id}`, { tags: patch.tags, notes: patch.notes, category: patch.category }),
+    onMutate: async ({ id, tags, notes, category }) => {
+      await qc.cancelQueries({ queryKey: faireKey });
+      const prev = qc.getQueryData<{ transactions: BankTx[]; total: number }>(faireKey);
+      qc.setQueryData<{ transactions: BankTx[]; total: number } | undefined>(faireKey, (old) =>
+        old ? { ...old, transactions: old.transactions.map((t) => t.id === id ? { ...t, tags, notes, category } : t) } : old
+      );
+      return { prev };
+    },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/bank-transactions", { source: "faire_payout" }] });
       setEditModal(null);
       toast({ title: "Transaction updated" });
     },
-    onError: () => toast({ title: "Update failed", variant: "destructive" }),
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(faireKey, ctx.prev);
+      toast({ title: "Update failed", variant: "destructive" });
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: faireKey }),
   });
 
   const handleSort = (key: string) => {

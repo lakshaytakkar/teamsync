@@ -926,14 +926,24 @@ export default function UniversalChat() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) =>
       apiRequest("DELETE", `/api/core/channels/${activeChannelId}/messages/${id}`),
-    onSuccess: (_, id) => {
-      if (messagesKey) {
-        queryClient.setQueryData([messagesKey], (old: DBMessage[] | undefined) =>
-          old ? old.map((m) => m.id === id ? { ...m, is_deleted: true, content: "This message was deleted" } : m) : old
-        );
-      }
+    onMutate: async (id) => {
+      if (!messagesKey) return;
+      await queryClient.cancelQueries({ queryKey: [messagesKey] });
+      const previous = queryClient.getQueryData<DBMessage[]>([messagesKey]);
+      queryClient.setQueryData([messagesKey], (old: DBMessage[] | undefined) =>
+        old ? old.map((m) => m.id === id ? { ...m, is_deleted: true, content: "This message was deleted" } : m) : old
+      );
+      return { previous };
     },
-    onError: () => toast({ title: "Failed to delete message", variant: "destructive" }),
+    onError: (_err, _id, context) => {
+      if (context?.previous && messagesKey) {
+        queryClient.setQueryData([messagesKey], context.previous);
+      }
+      toast({ title: "Failed to delete message", variant: "destructive" });
+    },
+    onSettled: () => {
+      if (messagesKey) queryClient.invalidateQueries({ queryKey: [messagesKey] });
+    },
   });
 
   const reactMutation = useMutation({
@@ -942,6 +952,36 @@ export default function UniversalChat() {
         emoji,
         user_name: currentUser,
       }),
+    onMutate: async ({ messageId, emoji }) => {
+      if (!messagesKey) return;
+      await queryClient.cancelQueries({ queryKey: [messagesKey] });
+      const previous = queryClient.getQueryData<DBMessage[]>([messagesKey]);
+      queryClient.setQueryData([messagesKey], (old: DBMessage[] | undefined) =>
+        old ? old.map((m) => {
+          if (m.id !== messageId) return m;
+          const reactions = { ...(m.reactions ?? {}) };
+          const users = reactions[emoji] ? [...reactions[emoji]] : [];
+          const idx = users.indexOf(currentUser);
+          if (idx >= 0) {
+            users.splice(idx, 1);
+            if (users.length === 0) {
+              delete reactions[emoji];
+            } else {
+              reactions[emoji] = users;
+            }
+          } else {
+            reactions[emoji] = [...users, currentUser];
+          }
+          return { ...m, reactions };
+        }) : old
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous && messagesKey) {
+        queryClient.setQueryData([messagesKey], context.previous);
+      }
+    },
     onSuccess: async (res) => {
       const updated = await res.json();
       if (messagesKey) {

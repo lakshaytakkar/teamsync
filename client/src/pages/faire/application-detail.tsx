@@ -185,8 +185,21 @@ export default function FaireApplicationDetail() {
       if (!app) return;
       return apiRequest("PATCH", `/api/faire/applications/${id}`, { ...app, ...patch, followups: undefined, links: undefined });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/faire/applications", id] }),
-    onError: () => toast({ title: "Failed to save", variant: "destructive" }),
+    onMutate: async (patchData: Partial<ApplicationDetail>) => {
+      await queryClient.cancelQueries({ queryKey: ["/api/faire/applications", id] });
+      const previous = queryClient.getQueryData<{ application: ApplicationDetail }>(["/api/faire/applications", id]);
+      if (previous) {
+        queryClient.setQueryData(["/api/faire/applications", id], {
+          application: { ...previous.application, ...patchData },
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["/api/faire/applications", id], context.previous);
+      toast({ title: "Failed to save", variant: "destructive" });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["/api/faire/applications", id] }),
   });
 
   const patch = (field: keyof ApplicationDetail, value: unknown) => {
@@ -276,12 +289,25 @@ export default function FaireApplicationDetail() {
       if (!app) return;
       return apiRequest("PATCH", `/api/faire/applications/${id}`, { ...app, status: newStatus, followups: undefined, links: undefined });
     },
-    onSuccess: () => {
+    onMutate: async (newStatus: string) => {
+      await queryClient.cancelQueries({ queryKey: ["/api/faire/applications", id] });
+      const previous = queryClient.getQueryData<{ application: ApplicationDetail }>(["/api/faire/applications", id]);
+      if (previous) {
+        queryClient.setQueryData(["/api/faire/applications", id], {
+          application: { ...previous.application, status: newStatus },
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["/api/faire/applications", id], context.previous);
+      toast({ title: "Failed to update status", variant: "destructive" });
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/faire/applications", id] });
       queryClient.invalidateQueries({ queryKey: ["/api/faire/applications"] });
-      toast({ title: "Status updated" });
     },
-    onError: () => toast({ title: "Failed to update status", variant: "destructive" }),
+    onSuccess: () => toast({ title: "Status updated" }),
   });
 
   // Delete application
@@ -321,8 +347,24 @@ export default function FaireApplicationDetail() {
 
   const deleteFollowupMutation = useMutation({
     mutationFn: async (fid: string) => apiRequest("DELETE", `/api/faire/applications/${id}/followups/${fid}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/faire/applications", id] }),
-    onError: () => toast({ title: "Failed to delete follow-up", variant: "destructive" }),
+    onMutate: async (fid: string) => {
+      await queryClient.cancelQueries({ queryKey: ["/api/faire/applications", id] });
+      const previous = queryClient.getQueryData<{ application: ApplicationDetail }>(["/api/faire/applications", id]);
+      if (previous) {
+        queryClient.setQueryData(["/api/faire/applications", id], {
+          application: {
+            ...previous.application,
+            followups: previous.application.followups.filter(f => f.id !== fid),
+          },
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["/api/faire/applications", id], context.previous);
+      toast({ title: "Failed to delete follow-up", variant: "destructive" });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["/api/faire/applications", id] }),
   });
 
   // Links
@@ -351,8 +393,24 @@ export default function FaireApplicationDetail() {
 
   const deleteLinkMutation = useMutation({
     mutationFn: async (lid: string) => apiRequest("DELETE", `/api/faire/applications/${id}/links/${lid}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/faire/applications", id] }),
-    onError: () => toast({ title: "Failed to delete link", variant: "destructive" }),
+    onMutate: async (lid: string) => {
+      await queryClient.cancelQueries({ queryKey: ["/api/faire/applications", id] });
+      const previous = queryClient.getQueryData<{ application: ApplicationDetail }>(["/api/faire/applications", id]);
+      if (previous) {
+        queryClient.setQueryData(["/api/faire/applications", id], {
+          application: {
+            ...previous.application,
+            links: previous.application.links.filter(l => l.id !== lid),
+          },
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["/api/faire/applications", id], context.previous);
+      toast({ title: "Failed to delete link", variant: "destructive" });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["/api/faire/applications", id] }),
   });
 
   // Promote modal

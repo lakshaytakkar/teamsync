@@ -160,7 +160,20 @@ export default function TicketDetailPage() {
   const updateMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
       apiRequest("PATCH", `/api/core/tickets/${ticketId}`, data),
-    onSuccess: () => {
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ticketQueryKey });
+      const previous = queryClient.getQueryData<CoreTicket>(ticketQueryKey);
+      if (previous) {
+        queryClient.setQueryData<CoreTicket>(ticketQueryKey, { ...previous, ...data, updated_at: new Date().toISOString() });
+      }
+      return { previous };
+    },
+    onError: (_err, _data, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(ticketQueryKey, context.previous);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ticketQueryKey });
     },
   });

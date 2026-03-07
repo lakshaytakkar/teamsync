@@ -46,6 +46,24 @@ One config per vertical, each exporting `VERTICAL_COLOR` + TypeScript status typ
 - **NO** inline `const BRAND = "#..."` — import `VERTICAL_COLOR` from per-vertical config
 - **StatusBadge** auto-resolves all status strings across all verticals via extended `variantMap`
 
+### Optimistic Updates (Global Pattern)
+All mutations across the app follow the TanStack Query optimistic update pattern for instant UI feedback:
+- **`onMutate`**: Cancel in-flight queries → snapshot previous cache → apply optimistic update → return snapshot for rollback
+- **`onError`**: Restore previous cache from snapshot
+- **`onSettled`**: Invalidate queries to reconcile with server truth
+
+Applied to:
+- **AI Chat** (`AIChatWidget.tsx`): delete/rename conversations
+- **Team Chat** (`chat.tsx`): delete messages, toggle reactions
+- **Tickets** (`tickets.tsx`): delete tickets, update status/priority/assignee
+- **Ticket Detail** (`ticket-detail.tsx`): update fields
+- **Tasks** (`tasks.tsx`): update status/priority/assignee/dueDate, delete activity items
+- **Task Detail** (`task-detail-dialog.tsx`): delete attachments
+- **Vendors** (`vendors.tsx`): delete vendors
+- **Bank Transactions** (`bank-transactions.tsx`): toggle business flag, save edits (both Mercury + Faire tabs)
+- **Image Studio** (`image-studio.tsx`): delete images
+- **Application Detail** (`application-detail.tsx`): patch fields, change status, delete followups, delete links
+
 #### Faire Gold Standard (orders.tsx) — Applied to All Faire Pages (Mar 2026)
 All Faire index pages follow orders.tsx pattern:
 - **Wrapper**: `PageShell` → `Fade` sections

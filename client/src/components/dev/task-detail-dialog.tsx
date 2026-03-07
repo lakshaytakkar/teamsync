@@ -144,7 +144,23 @@ export function TaskDetailDialog({ task, open, onOpenChange, onTaskUpdate }: Tas
     mutationFn: async (id: string) => {
       await fetch(`/api/tasks/${task_.id}/activity/${id}`, { method: "DELETE" });
     },
-    onSuccess: () => {
+    onMutate: async (id) => {
+      const activityKey = ["/api/tasks", task_.id, "activity"];
+      await qc.cancelQueries({ queryKey: activityKey });
+      const previous = qc.getQueryData<{ items: ActivityItem[] }>(activityKey);
+      if (previous) {
+        qc.setQueryData<{ items: ActivityItem[] }>(activityKey, {
+          items: previous.items.filter((item) => item.id !== id),
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) {
+        qc.setQueryData(["/api/tasks", task_.id, "activity"], context.previous);
+      }
+    },
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: ["/api/tasks", task_.id, "activity"] });
     },
   });

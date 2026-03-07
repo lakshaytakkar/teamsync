@@ -147,7 +147,21 @@ export default function UniversalTasks() {
   const updateTaskMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
       apiRequest("PATCH", `/api/core/tasks/${id}`, data),
-    onSuccess: () => {
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: [tasksQueryKey] });
+      const previous = queryClient.getQueryData<CoreTask[]>([tasksQueryKey]);
+      queryClient.setQueryData<CoreTask[]>(
+        [tasksQueryKey],
+        (old) => (old ?? []).map(t => t.id === id ? { ...t, ...data } as CoreTask : t)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData([tasksQueryKey], context.previous);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [tasksQueryKey] });
     },
   });
@@ -363,37 +377,21 @@ export default function UniversalTasks() {
           onOpenChange={setIsDetailOpen}
           onStatusChange={(status) => {
             if (usingDB) {
-              queryClient.setQueryData(
-                [tasksQueryKey],
-                (old: CoreTask[]) => (old ?? []).map(t => t.id === selectedTask.id ? { ...t, status } : t)
-              );
               updateTaskMutation.mutate({ id: selectedTask.id, data: { status } });
             }
           }}
           onPriorityChange={(priority) => {
             if (usingDB) {
-              queryClient.setQueryData(
-                [tasksQueryKey],
-                (old: CoreTask[]) => (old ?? []).map(t => t.id === selectedTask.id ? { ...t, priority } : t)
-              );
               updateTaskMutation.mutate({ id: selectedTask.id, data: { priority } });
             }
           }}
           onAssigneeChange={(name) => {
             if (usingDB) {
-              queryClient.setQueryData(
-                [tasksQueryKey],
-                (old: CoreTask[]) => (old ?? []).map(t => t.id === selectedTask.id ? { ...t, assignee_name: name } : t)
-              );
               updateTaskMutation.mutate({ id: selectedTask.id, data: { assignee_name: name } });
             }
           }}
           onDueDateChange={(date) => {
             if (usingDB) {
-              queryClient.setQueryData(
-                [tasksQueryKey],
-                (old: CoreTask[]) => (old ?? []).map(t => t.id === selectedTask.id ? { ...t, due_date: date } : t)
-              );
               updateTaskMutation.mutate({ id: selectedTask.id, data: { due_date: date } });
             }
           }}
@@ -791,7 +789,22 @@ function TaskDetailDialog({
 
   const deleteActivityMutation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/tasks/${task.id}/activity/${id}`),
-    onSuccess: () => {
+    onMutate: async (deletedId: string) => {
+      const activityKey = ["/api/tasks", task.id, "activity"];
+      await qc.cancelQueries({ queryKey: activityKey });
+      const previous = qc.getQueryData<{ items: ActivityItem[] }>(activityKey);
+      qc.setQueryData<{ items: ActivityItem[] }>(
+        activityKey,
+        (old) => ({ items: (old?.items ?? []).filter(item => item.id !== deletedId) })
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        qc.setQueryData(["/api/tasks", task.id, "activity"], context.previous);
+      }
+    },
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: ["/api/tasks", task.id, "activity"] });
     },
   });

@@ -86,12 +86,26 @@ export default function FaireVendors() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => apiRequest("DELETE", `/api/faire/vendors/${id}`),
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ["/api/faire/vendors"] });
+      const previous = queryClient.getQueryData<{ vendors: FaireVendor[] }>(["/api/faire/vendors"]);
+      queryClient.setQueryData<{ vendors: FaireVendor[] }>(["/api/faire/vendors"], (old) => {
+        if (!old) return old;
+        return { ...old, vendors: old.vendors.filter(v => v.id !== id) };
+      });
+      setDeleteId(null);
+      return { previous };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/faire/vendors"] });
-      setDeleteId(null);
       toast({ title: "Vendor deleted" });
     },
-    onError: () => toast({ title: "Failed to delete vendor", variant: "destructive" }),
+    onError: (_err, _id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["/api/faire/vendors"], context.previous);
+      }
+      toast({ title: "Failed to delete vendor", variant: "destructive" });
+    },
   });
 
   const filtered = vendors.filter(v => {

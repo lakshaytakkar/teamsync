@@ -299,12 +299,25 @@ export default function ImageStudio() {
       const res = await fetch(`/api/images/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
     },
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ["/api/images"] });
+      const previous = queryClient.getQueryData<GeneratedImage[]>(["/api/images"]);
+      queryClient.setQueryData<GeneratedImage[]>(["/api/images"], (old) =>
+        old ? old.filter((img) => img.id !== id) : []
+      );
+      return { previous };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/images"] });
       toast({ title: "Image deleted" });
     },
-    onError: () => {
+    onError: (_err, _id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["/api/images"], context.previous);
+      }
       toast({ title: "Delete failed", description: "Could not delete the image.", variant: "destructive" });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/images"] });
     },
   });
 
