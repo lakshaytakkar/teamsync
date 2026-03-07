@@ -14,6 +14,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -50,18 +51,18 @@ export default function BookingDetail() {
 
   if (!loading && !booking) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <Button variant="ghost" size="sm" onClick={() => navigate("/goyotours/bookings")} className="gap-2 mb-4">
           <ArrowLeft className="size-4" /> Back to Bookings
         </Button>
         <p className="text-muted-foreground">Booking not found.</p>
-      </div>
+      </PageShell>
     );
   }
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <Skeleton className="h-8 w-48 mb-6" />
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2 flex flex-col gap-4">
@@ -72,7 +73,7 @@ export default function BookingDetail() {
             <Skeleton className="h-64 rounded-xl" />
           </div>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
@@ -84,7 +85,7 @@ export default function BookingDetail() {
   );
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Fade direction="up" delay={0}>
           <div className="mb-5 flex items-center gap-3">
@@ -365,6 +366,6 @@ export default function BookingDetail() {
           </div>
         </FormDialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

@@ -39,6 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageShell } from "@/components/layout";
 
 const settingIcons: Record<string, typeof DollarSign> = {
   exchange_rate: DollarSign,
@@ -119,19 +120,19 @@ export default function EtsSettingsPage() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <Skeleton className="h-24 w-full rounded-xl mb-5" />
         <div className="space-y-6">
           <Skeleton className="h-64 w-full rounded-lg" />
           <Skeleton className="h-48 w-full rounded-lg" />
           <Skeleton className="h-64 w-full rounded-lg" />
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
 <div className="flex items-center justify-end gap-2 mb-6">
           {isEditing && (
@@ -366,6 +367,6 @@ export default function EtsSettingsPage() {
           </Fade>
         </div>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

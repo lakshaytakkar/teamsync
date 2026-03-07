@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageShell } from "@/components/layout";
 import { PageTransition } from "@/components/ui/animated";
 
 const primaryColors = [
@@ -287,7 +288,7 @@ function ShadowTab() {
 
 export default function StyleGuide() {
   return (
-    <div className="px-16 py-6 lg:px-24" data-testid="page-style-guide">
+    <PageShell data-testid="page-style-guide">
         <PageTransition>
           <div>
             <Tabs defaultValue="typography" data-testid="tabs-style-guide">
@@ -310,6 +311,6 @@ export default function StyleGuide() {
             </Tabs>
           </div>
         </PageTransition>
-    </div>
+    </PageShell>
   );
 }

@@ -52,7 +52,10 @@ One config per vertical, each exporting `VERTICAL_COLOR` + TypeScript status typ
 - **NO** inline `const statusColors: Record<string, string>` — use `<StatusBadge status={x} />` 
 - **NO** inline `const BRAND = "#..."` — import `VERTICAL_COLOR` from per-vertical config
 - **NO** hardcoded style values in layout/table components — use `DS.*` tokens from `@/lib/design-tokens`
+- **NO** hardcoded `px-16 py-6 lg:px-24` — all pages MUST use `<PageShell>` wrapper (standardized Mar 2026)
 - **StatusBadge** auto-resolves all status strings across all verticals via extended `variantMap`
+- **PageShell** is now used by ALL 170+ pages across all 17 verticals — provides consistent `DS.page.shell` padding and `space-y-6` vertical rhythm
+- **PageShell** accepts `className`, `data-testid`, and all standard HTML div props via `...rest`
 
 ### Optimistic Updates (Global Pattern)
 All mutations across the app follow the TanStack Query optimistic update pattern for instant UI feedback:

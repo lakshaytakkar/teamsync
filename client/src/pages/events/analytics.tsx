@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { tourPackages, leads, bookings } from "@/lib/mock-data-goyo";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade, Stagger, StaggerItem } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -94,7 +95,7 @@ export default function EventsAnalytics() {
   })();
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Fade direction="up" delay={0}>
           <div className="mb-6">
@@ -250,6 +251,6 @@ export default function EventsAnalytics() {
           )}
         </div>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

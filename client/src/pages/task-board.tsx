@@ -10,6 +10,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { formationTasks, stageDefinitions, teamMembers } from "@/lib/mock-data";
 import type { FormationTask } from "@shared/schema";
 import { ListTodo, Clock, CheckCircle2, AlertTriangle, Zap } from "lucide-react";
+import { PageShell } from "@/components/layout";
 
 const priorityDot: Record<string, string> = {
   high: "bg-red-500",
@@ -118,7 +119,7 @@ export default function TaskBoard() {
   }, []);
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
 {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
@@ -204,6 +205,6 @@ export default function TaskBoard() {
           )}
         </Fade>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

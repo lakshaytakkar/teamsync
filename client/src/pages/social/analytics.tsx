@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { socialPosts, campaigns } from "@/lib/mock-data-social";
 import { SOCIAL_COLOR } from "@/lib/social-config";
+import { PageShell } from "@/components/layout";
 
 
 type PlatformTab = "instagram" | "youtube" | "linkedin" | "facebook";
@@ -45,11 +46,11 @@ export default function SocialAnalytics() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-96" />
         <div className="grid grid-cols-6 gap-4">{[...Array(6)].map((_, i) => <div key={i} className="h-24 bg-muted rounded-xl" />)}</div>
         <div className="grid grid-cols-2 gap-6"><div className="h-64 bg-muted rounded-xl" /><div className="h-64 bg-muted rounded-xl" /></div>
-      </div>
+      </PageShell>
     );
   }
 

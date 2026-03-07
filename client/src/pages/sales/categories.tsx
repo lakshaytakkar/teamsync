@@ -8,6 +8,7 @@ import {
   Cpu, Sparkles, Dumbbell, Home, Watch, Camera, Heart, Shirt, PawPrint, Plane, Package,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { PageShell } from "@/components/layout";
 
 const iconMap: Record<string, LucideIcon> = {
   Cpu,
@@ -26,7 +27,7 @@ export default function CategoriesPage() {
   const loading = useSimulatedLoading();
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -63,6 +64,6 @@ export default function CategoriesPage() {
           </Stagger>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

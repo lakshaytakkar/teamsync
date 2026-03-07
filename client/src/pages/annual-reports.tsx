@@ -10,6 +10,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
 import type { ComplianceItem } from "@shared/schema";
 import { cn } from "@/lib/utils";
+import { PageShell } from "@/components/layout";
 
 const annualReports = complianceItems.filter((c) => c.type === "annual-report");
 
@@ -102,7 +103,7 @@ export default function AnnualReportsPage() {
   const statuses = Array.from(new Set(annualReports.map((r) => r.status)));
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
 {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -229,6 +230,6 @@ export default function AnnualReportsPage() {
           )}
         </div>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

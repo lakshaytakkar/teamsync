@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { hubBudgetItems, hubEvents, type BudgetItem } from "@/lib/mock-data-eventhub";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -110,7 +111,7 @@ export default function HubBudget() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground" data-testid="hub-budget-title">Budget Tracker</h1>
@@ -234,6 +235,6 @@ export default function HubBudget() {
           <DataTable columns={columns} data={filtered} />
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { omsProducts } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
+import { PageShell } from "@/components/layout";
 
 const CATEGORIES = ["Fashion", "Electronics", "Homeware", "Stationery", "Personal Care", "Food"];
 
@@ -41,13 +42,13 @@ export default function OmsProducts() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-14 w-72 bg-muted rounded-lg" />
         <div className="h-10 bg-muted rounded-xl" />
         <div className="grid grid-cols-4 gap-4">
           {[...Array(8)].map((_, i) => <div key={i} className="h-48 bg-muted rounded-xl" />)}
         </div>
-      </div>
+      </PageShell>
     );
   }
 

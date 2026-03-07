@@ -13,8 +13,7 @@ import {
   ChevronDown,
   Calendar,
 } from "lucide-react";
-import { StatsCard } from "@/components/hr/stats-card";
-import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
+import { PageShell, StatGrid, StatCard } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -186,62 +185,47 @@ export default function DevTasksPage() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
-        {loading ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <StatsCardSkeleton />
-            <StatsCardSkeleton />
-            <StatsCardSkeleton />
-            <StatsCardSkeleton />
-          </div>
-        ) : (
-          <Stagger staggerInterval={0.05} className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <StaggerItem>
-              <StatsCard
-                title="Total Tasks"
-                value={stats.total}
-                change={`${devProjects.length} projects`}
-                changeType="neutral"
-                icon={<CheckSquare className="size-5" />}
-              />
-            </StaggerItem>
-            <StaggerItem>
-              <StatsCard
-                title="In Progress"
-                value={stats.inProgress}
-                change="Active work"
-                changeType="positive"
-                icon={<Clock className="size-5" />}
-              />
-            </StaggerItem>
-            <StaggerItem>
-              <StatsCard
-                title="Overdue"
-                value={stats.overdue}
-                change={stats.overdue > 0 ? "Needs attention" : "All on track"}
-                changeType={stats.overdue > 0 ? "negative" : "positive"}
-                icon={<AlertTriangle className="size-5" />}
-              />
-            </StaggerItem>
-            <StaggerItem>
-              <StatsCard
-                title="Completed"
-                value={stats.done}
-                change={`${Math.round((stats.done / stats.total) * 100)}% done`}
-                changeType="positive"
-                icon={<TrendingUp className="size-5" />}
-              />
-            </StaggerItem>
-          </Stagger>
-        )}
+        <StatGrid cols={4}>
+          <StatCard
+            label="Total Tasks"
+            value={stats.total}
+            trend={`${devProjects.length} projects`}
+            icon={CheckSquare}
+            iconBg="#e0f2fe"
+            iconColor="#0284c7"
+          />
+          <StatCard
+            label="In Progress"
+            value={stats.inProgress}
+            trend="Active work"
+            icon={Clock}
+            iconBg="#dcfce7"
+            iconColor="#16a34a"
+          />
+          <StatCard
+            label="Overdue"
+            value={stats.overdue}
+            trend={stats.overdue > 0 ? "Needs attention" : "All on track"}
+            icon={AlertTriangle}
+            iconBg="#fef3c7"
+            iconColor="#d97706"
+          />
+          <StatCard
+            label="Completed"
+            value={stats.done}
+            trend={`${Math.round((stats.done / stats.total) * 100)}% done`}
+            icon={TrendingUp}
+            iconBg="#ede9fe"
+            iconColor="#7c3aed"
+          />
+        </StatGrid>
 
         {loading ? (
-          <div className="mt-6">
-            <TableSkeleton rows={8} columns={7} />
-          </div>
+          <TableSkeleton rows={8} columns={7} />
         ) : (
-          <Fade direction="up" delay={0.15} className="mt-6">
+          <Fade direction="up" delay={0.15}>
             <DataTable
               data={devTasks}
               columns={columns}
@@ -299,6 +283,6 @@ export default function DevTasksPage() {
           onOpenChange={setDetailOpen}
         />
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

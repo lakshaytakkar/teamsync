@@ -20,6 +20,7 @@ import {
 } from "@/lib/mock-data";
 import { stageDefinitions } from "@shared/schema";
 import type { ClientDocument, FormationTask, StageChecklist } from "@shared/schema";
+import { PageShell } from "@/components/layout";
 
 const riskVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   "on-track": "success",
@@ -172,19 +173,19 @@ export default function ClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <div className="flex flex-col gap-4">
           <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
           <div className="h-16 w-full animate-pulse rounded-md bg-muted" />
           <div className="h-64 w-full animate-pulse rounded-md bg-muted" />
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   if (!client) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <PageTransition>
           <div className="flex flex-col items-center gap-4 py-12">
             <p className="text-sm font-medium" data-testid="text-not-found">Client not found</p>
@@ -193,7 +194,7 @@ export default function ClientDetailPage() {
             </Button>
           </div>
         </PageTransition>
-      </div>
+      </PageShell>
     );
   }
 
@@ -202,7 +203,7 @@ export default function ClientDetailPage() {
   const completionPercent = totalChecks > 0 ? Math.round((completedChecks / totalChecks) * 100) : 0;
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <div className="mb-4">
           <Button
@@ -419,6 +420,6 @@ export default function ClientDetailPage() {
           </TabsContent>
         </Tabs>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

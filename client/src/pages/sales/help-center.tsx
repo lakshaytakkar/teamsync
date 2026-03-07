@@ -12,6 +12,7 @@ import { helpCenterArticles } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Fade, PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const categoryIcons: Record<string, typeof BookOpen> = {
   "Getting Started": Zap,
@@ -37,7 +38,7 @@ export default function HelpCenterPage() {
     .filter((cat) => cat.articles.length > 0);
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <div className="flex flex-col gap-6">
@@ -142,6 +143,6 @@ export default function HelpCenterPage() {
           </div>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

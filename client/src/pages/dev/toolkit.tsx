@@ -64,6 +64,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { appCredentials, importantLinks, quickTools, projectCredentials, devProjects, type AppCredential, type ImportantLink, type QuickTool, type ProjectCredential } from "@/lib/mock-data-dev";
 import { useToast } from "@/hooks/use-toast";
+import { PageShell } from "@/components/layout";
 
 type IconComponent = LucideIcon | ((props: { className?: string }) => JSX.Element);
 
@@ -277,7 +278,7 @@ export default function ToolkitPage() {
   const wipToolsCount = quickTools.filter((t) => t.status === "wip").length;
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Tabs defaultValue="credentials" className="mt-2">
           <TabsList data-testid="tabs-toolkit">
@@ -1064,6 +1065,6 @@ export default function ToolkitPage() {
           </div>
         </FormDialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

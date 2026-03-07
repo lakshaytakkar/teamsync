@@ -31,6 +31,7 @@ import { FormDialog } from "@/components/hr/form-dialog";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 import { devResources, type DevResource } from "@/lib/mock-data-dev";
+import { PageShell } from "@/components/layout";
 
 const categoryIcon: Record<string, JSX.Element> = {
   process: <ClipboardList className="size-4" />,
@@ -86,7 +87,7 @@ export default function DevResources() {
   };
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -318,6 +319,6 @@ export default function DevResources() {
           </div>
         </FormDialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

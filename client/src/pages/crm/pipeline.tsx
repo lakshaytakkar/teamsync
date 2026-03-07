@@ -10,6 +10,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
 import { crmDeals, crmContacts, crmActivities, ALL_VERTICALS_IN_CRM, type CrmDeal } from "@/lib/mock-data-crm";
 import { CRM_COLOR } from "@/lib/crm-config";
+import { PageShell } from "@/components/layout";
 
 const COLUMNS: { stage: string; label: string; border: string; bg: string; text: string; hdr: string }[] = [
   { stage: "new", label: "New Lead", border: "border-slate-200", bg: "bg-slate-50", text: "text-slate-700", hdr: "bg-slate-100" },
@@ -69,13 +70,13 @@ export default function CrmPipeline() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="h-10 bg-muted rounded" />
         <div className="flex gap-4">
           {[...Array(7)].map((_, i) => <div key={i} className="w-72 shrink-0 h-96 bg-muted rounded-xl" />)}
         </div>
-      </div>
+      </PageShell>
     );
   }
 

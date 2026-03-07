@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { ALL_FINANCE_COMPANIES, complianceFilings } from "@/lib/mock-data-finance";
 import { FINANCE_COLOR } from "@/lib/finance-config";
+import { PageShell } from "@/components/layout";
 
 const FILING_TYPES = ["All", "GST", "TDS", "ROC", "Income Tax", "IRS", "Wyoming", "Other"];
 
@@ -64,11 +65,11 @@ export default function FinanceCompliance() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-5 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-64" />
         <div className="grid grid-cols-4 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-muted rounded-xl" />)}</div>
         <div className="h-96 bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 

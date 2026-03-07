@@ -42,6 +42,7 @@ import {
   type EtsPayment,
   type EtsPipelineStage,
 } from "@/lib/mock-data-ets";
+import { PageShell } from "@/components/layout";
 
 const STAGE_INDEX: Record<EtsPipelineStage, number> = {
   "new-lead": 0,
@@ -359,19 +360,19 @@ export default function EtsClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <div className="flex flex-col gap-4">
           <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
           <div className="h-16 w-full animate-pulse rounded-md bg-muted" />
           <div className="h-64 w-full animate-pulse rounded-md bg-muted" />
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   if (!client) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <PageTransition>
           <div className="flex flex-col items-center gap-4 py-12">
             <p className="text-sm font-medium" data-testid="text-not-found">Client not found</p>
@@ -380,7 +381,7 @@ export default function EtsClientDetailPage() {
             </Button>
           </div>
         </PageTransition>
-      </div>
+      </PageShell>
     );
   }
 
@@ -391,7 +392,7 @@ export default function EtsClientDetailPage() {
   const completedChecks = checklist.filter((c) => c.completed).length;
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <div className="mb-4">
           <Button
@@ -744,6 +745,6 @@ export default function EtsClientDetailPage() {
           </div>
         </FormDialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageShell } from "@/components/layout";
 import { PageTransition } from "@/components/ui/animated";
 import { Input } from "@/components/ui/input";
 import {
@@ -88,7 +89,8 @@ export default function SupransEnrichment() {
   }
 
   return (
-    <PageTransition className="px-16 py-6 lg:px-24 space-y-5">
+    <PageShell>
+    <PageTransition>
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold font-heading">Enrichment</h1>
@@ -244,5 +246,6 @@ export default function SupransEnrichment() {
         </DialogContent>
       </Dialog>
     </PageTransition>
+    </PageShell>
   );
 }

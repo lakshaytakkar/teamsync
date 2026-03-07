@@ -29,6 +29,7 @@ import {
   calculateEtsPrices,
   getDefaultPriceInputs,
 } from "@/lib/mock-data-ets";
+import { PageShell } from "@/components/layout";
 
 const formatInr = (v: number) => "₹" + v.toLocaleString("en-IN", { maximumFractionDigits: 2 });
 const formatYuan = (v: number) => "¥" + v.toFixed(2);
@@ -248,16 +249,16 @@ export default function EtsProductsPage() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <PageTransition>
           <TableSkeleton rows={8} columns={7} />
         </PageTransition>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Stagger className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
           <StaggerItem>
@@ -558,6 +559,6 @@ export default function EtsProductsPage() {
           </div>
         </Fade>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

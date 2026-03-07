@@ -13,6 +13,7 @@ import type { FormationClient } from "@shared/schema";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem } from "@/components/ui/animated";
 import { FileText, AlertTriangle, Users } from "lucide-react";
+import { PageShell } from "@/components/layout";
 
 const riskVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   "on-track": "success",
@@ -141,7 +142,7 @@ export default function ClientIntakePage() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Stagger className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StaggerItem>
@@ -198,6 +199,6 @@ export default function ClientIntakePage() {
           />
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

@@ -4,6 +4,7 @@ import { StatusBadge } from "@/components/hr/status-badge";
 import { supportTickets, type SupportTicket } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const priorityVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   low: "neutral",
@@ -96,7 +97,7 @@ export default function TicketsPage() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <TableSkeleton rows={8} columns={8} />
@@ -114,6 +115,6 @@ export default function TicketsPage() {
           />
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

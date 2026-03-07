@@ -17,6 +17,7 @@ import {
   type EtsWhatsAppTemplate,
 } from "@/lib/mock-data-ets";
 import dashboardIcon from "/3d-icons/documents.webp";
+import { PageShell } from "@/components/layout";
 
 type TemplateCategory = EtsWhatsAppTemplate["category"];
 
@@ -105,14 +106,14 @@ export default function EtsTemplates() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6">
+      <PageShell>
         <Skeleton className="h-20 w-full rounded-xl" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Skeleton key={i} className="h-40" />
           ))}
         </div>
-      </div>
+      </PageShell>
     );
   }
 

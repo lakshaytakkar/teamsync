@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import { approvalRequests as initialApprovals, type ApprovalRequest } from "@/lib/mock-data-social";
+import { PageShell } from "@/components/layout";
 
 
 const platformIcons: Record<string, { icon: React.ElementType; color: string }> = {
@@ -71,10 +72,10 @@ export default function SocialApprovals() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="grid grid-cols-4 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="h-20 bg-muted rounded-xl" />)}</div>
         <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-40 bg-muted rounded-xl" />)}</div>
-      </div>
+      </PageShell>
     );
   }
 

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Separator } from "@/components/ui/separator";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { payrollEntries } from "@/lib/mock-data-hrms";
+import { PageShell } from "@/components/layout";
 
 const processedSlips = payrollEntries.filter(p => p.status === "processed");
 
@@ -16,10 +17,10 @@ export default function HrmsPayslips() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         {[...Array(6)].map((_, i) => <div key={i} className="h-14 bg-muted rounded-xl" />)}
-      </div>
+      </PageShell>
     );
   }
 

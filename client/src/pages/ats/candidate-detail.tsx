@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/hr/status-badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
 import { candidates, applications, interviews, evaluations } from "@/lib/mock-data-ats";
+import { PageShell } from "@/components/layout";
 
 const activityTimeline = (candidateId: string) => [
   { text: "Application received", date: "2026-02-08", icon: "📋" },
@@ -36,10 +37,10 @@ export default function AtsCandidateDetail() {
 
   if (!candidate) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <Button variant="ghost" onClick={() => setLocation("/ats/candidates")} className="mb-4"><ArrowLeft className="size-4 mr-2" /> Back</Button>
         <div className="text-center py-20 text-muted-foreground">Candidate not found.</div>
-      </div>
+      </PageShell>
     );
   }
 

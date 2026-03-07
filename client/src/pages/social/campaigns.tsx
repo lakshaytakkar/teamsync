@@ -15,6 +15,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import { campaigns, type Campaign } from "@/lib/mock-data-social";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PageShell } from "@/components/layout";
 
 
 const platformIcons: Record<string, { icon: React.ElementType; color: string }> = {
@@ -58,9 +59,9 @@ export default function SocialCampaigns() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="grid grid-cols-3 gap-4">{[...Array(6)].map((_, i) => <div key={i} className="h-48 bg-muted rounded-xl" />)}</div>
-      </div>
+      </PageShell>
     );
   }
 

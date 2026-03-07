@@ -43,6 +43,7 @@ import {
   type EtsOrderDocument,
 } from "@/lib/mock-data-ets";
 import { useToast } from "@/hooks/use-toast";
+import { PageShell } from "@/components/layout";
 
 const ORDER_STATUS_STEPS: EtsOrderStatus[] = [
   "ordered",
@@ -327,7 +328,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Fade direction="down" distance={10} duration={0.3}>
           <h1 className="mb-1 text-2xl font-bold font-heading" data-testid="text-page-title">
@@ -440,6 +441,6 @@ export default function OrdersPage() {
           </DialogContent>
         </Dialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

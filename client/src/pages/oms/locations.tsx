@@ -5,6 +5,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Button } from "@/components/ui/button";
 import { omsLocations, omsInventory } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
+import { PageShell } from "@/components/layout";
 
 const TYPE_STYLES: Record<string, string> = {
   rack: "bg-blue-100 text-blue-700",
@@ -53,13 +54,13 @@ export default function OmsLocations() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-14 w-72 bg-muted rounded-lg" />
         <div className="grid grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-muted rounded-xl" />)}
         </div>
         <div className="h-96 bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 

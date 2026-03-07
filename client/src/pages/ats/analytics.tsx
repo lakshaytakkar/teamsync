@@ -2,6 +2,7 @@ import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/anim
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { jobOpenings, candidates, offers, applications } from "@/lib/mock-data-ats";
+import { PageShell } from "@/components/layout";
 
 const funnelStages = [
   { label: "Applied", count: 25, color: "#8B5CF6" },
@@ -55,12 +56,12 @@ export default function AtsAnalytics() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="grid grid-cols-4 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-muted rounded-xl" />)}</div>
         <div className="h-36 bg-muted rounded-xl" />
         <div className="grid grid-cols-2 gap-6"><div className="h-64 bg-muted rounded-xl" /><div className="h-64 bg-muted rounded-xl" /></div>
-      </div>
+      </PageShell>
     );
   }
 

@@ -15,6 +15,7 @@ import { assignments as initialAssignments, socialPosts, campaigns, type Assignm
 import { getPersonAvatar } from "@/lib/avatars";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { SOCIAL_COLOR } from "@/lib/social-config";
+import { PageShell } from "@/components/layout";
 
 
 const statusCycle: Assignment["status"][] = ["pending", "in-progress", "done"];
@@ -85,10 +86,10 @@ export default function SocialAssignments() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="grid grid-cols-4 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="h-20 bg-muted rounded-xl" />)}</div>
         <div className="space-y-3">{[...Array(6)].map((_, i) => <div key={i} className="h-12 bg-muted rounded-lg" />)}</div>
-      </div>
+      </PageShell>
     );
   }
 

@@ -12,6 +12,7 @@ import { FormDialog } from "@/components/hr/form-dialog";
 import { goals, employees } from "@/lib/mock-data-hrms";
 import { HRMS_GOAL_CONFIG } from "@/lib/hrms-config";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PageShell } from "@/components/layout";
 
 export default function HrmsGoals() {
   const isLoading = useSimulatedLoading(700);
@@ -29,10 +30,10 @@ export default function HrmsGoals() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="grid grid-cols-2 gap-4">{[...Array(6)].map((_, i) => <div key={i} className="h-32 bg-muted rounded-xl" />)}</div>
-      </div>
+      </PageShell>
     );
   }
 

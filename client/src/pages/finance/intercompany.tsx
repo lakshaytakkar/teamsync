@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { ALL_FINANCE_COMPANIES, interCompanyBalances, exchangeRates } from "@/lib/mock-data-finance";
 import { FINANCE_COLOR } from "@/lib/finance-config";
+import { PageShell } from "@/components/layout";
 
 const RATE = exchangeRates[0].rate;
 
@@ -43,11 +44,11 @@ export default function FinanceIntercompany() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-5 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-64" />
         <div className="h-48 bg-muted rounded-xl" />
         <div className="h-64 bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 

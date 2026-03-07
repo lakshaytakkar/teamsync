@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { ALL_FINANCE_COMPANIES, financeTransactions, chartOfAccounts } from "@/lib/mock-data-finance";
 import { FINANCE_COLOR } from "@/lib/finance-config";
+import { PageShell } from "@/components/layout";
 
 const USD_RATE = 83.20;
 
@@ -79,11 +80,11 @@ export default function FinanceReports() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-5 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-64" />
         <div className="h-12 bg-muted rounded" />
         <div className="h-96 bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 

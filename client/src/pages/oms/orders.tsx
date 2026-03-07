@@ -3,7 +3,6 @@ import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Button } from "@/components/ui/button";
 import { omsOrders } from "@/lib/mock-data-oms";
-import { cn } from "@/lib/utils";
 import {
   PageShell,
   PageHeader,
@@ -123,14 +122,7 @@ export default function OmsOrders() {
                       ₹{order.totalAmount.toLocaleString()}
                     </DataTD>
                     <DataTD>
-                      <span
-                        className={cn(
-                          "text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize",
-                          STATUS_COLORS[order.status]
-                        )}
-                      >
-                        {order.status}
-                      </span>
+                      <StatusBadge status={order.status} />
                     </DataTD>
                   </DataTR>
                   {expanded === order.id && (

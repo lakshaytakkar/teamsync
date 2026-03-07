@@ -15,6 +15,7 @@ import { reports } from "@/lib/mock-data-admin";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
 import { Filter } from "lucide-react";
+import { PageShell } from "@/components/layout";
 
 const categories = Array.from(new Set(reports.map((r) => r.category)));
 const frequencies = Array.from(new Set(reports.map((r) => r.frequency)));
@@ -37,7 +38,7 @@ export default function AdminReports() {
   });
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <div className="flex flex-col gap-6">
@@ -143,6 +144,6 @@ export default function AdminReports() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

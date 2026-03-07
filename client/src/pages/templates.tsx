@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { documentTemplates } from "@/lib/mock-data";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const categoryColors: Record<string, string> = {
   Formation: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
@@ -28,7 +29,7 @@ export default function TemplatesPage() {
   );
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
 {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -126,6 +127,6 @@ export default function TemplatesPage() {
           )}
         </div>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

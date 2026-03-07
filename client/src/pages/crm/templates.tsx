@@ -10,6 +10,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import { messageTemplates, ALL_VERTICALS_IN_CRM, type MessageTemplate, type TemplateType } from "@/lib/mock-data-crm";
 import { CRM_COLOR } from "@/lib/crm-config";
+import { PageShell } from "@/components/layout";
 
 const typeConfig: Record<TemplateType, { label: string; icon: typeof Mail; cls: string }> = {
   email: { label: "Email", icon: Mail, cls: "bg-blue-50 text-blue-700" },
@@ -125,10 +126,10 @@ export default function CrmTemplates() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="grid grid-cols-2 gap-4">{[...Array(6)].map((_, i) => <div key={i} className="h-52 bg-muted rounded-xl" />)}</div>
-      </div>
+      </PageShell>
     );
   }
 

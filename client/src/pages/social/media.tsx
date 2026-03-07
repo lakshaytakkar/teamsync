@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import { mediaAssets, type MediaAsset, type AssetType } from "@/lib/mock-data-social";
+import { PageShell } from "@/components/layout";
 
 
 const assetColors: Record<AssetType, { bg: string; color: string; icon: React.ElementType }> = {
@@ -52,10 +53,10 @@ export default function SocialMedia() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="grid grid-cols-4 gap-4">{[...Array(8)].map((_, i) => <div key={i} className="h-48 bg-muted rounded-xl" />)}</div>
-      </div>
+      </PageShell>
     );
   }
 

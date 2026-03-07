@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { socialPosts, campaigns } from "@/lib/mock-data-social";
 import { SOCIAL_COLOR } from "@/lib/social-config";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PageShell } from "@/components/layout";
 
 
 const stageOrder = ["idea", "script", "design", "caption", "approval", "scheduled", "published"];
@@ -53,13 +54,13 @@ export default function SocialPostDetail() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="h-8 bg-muted rounded w-48" />
         <div className="grid grid-cols-5 gap-6">
           <div className="col-span-3 space-y-4"><div className="h-40 bg-muted rounded-xl" /><div className="h-40 bg-muted rounded-xl" /></div>
           <div className="col-span-2 space-y-4"><div className="h-80 bg-muted rounded-xl" /></div>
         </div>
-      </div>
+      </PageShell>
     );
   }
 

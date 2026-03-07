@@ -6,6 +6,7 @@ import { shopifyStores, type ShopifyStore } from "@/lib/mock-data-sales";
 import { getPersonAvatar } from "@/lib/avatars";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
@@ -82,7 +83,7 @@ export default function StoresPage() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <TableSkeleton rows={8} columns={7} />
@@ -97,6 +98,6 @@ export default function StoresPage() {
           />
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

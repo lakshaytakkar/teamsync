@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getPersonAvatar } from "@/lib/avatars";
 import { CRM_COLOR } from "@/lib/crm-config";
+import { PageShell } from "@/components/layout";
 
 const MOCK_UPI_ID = "payments@supransbiz";
 
@@ -276,7 +277,7 @@ export default function PaymentLinksPage() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="flex justify-between items-center">
           <div className="space-y-2">
             <div className="h-8 bg-muted rounded w-48" />
@@ -290,7 +291,7 @@ export default function PaymentLinksPage() {
             <div key={i} className="h-16 bg-muted rounded-xl w-full" />
           ))}
         </div>
-      </div>
+      </PageShell>
     );
   }
 

@@ -20,6 +20,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 import { cn } from "@/lib/utils";
 import { etsPayments, type EtsPayment } from "@/lib/mock-data-ets";
+import { PageShell } from "@/components/layout";
 
 const paymentStatusVariant: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   received: "success",
@@ -171,7 +172,7 @@ export default function PaymentsPage() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Fade direction="down" distance={10} duration={0.3}>
           <h1 className="mb-1 text-2xl font-bold font-heading" data-testid="text-page-title">
@@ -349,6 +350,6 @@ export default function PaymentsPage() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

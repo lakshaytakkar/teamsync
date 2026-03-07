@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
 import { orgChart, hrmsDepartments, type OrgNode } from "@/lib/mock-data-hrms";
+import { PageShell } from "@/components/layout";
 
 const deptColors: Record<string, string> = {
   Leadership: "#0EA5E9",
@@ -75,10 +76,10 @@ export default function HrmsOrgChart() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="h-[500px] bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 

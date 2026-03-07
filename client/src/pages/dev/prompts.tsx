@@ -33,6 +33,7 @@ import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/anim
 import { devPrompts, type DevPrompt } from "@/lib/mock-data-dev";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { PageShell } from "@/components/layout";
 
 const categoryOptions = ["agent", "frontend", "backend", "database", "debug"] as const;
 const modelOptions = ["claude", "gpt", "replit-agent"] as const;
@@ -158,7 +159,7 @@ export default function PromptsPage() {
   };
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -475,6 +476,6 @@ export default function PromptsPage() {
           </div>
         </FormDialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

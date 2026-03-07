@@ -23,6 +23,7 @@ import {
   type EtsPriceResult,
 } from "@/lib/mock-data-ets";
 import dashboardIcon from "/3d-icons/dashboard.webp";
+import { PageShell } from "@/components/layout";
 
 interface SavedTemplate {
   id: string;
@@ -205,18 +206,18 @@ export default function EtsCalculator() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <Skeleton className="mb-5 h-24 w-full rounded-xl" />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Skeleton className="h-[500px] rounded-lg" />
           <Skeleton className="h-[500px] rounded-lg" />
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
 <Fade direction="up" delay={0.05}>
           <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -576,6 +577,6 @@ export default function EtsCalculator() {
           </Fade>
         </div>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

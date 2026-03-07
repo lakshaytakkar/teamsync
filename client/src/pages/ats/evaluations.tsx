@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { evaluations, interviews, type Evaluation } from "@/lib/mock-data-ats";
 import { StatusBadge } from "@/components/hr/status-badge";
-import { DetailModal } from "@/components/layout";
+import { PageShell, DetailModal } from "@/components/layout";
 
 function StarDisplay({ rating }: { rating: number }) {
   return (
@@ -27,10 +27,10 @@ export default function AtsEvaluations() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="h-72 bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 

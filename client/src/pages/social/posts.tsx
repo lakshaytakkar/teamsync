@@ -10,6 +10,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { socialPosts, campaigns, socialAccounts, type PostStage } from "@/lib/mock-data-social";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { SOCIAL_COLOR } from "@/lib/social-config";
+import { PageShell } from "@/components/layout";
 
 
 const mediaColors: Record<string, string> = {
@@ -56,11 +57,11 @@ export default function SocialPosts() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded-lg w-64" />
         <div className="flex gap-2">{stages.map((_, i) => <div key={i} className="h-8 w-20 bg-muted rounded-full" />)}</div>
         <div className="space-y-3">{[...Array(8)].map((_, i) => <div key={i} className="h-14 bg-muted rounded-lg" />)}</div>
-      </div>
+      </PageShell>
     );
   }
 

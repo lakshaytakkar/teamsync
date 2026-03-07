@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { omsShipments, omsOrders } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
+import { PageShell } from "@/components/layout";
 
 const COURIERS = ["Delhivery", "Shiprocket", "DTDC", "BlueDart", "Ekart"] as const;
 
@@ -68,13 +69,13 @@ export default function OmsShipments() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-14 w-72 bg-muted rounded-lg" />
         <div className="grid grid-cols-5 gap-4">
           {[...Array(5)].map((_, i) => <div key={i} className="h-32 bg-muted rounded-xl" />)}
         </div>
         <div className="h-96 bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 

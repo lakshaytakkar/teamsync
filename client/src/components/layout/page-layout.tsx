@@ -17,14 +17,14 @@ import { DS } from "@/lib/design-tokens";
 // Pattern: PageTransition > div.px-16.py-6.lg:px-24.space-y-6
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface PageShellProps {
+interface PageShellProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className?: string;
 }
 
-export function PageShell({ children, className }: PageShellProps) {
+export function PageShell({ children, className, ...rest }: PageShellProps) {
   return (
-    <PageTransition className={cn(DS.page.shell, className)}>
+    <PageTransition className={cn(DS.page.shell, className)} {...rest}>
       {children}
     </PageTransition>
   );

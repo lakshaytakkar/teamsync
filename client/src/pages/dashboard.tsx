@@ -25,6 +25,7 @@ import { stageDefinitions } from "@shared/schema";
 import { getPersonAvatar } from "@/lib/avatars";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const riskVariant: Record<string, "success" | "error" | "warning" | "neutral"> = {
   "on-track": "success",
@@ -86,7 +87,7 @@ export default function Dashboard() {
   const activeTeamMembers = teamMembers.filter((m) => m.role !== "admin");
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Fade direction="up" delay={0}>
           <div
@@ -392,6 +393,6 @@ export default function Dashboard() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

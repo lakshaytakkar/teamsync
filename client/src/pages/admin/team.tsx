@@ -8,6 +8,7 @@ import { teamMembers, type TeamMember } from "@/lib/mock-data-admin";
 import { getPersonAvatar } from "@/lib/avatars";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const statusVariantMap: Record<string, "success" | "error" | "info"> = {
   active: "success",
@@ -84,7 +85,7 @@ export default function AdminTeam() {
   const loading = useSimulatedLoading();
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <TableSkeleton rows={6} columns={6} />
@@ -113,6 +114,6 @@ export default function AdminTeam() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

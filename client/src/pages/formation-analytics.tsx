@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formationMetrics, formationClients, stageDefinitions } from "@/lib/mock-data";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 export default function FormationAnalyticsPage() {
   const loading = useSimulatedLoading();
@@ -35,7 +36,7 @@ export default function FormationAnalyticsPage() {
   const maxStageDays = Math.max(...stageAvgDays.map((s) => s.avgDays), 1);
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
 {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -266,6 +267,6 @@ export default function FormationAnalyticsPage() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

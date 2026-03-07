@@ -9,6 +9,7 @@ import { tourPackages, bookings, type Booking } from "@/lib/mock-data-goyo";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { useToast } from "@/hooks/use-toast";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -40,12 +41,12 @@ export default function PackageDetail() {
 
   if (!loading && !pkg) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <Button variant="ghost" size="sm" onClick={() => navigate("/goyotours/packages")} className="gap-2 mb-4">
           <ArrowLeft className="size-4" /> Back to Packages
         </Button>
         <p className="text-muted-foreground">Package not found.</p>
-      </div>
+      </PageShell>
     );
   }
 
@@ -60,7 +61,7 @@ export default function PackageDetail() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <Skeleton className="h-8 w-48 mb-6" />
         <div className="grid grid-cols-5 gap-6">
           <div className="col-span-3 flex flex-col gap-4">
@@ -72,12 +73,12 @@ export default function PackageDetail() {
             <Skeleton className="h-64 w-full rounded-xl" />
           </div>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Fade direction="up" delay={0}>
           <div className="mb-5 flex items-center gap-3">
@@ -248,6 +249,6 @@ export default function PackageDetail() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

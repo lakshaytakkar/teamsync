@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
 import { candidates } from "@/lib/mock-data-ats";
+import { PageShell } from "@/components/layout";
 
 const poolCandidates = candidates.filter(c => c.stage === "rejected" || c.stage === "hired").concat(
   candidates.filter(c => c.experience >= 4 && !["applied", "screening", "interview"].includes(c.stage))
@@ -35,10 +36,10 @@ export default function AtsTalentPool() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="grid grid-cols-3 gap-4">{[...Array(6)].map((_, i) => <div key={i} className="h-48 bg-muted rounded-xl" />)}</div>
-      </div>
+      </PageShell>
     );
   }
 

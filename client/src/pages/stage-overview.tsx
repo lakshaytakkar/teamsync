@@ -13,6 +13,7 @@ import { stageDefinitions } from "@shared/schema";
 import type { FormationClient } from "@shared/schema";
 import { Users, Clock, AlertTriangle, ArrowRight, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageShell } from "@/components/layout";
 
 const riskVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   "on-track": "success",
@@ -114,7 +115,7 @@ export default function StageOverviewPage() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -210,6 +211,6 @@ export default function StageOverviewPage() {
           </>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

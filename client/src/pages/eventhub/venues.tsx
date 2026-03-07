@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { hubVenues, type EventVenue } from "@/lib/mock-data-eventhub";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -52,7 +53,7 @@ export default function HubVenues() {
   const bookedCount = hubVenues.filter((v) => v.status === "booked").length;
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -246,6 +247,6 @@ export default function HubVenues() {
           </div>
         </FormDialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

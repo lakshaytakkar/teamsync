@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { ALL_FINANCE_COMPANIES, sharedExpenseRules, sharedExpenseHistory } from "@/lib/mock-data-finance";
 import { FINANCE_COLOR } from "@/lib/finance-config";
+import { PageShell } from "@/components/layout";
 
 
 function getCompany(id: string) {
@@ -33,13 +34,13 @@ export default function FinanceSharedExpenses() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-5 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-64" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(5)].map((_, i) => <div key={i} className="h-40 bg-muted rounded-xl" />)}
         </div>
         <div className="h-64 bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { holidays } from "@/lib/mock-data-hrms";
+import { PageShell } from "@/components/layout";
 
 const typeStyle: Record<string, { badge: string; dot: string }> = {
   national: { badge: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" },
@@ -19,13 +20,13 @@ export default function HrmsHolidays() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="grid grid-cols-2 gap-6">
           <div className="h-64 bg-muted rounded-xl" />
           <div className="h-64 bg-muted rounded-xl" />
         </div>
-      </div>
+      </PageShell>
     );
   }
 

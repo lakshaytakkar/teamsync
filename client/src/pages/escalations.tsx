@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { escalations } from "@/lib/mock-data";
 import type { Escalation } from "@shared/schema";
 import { AlertTriangle, ShieldAlert, AlertCircle, CheckCircle2 } from "lucide-react";
+import { PageShell } from "@/components/layout";
 
 const typeLabels: Record<Escalation["type"], string> = {
   delayed: "Delayed",
@@ -123,7 +124,7 @@ export default function Escalations() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
 {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
@@ -200,6 +201,6 @@ export default function Escalations() {
           )}
         </Fade>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

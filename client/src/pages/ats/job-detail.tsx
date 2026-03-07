@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/hr/status-badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
 import { jobOpenings, applications, candidates } from "@/lib/mock-data-ats";
+import { PageShell } from "@/components/layout";
 
 
 
@@ -35,10 +36,10 @@ export default function AtsJobDetail() {
 
   if (!job) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <Button variant="ghost" onClick={() => setLocation("/ats/jobs")} className="mb-4"><ArrowLeft className="size-4 mr-2" /> Back</Button>
         <div className="text-center py-20 text-muted-foreground">Job opening not found.</div>
-      </div>
+      </PageShell>
     );
   }
 

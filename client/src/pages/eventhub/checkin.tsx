@@ -14,6 +14,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageShell } from "@/components/layout";
 
 const ticketVariantMap: Record<string, "info" | "success" | "warning" | "neutral"> = {
   VIP: "success",
@@ -95,7 +96,7 @@ export default function HubCheckin() {
   const selectedEvent = hubEvents.find((e) => e.id === selectedEventId);
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground" data-testid="hub-checkin-title">Live Check-in</h1>
@@ -265,6 +266,6 @@ export default function HubCheckin() {
           </div>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

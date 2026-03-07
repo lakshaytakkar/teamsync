@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
 import { employees } from "@/lib/mock-data-hrms";
+import { PageShell } from "@/components/layout";
 
 const checklistItems = ["IT Equipment Setup", "Company Email", "Slack / Tools Access", "HR Documents Submitted", "Orientation Session", "Manager 1:1 Done"];
 
@@ -33,10 +34,10 @@ export default function HrmsOnboarding() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         {[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-muted rounded-xl" />)}
-      </div>
+      </PageShell>
     );
   }
 

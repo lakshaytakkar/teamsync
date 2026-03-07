@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { hrPolicies, type HrPolicy } from "@/lib/mock-data-hrms";
+import { PageShell } from "@/components/layout";
 
 const categoryColors: Record<string, string> = {
   leave: "bg-sky-100 text-sky-700",
@@ -34,10 +35,10 @@ export default function HrmsPolicies() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="grid grid-cols-2 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="h-40 bg-muted rounded-xl" />)}</div>
-      </div>
+      </PageShell>
     );
   }
 

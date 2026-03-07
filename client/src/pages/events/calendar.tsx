@@ -11,6 +11,7 @@ import { PageTransition, Fade } from "@/components/ui/animated";
 import { bookings, tourPackages, type Booking } from "@/lib/mock-data-goyo";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { cn } from "@/lib/utils";
+import { PageShell } from "@/components/layout";
 
 const bookingStatusConfig: Record<string, { variant: "success" | "warning" | "error" | "neutral" | "info" }> = {
   confirmed: { variant: "success" },
@@ -60,7 +61,7 @@ export default function EventsCalendar() {
   };
 
   return (
-    <div className="px-16 py-6 lg:px-24 flex flex-col h-full">
+    <PageShell>
       <PageTransition>
         <Fade direction="up" delay={0}>
           <div className="mb-6 flex items-center justify-between">
@@ -262,6 +263,6 @@ export default function EventsCalendar() {
           </div>
         </div>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

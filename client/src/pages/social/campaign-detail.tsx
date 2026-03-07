@@ -9,6 +9,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { campaigns, socialPosts, type PostStage } from "@/lib/mock-data-social";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { SOCIAL_COLOR } from "@/lib/social-config";
+import { PageShell } from "@/components/layout";
 
 
 const platformIcons: Record<string, { icon: React.ElementType; color: string }> = {
@@ -29,12 +30,12 @@ export default function SocialCampaignDetail() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="h-8 bg-muted rounded w-48" />
         <div className="h-28 bg-muted rounded-2xl" />
         <div className="grid grid-cols-5 gap-4">{[...Array(5)].map((_, i) => <div key={i} className="h-20 bg-muted rounded-xl" />)}</div>
         <div className="grid grid-cols-2 gap-6"><div className="h-48 bg-muted rounded-xl" /><div className="h-48 bg-muted rounded-xl" /></div>
-      </div>
+      </PageShell>
     );
   }
 

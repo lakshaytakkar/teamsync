@@ -6,6 +6,7 @@ import { suppliers as initialSuppliers, type Supplier } from "@/lib/mock-data-sa
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { Star, MapPin, Truck } from "lucide-react";
+import { PageShell } from "@/components/layout";
 
 const statusVariant: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   verified: "success",
@@ -77,7 +78,7 @@ export default function SuppliersPage() {
   const countryOptions = Array.from(new Set(data.map((s) => s.country)));
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <TableSkeleton rows={8} columns={6} />
@@ -93,6 +94,6 @@ export default function SuppliersPage() {
           />
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

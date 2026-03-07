@@ -14,6 +14,7 @@ import { getPersonAvatar } from "@/lib/avatars";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { useToast } from "@/hooks/use-toast";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -177,7 +178,7 @@ export default function HubEventDetail() {
   const completedTaskCount = Object.values(completedTasks).filter(Boolean).length;
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <div className="mb-5">
           <Button
@@ -539,6 +540,6 @@ export default function HubEventDetail() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

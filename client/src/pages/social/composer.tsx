@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Sparkles, Send } from "lucide-react";
 import { SiInstagram, SiYoutube, SiLinkedin, SiFacebook, SiThreads } from "react-icons/si";
+import { PageShell } from "@/components/layout";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,8 @@ export default function SocialComposer() {
   };
 
   return (
-    <PageTransition className="px-16 py-6 lg:px-24">
+    <PageShell>
+    <PageTransition>
       <Fade>
         <div className="mb-6">
           <h1 className="text-2xl font-bold font-heading">Post Composer</h1>
@@ -275,5 +277,6 @@ export default function SocialComposer() {
         </div>
       </div>
     </PageTransition>
+    </PageShell>
   );
 }

@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { omsOrders, omsShipments, omsInventory, omsProducts, omsReturns } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
+import { PageShell } from "@/components/layout";
 
 const COURIERS = ["Delhivery", "Shiprocket", "DTDC", "BlueDart", "Ekart"] as const;
 
@@ -106,11 +107,11 @@ export default function OmsReports() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-14 w-72 bg-muted rounded-lg" />
         <div className="h-10 bg-muted rounded-xl" />
         <div className="h-96 bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 

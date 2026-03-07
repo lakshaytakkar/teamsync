@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
 import { hrmsDepartments, employees } from "@/lib/mock-data-hrms";
+import { PageShell } from "@/components/layout";
 
 export default function HrmsDepartments() {
   const isLoading = useSimulatedLoading(600);
@@ -14,12 +15,12 @@ export default function HrmsDepartments() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-48" />
         <div className="grid grid-cols-3 gap-4">
           {[...Array(5)].map((_, i) => <div key={i} className="h-48 bg-muted rounded-xl" />)}
         </div>
-      </div>
+      </PageShell>
     );
   }
 

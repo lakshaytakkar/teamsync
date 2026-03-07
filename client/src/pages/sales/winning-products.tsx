@@ -5,6 +5,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { TrendingUp, ShoppingCart, DollarSign } from "lucide-react";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
@@ -18,7 +19,7 @@ export default function WinningProductsPage() {
     .slice(0, 12);
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -78,6 +79,6 @@ export default function WinningProductsPage() {
           </Stagger>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

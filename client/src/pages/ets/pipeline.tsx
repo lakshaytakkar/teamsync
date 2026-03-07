@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
+import { PageShell } from "@/components/layout";
 
 const tierColors: Record<EtsPackageTier, string> = {
   lite: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
@@ -262,7 +263,7 @@ export default function EtsPipeline() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
 <Fade direction="up" distance={10} delay={0.1}>
           <Stagger className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-5">
@@ -530,6 +531,6 @@ export default function EtsPipeline() {
           </div>
         </FormDialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

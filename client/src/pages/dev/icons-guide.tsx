@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { PageShell } from "@/components/layout";
 import { PageTransition } from "@/components/ui/animated";
 import {
   Search,
@@ -335,7 +336,7 @@ export default function IconsGuide() {
   }, [filtered]);
 
   return (
-    <div className="px-16 py-6 lg:px-24" data-testid="page-icons-guide">
+    <PageShell data-testid="page-icons-guide">
         <PageTransition>
           <div className="mb-8 max-w-sm">
             <div className="relative">
@@ -381,6 +382,6 @@ export default function IconsGuide() {
             )}
           </div>
         </PageTransition>
-    </div>
+    </PageShell>
   );
 }

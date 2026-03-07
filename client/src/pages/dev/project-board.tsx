@@ -66,6 +66,7 @@ import {
 } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 import { TaskDetailDialog } from "@/components/dev/task-detail-dialog";
+import { PageShell } from "@/components/layout";
 
 type IconComponent = LucideIcon | ((props: { className?: string }) => JSX.Element);
 
@@ -259,7 +260,7 @@ export default function DevProjectBoard() {
 
   if (!project) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <div className="flex flex-col items-center justify-center gap-4 py-20">
           <AlertCircle className="size-12 text-muted-foreground" />
           <h2 className="text-lg font-semibold font-heading" data-testid="text-project-not-found">
@@ -275,7 +276,7 @@ export default function DevProjectBoard() {
             </Button>
           </Link>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
@@ -403,7 +404,7 @@ export default function DevProjectBoard() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Fade direction="up" distance={10} delay={0.05}>
           <div className="flex flex-wrap items-center gap-3 mb-5">
@@ -1026,6 +1027,6 @@ export default function DevProjectBoard() {
           onOpenChange={setTaskDetailOpen}
         />
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

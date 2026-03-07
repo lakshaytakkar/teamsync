@@ -17,6 +17,7 @@ import {
   type EtsProposalTemplate,
 } from "@/lib/mock-data-ets";
 import dashboardIcon from "/3d-icons/documents.webp";
+import { PageShell } from "@/components/layout";
 
 const formatInr = (value: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
@@ -165,7 +166,7 @@ export default function EtsProposals() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6">
+      <PageShell>
         <Skeleton className="h-20 w-full rounded-xl" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Skeleton className="h-96" />
@@ -174,7 +175,7 @@ export default function EtsProposals() {
             <Skeleton className="h-48" />
           </div>
         </div>
-      </div>
+      </PageShell>
     );
   }
 

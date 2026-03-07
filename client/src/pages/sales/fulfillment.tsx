@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/hr/status-badge";
 import { fulfillmentOrders, type FulfillmentOrder } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const statusVariantMap: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   pending: "neutral",
@@ -72,7 +73,7 @@ export default function FulfillmentPage() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <TableSkeleton rows={8} columns={7} />
@@ -87,6 +88,6 @@ export default function FulfillmentPage() {
           />
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

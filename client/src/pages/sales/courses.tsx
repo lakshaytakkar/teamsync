@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { courses } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 export default function CoursesPage() {
   const loading = useSimulatedLoading();
@@ -20,7 +21,7 @@ export default function CoursesPage() {
   const totalLessons = courses.reduce((s, c) => s + c.lessons, 0);
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -145,6 +146,6 @@ export default function CoursesPage() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

@@ -11,6 +11,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
 import { employees, attendanceRecords, leaveRequests, payrollEntries, performanceReviews, goals } from "@/lib/mock-data-hrms";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { PageShell } from "@/components/layout";
 
 export default function HrmsEmployeeDetail() {
   const { id } = useParams<{ id: string }>();
@@ -36,10 +37,10 @@ export default function HrmsEmployeeDetail() {
 
   if (!employee) {
     return (
-      <div className="px-16 py-6 lg:px-24">
+      <PageShell>
         <Button variant="ghost" onClick={() => setLocation("/hrms/employees")} className="mb-4"><ArrowLeft className="size-4 mr-2" /> Back</Button>
         <div className="text-center py-20 text-muted-foreground">Employee not found.</div>
-      </div>
+      </PageShell>
     );
   }
 

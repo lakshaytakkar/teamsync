@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { omsPurchaseOrders, omsSuppliers } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
+import { PageShell } from "@/components/layout";
 
 const STATUS_STYLES: Record<string, string> = {
   draft: "bg-slate-100 text-slate-600",
@@ -39,13 +40,13 @@ export default function OmsPurchaseOrders() {
 
   if (loading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-14 w-72 bg-muted rounded-lg" />
         <div className="flex gap-4 h-96">
           <div className="w-64 bg-muted rounded-xl" />
           <div className="flex-1 bg-muted rounded-xl" />
         </div>
-      </div>
+      </PageShell>
     );
   }
 

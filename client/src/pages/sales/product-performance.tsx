@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { products, categories } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Fade, Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
@@ -42,7 +43,7 @@ export default function ProductPerformancePage() {
   const maxCatRevenue = Math.max(...categoryBreakdown.map((c) => c.totalRevenue));
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -251,6 +252,6 @@ export default function ProductPerformancePage() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

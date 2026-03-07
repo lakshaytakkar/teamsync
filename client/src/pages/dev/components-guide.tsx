@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageShell } from "@/components/layout";
 import { PageTransition } from "@/components/ui/animated";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1006,7 +1007,7 @@ function BannerTab() {
 
 export default function ComponentsGuide() {
   return (
-    <div className="px-16 py-6 lg:px-24" data-testid="page-components-guide">
+    <PageShell data-testid="page-components-guide">
         <PageTransition>
           <div>
             <Tabs defaultValue="buttons" data-testid="tabs-components">
@@ -1035,6 +1036,6 @@ export default function ComponentsGuide() {
             </Tabs>
           </div>
         </PageTransition>
-    </div>
+    </PageShell>
   );
 }

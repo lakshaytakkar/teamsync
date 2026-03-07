@@ -11,6 +11,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { formationClients, stageDefinitions } from "@/lib/mock-data";
 import type { FormationClient } from "@shared/schema";
 import { Building2, Clock, AlertTriangle, Users } from "lucide-react";
+import { PageShell } from "@/components/layout";
 
 const riskColors: Record<string, string> = {
   "at-risk": "bg-red-500",
@@ -106,7 +107,7 @@ export default function FormationPipeline() {
   ];
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
 <Fade direction="up" distance={10} delay={0.1}>
           <Tabs defaultValue="kanban" data-testid="tabs-pipeline-view">
@@ -217,6 +218,6 @@ export default function FormationPipeline() {
           </Tabs>
         </Fade>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

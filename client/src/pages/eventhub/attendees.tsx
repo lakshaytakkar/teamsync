@@ -16,6 +16,7 @@ import { hubAttendees, hubEvents, type EventAttendee } from "@/lib/mock-data-eve
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";
 import { useToast } from "@/hooks/use-toast";
+import { PageShell } from "@/components/layout";
 
 const ticketVariantMap: Record<string, "info" | "success" | "warning" | "neutral"> = {
   VIP: "success",
@@ -118,7 +119,7 @@ export default function HubAttendees() {
   const checkinRate = Math.round((checkedInCount / totalCount) * 100);
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -288,6 +289,6 @@ export default function HubAttendees() {
           </div>
         </FormDialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

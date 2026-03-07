@@ -36,6 +36,7 @@ import {
   TrendingUp,
   Calendar,
 } from "lucide-react";
+import { PageShell } from "@/components/layout";
 
 const statusVariant: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   active: "success",
@@ -95,7 +96,7 @@ export default function DevProjects() {
   };
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <Fade direction="up" delay={0}>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -316,7 +317,7 @@ export default function DevProjects() {
           </div>
         </FormDialog>
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }
 

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { ALL_FINANCE_COMPANIES, chartOfAccounts, financeTransactions, type ChartOfAccount } from "@/lib/mock-data-finance";
 import { FINANCE_COLOR } from "@/lib/finance-config";
+import { PageShell } from "@/components/layout";
 
 const ACCOUNT_TYPE_ORDER = ["asset", "liability", "equity", "revenue", "expense"] as const;
 const TYPE_LABELS: Record<string, string> = {
@@ -65,13 +66,13 @@ export default function FinanceLedger() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-4 animate-pulse">
+      <PageShell>
         <div className="h-10 bg-muted rounded w-64" />
         <div className="flex gap-4">
           <div className="w-64 shrink-0 h-[600px] bg-muted rounded-xl" />
           <div className="flex-1 h-[600px] bg-muted rounded-xl" />
         </div>
-      </div>
+      </PageShell>
     );
   }
 

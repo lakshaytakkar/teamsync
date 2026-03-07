@@ -10,6 +10,7 @@ import { hubEvents, hubAttendees, hubVendors, hubBudgetItems } from "@/lib/mock-
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageShell } from "@/components/layout";
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -70,7 +71,7 @@ export default function HubAnalytics() {
   });
 
   return (
-    <div className="px-16 py-6 lg:px-24">
+    <PageShell>
       <PageTransition>
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground" data-testid="hub-analytics-title">Analytics</h1>
@@ -300,6 +301,6 @@ export default function HubAnalytics() {
           </Fade>
         )}
       </PageTransition>
-    </div>
+    </PageShell>
   );
 }

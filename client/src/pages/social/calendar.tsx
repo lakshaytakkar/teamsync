@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { socialPosts, campaigns, socialAccounts } from "@/lib/mock-data-social";
+import { PageShell } from "@/components/layout";
 
 
 const platformConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
@@ -74,10 +75,10 @@ export default function SocialCalendar() {
 
   if (isLoading) {
     return (
-      <div className="px-16 py-6 lg:px-24 space-y-6 animate-pulse">
+      <PageShell>
         <div className="flex gap-4"><div className="h-8 bg-muted rounded w-48" /><div className="h-8 bg-muted rounded w-32" /></div>
         <div className="h-[500px] bg-muted rounded-xl" />
-      </div>
+      </PageShell>
     );
   }
 
