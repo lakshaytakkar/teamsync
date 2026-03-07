@@ -27,3 +27,19 @@ export { FormDialog } from "@/components/hr/form-dialog";
 export { StatsCard } from "@/components/hr/stats-card";
 export { EmptyState } from "@/components/hr/empty-state";
 export { StageStepper, MiniStageStepper } from "@/components/hr/stage-stepper";
+
+export {
+  TwoColumn, ThreeColumn, FourColumn, AsymmetricColumns,
+  EntityCell, StackedList, ColumnedList, ExpandableList,
+  CoverMediaGrid, SmallImageGrid, ButtonGrid, ShortcutGrid,
+  DetailBanner, InfoPropertyGrid, TabContainer,
+  Timeline, ActivityFeed,
+  FormSection, FormGrid,
+  MetricCard, ChartBlock,
+  MonthCalendar, WeekCalendar, DayCalendar, AgendaView, CalendarBlock,
+  KanbanCard, KanbanColumn, KanbanBoard,
+  InboxList, InboxToolbar, MessageThread,
+  BillingCard, PricingTable, CheckoutForm, InvoiceList,
+  SimpleTable, QuickLinksBlock,
+  CourseCard, CourseGrid, LessonItem, ModuleAccordion, ProgressRing, QuizBlock, CertificateCard, CourseDetailHeader,
+} from "@/components/blocks";

@@ -37,7 +37,7 @@ export function FourColumn({ children, className, gap = "md" }: ColumnProps) {
   );
 }
 
-type AsymmetricRatio = "1:2" | "2:1" | "1:3" | "3:1";
+type AsymmetricRatio = "1:2" | "2:1" | "1:3" | "3:1" | "1:1:2" | "2:1:1" | "1:2:1";
 
 interface AsymmetricColumnsProps {
   children: ReactNode;
@@ -51,11 +51,14 @@ const ratioClasses: Record<AsymmetricRatio, string> = {
   "2:1": "grid-cols-1 lg:grid-cols-[2fr_1fr]",
   "1:3": "grid-cols-1 lg:grid-cols-[1fr_3fr]",
   "3:1": "grid-cols-1 lg:grid-cols-[3fr_1fr]",
+  "1:1:2": "grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_1fr_2fr]",
+  "2:1:1": "grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]",
+  "1:2:1": "grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_2fr_1fr]",
 };
 
 export function AsymmetricColumns({ children, ratio, className, gap = "md" }: AsymmetricColumnsProps) {
   return (
-    <div className={cn("grid", ratioClasses[ratio], gapClasses[gap], className)} data-testid={`layout-asymmetric-${ratio.replace(":", "-")}`}>
+    <div className={cn("grid", ratioClasses[ratio], gapClasses[gap], className)} data-testid={`layout-asymmetric-${ratio.replace(/:/g, "-")}`}>
       {children}
     </div>
   );

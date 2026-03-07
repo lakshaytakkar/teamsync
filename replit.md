@@ -48,6 +48,25 @@ One config per vertical, each exporting `VERTICAL_COLOR` + TypeScript status typ
 - `ds.ts` re-exports `DS`, `defineTablePage`, `TablePageConfig` alongside all layout/HR components
 - Also exports `TablePageConfig<T>` interface + `defineTablePage()` helper for typed table page configs
 
+#### Block Components (`@/components/blocks` — all re-exported via `@/lib/ds`)
+Comprehensive reusable block library organized by category:
+
+- **Layout**: `TwoColumn`, `ThreeColumn`, `FourColumn`, `AsymmetricColumns` (ratios: 1:2, 2:1, 1:3, 3:1, 1:1:2, 2:1:1, 1:2:1)
+- **Grid**: `CoverMediaGrid`, `SmallImageGrid`, `ButtonGrid`, `ShortcutGrid`
+- **List**: `EntityCell`, `StackedList`, `ColumnedList`, `ExpandableList`
+- **Detail**: `DetailBanner`, `InfoPropertyGrid`, `TabContainer`
+- **Timeline**: `Timeline`, `ActivityFeed`
+- **Form**: `FormSection`, `FormGrid`
+- **Chart**: `MetricCard` (KPI with trend), `ChartBlock` (8 variants: bar, column, line, area, scatter, pie, donut, rose)
+- **Calendar**: `MonthCalendar`, `WeekCalendar`, `DayCalendar`, `AgendaView`, `CalendarBlock` (tabbed wrapper)
+- **Kanban**: `KanbanBoard`, `KanbanColumn`, `KanbanCard` (with priority indicators)
+- **Inbox**: `InboxList`, `InboxToolbar` (with filter tabs), `MessageThread`
+- **Payment**: `BillingCard`, `PricingTable`, `CheckoutForm`, `InvoiceList`
+- **Table**: `SimpleTable` (lightweight typed table), `QuickLinksBlock`
+- **LMS**: `CourseCard`, `CourseGrid`, `ModuleAccordion`, `LessonItem`, `ProgressRing`, `QuizBlock`, `CertificateCard`, `CourseDetailHeader`
+
+Barrel export: `client/src/components/blocks/index.ts`
+
 #### Rules
 - **NO** inline `const statusColors: Record<string, string>` — use `<StatusBadge status={x} />` 
 - **NO** inline `const BRAND = "#..."` — import `VERTICAL_COLOR` from per-vertical config
