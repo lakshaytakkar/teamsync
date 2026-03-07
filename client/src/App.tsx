@@ -115,6 +115,8 @@ import HrmsPayslips from "@/pages/hrms/payslips";
 import HrmsPerformance from "@/pages/hrms/performance";
 import HrmsGoals from "@/pages/hrms/goals";
 import HrmsPolicies from "@/pages/hrms/policies";
+import HrmsAssets from "@/pages/hrms/assets";
+import HrmsAssetDetail from "@/pages/hrms/asset-detail";
 import AtsDashboard from "@/pages/ats/dashboard";
 import AtsJobs from "@/pages/ats/jobs";
 import AtsJobDetail from "@/pages/ats/job-detail";
@@ -413,6 +415,8 @@ function Router() {
       <Route path="/hrms/user-management" component={UniversalUsers} />
       <Route path="/hrms/user-groups" component={UniversalUserGroups} />
       <Route path="/hrms/apps" component={UniversalAppsCredentials} />
+      <Route path="/hrms/assets/:id" component={HrmsAssetDetail} />
+      <Route path="/hrms/assets" component={HrmsAssets} />
       <Route path="/hrms/employees/:id" component={HrmsEmployeeDetail} />
       <Route path="/hrms/employees" component={HrmsEmployees} />
       <Route path="/hrms/onboarding" component={HrmsOnboarding} />

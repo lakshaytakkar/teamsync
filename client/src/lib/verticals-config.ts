@@ -1238,6 +1238,12 @@ export const verticals: Vertical[] = [
         ],
       },
       {
+        title: "Assets",
+        defaultUrl: "/hrms/assets",
+        icon: Package,
+        items: [],
+      },
+      {
         title: "Organization",
         defaultUrl: "/hrms/org",
         icon: Building2,

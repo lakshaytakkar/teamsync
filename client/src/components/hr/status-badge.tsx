@@ -191,6 +191,24 @@ const variantMap: Record<string, StatusVariant> = {
   content: "neutral",
   general: "neutral",
 
+  // Asset management
+  available: "success",
+  Available: "success",
+  assigned: "info",
+  Assigned: "info",
+  "in-repair": "warning",
+  "In Repair": "warning",
+  retired: "neutral",
+  Retired: "neutral",
+  new: "success",
+  New: "success",
+  good: "info",
+  Good: "info",
+  fair: "warning",
+  Fair: "warning",
+  poor: "error",
+  Poor: "error",
+
   // Events
   Tentative: "warning",
   tentative: "warning",

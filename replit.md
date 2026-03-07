@@ -1199,6 +1199,45 @@ generated_images(id uuid PK, prompt text, negative_prompt text, style text, aspe
 - **Exception**: `/crm/contacts-important` — CRM needs this because `/crm/contacts` is used by `CrmContacts` (CRM-specific contacts page)
 - Finance and OMS were normalized to `/contacts` (previously used `/contacts-important` unnecessarily)
 
+## HRMS Asset Management System (Mar 2026)
+
+Compact, full-featured asset inventory and assignment tracking within the HRMS vertical.
+
+### Pages
+| Page | Route | File |
+|------|-------|------|
+| Asset Index | `/hrms/assets` | `client/src/pages/hrms/assets.tsx` |
+| Asset Detail | `/hrms/assets/:id` | `client/src/pages/hrms/asset-detail.tsx` |
+
+### Features
+- **Photo thumbnails**: Unsplash stock images per category displayed in table rows (48×48 rounded)
+- **Tabs**: All Assets / Assigned / Unassigned with counts
+- **Search + Category filter**: Search by name, serial, or asset code; dropdown filter by category
+- **Pagination**: PAGE_SIZE=15
+- **Create Asset flow**: DetailModal form → on submit, asset created locally + QR code generated → QR dialog with Print/Download
+- **QR Code generation**: `qrcode` npm package, encodes URL to asset detail page. Print opens new window with `window.print()`. Download as PNG.
+- **Assign/Unassign flow**: Inline "Assign" button for available assets in table; Assign dialog with employee select + date + notes; Unassign button on detail page
+- **Detail page**: Two-column layout — left: asset header card (photo, name, code, manufacturer, serial, category, price, location) + current assignment card + assignment history table + details card; right: QR code card + Quick Info card
+- **Status badges**: available (green), assigned (blue), in-repair (amber), retired (neutral)
+- **Condition badges**: new (green), good (blue), fair (amber), poor (red)
+
+### Mock Data (`client/src/lib/mock-data-assets.ts`)
+- `Asset` type: id, assetCode, name, category, serialNumber, model, manufacturer, purchaseDate, purchasePrice, condition, status, imageUrl, warrantyExpiry, location, notes
+- `AssetAssignment` type: id, assetId, employeeId, employeeName, assignedDate, returnDate, notes
+- 18 assets across 6 categories (Laptop, Monitor, Mouse, Keyboard, Headphones, Phone, Printer)
+- 15 assignment records (12 active + 3 historical with returnDate)
+- FK to employees via `employeeId` referencing `mock-data-hrms.ts` employee IDs
+- Helpers: `getAssetById`, `getCurrentAssignment`, `getAssignmentsForAsset`, `getAssetsForEmployee`
+- `ASSET_CATEGORIES` constant array
+
+### Config (`client/src/lib/hrms-config.ts`)
+- `AssetStatus` type + `HRMS_ASSET_STATUS_CONFIG`
+- `AssetCondition` type + `HRMS_ASSET_CONDITION_CONFIG`
+- StatusBadge variantMap extended with asset status + condition entries
+
+### Dependencies
+- `qrcode` + `@types/qrcode` — QR code generation (canvas-based)
+
 ### Nav Fixes Applied (Mar 2026)
 1. **USDrop "Leads" deduplication**: Removed duplicate "Leads" sub-item from "Users & Subscriptions" category — "Pipeline" L1 nav already links to `/usdrop/leads`
 2. **Finance/OMS contacts URL normalization**: Changed from `/contacts-important` to `/contacts` (matching all other verticals; no URL conflict existed)
