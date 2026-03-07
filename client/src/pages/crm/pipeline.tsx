@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import { PageTransition, Fade } from "@/components/ui/animated";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
+import { useToast } from "@/hooks/use-toast";
 import { getPersonAvatar } from "@/lib/avatars";
 import { crmDeals, crmContacts, crmActivities, ALL_VERTICALS_IN_CRM, type CrmDeal } from "@/lib/mock-data-crm";
 import { CRM_COLOR } from "@/lib/crm-config";
 import { PageShell } from "@/components/layout";
+import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
 
 const COLUMNS: { stage: string; label: string; border: string; bg: string; text: string; hdr: string }[] = [
   { stage: "new", label: "New Lead", border: "border-slate-200", bg: "bg-slate-50", text: "text-slate-700", hdr: "bg-slate-100" },
@@ -46,10 +46,12 @@ function convRate(stage: string) {
 
 export default function CrmPipeline() {
   const isLoading = useSimulatedLoading(700);
+  const { toast } = useToast();
   const [verticalFilter, setVerticalFilter] = useState("all");
   const [repFilter, setRepFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selectedDeal, setSelectedDeal] = useState<CrmDeal | null>(null);
+  const [dealStageOverrides, setDealStageOverrides] = useState<Record<string, string>>({});
 
   const filtered = crmDeals.filter(d => {
     if (verticalFilter !== "all" && d.vertical !== verticalFilter) return false;
@@ -61,7 +63,8 @@ export default function CrmPipeline() {
     return true;
   });
 
-  const dealsByStage = (stage: string) => filtered.filter(d => d.stage === stage);
+  const getDealStage = (d: CrmDeal) => dealStageOverrides[d.id] ?? d.stage;
+  const dealsByStage = (stage: string) => filtered.filter(d => getDealStage(d) === stage);
   const stageTotal = (stage: string) => dealsByStage(stage).reduce((s, d) => s + (d.currency === "INR" ? d.value : d.value * 83), 0);
 
   const getVertical = (id: string) => ALL_VERTICALS_IN_CRM.find(v => v.id === id);
@@ -124,77 +127,93 @@ export default function CrmPipeline() {
         </div>
       </Fade>
 
-      <div className="flex gap-4 overflow-x-auto pb-6 -mx-2 px-2">
-        {COLUMNS.map(col => {
+      <KanbanBoard
+        columns={COLUMNS.map(col => {
           const deals = dealsByStage(col.stage);
+          return {
+            id: col.stage,
+            title: col.label,
+            color: undefined,
+            cards: deals.map(deal => ({
+              id: deal.id,
+              title: deal.title,
+              subtitle: deal.companyName,
+            })),
+          } satisfies KanbanColumnData;
+        })}
+        columnClassName="shrink-0 w-[280px]"
+        className="pb-6 -mx-2 px-2"
+        renderColumnHeader={(column) => {
+          const col = COLUMNS.find(c => c.stage === column.id)!;
           const total = stageTotal(col.stage);
           const rate = convRate(col.stage);
           return (
-            <div key={col.stage} className="shrink-0 w-[280px] flex flex-col" data-testid={`pipeline-col-${col.stage}`}>
-              <div className={`${col.hdr} rounded-t-xl px-3 py-2.5 border ${col.border} border-b-0`}>
-                <div className="flex items-center justify-between">
+            <div data-testid={`pipeline-col-${col.stage}`}>
+              <div className={`${col.hdr} rounded-t-lg px-3 py-2.5`}>
+                <div className="flex items-center justify-between gap-1">
                   <span className={`text-sm font-semibold ${col.text}`}>{col.label}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full bg-white/60 ${col.text} font-semibold`}>{deals.length}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full bg-white/60 ${col.text} font-semibold`}>{column.cards.length}</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {total >= 100000 ? `₹${(total / 100000).toFixed(1)}L` : `₹${(total / 1000).toFixed(0)}K`}
                 </p>
               </div>
-
-              <div className={`flex-1 border ${col.border} rounded-b-xl p-2 space-y-2 min-h-[400px] max-h-[calc(100vh-320px)] overflow-y-auto`}>
-                {deals.map(deal => {
-                  const vert = getVertical(deal.vertical);
-                  return (
-                    <div
-                      key={deal.id}
-                      className="bg-card rounded-xl p-3 shadow-sm border border-border/50 cursor-pointer hover:shadow-md hover:border-border transition-all space-y-2.5"
-                      onClick={() => setSelectedDeal(deal)}
-                      data-testid={`deal-card-${deal.id}`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium leading-tight line-clamp-2">{deal.title}</p>
-                        <div className={`size-2 rounded-full shrink-0 mt-1 ${priorityDot[deal.priority]}`} title={`${deal.priority} priority`} />
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground truncate">{deal.companyName}</p>
-                        <p className="text-xs text-muted-foreground truncate">{deal.contactName}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold">{formatValue(deal)}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
-                          {deal.probability}%
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        {vert && (
-                          <span className="text-xs px-1.5 py-0.5 rounded-full text-white font-medium" style={{ backgroundColor: vert.color }}>
-                            {vert.name}
-                          </span>
-                        )}
-                        <div className="flex items-center gap-1.5">
-                          <img src={getPersonAvatar(deal.assignedTo, 20)} alt={deal.assignedTo} className="size-5 rounded-full" title={deal.assignedTo} />
-                          <span className="text-xs text-muted-foreground">{deal.expectedClose.slice(5)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-                {deals.length === 0 && (
-                  <div className="h-16 flex items-center justify-center text-xs text-muted-foreground">
-                    No deals
-                  </div>
-                )}
-              </div>
-
               {rate !== null && (
-                <div className="text-center py-1.5">
+                <div className="text-center py-1">
                   <span className="text-xs text-muted-foreground">{rate}% advance to next</span>
                 </div>
               )}
             </div>
           );
-        })}
-      </div>
+        }}
+        renderCard={(card) => {
+          const deal = filtered.find(d => d.id === card.id);
+          if (!deal) return null;
+          const vert = getVertical(deal.vertical);
+          return (
+            <div
+              className="bg-card rounded-xl p-3 shadow-sm border border-border/50 cursor-pointer hover:shadow-md hover:border-border transition-all space-y-2.5"
+              onClick={() => setSelectedDeal(deal)}
+              data-testid={`deal-card-${deal.id}`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-sm font-medium leading-tight line-clamp-2">{deal.title}</p>
+                <div className={`size-2 rounded-full shrink-0 mt-1 ${priorityDot[deal.priority]}`} title={`${deal.priority} priority`} />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground truncate">{deal.companyName}</p>
+                <p className="text-xs text-muted-foreground truncate">{deal.contactName}</p>
+              </div>
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-base font-bold">{formatValue(deal)}</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
+                  {deal.probability}%
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-1">
+                {vert && (
+                  <span className="text-xs px-1.5 py-0.5 rounded-full text-white font-medium" style={{ backgroundColor: vert.color }}>
+                    {vert.name}
+                  </span>
+                )}
+                <div className="flex items-center gap-1.5">
+                  <img src={getPersonAvatar(deal.assignedTo, 20)} alt={deal.assignedTo} className="size-5 rounded-full" title={deal.assignedTo} />
+                  <span className="text-xs text-muted-foreground">{deal.expectedClose.slice(5)}</span>
+                </div>
+              </div>
+            </div>
+          );
+        }}
+        onCardMove={(cardId, sourceColumnId, targetColumnId) => {
+          const deal = crmDeals.find(d => d.id === cardId);
+          const targetCol = COLUMNS.find(c => c.stage === targetColumnId);
+          setDealStageOverrides(prev => ({ ...prev, [cardId]: targetColumnId }));
+          toast({
+            title: "Deal moved",
+            description: `${deal?.title ?? cardId} moved to ${targetCol?.label ?? targetColumnId}`,
+          });
+        }}
+      />
 
       <Dialog open={!!selectedDeal} onOpenChange={o => !o && setSelectedDeal(null)}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">

@@ -1,10 +1,28 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export interface KanbanCardItem {
   id: string;
@@ -96,6 +114,46 @@ export function KanbanCard({ item, onClick, className }: KanbanCardProps) {
   );
 }
 
+function SortableCard({
+  item,
+  columnId,
+  onClick,
+  renderCard,
+}: {
+  item: KanbanCardItem;
+  columnId: string;
+  onClick?: (item: KanbanCardItem) => void;
+  renderCard?: (card: KanbanCardItem, columnId: string) => ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: item.id,
+    data: { type: "card", item, columnId },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {renderCard ? (
+        renderCard(item, columnId)
+      ) : (
+        <KanbanCard item={item} onClick={onClick} />
+      )}
+    </div>
+  );
+}
+
 export interface KanbanColumnData {
   id: string;
   title: string;
@@ -103,60 +161,125 @@ export interface KanbanColumnData {
   cards: KanbanCardItem[];
 }
 
+function DroppableArea({ columnId, children }: { columnId: string; children: ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `droppable-${columnId}`,
+    data: { type: "column", columnId },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "flex-1 overflow-y-auto px-2 pb-2 space-y-2 min-h-[60px] rounded-b-lg transition-colors",
+        isOver && "bg-primary/5 ring-2 ring-primary/20 ring-inset"
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
 interface KanbanColumnProps {
   column: KanbanColumnData;
   onCardClick?: (card: KanbanCardItem) => void;
   onAddCard?: (columnId: string) => void;
+  renderCard?: (card: KanbanCardItem, columnId: string) => ReactNode;
+  renderColumnHeader?: (column: KanbanColumnData) => ReactNode;
   className?: string;
+  enableDnd?: boolean;
 }
 
-export function KanbanColumn({ column, onCardClick, onAddCard, className }: KanbanColumnProps) {
+export function KanbanColumn({
+  column,
+  onCardClick,
+  onAddCard,
+  renderCard,
+  renderColumnHeader,
+  className,
+  enableDnd = false,
+}: KanbanColumnProps) {
+  const cardIds = column.cards.map((c) => c.id);
+
+  const header = renderColumnHeader ? (
+    renderColumnHeader(column)
+  ) : (
+    <div className="flex items-center justify-between gap-2 px-3 py-2.5">
+      <div className="flex items-center gap-2 min-w-0">
+        {column.color && (
+          <span
+            className="h-2.5 w-2.5 rounded-full shrink-0"
+            style={{ backgroundColor: column.color }}
+          />
+        )}
+        <span className="text-sm font-semibold truncate" data-testid={`kanban-column-title-${column.id}`}>
+          {column.title}
+        </span>
+        <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+          {column.cards.length}
+        </Badge>
+      </div>
+      {onAddCard && (
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => onAddCard(column.id)}
+          data-testid={`kanban-column-add-${column.id}`}
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+
+  const emptyState = (
+    <div className="py-6 text-center text-xs text-muted-foreground border-2 border-dashed rounded-lg mx-2 mb-2" data-testid={`kanban-column-empty-${column.id}`}>
+      No cards
+    </div>
+  );
+
+  const cardsList = enableDnd ? (
+    <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+      {column.cards.map((card) => (
+        <SortableCard
+          key={card.id}
+          item={card}
+          columnId={column.id}
+          onClick={onCardClick}
+          renderCard={renderCard}
+        />
+      ))}
+    </SortableContext>
+  ) : (
+    column.cards.map((card) =>
+      renderCard ? (
+        <div key={card.id}>{renderCard(card, column.id)}</div>
+      ) : (
+        <KanbanCard key={card.id} item={card} onClick={onCardClick} />
+      )
+    )
+  );
+
+  const cardsArea = enableDnd ? (
+    <DroppableArea columnId={column.id}>
+      {column.cards.length === 0 ? emptyState : cardsList}
+    </DroppableArea>
+  ) : (
+    <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2" data-testid={`kanban-column-cards-${column.id}`}>
+      {column.cards.length === 0 ? emptyState : cardsList}
+    </div>
+  );
+
   return (
     <div
       className={cn(
-        "flex flex-col w-72 shrink-0 rounded-lg bg-muted/50 dark:bg-muted/30",
-        className
+        "flex flex-col shrink-0 rounded-lg bg-muted/50 dark:bg-muted/30",
+        className ?? "w-72"
       )}
       data-testid={`kanban-column-${column.id}`}
     >
-      <div className="flex items-center justify-between gap-2 px-3 py-2.5">
-        <div className="flex items-center gap-2 min-w-0">
-          {column.color && (
-            <span
-              className="h-2.5 w-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: column.color }}
-            />
-          )}
-          <span className="text-sm font-semibold truncate" data-testid={`kanban-column-title-${column.id}`}>
-            {column.title}
-          </span>
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-            {column.cards.length}
-          </Badge>
-        </div>
-        {onAddCard && (
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => onAddCard(column.id)}
-            data-testid={`kanban-column-add-${column.id}`}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2" data-testid={`kanban-column-cards-${column.id}`}>
-        {column.cards.length === 0 ? (
-          <div className="py-6 text-center text-xs text-muted-foreground" data-testid={`kanban-column-empty-${column.id}`}>
-            No cards
-          </div>
-        ) : (
-          column.cards.map((card) => (
-            <KanbanCard key={card.id} item={card} onClick={onCardClick} />
-          ))
-        )}
-      </div>
+      {header}
+      {cardsArea}
     </div>
   );
 }
@@ -165,10 +288,76 @@ interface KanbanBoardProps {
   columns: KanbanColumnData[];
   onCardClick?: (card: KanbanCardItem) => void;
   onAddCard?: (columnId: string) => void;
+  onCardMove?: (cardId: string, sourceColumnId: string, targetColumnId: string) => void;
+  renderCard?: (card: KanbanCardItem, columnId: string) => ReactNode;
+  renderColumnHeader?: (column: KanbanColumnData) => ReactNode;
+  renderDragOverlay?: (card: KanbanCardItem, columnId: string) => ReactNode;
+  columnClassName?: string;
   className?: string;
 }
 
-export function KanbanBoard({ columns, onCardClick, onAddCard, className }: KanbanBoardProps) {
+export function KanbanBoard({
+  columns,
+  onCardClick,
+  onAddCard,
+  onCardMove,
+  renderCard,
+  renderColumnHeader,
+  renderDragOverlay,
+  columnClassName,
+  className,
+}: KanbanBoardProps) {
+  const [activeCard, setActiveCard] = useState<{ item: KanbanCardItem; columnId: string } | null>(null);
+  const enableDnd = !!onCardMove;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const { active } = event;
+      const data = active.data.current;
+      if (data?.type === "card") {
+        setActiveCard({ item: data.item, columnId: data.columnId });
+      }
+    },
+    []
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveCard(null);
+
+      if (!over || !onCardMove) return;
+
+      const activeColId = active.data.current?.columnId;
+      if (!activeColId) return;
+
+      let overColId: string | undefined;
+
+      if (over.data.current?.type === "column") {
+        overColId = over.data.current.columnId;
+      } else if (over.data.current?.type === "card") {
+        overColId = over.data.current.columnId;
+      } else {
+        const overId = String(over.id);
+        if (overId.startsWith("droppable-")) {
+          overColId = overId.replace("droppable-", "");
+        } else {
+          overColId = columns.find((c) => c.id === overId)?.id;
+        }
+      }
+
+      if (!overColId || activeColId === overColId) return;
+
+      onCardMove(String(active.id), activeColId, overColId);
+    },
+    [onCardMove, columns]
+  );
+
   if (columns.length === 0) {
     return (
       <div className="py-8 text-center text-sm text-muted-foreground" data-testid="kanban-board-empty">
@@ -177,7 +366,7 @@ export function KanbanBoard({ columns, onCardClick, onAddCard, className }: Kanb
     );
   }
 
-  return (
+  const boardContent = (
     <div
       className={cn("flex gap-4 overflow-x-auto pb-4", className)}
       data-testid="kanban-board"
@@ -188,8 +377,42 @@ export function KanbanBoard({ columns, onCardClick, onAddCard, className }: Kanb
           column={col}
           onCardClick={onCardClick}
           onAddCard={onAddCard}
+          renderCard={renderCard}
+          renderColumnHeader={renderColumnHeader}
+          className={columnClassName}
+          enableDnd={enableDnd}
         />
       ))}
     </div>
+  );
+
+  if (!enableDnd) {
+    return boardContent;
+  }
+
+  const overlayContent = activeCard
+    ? renderDragOverlay
+      ? renderDragOverlay(activeCard.item, activeCard.columnId)
+      : renderCard
+        ? renderCard(activeCard.item, activeCard.columnId)
+        : <KanbanCard item={activeCard.item} />
+    : null;
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      {boardContent}
+      <DragOverlay dropAnimation={null}>
+        {overlayContent && (
+          <div className="opacity-90 shadow-xl rotate-[2deg] scale-105">
+            {overlayContent}
+          </div>
+        )}
+      </DragOverlay>
+    </DndContext>
   );
 }

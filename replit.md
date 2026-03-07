@@ -59,7 +59,7 @@ Comprehensive reusable block library organized by category:
 - **Form**: `FormSection`, `FormGrid`
 - **Chart**: `MetricCard` (KPI with trend), `ChartBlock` (8 variants: bar, column, line, area, scatter, pie, donut, rose)
 - **Calendar**: `MonthCalendar`, `WeekCalendar`, `DayCalendar`, `AgendaView`, `CalendarBlock` (tabbed wrapper)
-- **Kanban**: `KanbanBoard`, `KanbanColumn`, `KanbanCard` (with priority indicators)
+- **Kanban**: `KanbanBoard`, `KanbanColumn`, `KanbanCard` (with priority indicators, @dnd-kit drag-and-drop, `renderCard`/`renderColumnHeader`/`onCardMove`/`columnClassName` props for customization; all 6 kanban pages unified to use these shared components)
 - **Inbox**: `InboxList`, `InboxToolbar` (with filter tabs), `MessageThread`
 - **Payment**: `BillingCard`, `PricingTable`, `CheckoutForm`, `InvoiceList`
 - **Table**: `SimpleTable` (lightweight typed table), `QuickLinksBlock`

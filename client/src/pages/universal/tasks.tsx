@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -70,9 +70,11 @@ import {
   PrimaryAction,
   FilterPill
 } from "@/components/layout";
+import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getPersonAvatar } from "@/lib/avatars";
@@ -112,6 +114,7 @@ export default function UniversalTasks() {
   const vertical = detectVerticalFromUrl(location);
   const loading = useSimulatedLoading(600);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [activeTab, setActiveTab] = useState<"all" | "my">("all");
@@ -205,6 +208,121 @@ export default function UniversalTasks() {
     }).length;
 
     return { total, inProgress, done, overdue };
+  }, [filteredTasks]);
+
+  const statusLabels: Record<string, string> = {
+    backlog: "Backlog",
+    todo: "To Do",
+    "in-progress": "In Progress",
+    review: "In Review",
+    done: "Done"
+  };
+
+  const statusColors: Record<string, string> = {
+    backlog: "#94a3b8",
+    todo: "#60a5fa",
+    "in-progress": "#fbbf24",
+    review: "#a78bfa",
+    done: "#34d399"
+  };
+
+  const kanbanColumns: KanbanColumnData[] = useMemo(() => {
+    return ["backlog", "todo", "in-progress", "review", "done"].map((status) => ({
+      id: status,
+      title: statusLabels[status],
+      color: statusColors[status],
+      cards: filteredTasks
+        .filter(t => t.status === status)
+        .map((task): KanbanCardItem => ({
+          id: task.id,
+          title: task.title,
+          subtitle: task.description,
+          priority: task.priority === "critical" ? "urgent" : task.priority as "low" | "medium" | "high",
+          dueDate: new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          assignee: task.assigneeName,
+          avatar: getPersonAvatar(task.assigneeName),
+        })),
+    }));
+  }, [filteredTasks]);
+
+  const handleCardMove = useCallback((cardId: string, sourceColumnId: string, targetColumnId: string) => {
+    const task = tasks.find(t => t.id === cardId);
+    if (!task) return;
+    if (usingDB) {
+      updateTaskMutation.mutate({ id: cardId, data: { status: targetColumnId } });
+    }
+    toast({
+      title: "Task moved",
+      description: `"${task.title}" moved from ${statusLabels[sourceColumnId]} to ${statusLabels[targetColumnId]}`,
+    });
+  }, [tasks, usingDB, updateTaskMutation, toast]);
+
+  const renderTaskCard = useCallback((card: KanbanCardItem, _columnId: string) => {
+    const task = filteredTasks.find(t => t.id === card.id);
+    if (!task) return null;
+    const isOverdue = !task.status.includes("done") && new Date(task.dueDate) < new Date();
+    const code = getTaskCode(task);
+    const thumb = getTaskThumbnail(task);
+
+    return (
+      <Card
+        className="cursor-pointer hover-elevate bg-card group border shadow-sm rounded-xl p-4 space-y-2"
+        onClick={() => {
+          setSelectedTaskId(task.id);
+          setIsDetailOpen(true);
+        }}
+        data-testid={`task-card-${task.id}`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img
+              src={thumb}
+              alt={code}
+              className="h-7 w-7 rounded-lg border bg-muted shrink-0 object-cover"
+              loading="lazy"
+            />
+            <span className="text-[10px] font-semibold text-muted-foreground tracking-wide">{code}</span>
+          </div>
+          <Badge
+            className={cn(
+              "text-[10px] px-2 py-0.5 border-0 font-medium capitalize",
+              task.priority === "critical" && "bg-red-50 text-red-500",
+              task.priority === "high" && "bg-orange-50 text-orange-500",
+              task.priority === "medium" && "bg-blue-50 text-blue-500",
+              task.priority === "low" && "bg-slate-50 text-slate-500",
+            )}
+          >
+            {task.priority}
+          </Badge>
+        </div>
+        <div className="space-y-1">
+          <h4 className="text-[14px] font-semibold line-clamp-2 leading-tight">{task.title}</h4>
+          <p className="text-[12px] text-muted-foreground line-clamp-2">{task.description}</p>
+        </div>
+        {task.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {task.tags.map(tag => (
+              <span key={tag} className="text-[10px] bg-muted px-2 py-0.5 rounded-full border text-muted-foreground">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+          <div className={cn(
+            "flex items-center gap-1.5 text-[12px]",
+            isOverdue ? "text-red-500" : "text-muted-foreground"
+          )}>
+            <Calendar className="h-3.5 w-3.5" />
+            {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </div>
+          <Avatar className="h-6 w-6 border shadow-sm">
+            <AvatarImage src={getPersonAvatar(task.assigneeName)} />
+            <AvatarFallback className="text-[10px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
+          </Avatar>
+        </div>
+      </Card>
+    );
   }, [filteredTasks]);
 
   const handleCreateTask = (e: React.FormEvent<HTMLFormElement>) => {
@@ -345,19 +463,13 @@ export default function UniversalTasks() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : viewMode === "board" ? (
-          <div className="flex gap-6 overflow-x-auto pb-4 items-start min-h-full">
-            {["backlog", "todo", "in-progress", "review", "done"].map((status) => (
-              <KanbanColumn 
-                key={status} 
-                status={status} 
-                tasks={filteredTasks.filter(t => t.status === status)}
-                onTaskClick={(id) => {
-                  setSelectedTaskId(id);
-                  setIsDetailOpen(true);
-                }}
-              />
-            ))}
-          </div>
+          <KanbanBoard
+            columns={kanbanColumns}
+            onCardMove={handleCardMove}
+            renderCard={renderTaskCard}
+            columnClassName="min-w-[280px] max-w-[320px]"
+            className="gap-6 items-start min-h-full"
+          />
         ) : (
           <TasksListView 
             tasks={filteredTasks} 
@@ -496,118 +608,6 @@ export default function UniversalTasks() {
         </form>
       </FormDialog>
     </PageShell>
-  );
-}
-
-function KanbanColumn({ 
-  status, 
-  tasks, 
-  onTaskClick 
-}: { 
-  status: string, 
-  tasks: SharedTask[], 
-  onTaskClick: (id: string) => void 
-}) {
-  const labels: Record<string, string> = {
-    backlog: "Backlog",
-    todo: "To Do",
-    "in-progress": "In Progress",
-    review: "In Review",
-    done: "Done"
-  };
-
-  const colors: Record<string, string> = {
-    backlog: "bg-slate-400",
-    todo: "bg-blue-400",
-    "in-progress": "bg-amber-400",
-    review: "bg-purple-400",
-    done: "bg-emerald-400"
-  };
-
-  return (
-    <div className="min-w-[280px] max-w-[320px] flex flex-col h-full" data-testid={`col-${status}`}>
-      <div className="p-4 border-b flex items-center justify-between bg-card rounded-t-xl border-x border-t">
-        <div className="flex items-center gap-2">
-          <div className={cn("h-2 w-2 rounded-full", colors[status])} />
-          <span className="font-semibold text-[14px]">{labels[status]}</span>
-        </div>
-        <Badge variant="secondary" className="bg-muted text-muted-foreground">{tasks.length}</Badge>
-      </div>
-      <div className="flex-1 p-3 space-y-3 bg-muted/20 border-x border-b rounded-b-xl overflow-y-auto">
-        {tasks.length === 0 ? (
-          <div className="h-24 flex items-center justify-center text-xs text-muted-foreground border border-dashed rounded-md bg-card/50">
-            No tasks
-          </div>
-        ) : (
-          tasks.map(task => (
-            <TaskCard key={task.id} task={task} onClick={() => onTaskClick(task.id)} />
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-function TaskCard({ task, onClick }: { task: SharedTask, onClick: () => void }) {
-  const isOverdue = !task.status.includes("done") && new Date(task.dueDate) < new Date();
-  const code = getTaskCode(task);
-  const thumb = getTaskThumbnail(task);
-
-  return (
-    <Card 
-      className="cursor-pointer hover-elevate bg-card group border shadow-sm rounded-xl p-4 space-y-2"
-      onClick={onClick}
-      data-testid={`task-card-${task.id}`}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img
-            src={thumb}
-            alt={code}
-            className="h-7 w-7 rounded-lg border bg-muted shrink-0 object-cover"
-            loading="lazy"
-          />
-          <span className="text-[10px] font-semibold text-muted-foreground tracking-wide">{code}</span>
-        </div>
-        <Badge 
-          className={cn(
-            "text-[10px] px-2 py-0.5 border-0 font-medium capitalize",
-            task.priority === "critical" && "bg-red-50 text-red-500",
-            task.priority === "high" && "bg-orange-50 text-orange-500",
-            task.priority === "medium" && "bg-blue-50 text-blue-500",
-            task.priority === "low" && "bg-slate-50 text-slate-500",
-          )}
-        >
-          {task.priority}
-        </Badge>
-      </div>
-      <div className="space-y-1">
-        <h4 className="text-[14px] font-semibold line-clamp-2 leading-tight">{task.title}</h4>
-        <p className="text-[12px] text-muted-foreground line-clamp-2">{task.description}</p>
-      </div>
-      {task.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {task.tags.map(tag => (
-            <span key={tag} className="text-[10px] bg-muted px-2 py-0.5 rounded-full border text-muted-foreground">
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="flex items-center justify-between pt-3 border-t border-border/50">
-        <div className={cn(
-          "flex items-center gap-1.5 text-[12px]",
-          isOverdue ? "text-red-500" : "text-muted-foreground"
-        )}>
-          <Calendar className="h-3.5 w-3.5" />
-          {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-        </div>
-        <Avatar className="h-6 w-6 border shadow-sm">
-          <AvatarImage src={getPersonAvatar(task.assigneeName)} />
-          <AvatarFallback className="text-[10px]">{task.assigneeName.substring(0, 2)}</AvatarFallback>
-        </Avatar>
-      </div>
-    </Card>
   );
 }
 

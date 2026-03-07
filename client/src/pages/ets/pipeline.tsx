@@ -45,6 +45,7 @@ import {
 import { SiWhatsapp } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 import { PageShell } from "@/components/layout";
+import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
 
 const tierColors: Record<EtsPackageTier, string> = {
   lite: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
@@ -109,6 +110,24 @@ export default function EtsPipeline() {
     }));
   }, [filteredClients]);
 
+  const clientMap = useMemo(() => {
+    const map: Record<string, EtsClient> = {};
+    for (const c of filteredClients) map[c.id] = c;
+    return map;
+  }, [filteredClients]);
+
+  const kanbanColumns: KanbanColumnData[] = useMemo(() => {
+    return stageColumns.map(({ stage, label, clients }) => ({
+      id: stage,
+      title: label,
+      cards: clients.map((c) => ({
+        id: c.id,
+        title: c.name,
+        subtitle: c.city,
+      })),
+    }));
+  }, [stageColumns]);
+
   const stageCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const stage of ETS_PIPELINE_STAGES) {
@@ -135,6 +154,129 @@ export default function EtsPipeline() {
       description: `${client.name} moved to ${ETS_STAGE_LABELS[newStage]}`,
     });
   };
+
+  const handleCardMove = (cardId: string, sourceColumnId: string, targetColumnId: string) => {
+    const client = clientMap[cardId];
+    if (client) {
+      toast({
+        title: "Stage Updated",
+        description: `${client.name} moved to ${ETS_STAGE_LABELS[targetColumnId as EtsPipelineStage]}`,
+      });
+    }
+  };
+
+  const renderEtsCard = (card: KanbanCardItem, columnId: string) => {
+    const client = clientMap[card.id];
+    if (!client) return null;
+    return (
+      <Card
+        className="p-3 hover-elevate cursor-pointer"
+        data-testid={`card-pipeline-${client.id}`}
+      >
+        <Link href={`/ets/clients/${client.id}`}>
+          <div className="flex items-start justify-between gap-1 mb-1.5">
+            <p className="text-xs font-medium leading-snug truncate" data-testid={`text-pipeline-name-${client.id}`}>
+              {client.name}
+            </p>
+            <span className={`text-[10px] font-bold shrink-0 ${scoreColor(client.score)}`}>
+              {client.score}
+            </span>
+          </div>
+        </Link>
+        <div className="flex items-center gap-1 mb-1.5">
+          <MapPin className="size-2.5 text-muted-foreground" />
+          <span className="text-[11px] text-muted-foreground truncate">{client.city}</span>
+        </div>
+        <div className="flex items-center gap-1 mb-1.5">
+          <Store className="size-2.5 text-muted-foreground" />
+          <span className="text-[11px] text-muted-foreground">{client.storeSize} sqft</span>
+        </div>
+        <div className="flex items-center justify-between gap-1 mb-1.5">
+          <Badge
+            variant="secondary"
+            className={`border-0 text-[10px] px-1.5 py-0 capitalize ${tierColors[client.packageTier]}`}
+          >
+            {client.packageTier}
+          </Badge>
+          <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground shrink-0">
+            <Clock className="size-2.5" />
+            {client.daysInStage}d
+          </div>
+        </div>
+        <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1" title={client.lastNote}>
+          {client.lastNote}
+        </p>
+        <div className="flex items-center gap-1 mt-2 pt-1.5 border-t">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-6"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setNoteClient(client);
+              setNoteDialogOpen(true);
+            }}
+            title="Add Note"
+            data-testid={`button-note-${client.id}`}
+          >
+            <StickyNote className="size-3" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-6"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.location.href = `/ets/proposals`;
+            }}
+            title="Generate Proposal"
+            data-testid={`button-proposal-${client.id}`}
+          >
+            <FileText className="size-3" />
+          </Button>
+          <Link href={`/ets/clients/${client.id}`} className="ml-auto">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="size-6"
+              title="View Detail"
+              data-testid={`button-detail-${client.id}`}
+            >
+              <Eye className="size-3" />
+            </Button>
+          </Link>
+          <Select
+            value={client.stage}
+            onValueChange={(val) => handleMoveStage(client, val as EtsPipelineStage)}
+          >
+            <SelectTrigger
+              className="h-6 w-auto min-w-[60px] text-[10px] px-1.5"
+              data-testid={`select-move-stage-${client.id}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ChevronRight className="size-2.5" />
+            </SelectTrigger>
+            <SelectContent>
+              {ETS_PIPELINE_STAGES.map((s) => (
+                <SelectItem key={s} value={s} className="text-xs">
+                  {ETS_STAGE_LABELS[s]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </Card>
+    );
+  };
+
+  const renderColumnHeader = (column: KanbanColumnData) => (
+    <div className="flex items-center gap-2 mb-3 px-1">
+      <span className="text-xs font-medium truncate">{column.title}</span>
+      <span className="text-xs text-muted-foreground ml-auto">{column.cards.length}</span>
+    </div>
+  );
 
   const columns: Column<EtsClient>[] = [
     {
@@ -353,133 +495,14 @@ export default function EtsPipeline() {
                 ))}
               </div>
             ) : (
-              <div
-                className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 mt-2"
-                data-testid="kanban-board"
-              >
-                {stageColumns.map(({ stage, label, clients }) => (
-                  <div
-                    key={stage}
-                    className="flex flex-col"
-                    data-testid={`kanban-column-${stage}`}
-                  >
-                    <div className="flex items-center gap-2 mb-3 px-1">
-                      <span className="text-xs font-medium truncate">{label}</span>
-                      <span className="text-xs text-muted-foreground ml-auto">{clients.length}</span>
-                    </div>
-                    <div className="flex flex-col gap-2.5 min-h-[100px]">
-                      {clients.length === 0 ? (
-                        <div className="rounded-lg border border-dashed p-4 text-center">
-                          <p className="text-xs text-muted-foreground">No clients</p>
-                        </div>
-                      ) : (
-                        clients.map((client) => (
-                          <Card
-                            key={client.id}
-                            className="p-3 hover-elevate cursor-pointer"
-                            data-testid={`card-pipeline-${client.id}`}
-                          >
-                            <Link href={`/ets/clients/${client.id}`}>
-                              <div className="flex items-start justify-between gap-1 mb-1.5">
-                                <p className="text-xs font-medium leading-snug truncate" data-testid={`text-pipeline-name-${client.id}`}>
-                                  {client.name}
-                                </p>
-                                <span className={`text-[10px] font-bold shrink-0 ${scoreColor(client.score)}`}>
-                                  {client.score}
-                                </span>
-                              </div>
-                            </Link>
-                            <div className="flex items-center gap-1 mb-1.5">
-                              <MapPin className="size-2.5 text-muted-foreground" />
-                              <span className="text-[11px] text-muted-foreground truncate">{client.city}</span>
-                            </div>
-                            <div className="flex items-center gap-1 mb-1.5">
-                              <Store className="size-2.5 text-muted-foreground" />
-                              <span className="text-[11px] text-muted-foreground">{client.storeSize} sqft</span>
-                            </div>
-                            <div className="flex items-center justify-between gap-1 mb-1.5">
-                              <Badge
-                                variant="secondary"
-                                className={`border-0 text-[10px] px-1.5 py-0 capitalize ${tierColors[client.packageTier]}`}
-                              >
-                                {client.packageTier}
-                              </Badge>
-                              <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground shrink-0">
-                                <Clock className="size-2.5" />
-                                {client.daysInStage}d
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1" title={client.lastNote}>
-                              {client.lastNote}
-                            </p>
-                            <div className="flex items-center gap-1 mt-2 pt-1.5 border-t">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="size-6"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setNoteClient(client);
-                                  setNoteDialogOpen(true);
-                                }}
-                                title="Add Note"
-                                data-testid={`button-note-${client.id}`}
-                              >
-                                <StickyNote className="size-3" />
-                              </Button>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="size-6"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  window.location.href = `/ets/proposals`;
-                                }}
-                                title="Generate Proposal"
-                                data-testid={`button-proposal-${client.id}`}
-                              >
-                                <FileText className="size-3" />
-                              </Button>
-                              <Link href={`/ets/clients/${client.id}`} className="ml-auto">
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="size-6"
-                                  title="View Detail"
-                                  data-testid={`button-detail-${client.id}`}
-                                >
-                                  <Eye className="size-3" />
-                                </Button>
-                              </Link>
-                              <Select
-                                value={client.stage}
-                                onValueChange={(val) => handleMoveStage(client, val as EtsPipelineStage)}
-                              >
-                                <SelectTrigger
-                                  className="h-6 w-auto min-w-[60px] text-[10px] px-1.5"
-                                  data-testid={`select-move-stage-${client.id}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <ChevronRight className="size-2.5" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {ETS_PIPELINE_STAGES.map((s) => (
-                                    <SelectItem key={s} value={s} className="text-xs">
-                                      {ETS_STAGE_LABELS[s]}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </Card>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <KanbanBoard
+                columns={kanbanColumns}
+                onCardMove={handleCardMove}
+                renderCard={renderEtsCard}
+                renderColumnHeader={renderColumnHeader}
+                columnClassName="flex-1 min-w-[160px]"
+                className="mt-2"
+              />
             )
           ) : (
             loading ? (

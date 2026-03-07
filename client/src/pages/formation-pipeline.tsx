@@ -12,6 +12,8 @@ import { formationClients, stageDefinitions } from "@/lib/mock-data";
 import type { FormationClient } from "@shared/schema";
 import { Building2, Clock, AlertTriangle, Users } from "lucide-react";
 import { PageShell } from "@/components/layout";
+import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
+import { useToast } from "@/hooks/use-toast";
 
 const riskColors: Record<string, string> = {
   "at-risk": "bg-red-500",
@@ -35,13 +37,95 @@ function daysInStage(startDate: string, currentStage: number): number {
 
 export default function FormationPipeline() {
   const loading = useSimulatedLoading();
+  const { toast } = useToast();
 
-  const stageColumns = useMemo(() => {
-    return stageDefinitions.map((stage) => ({
-      stage,
-      clients: formationClients.filter((c) => c.currentStage === stage.number),
-    }));
+  const clientsByStage = useMemo(() => {
+    const map: Record<number, FormationClient[]> = {};
+    for (const stage of stageDefinitions) {
+      map[stage.number] = [];
+    }
+    for (const c of formationClients) {
+      if (map[c.currentStage]) {
+        map[c.currentStage].push(c);
+      }
+    }
+    return map;
   }, []);
+
+  const kanbanColumns: KanbanColumnData[] = useMemo(() => {
+    return stageDefinitions.map((stage) => ({
+      id: String(stage.number),
+      title: stage.name,
+      cards: (clientsByStage[stage.number] || []).map((client) => ({
+        id: client.id,
+        title: client.companyName,
+        subtitle: client.clientName,
+      })),
+    }));
+  }, [clientsByStage]);
+
+  const clientMap = useMemo(() => {
+    const map: Record<string, FormationClient> = {};
+    for (const c of formationClients) {
+      map[c.id] = c;
+    }
+    return map;
+  }, []);
+
+  const handleCardMove = (cardId: string, sourceColumnId: string, targetColumnId: string) => {
+    const client = clientMap[cardId];
+    const targetStage = stageDefinitions.find((s) => String(s.number) === targetColumnId);
+    toast({
+      title: "Stage updated",
+      description: `${client?.companyName ?? cardId} moved to ${targetStage?.name ?? targetColumnId}`,
+    });
+  };
+
+  const renderColumnHeader = (column: KanbanColumnData) => {
+    const stageNum = parseInt(column.id);
+    return (
+      <div className="flex items-center gap-2 mb-3 px-1">
+        <span className="flex size-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+          {stageNum}
+        </span>
+        <span className="text-xs font-medium truncate">{column.title}</span>
+        <span className="text-xs text-muted-foreground ml-auto">{column.cards.length}</span>
+      </div>
+    );
+  };
+
+  const renderCard = (card: KanbanCardItem) => {
+    const client = clientMap[card.id];
+    if (!client) return null;
+    return (
+      <Card
+        className="p-3 hover-elevate"
+        data-testid={`card-pipeline-${client.id}`}
+      >
+        <div className="flex items-start justify-between gap-1 mb-2">
+          <p className="text-xs font-medium leading-snug truncate" data-testid={`text-pipeline-company-${client.id}`}>
+            {client.companyName}
+          </p>
+          <span
+            className={`size-2 rounded-full shrink-0 mt-1 ${riskColors[client.riskFlag]}`}
+            title={client.riskFlag}
+          />
+        </div>
+        <p className="text-[11px] text-muted-foreground mb-2 truncate">{client.clientName}</p>
+        <div className="flex items-center justify-between gap-1">
+          <span className="text-[10px] text-muted-foreground truncate">{client.assignedManager}</span>
+          <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground shrink-0">
+            <Clock className="size-2.5" />
+            {daysInStage(client.startDate, client.currentStage)}d
+          </div>
+        </div>
+        <div className="flex items-center gap-1 mt-1.5">
+          <span className={`size-1.5 rounded-full ${priorityDot[client.priority]}`} />
+          <span className="text-[10px] capitalize text-muted-foreground">{client.priority}</span>
+        </div>
+      </Card>
+    );
+  };
 
   const columns: Column<FormationClient>[] = [
     {
@@ -109,7 +193,7 @@ export default function FormationPipeline() {
   return (
     <PageShell>
       <PageTransition>
-<Fade direction="up" distance={10} delay={0.1}>
+        <Fade direction="up" distance={10} delay={0.1}>
           <Tabs defaultValue="kanban" data-testid="tabs-pipeline-view">
             <TabsList data-testid="tabs-list-pipeline-view">
               <TabsTrigger value="kanban" data-testid="tab-kanban">Kanban</TabsTrigger>
@@ -124,62 +208,15 @@ export default function FormationPipeline() {
                   ))}
                 </div>
               ) : (
-                <div
-                  className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 mt-2"
-                  data-testid="kanban-board"
-                >
-                  {stageColumns.map(({ stage, clients }) => (
-                    <div
-                      key={stage.number}
-                      className="flex flex-col"
-                      data-testid={`kanban-column-stage-${stage.number}`}
-                    >
-                      <div className="flex items-center gap-2 mb-3 px-1">
-                        <span className="flex size-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
-                          {stage.number}
-                        </span>
-                        <span className="text-xs font-medium truncate">{stage.name}</span>
-                        <span className="text-xs text-muted-foreground ml-auto">{clients.length}</span>
-                      </div>
-                      <div className="flex flex-col gap-2.5 min-h-[100px]">
-                        {clients.length === 0 ? (
-                          <div className="rounded-lg border border-dashed p-4 text-center">
-                            <p className="text-xs text-muted-foreground">No clients</p>
-                          </div>
-                        ) : (
-                          clients.map((client) => (
-                            <Card
-                              key={client.id}
-                              className="p-3 hover-elevate"
-                              data-testid={`card-pipeline-${client.id}`}
-                            >
-                              <div className="flex items-start justify-between gap-1 mb-2">
-                                <p className="text-xs font-medium leading-snug truncate" data-testid={`text-pipeline-company-${client.id}`}>
-                                  {client.companyName}
-                                </p>
-                                <span
-                                  className={`size-2 rounded-full shrink-0 mt-1 ${riskColors[client.riskFlag]}`}
-                                  title={client.riskFlag}
-                                />
-                              </div>
-                              <p className="text-[11px] text-muted-foreground mb-2 truncate">{client.clientName}</p>
-                              <div className="flex items-center justify-between gap-1">
-                                <span className="text-[10px] text-muted-foreground truncate">{client.assignedManager}</span>
-                                <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground shrink-0">
-                                  <Clock className="size-2.5" />
-                                  {daysInStage(client.startDate, client.currentStage)}d
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-1 mt-1.5">
-                                <span className={`size-1.5 rounded-full ${priorityDot[client.priority]}`} />
-                                <span className="text-[10px] capitalize text-muted-foreground">{client.priority}</span>
-                              </div>
-                            </Card>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                <div className="mt-2">
+                  <KanbanBoard
+                    columns={kanbanColumns}
+                    onCardMove={handleCardMove}
+                    renderCard={renderCard}
+                    renderColumnHeader={renderColumnHeader}
+                    columnClassName="flex-1 min-w-[160px]"
+                    className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7"
+                  />
                 </div>
               )}
             </TabsContent>

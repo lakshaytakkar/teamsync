@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
-import { candidates, jobOpenings } from "@/lib/mock-data-ats";
+import { candidates as allCandidatesData, jobOpenings } from "@/lib/mock-data-ats";
+import type { Candidate } from "@/lib/mock-data-ats";
 import {
   PageShell,
   PageHeader,
@@ -23,6 +24,8 @@ import {
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { Input } from "@/components/ui/input";
+import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
+import { useToast } from "@/hooks/use-toast";
 
 const pipelineStages = ["applied", "screening", "interview", "evaluation", "offer", "hired"] as const;
 
@@ -37,12 +40,14 @@ const stageConfig: Record<string, { label: string; color: string; bg: string }> 
 
 export default function AtsCandidates() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const isLoading = useSimulatedLoading(700);
   const [view, setView] = useState<"kanban" | "table">("kanban");
   const [search, setSearch] = useState("");
   const [jobFilter, setJobFilter] = useState("all");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [addOpen, setAddOpen] = useState(false);
+  const [candidates, setCandidates] = useState(allCandidatesData);
 
   const activeCandidates = candidates.filter(c => c.stage !== "rejected");
   const sources = Array.from(new Set(candidates.map(c => c.source)))
@@ -117,53 +122,73 @@ export default function AtsCandidates() {
 
       {view === "kanban" ? (
         <Fade>
-          <div className="flex gap-4 overflow-x-auto pb-4">
-            {pipelineStages.map((stage) => {
+          <KanbanBoard
+            columns={pipelineStages.map((stage) => {
               const stageCandidates = filtered.filter(c => c.stage === stage);
-              const config = stageConfig[stage];
+              return {
+                id: stage,
+                title: stageConfig[stage].label,
+                cards: stageCandidates.map(c => ({
+                  id: c.id,
+                  title: c.name,
+                  subtitle: c.currentRole,
+                })),
+              };
+            })}
+            columnClassName="flex-shrink-0 w-52"
+            onCardMove={(cardId, sourceColumnId, targetColumnId) => {
+              const sourceLabel = stageConfig[sourceColumnId]?.label ?? sourceColumnId;
+              const targetLabel = stageConfig[targetColumnId]?.label ?? targetColumnId;
+              const candidate = candidates.find(c => c.id === cardId);
+              setCandidates(prev => prev.map(c =>
+                c.id === cardId ? { ...c, stage: targetColumnId as Candidate["stage"] } : c
+              ));
+              toast({
+                title: "Stage Updated",
+                description: `${candidate?.name ?? cardId} moved from ${sourceLabel} to ${targetLabel}`,
+              });
+            }}
+            renderColumnHeader={(column) => {
+              const config = stageConfig[column.id];
               return (
-                <div key={stage} className="flex-shrink-0 w-52" data-testid={`kanban-col-${stage}`}>
-                  <div className={`rounded-t-lg px-3 py-2 border ${config.bg}`}>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-xs font-semibold ${config.color}`}>{config.label}</span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium bg-white/80 ${config.color}`}>{stageCandidates.length}</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2 mt-2">
-                    {stageCandidates.map(c => (
-                      <Card
-                        key={c.id}
-                        className="border shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => setLocation(`/ats/candidates/${c.id}`)}
-                        data-testid={`candidate-card-${c.id}`}
-                      >
-                        <CardContent className="p-3 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Avatar className="size-7 shrink-0">
-                              <AvatarImage src={getPersonAvatar(c.name, 28)} alt={c.name} />
-                              <AvatarFallback className="text-[9px]">{c.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold truncate">{c.name}</p>
-                              <p className="text-[10px] text-muted-foreground truncate">{c.currentRole}</p>
-                            </div>
-                          </div>
-                          <p className="text-[10px] text-muted-foreground truncate">{c.currentCompany}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">{c.experience}y exp</span>
-                            <StatusBadge status={c.source} />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                    {stageCandidates.length === 0 && (
-                      <div className="text-center py-6 text-xs text-muted-foreground border-2 border-dashed rounded-lg">Empty</div>
-                    )}
+                <div className={`rounded-t-lg px-3 py-2 border ${config.bg}`} data-testid={`kanban-col-${column.id}`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs font-semibold ${config.color}`}>{config.label}</span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium bg-white/80 ${config.color}`}>{column.cards.length}</span>
                   </div>
                 </div>
               );
-            })}
-          </div>
+            }}
+            renderCard={(card) => {
+              const c = filtered.find(cand => cand.id === card.id);
+              if (!c) return null;
+              return (
+                <Card
+                  className="border shadow-sm cursor-pointer hover-elevate"
+                  onClick={() => setLocation(`/ats/candidates/${c.id}`)}
+                  data-testid={`candidate-card-${c.id}`}
+                >
+                  <CardContent className="p-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="size-7 shrink-0">
+                        <AvatarImage src={getPersonAvatar(c.name, 28)} alt={c.name} />
+                        <AvatarFallback className="text-[9px]">{c.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold truncate">{c.name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{c.currentRole}</p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground truncate">{c.currentCompany}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">{c.experience}y exp</span>
+                      <StatusBadge status={c.source} />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }}
+          />
         </Fade>
       ) : (
         <Fade>

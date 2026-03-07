@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { Link, useParams } from "wouter";
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
@@ -8,6 +8,7 @@ import { FormDialog } from "@/components/hr/form-dialog";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -237,6 +238,34 @@ export default function DevProjectBoard() {
       tasks: filteredTasks.filter((t) => t.status === status),
     }));
   }, [filteredTasks]);
+
+  const kanbanBoardColumns: KanbanColumnData[] = useMemo(() => {
+    return kanbanColumns.map(({ status, label, tasks }) => ({
+      id: status,
+      title: label,
+      cards: tasks.map((task) => ({
+        id: task.id,
+        title: task.title,
+      })),
+    }));
+  }, [kanbanColumns]);
+
+  const taskMap = useMemo(() => {
+    const map = new Map<string, DevTask>();
+    filteredTasks.forEach((t) => map.set(t.id, t));
+    return map;
+  }, [filteredTasks]);
+
+  const handleCardMove = useCallback(
+    (cardId: string, sourceColumnId: string, targetColumnId: string) => {
+      const task = taskMap.get(cardId);
+      toast({
+        title: "Task Moved",
+        description: `${task?.id || cardId} moved from ${STATUS_LABELS[sourceColumnId as TaskStatus]} to ${STATUS_LABELS[targetColumnId as TaskStatus]}`,
+      });
+    },
+    [taskMap, toast]
+  );
 
   const handleAddTask = () => {
     if (!newTask.title.trim()) return;
@@ -723,121 +752,108 @@ export default function DevProjectBoard() {
                 ))}
               </div>
             ) : (
-              <div
-                className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 mt-2"
-                data-testid="kanban-board"
-              >
-                {kanbanColumns.map(({ status, label, tasks }) => (
-                  <div
-                    key={status}
-                    className="flex flex-col"
-                    data-testid={`kanban-column-${status}`}
-                  >
-                    <div className="flex items-center gap-2 mb-3 px-1">
-                      <span className="text-xs font-medium">{label}</span>
-                      <Badge variant="secondary" className="border-0 text-[10px] px-1.5 py-0">
-                        {tasks.length}
-                      </Badge>
-                    </div>
-                    <div className="flex flex-col gap-2 min-h-[120px]">
-                      {tasks.length === 0 ? (
-                        <div className="rounded-lg border border-dashed p-4 text-center">
-                          <p className="text-xs text-muted-foreground">No tasks</p>
+              <KanbanBoard
+                columns={kanbanBoardColumns}
+                onCardMove={handleCardMove}
+                columnClassName="flex-1 min-w-[200px]"
+                className="mt-2"
+                onCardClick={(card) => {
+                  const task = taskMap.get(card.id);
+                  if (task) {
+                    setSelectedTask(task);
+                    setTaskDetailOpen(true);
+                  }
+                }}
+                renderCard={(card) => {
+                  const task = taskMap.get(card.id);
+                  if (!task) return null;
+                  const TypeIcon = TYPE_ICONS[task.type] || CircleDot;
+                  const completedSubtasks = task.subtasks.filter((s) => s.completed).length;
+                  const totalSubtasks = task.subtasks.length;
+                  return (
+                    <Card
+                      className="p-3 hover-elevate cursor-pointer"
+                      data-testid={`card-task-${task.id}`}
+                      onClick={() => {
+                        setSelectedTask(task);
+                        setTaskDetailOpen(true);
+                      }}
+                    >
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <Badge
+                          variant="secondary"
+                          className="border-0 text-[10px] px-1.5 py-0"
+                          style={{ backgroundColor: `${project.color}15`, color: project.color }}
+                        >
+                          {task.id}
+                        </Badge>
+                        <TypeIcon className="size-3 text-muted-foreground ml-auto shrink-0" />
+                      </div>
+                      <p
+                        className="text-xs font-medium leading-snug line-clamp-2 mb-2"
+                        data-testid={`text-task-card-title-${task.id}`}
+                      >
+                        {task.title}
+                      </p>
+                      <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                        <Badge
+                          variant="secondary"
+                          className={`border-0 text-[10px] px-1.5 py-0 capitalize ${PRIORITY_COLORS[task.priority]}`}
+                        >
+                          {task.priority}
+                        </Badge>
+                        {task.storyPoints > 0 && (
+                          <Badge variant="secondary" className="border-0 text-[10px] px-1.5 py-0">
+                            {task.storyPoints} SP
+                          </Badge>
+                        )}
+                      </div>
+                      {totalSubtasks > 0 && (
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-emerald-500"
+                              style={{ width: `${(completedSubtasks / totalSubtasks) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] text-muted-foreground shrink-0">
+                            {completedSubtasks}/{totalSubtasks}
+                          </span>
                         </div>
-                      ) : (
-                        tasks.map((task) => {
-                          const TypeIcon = TYPE_ICONS[task.type] || CircleDot;
-                          const completedSubtasks = task.subtasks.filter((s) => s.completed).length;
-                          const totalSubtasks = task.subtasks.length;
-                          return (
-                            <Card
-                              key={task.id}
-                              className="p-3 hover-elevate cursor-pointer"
-                              data-testid={`card-task-${task.id}`}
-                              onClick={() => {
-                                setSelectedTask(task);
-                                setTaskDetailOpen(true);
-                              }}
-                            >
-                              <div className="flex items-center gap-1.5 mb-1.5">
-                                <Badge
-                                  variant="secondary"
-                                  className="border-0 text-[10px] px-1.5 py-0"
-                                  style={{ backgroundColor: `${project.color}15`, color: project.color }}
-                                >
-                                  {task.id}
-                                </Badge>
-                                <TypeIcon className="size-3 text-muted-foreground ml-auto shrink-0" />
-                              </div>
-                              <p
-                                className="text-xs font-medium leading-snug line-clamp-2 mb-2"
-                                data-testid={`text-task-card-title-${task.id}`}
-                              >
-                                {task.title}
-                              </p>
-                              <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                                <Badge
-                                  variant="secondary"
-                                  className={`border-0 text-[10px] px-1.5 py-0 capitalize ${PRIORITY_COLORS[task.priority]}`}
-                                >
-                                  {task.priority}
-                                </Badge>
-                                {task.storyPoints > 0 && (
-                                  <Badge variant="secondary" className="border-0 text-[10px] px-1.5 py-0">
-                                    {task.storyPoints} SP
-                                  </Badge>
-                                )}
-                              </div>
-                              {totalSubtasks > 0 && (
-                                <div className="flex items-center gap-1.5 mb-1.5">
-                                  <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
-                                    <div
-                                      className="h-full rounded-full bg-emerald-500"
-                                      style={{ width: `${(completedSubtasks / totalSubtasks) * 100}%` }}
-                                    />
-                                  </div>
-                                  <span className="text-[10px] text-muted-foreground shrink-0">
-                                    {completedSubtasks}/{totalSubtasks}
-                                  </span>
-                                </div>
-                              )}
-                              <div className="flex items-center justify-between gap-1.5 mt-2 pt-1.5 border-t">
-                                <Avatar className="size-5">
-                                  <AvatarFallback
-                                    className="text-[8px] font-medium"
-                                    style={{ backgroundColor: `${project.color}20`, color: project.color }}
-                                  >
-                                    {getInitials(task.assignee)}
-                                  </AvatarFallback>
-                                </Avatar>
-                                {task.dueDate && (
-                                  <div className="flex items-center gap-0.5">
-                                    <Calendar className="size-2.5 text-muted-foreground" />
-                                    <span
-                                      className={`text-[10px] ${
-                                        isOverdue(task.dueDate) && task.status !== "done"
-                                          ? "text-red-600 dark:text-red-400 font-medium"
-                                          : "text-muted-foreground"
-                                      }`}
-                                    >
-                                      {task.dueDate}
-                                    </span>
-                                  </div>
-                                )}
-                                {task.tags.length > 0 && (
-                                  <Badge variant="secondary" className="border-0 text-[9px] px-1 py-0 truncate max-w-[60px]">
-                                    {task.tags[0]}
-                                  </Badge>
-                                )}
-                              </div>
-                            </Card>
-                          );
-                        })
                       )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                      <div className="flex items-center justify-between gap-1.5 mt-2 pt-1.5 border-t">
+                        <Avatar className="size-5">
+                          <AvatarFallback
+                            className="text-[8px] font-medium"
+                            style={{ backgroundColor: `${project.color}20`, color: project.color }}
+                          >
+                            {getInitials(task.assignee)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {task.dueDate && (
+                          <div className="flex items-center gap-0.5">
+                            <Calendar className="size-2.5 text-muted-foreground" />
+                            <span
+                              className={`text-[10px] ${
+                                isOverdue(task.dueDate) && task.status !== "done"
+                                  ? "text-red-600 dark:text-red-400 font-medium"
+                                  : "text-muted-foreground"
+                              }`}
+                            >
+                              {task.dueDate}
+                            </span>
+                          </div>
+                        )}
+                        {task.tags.length > 0 && (
+                          <Badge variant="secondary" className="border-0 text-[9px] px-1 py-0 truncate max-w-[60px]">
+                            {task.tags[0]}
+                          </Badge>
+                        )}
+                      </div>
+                    </Card>
+                  );
+                }}
+              />
             )
           ) : loading ? (
             <TableSkeleton rows={10} columns={8} />
