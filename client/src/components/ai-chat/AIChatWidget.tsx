@@ -7,7 +7,7 @@ import {
   X, Maximize2, Minimize2, Plus, Send, Square, Trash2,
   MessageSquare, Clock, ChevronRight, Bot,
   Paperclip, Download, FileText, Menu, Pencil, Check,
-  Database, Plug, Zap, Search, Loader2, Image as ImageIcon,
+  Search, Loader2, Image as ImageIcon,
   Copy, AlertCircle, ChevronLeft, RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -552,18 +552,6 @@ const SUGGESTIONS = [
   "What's the compliance status?",
 ];
 
-interface ActiveIntegration {
-  name: string;
-  icon: typeof Database;
-  status: "connected" | "disconnected";
-  description: string;
-}
-
-const ACTIVE_INTEGRATIONS: ActiveIntegration[] = [
-  { name: "Supabase DB", icon: Database, status: "connected", description: "PostgreSQL — live query access" },
-  { name: "OpenAI", icon: Zap, status: "connected", description: "GPT-4o with tool calling" },
-  { name: "DALL-E 3", icon: ImageIcon, status: "connected", description: "AI image generation" },
-];
 
 function formatRelativeTime(dateStr: string): string {
   const date = new Date(dateStr);
@@ -813,25 +801,6 @@ function ChatWindow({
                 ))}
               </div>
 
-              <div className="w-full">
-                <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                  <Plug className="size-3" />
-                  Active Integrations
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {ACTIVE_INTEGRATIONS.map((integration) => (
-                    <div
-                      key={integration.name}
-                      className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px]"
-                      data-testid={`integration-${integration.name.replace(/\s+/g, "-").toLowerCase()}`}
-                    >
-                      <div className="size-1.5 rounded-full bg-emerald-500" />
-                      <integration.icon className="size-3 text-emerald-600" />
-                      <span className="text-foreground/70 font-medium">{integration.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </ConversationEmptyState>
           ) : (
             <>
@@ -977,9 +946,6 @@ function ChatWindow({
               </Button>
             )}
           </div>
-          <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-            Enter to send · Shift+Enter for new line
-          </p>
         </form>
       </div>
     </div>
@@ -1746,43 +1712,6 @@ export function AIChatWidget() {
                 )}
               </div>
 
-              {conversations.length > 1 && (
-                <div className="border-t shrink-0 max-h-[180px] overflow-y-auto">
-                  <div className="px-3 pt-2 pb-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Recent Chats</p>
-                  </div>
-                  <div className="px-2 pb-2 space-y-0.5">
-                    {conversations.slice(0, 8).map((conv) => (
-                      <div
-                        key={conv.id}
-                        className={cn(
-                          "group flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer text-xs transition-colors",
-                          activeConversationId === conv.id
-                            ? "bg-primary/10 text-primary"
-                            : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                        )}
-                        onClick={() => handleSelectConversation(conv.id)}
-                        data-testid={`ai-drawer-conversation-${conv.id}`}
-                      >
-                        <MessageSquare className="size-3 shrink-0 opacity-60" />
-                        <span className="truncate flex-1">{conv.title}</span>
-                        <span className="text-[9px] opacity-50 shrink-0">{formatRelativeTime(conv.updated_at)}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {conversations.length > 8 && (
-                    <div className="px-3 pb-2">
-                      <button
-                        onClick={() => setIsExpanded(true)}
-                        className="text-[10px] text-primary hover:underline"
-                        data-testid="ai-view-all-history"
-                      >
-                        View all ({conversations.length})
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
 
             </motion.div>
           </>
