@@ -3,13 +3,7 @@ import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import {
-  Ticket,
-  AlertTriangle,
-  Clock,
-  CheckCircle2,
   Plus,
-  ArrowUpRight,
-  Users,
 } from "lucide-react";
 import { detectVerticalFromUrl } from "@/lib/verticals-config";
 import { verticalMembers } from "@/lib/mock-data-shared";
@@ -17,10 +11,6 @@ import { getPersonAvatar } from "@/lib/avatars";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import {
   PageShell,
-  PageHeader,
-  HeroBanner,
-  StatCard,
-  StatGrid,
   IndexToolbar,
   FilterPill,
   PrimaryAction,
@@ -388,11 +378,28 @@ export default function UniversalTickets() {
   const showLoading = loading || isTicketsLoading;
 
   return (
-    <PageShell>
-      <PageHeader
-        title="Tickets"
-        subtitle="Track and resolve issues across your team"
-        actions={
+    <PageShell className="flex flex-col h-full bg-background overflow-hidden p-0 lg:p-0">
+      <div className="px-6 py-3 lg:px-10 border-b shrink-0 flex items-center gap-6 bg-card flex-wrap">
+        <div className="shrink-0">
+          <h1 className="text-[15px] font-semibold leading-tight">Tickets</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Track and resolve issues across your team</p>
+        </div>
+        <div className="w-px h-8 bg-border shrink-0 hidden sm:block" />
+        <div className="flex items-center gap-2.5 flex-1 flex-wrap">
+          {([
+            { label: "Total", value: stats.total },
+            { label: "Open", value: stats.open, color: "text-orange-500" },
+            { label: "In Progress", value: stats.inProgress, color: "text-amber-500" },
+            { label: "Escalated", value: stats.escalated, color: "text-red-500" },
+            { label: "Resolved", value: stats.resolved, color: "text-emerald-600" },
+          ] as { label: string; value: number; color?: string }[]).map((s) => (
+            <div key={s.label} className="flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-muted/40 shadow-sm">
+              <span className={cn("text-base font-bold tabular-nums leading-none", s.color ?? "text-foreground")}>{s.value}</span>
+              <span className="text-[11px] text-muted-foreground font-medium">{s.label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="shrink-0">
           <PrimaryAction
             color={vertical.color}
             icon={Plus}
@@ -401,61 +408,10 @@ export default function UniversalTickets() {
           >
             New Ticket
           </PrimaryAction>
-        }
-      />
+        </div>
+      </div>
 
-      <HeroBanner
-        eyebrow="Ticket Management"
-        headline={`${vertical.shortName} Support Desk`}
-        tagline="Track, prioritize, and resolve team issues efficiently"
-        color={vertical.color}
-        colorDark={vertical.color + "CC"}
-        metrics={[
-          { label: "Total Tickets", value: stats.total },
-          { label: "Open", value: stats.open },
-          { label: "In Progress", value: stats.inProgress },
-          { label: "Escalated", value: stats.escalated },
-        ]}
-      />
-
-      <StatGrid>
-        <StatCard
-          label="Total Tickets"
-          value={stats.total}
-          icon={Ticket}
-          iconBg={vertical.color + "15"}
-          iconColor={vertical.color}
-        />
-        <StatCard
-          label="Open"
-          value={stats.open}
-          trend={stats.total > 0 ? `${Math.round((stats.open / stats.total) * 100)}% of total` : undefined}
-          icon={AlertTriangle}
-          iconBg="#EF444415"
-          iconColor="#EF4444"
-        />
-        <StatCard
-          label="In Progress"
-          value={stats.inProgress}
-          icon={Clock}
-          iconBg="#F59E0B15"
-          iconColor="#F59E0B"
-        />
-        <StatCard
-          label="Escalated"
-          value={stats.escalated}
-          icon={ArrowUpRight}
-          iconBg="#DC262615"
-          iconColor="#DC2626"
-        />
-        <StatCard
-          label="Resolved"
-          value={stats.resolved}
-          icon={CheckCircle2}
-          iconBg="#10B98115"
-          iconColor="#10B981"
-        />
-      </StatGrid>
+      <div className="px-6 lg:px-10 py-4 flex-1 overflow-y-auto space-y-4">
 
       <IndexToolbar
         search={search}
@@ -508,6 +464,7 @@ export default function UniversalTickets() {
           data-testid="tickets-table"
         />
       )}
+      </div>
 
       <FormDialog
         title="Create New Ticket"
