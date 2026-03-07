@@ -4,6 +4,7 @@ import multer from "multer";
 import { storage } from "./storage";
 import { aiChatRouter } from "./ai-chat";
 import { imageGenRouter } from "./image-gen";
+import { devProjectsRouter } from "./dev-projects";
 import {
   getStoreCredentials,
   listStores,
@@ -1385,6 +1386,7 @@ export async function registerRoutes(
 
   app.use("/api/ai", aiChatRouter);
   app.use("/api/images", imageGenRouter);
+  app.use("/api/dev", devProjectsRouter);
 
   return httpServer;
 }

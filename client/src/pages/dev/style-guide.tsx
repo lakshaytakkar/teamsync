@@ -286,30 +286,34 @@ function ShadowTab() {
   );
 }
 
+export function StyleGuideContent() {
+  return (
+    <Tabs defaultValue="typography" data-testid="tabs-style-guide">
+      <TabsList data-testid="tabs-list">
+        <TabsTrigger value="typography" data-testid="tab-typography">Typography</TabsTrigger>
+        <TabsTrigger value="colors" data-testid="tab-colors">Colors</TabsTrigger>
+        <TabsTrigger value="shadow" data-testid="tab-shadow">Shadow</TabsTrigger>
+      </TabsList>
+      <div className="mt-8">
+        <TabsContent value="typography">
+          <TypographyTab />
+        </TabsContent>
+        <TabsContent value="colors">
+          <ColorsTab />
+        </TabsContent>
+        <TabsContent value="shadow">
+          <ShadowTab />
+        </TabsContent>
+      </div>
+    </Tabs>
+  );
+}
+
 export default function StyleGuide() {
   return (
     <PageShell data-testid="page-style-guide">
         <PageTransition>
-          <div>
-            <Tabs defaultValue="typography" data-testid="tabs-style-guide">
-              <TabsList data-testid="tabs-list">
-                <TabsTrigger value="typography" data-testid="tab-typography">Typography</TabsTrigger>
-                <TabsTrigger value="colors" data-testid="tab-colors">Colors</TabsTrigger>
-                <TabsTrigger value="shadow" data-testid="tab-shadow">Shadow</TabsTrigger>
-              </TabsList>
-              <div className="mt-8">
-                <TabsContent value="typography">
-                  <TypographyTab />
-                </TabsContent>
-                <TabsContent value="colors">
-                  <ColorsTab />
-                </TabsContent>
-                <TabsContent value="shadow">
-                  <ShadowTab />
-                </TabsContent>
-              </div>
-            </Tabs>
-          </div>
+          <StyleGuideContent />
         </PageTransition>
     </PageShell>
   );

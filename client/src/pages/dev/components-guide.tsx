@@ -1005,36 +1005,40 @@ function BannerTab() {
   );
 }
 
+export function ComponentsGuideContent() {
+  return (
+    <Tabs defaultValue="buttons" data-testid="tabs-components">
+      <TabsList data-testid="tabs-list-components">
+        <TabsTrigger value="buttons" data-testid="tab-buttons">Buttons</TabsTrigger>
+        <TabsTrigger value="forms" data-testid="tab-forms">Forms</TabsTrigger>
+        <TabsTrigger value="components" data-testid="tab-components">Components</TabsTrigger>
+        <TabsTrigger value="loading" data-testid="tab-loading">Loading</TabsTrigger>
+        <TabsTrigger value="toasts" data-testid="tab-toasts">Toasts</TabsTrigger>
+        <TabsTrigger value="banner" data-testid="tab-banner">Banner</TabsTrigger>
+        <TabsTrigger value="badges" data-testid="tab-badges">Badges</TabsTrigger>
+        <TabsTrigger value="avatar" data-testid="tab-avatar">Avatar</TabsTrigger>
+        <TabsTrigger value="logos" data-testid="tab-logos">Logos & Cursors</TabsTrigger>
+      </TabsList>
+      <div className="mt-8">
+        <TabsContent value="buttons"><ButtonsTab /></TabsContent>
+        <TabsContent value="forms"><FormsTab /></TabsContent>
+        <TabsContent value="components"><ComponentsTab /></TabsContent>
+        <TabsContent value="loading"><LoadingTab /></TabsContent>
+        <TabsContent value="toasts"><ToastsTab /></TabsContent>
+        <TabsContent value="banner"><BannerTab /></TabsContent>
+        <TabsContent value="badges"><BadgesTab /></TabsContent>
+        <TabsContent value="avatar"><AvatarTab /></TabsContent>
+        <TabsContent value="logos"><LogosCursorsTab /></TabsContent>
+      </div>
+    </Tabs>
+  );
+}
+
 export default function ComponentsGuide() {
   return (
     <PageShell data-testid="page-components-guide">
         <PageTransition>
-          <div>
-            <Tabs defaultValue="buttons" data-testid="tabs-components">
-              <TabsList data-testid="tabs-list-components">
-                <TabsTrigger value="buttons" data-testid="tab-buttons">Buttons</TabsTrigger>
-                <TabsTrigger value="forms" data-testid="tab-forms">Forms</TabsTrigger>
-                <TabsTrigger value="components" data-testid="tab-components">Components</TabsTrigger>
-                <TabsTrigger value="loading" data-testid="tab-loading">Loading</TabsTrigger>
-                <TabsTrigger value="toasts" data-testid="tab-toasts">Toasts</TabsTrigger>
-                <TabsTrigger value="banner" data-testid="tab-banner">Banner</TabsTrigger>
-                <TabsTrigger value="badges" data-testid="tab-badges">Badges</TabsTrigger>
-                <TabsTrigger value="avatar" data-testid="tab-avatar">Avatar</TabsTrigger>
-                <TabsTrigger value="logos" data-testid="tab-logos">Logos & Cursors</TabsTrigger>
-              </TabsList>
-              <div className="mt-8">
-                <TabsContent value="buttons"><ButtonsTab /></TabsContent>
-                <TabsContent value="forms"><FormsTab /></TabsContent>
-                <TabsContent value="components"><ComponentsTab /></TabsContent>
-                <TabsContent value="loading"><LoadingTab /></TabsContent>
-                <TabsContent value="toasts"><ToastsTab /></TabsContent>
-                <TabsContent value="banner"><BannerTab /></TabsContent>
-                <TabsContent value="badges"><BadgesTab /></TabsContent>
-                <TabsContent value="avatar"><AvatarTab /></TabsContent>
-                <TabsContent value="logos"><LogosCursorsTab /></TabsContent>
-              </div>
-            </Tabs>
-          </div>
+          <ComponentsGuideContent />
         </PageTransition>
     </PageShell>
   );

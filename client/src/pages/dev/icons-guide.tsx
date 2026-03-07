@@ -315,6 +315,75 @@ const allIcons: IconEntry[] = [
 
 const categories = Array.from(new Set(allIcons.map((i) => i.category)));
 
+export function IconsGuideContent() {
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!search) return allIcons;
+    const q = search.toLowerCase();
+    return allIcons.filter(
+      (i) => i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q)
+    );
+  }, [search]);
+
+  const groupedByCategory = useMemo(() => {
+    const groups: Record<string, IconEntry[]> = {};
+    for (const cat of categories) {
+      const items = filtered.filter((i) => i.category === cat);
+      if (items.length > 0) groups[cat] = items;
+    }
+    return groups;
+  }, [filtered]);
+
+  return (
+    <div>
+      <div className="mb-8 max-w-sm">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search icons..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+            data-testid="input-icon-search"
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-10">
+        {Object.entries(groupedByCategory).map(([category, icons]) => (
+          <div key={category}>
+            <div className="mb-4 flex items-center gap-3">
+              <p className="text-sm font-semibold text-[#121A26]">{category}</p>
+              <span className="text-xs text-muted-foreground">{icons.length}</span>
+            </div>
+            <div className="grid grid-cols-6 gap-3 sm:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12">
+              {icons.map((item) => (
+                <div
+                  key={item.name}
+                  className="flex flex-col items-center gap-2 rounded-lg border border-[#E2E6F3] bg-white p-3 transition-shadow hover:shadow-[0px_1px_2px_rgba(21,30,58,0.06)]"
+                  title={item.name}
+                  data-testid={`icon-${item.name}`}
+                >
+                  <item.icon className="size-5 text-[#36394A]" />
+                  <span className="w-full truncate text-center text-[10px] text-muted-foreground">
+                    {item.name}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        {Object.keys(groupedByCategory).length === 0 && (
+          <div className="py-12 text-center">
+            <p className="text-sm text-muted-foreground">No icons match "{search}"</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function IconsGuide() {
   const [search, setSearch] = useState("");
 

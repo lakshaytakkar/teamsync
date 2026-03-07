@@ -766,14 +766,9 @@ export const verticals: Vertical[] = [
       },
       {
         title: "Design System",
-        defaultUrl: "/dev/style-guide",
+        defaultUrl: "/dev/design-system",
         icon: Palette,
-        items: [
-          { title: "Style Guide", url: "/dev/style-guide" },
-          { title: "Components", url: "/dev/components" },
-          { title: "Icons", url: "/dev/icons" },
-          { title: "Library", url: "/dev/library" },
-        ],
+        items: [],
       },
       {
         title: "Prompts",

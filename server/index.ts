@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import { seedDevData } from "./dev-seed";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 
@@ -61,6 +62,7 @@ app.use((req, res, next) => {
 
 (async () => {
   await registerRoutes(httpServer, app);
+  seedDevData().catch(err => console.error("[dev-seed] Seed error:", err.message));
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

@@ -25,9 +25,7 @@ import ComplianceTracker from "@/pages/compliance-tracker";
 import AnnualReports from "@/pages/annual-reports";
 import FormationAnalytics from "@/pages/formation-analytics";
 import TeamPerformance from "@/pages/team-performance";
-import StyleGuide from "@/pages/dev/style-guide";
-import ComponentsGuide from "@/pages/dev/components-guide";
-import IconsGuide from "@/pages/dev/icons-guide";
+import DesignSystem from "@/pages/dev/design-system";
 import SalesDashboard from "@/pages/sales/dashboard";
 import SalesProducts from "@/pages/sales/products";
 import SalesCategories from "@/pages/sales/categories";
@@ -69,7 +67,6 @@ import DevToolkit from "@/pages/dev/toolkit";
 import DevProjects from "@/pages/dev/projects";
 import DevProjectBoard from "@/pages/dev/project-board";
 import DevTasks from "@/pages/dev/tasks";
-import DevLibrary from "@/pages/dev/library";
 import EtsDashboard from "@/pages/ets/dashboard";
 import EtsPipeline from "@/pages/ets/pipeline";
 import EtsClientDetail from "@/pages/ets/client-detail";
@@ -348,15 +345,13 @@ function Router() {
       <Route path="/dev/image-studio" component={UniversalImageStudio} />
       <Route path="/dev/user-management" component={UniversalUsers} />
       <Route path="/dev/user-groups" component={UniversalUserGroups} />
-      <Route path="/dev/style-guide" component={StyleGuide} />
-      <Route path="/dev/components" component={ComponentsGuide} />
-      <Route path="/dev/icons" component={IconsGuide} />
+      <Route path="/dev/design-system" component={DesignSystem} />
       <Route path="/dev/prompts" component={DevPrompts} />
       <Route path="/dev/toolkit" component={DevToolkit} />
       <Route path="/dev/projects/:id" component={DevProjectBoard} />
       <Route path="/dev/projects" component={DevProjects} />
       <Route path="/dev/board" component={DevTasks} />
-      <Route path="/dev/library" component={DevLibrary} />
+
       <Route path="/ets" component={EtsDashboard} />
       <Route path="/ets/notifications" component={UniversalNotifications} />
       <Route path="/ets/chat" component={UniversalChat} />

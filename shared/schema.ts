@@ -1,4 +1,68 @@
 import { z } from "zod";
+import { pgTable, uuid, text, integer, boolean, timestamp, date } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-zod";
+
+export const devProjects = pgTable("dev_projects", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  key: text("key").notNull(),
+  description: text("description"),
+  color: text("color").notNull().default("#6366f1"),
+  status: text("status").notNull().default("active"),
+  owner: text("owner").notNull().default("Sneha Patel"),
+  verticalId: text("vertical_id").notNull().default("dev"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const devTasks = pgTable("dev_tasks", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: uuid("project_id").references(() => devProjects.id, { onDelete: "cascade" }),
+  taskCode: text("task_code"),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: text("status").notNull().default("todo"),
+  priority: text("priority").notNull().default("medium"),
+  type: text("type").notNull().default("task"),
+  assignee: text("assignee").notNull().default("Replit Agent"),
+  reporter: text("reporter").notNull().default("Sneha Patel"),
+  tags: text("tags").array().default(sql`'{}'::text[]`),
+  dueDate: date("due_date"),
+  storyPoints: integer("story_points"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const devSubtasks = pgTable("dev_subtasks", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  taskId: uuid("task_id").notNull().references(() => devTasks.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  completed: boolean("completed").notNull().default(false),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const devComments = pgTable("dev_comments", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  taskId: uuid("task_id").notNull().references(() => devTasks.id, { onDelete: "cascade" }),
+  author: text("author").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const insertDevProjectSchema = createInsertSchema(devProjects).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertDevTaskSchema = createInsertSchema(devTasks).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertDevSubtaskSchema = createInsertSchema(devSubtasks).omit({ id: true });
+export const insertDevCommentSchema = createInsertSchema(devComments).omit({ id: true, createdAt: true });
+
+export type DevProjectRecord = typeof devProjects.$inferSelect;
+export type InsertDevProject = z.infer<typeof insertDevProjectSchema>;
+export type DevTaskRecord = typeof devTasks.$inferSelect;
+export type InsertDevTask = z.infer<typeof insertDevTaskSchema>;
+export type DevSubtaskRecord = typeof devSubtasks.$inferSelect;
+export type InsertDevSubtask = z.infer<typeof insertDevSubtaskSchema>;
+export type DevCommentRecord = typeof devComments.$inferSelect;
+export type InsertDevComment = z.infer<typeof insertDevCommentSchema>;
 
 export interface FormationClient {
   id: string;

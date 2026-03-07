@@ -690,19 +690,13 @@ function TabsExample() {
   );
 }
 
-export default function DevLibrary() {
+export function LibraryContent() {
   return (
-    <PageShell>
-      <PageHeader
-        title="Component & Pages Library"
-        subtitle="Living design system — all reusable blocks and page patterns used across TeamSync"
-        actions={
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs">{24} blocks</Badge>
-            <Badge variant="outline" className="text-xs">{6} page patterns</Badge>
-          </div>
-        }
-      />
+    <div>
+      <div className="mb-6 flex items-center gap-2">
+        <Badge variant="outline" className="text-xs">{24} blocks</Badge>
+        <Badge variant="outline" className="text-xs">{6} page patterns</Badge>
+      </div>
       <Tabs defaultValue="data" className="space-y-6">
         <TabsList className="bg-muted/50">
           <TabsTrigger value="data" data-testid="tab-lib-data">Data Display</TabsTrigger>
@@ -750,6 +744,18 @@ export default function DevLibrary() {
           <PagePatternsExample />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+export default function DevLibrary() {
+  return (
+    <PageShell>
+      <PageHeader
+        title="Component & Pages Library"
+        subtitle="Living design system — all reusable blocks and page patterns used across TeamSync"
+      />
+      <LibraryContent />
     </PageShell>
   );
 }
