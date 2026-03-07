@@ -1082,12 +1082,26 @@ export function AIChatWidget() {
       const res = await fetch(`/api/ai/conversations/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete conversation");
     },
-    onSuccess: (_data, deletedId) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/ai/conversations"] });
+    onMutate: async (deletedId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["/api/ai/conversations"] });
+      const previous = queryClient.getQueryData<AiConversation[]>(["/api/ai/conversations"]);
+      queryClient.setQueryData<AiConversation[]>(
+        ["/api/ai/conversations"],
+        (old) => old ? old.filter((c) => c.id !== deletedId) : []
+      );
       if (activeConversationId === deletedId) {
         setActiveConversationId(null);
         setChatKey((k) => k + 1);
       }
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["/api/ai/conversations"], context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai/conversations"] });
     },
   });
 
@@ -1101,12 +1115,23 @@ export function AIChatWidget() {
       if (!res.ok) throw new Error("Failed to rename conversation");
       return res.json() as Promise<AiConversation>;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/ai/conversations"] });
+    onMutate: async ({ id, title }) => {
+      await queryClient.cancelQueries({ queryKey: ["/api/ai/conversations"] });
+      const previous = queryClient.getQueryData<AiConversation[]>(["/api/ai/conversations"]);
+      queryClient.setQueryData<AiConversation[]>(
+        ["/api/ai/conversations"],
+        (old) => old ? old.map((c) => c.id === id ? { ...c, title } : c) : []
+      );
       setEditingId(null);
+      return { previous };
     },
-    onError: () => {
-      setEditingId(null);
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["/api/ai/conversations"], context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ai/conversations"] });
     },
   });
 
