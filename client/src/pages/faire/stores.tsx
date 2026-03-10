@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, CheckCircle2, AlertTriangle, Clock, Eye } from "lucide-react";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 import { Fade } from "@/components/ui/animated";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -95,6 +97,8 @@ export default function FaireStores() {
   const queryClient = useQueryClient();
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data, isLoading } = useQuery<StoresWithSummary>({
@@ -172,6 +176,7 @@ export default function FaireStores() {
           subtitle={`${stores.length} brand accounts · ${activeCount} connected · ${syncedCount} synced`}
           actions={
             <div className="flex items-center gap-2">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
               <Button
                 size="sm"
                 variant="outline"
@@ -348,6 +353,9 @@ export default function FaireStores() {
           </div>
         </div>
       )}
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["faire-stores"].sop} color={FAIRE_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["faire-stores"].tutorial} color={FAIRE_COLOR} />
     </PageShell>
   );
 }

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +38,8 @@ export default function FairePricing() {
   const [prepackPrice, setPrepackPrice] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const PAGE_SIZE = 25;
 
   const handleSort = (key: string) => {
@@ -128,6 +132,9 @@ export default function FairePricing() {
         <PageHeader
           title="Pricing & Prepacks"
           subtitle="Manage wholesale and retail prices across all stores"
+          actions={
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+          }
         />
       </Fade>
 
@@ -267,6 +274,9 @@ export default function FairePricing() {
           <div className="space-y-1.5"><Label>Wholesale Price ($)</Label><Input type="number" value={prepackPrice} onChange={e => setPrepackPrice(e.target.value)} placeholder="e.g. 75.00" data-testid="input-prepack-price" /></div>
         </div>
       </DetailModal>
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["faire-pricing"].sop} color={FAIRE_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["faire-pricing"].tutorial} color={FAIRE_COLOR} />
     </PageShell>
   );
 }

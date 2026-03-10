@@ -20,6 +20,8 @@ import {
 import { verticals } from "@/lib/verticals-config";
 import { Badge } from "@/components/ui/badge";
 import { FINANCE_GATEWAY_CONFIG } from "@/lib/finance-config";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 
 function fmtAmt(tx: FinanceTransaction) {
@@ -45,6 +47,8 @@ export default function FinanceTransactions() {
   const isLoading = useSimulatedLoading(500);
   const [companyFilter, setCompanyFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const vertical = verticals.find((v) => v.id === "finance")!;
 
@@ -80,13 +84,16 @@ export default function FinanceTransactions() {
         title="Transactions"
         subtitle={`${filtered.length} of ${financeTransactions.length} entries`}
         actions={
-          <Button
-            style={{ backgroundColor: vertical.color, color: "#fff" }}
-            data-testid="btn-new-entry"
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            New Entry
-          </Button>
+          <>
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            <Button
+              style={{ backgroundColor: vertical.color, color: "#fff" }}
+              data-testid="btn-new-entry"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              New Entry
+            </Button>
+          </>
         }
       />
 
@@ -201,6 +208,8 @@ export default function FinanceTransactions() {
           </div>
         </DataTableContainer>
       )}
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["finance-transactions"].sop} color={vertical.color} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["finance-transactions"].tutorial} color={vertical.color} />
     </PageShell>
   );
 }

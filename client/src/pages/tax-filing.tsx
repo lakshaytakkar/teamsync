@@ -25,8 +25,12 @@ import { Separator } from "@/components/ui/separator";
 import { PageTransition } from "@/components/ui/animated";
 import { PageShell, StatCard } from "@/components/layout";
 import { DocumentManager } from "@/components/legalnations/document-manager";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+
+const LEGALNATIONS_COLOR = "#225AEA";
 
 interface TaxFiling {
   id: string;
@@ -614,6 +618,8 @@ function CheckField({ label, checked, editing, onChange }: {
 export default function TaxFilingPage() {
   const { toast } = useToast();
   const [selectedFiling, setSelectedFiling] = useState<TaxFiling | null>(null);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const { data: filingsData, isLoading } = useQuery<{ filings: TaxFiling[]; total: number }>({
     queryKey: ["/api/legalnations/tax-filings"],
@@ -773,7 +779,8 @@ export default function TaxFilingPage() {
                       <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100" data-testid="text-service-title">USA Tax Filing Service</h2>
                       <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">Annual tax filing for US LLCs — Pro Forma 1120 + Form 5472</p>
                     </div>
-                    <div className="flex gap-4 text-right">
+                    <div className="flex items-center gap-4 text-right">
+                      <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
                       <div>
                         <div className="text-xs text-blue-600 dark:text-blue-400">Single Member</div>
                         <div className="text-lg font-bold text-blue-900 dark:text-blue-100">₹15,000<span className="text-xs font-normal">+GST</span></div>
@@ -1004,6 +1011,8 @@ export default function TaxFilingPage() {
           )}
         </div>
       </PageTransition>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["legalnations-tax-filing"].sop} color={LEGALNATIONS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["legalnations-tax-filing"].tutorial} color={LEGALNATIONS_COLOR} />
     </PageShell>
   );
 }

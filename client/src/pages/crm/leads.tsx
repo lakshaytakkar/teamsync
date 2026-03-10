@@ -21,6 +21,8 @@ import {
   PrimaryAction,
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 import { CRM_COLOR, CRM_STATUS_CONFIG, CRM_KANBAN_COLS, CRM_SOURCE_CONFIG } from "@/lib/crm-config";
 const kanbanCols = CRM_KANBAN_COLS;
@@ -29,6 +31,8 @@ const REPS = Array.from(new Set(crmContacts.map(c => c.assignedTo))).sort();
 
 export default function CrmLeads() {
   const isLoading = useSimulatedLoading(600);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [view, setView] = useState<"table" | "kanban">("table");
   const [verticalFilter, setVerticalFilter] = useState("all");
   const [sourceFilter, setSourceFilter] = useState("all");
@@ -79,6 +83,7 @@ export default function CrmLeads() {
           subtitle={`${filtered.length} leads total`}
           actions={
             <div className="flex items-center gap-2">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
               <div className="flex items-center border rounded-lg overflow-hidden bg-card h-9">
                 <Button
                   variant="ghost"
@@ -382,6 +387,8 @@ export default function CrmLeads() {
           </>
         )}
       </DetailModal>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["crm-leads"].sop} color={CRM_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["crm-leads"].tutorial} color={CRM_COLOR} />
     </PageShell>
   );
 }

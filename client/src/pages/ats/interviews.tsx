@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { CalendarPlus, ExternalLink } from "lucide-react";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { ATS_COLOR } from "@/lib/ats-config";
 import { Fade } from "@/components/ui/animated";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +35,8 @@ export default function AtsInterviews() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [search, setSearch] = useState("");
 
   const scheduledToday = interviews.filter(i => i.scheduledDate === today).length;
@@ -68,6 +73,8 @@ export default function AtsInterviews() {
           title="Interview Schedule"
           subtitle={`${interviews.length} interviews tracked`}
           actions={
+            <div className="flex gap-2">
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
             <PrimaryAction
               color="#7c3aed"
               icon={CalendarPlus}
@@ -76,6 +83,7 @@ export default function AtsInterviews() {
             >
               Schedule Interview
             </PrimaryAction>
+            </div>
           }
         />
       </Fade>
@@ -236,6 +244,8 @@ export default function AtsInterviews() {
           </div>
         </DetailSection>
       </DetailModal>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["ats-interviews"].sop} color={ATS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["ats-interviews"].tutorial} color={ATS_COLOR} />
     </PageShell>
   );
 }

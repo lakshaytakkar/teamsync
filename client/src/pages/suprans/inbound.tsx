@@ -18,6 +18,8 @@ import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { SUPRANS_COLOR } from "@/lib/suprans-config";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 
 const SOURCES = ["all", "website", "referral", "instagram", "linkedin", "google-ads", "walk-in", "whatsapp"] as const;
@@ -69,6 +71,8 @@ const PRIORITY_COLORS: Record<string, string> = {
 
 export default function SupransInbound() {
   const { toast } = useToast();
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [leads, setLeads] = useState<SupransLead[]>(
     initialLeads.filter(l => l.status === "new")
   );
@@ -103,6 +107,7 @@ export default function SupransInbound() {
           <p className="text-muted-foreground text-sm mt-0.5">New leads requiring validation</p>
         </div>
         <div className="flex items-center gap-2">
+          <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
           <div
             className="rounded-full px-3 py-1 text-white text-xs font-bold"
             style={{ backgroundColor: SUPRANS_COLOR }}
@@ -237,6 +242,8 @@ export default function SupransInbound() {
         </DialogContent>
       </Dialog>
     </PageTransition>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["suprans-inbound"].sop} color={SUPRANS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["suprans-inbound"].tutorial} color={SUPRANS_COLOR} />
     </PageShell>
   );
 }

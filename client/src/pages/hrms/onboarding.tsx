@@ -6,7 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PersonCell } from "@/components/ui/avatar-cells";
 import { employees } from "@/lib/mock-data-hrms";
-import { PageShell } from "@/components/layout";
+import { PageShell, PageHeader } from "@/components/layout";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { HRMS_COLOR } from "@/lib/hrms-config";
 
 const checklistItems = ["IT Equipment Setup", "Company Email", "Slack / Tools Access", "HR Documents Submitted", "Orientation Session", "Manager 1:1 Done"];
 
@@ -30,6 +33,8 @@ const statusBadge = (s: string) => {
 
 export default function HrmsOnboarding() {
   const isLoading = useSimulatedLoading(700);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -43,10 +48,13 @@ export default function HrmsOnboarding() {
   return (
     <PageTransition className="px-16 py-6 lg:px-24 space-y-5">
       <Fade>
-        <div>
-          <h1 className="text-2xl font-bold">Onboarding Tracker</h1>
-          <p className="text-sm text-muted-foreground">{onboardingData.length} employees in onboarding pipeline</p>
-        </div>
+        <PageHeader
+          title="Onboarding Tracker"
+          subtitle={`${onboardingData.length} employees in onboarding pipeline`}
+          actions={
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+          }
+        />
       </Fade>
 
       <Fade>
@@ -113,6 +121,9 @@ export default function HrmsOnboarding() {
           </CardContent>
         </Card>
       </Fade>
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["hrms-onboarding"].sop} color={HRMS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["hrms-onboarding"].tutorial} color={HRMS_COLOR} />
     </PageTransition>
   );
 }

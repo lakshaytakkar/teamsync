@@ -11,6 +11,8 @@ import { crmDeals, crmContacts, crmActivities, ALL_VERTICALS_IN_CRM, type CrmDea
 import { CRM_COLOR } from "@/lib/crm-config";
 import { PageShell } from "@/components/layout";
 import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 const COLUMNS: { stage: string; label: string; border: string; bg: string; text: string; hdr: string }[] = [
   { stage: "new", label: "New Lead", border: "border-slate-200", bg: "bg-slate-50", text: "text-slate-700", hdr: "bg-slate-100" },
@@ -46,6 +48,8 @@ function convRate(stage: string) {
 
 export default function CrmPipeline() {
   const isLoading = useSimulatedLoading(700);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const { toast } = useToast();
   const [verticalFilter, setVerticalFilter] = useState("all");
   const [repFilter, setRepFilter] = useState("all");
@@ -86,8 +90,11 @@ export default function CrmPipeline() {
   return (
     <PageTransition className="px-16 py-6 lg:px-24 space-y-5">
       <Fade>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h1 className="text-xl font-bold">Deal Pipeline</h1>
+          <div className="flex items-center gap-2">
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+          </div>
           <div className="text-sm text-muted-foreground">
             {filtered.length} deals · Total:{" "}
             <span className="font-semibold text-foreground">
@@ -285,6 +292,8 @@ export default function CrmPipeline() {
           </SmallDetailModal>
         );
       })()}
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["crm-pipeline"].sop} color={CRM_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["crm-pipeline"].tutorial} color={CRM_COLOR} />
     </PageTransition>
   );
 }

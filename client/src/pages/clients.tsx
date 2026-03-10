@@ -20,8 +20,12 @@ import {
 import { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
 import { PageTransition } from "@/components/ui/animated";
 import { PageShell } from "@/components/layout";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+
+const LEGALNATIONS_COLOR = "#225AEA";
 
 const LLC_STATUSES = [
   "LLC Booked", "Onboarded", "LLC Under Formation", "Under EIN",
@@ -77,6 +81,8 @@ interface LNClient {
 export default function ClientsPage() {
   const [, navigate] = useLocation();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [newClient, setNewClient] = useState({
     client_code: "",
     client_name: "",
@@ -258,10 +264,13 @@ export default function ClientsPage() {
               { label: "Health", key: "client_health", options: ["Healthy", "Neutral", "At Risk", "Critical"] },
             ]}
             headerActions={
-              <Button size="sm" onClick={() => setDialogOpen(true)} data-testid="button-add-client">
-                <Plus className="mr-1.5 size-3.5" />
-                Add Client
-              </Button>
+              <>
+                <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+                <Button size="sm" onClick={() => setDialogOpen(true)} data-testid="button-add-client">
+                  <Plus className="mr-1.5 size-3.5" />
+                  Add Client
+                </Button>
+              </>
             }
           />
         )}
@@ -366,6 +375,8 @@ export default function ClientsPage() {
           </div>
         </FormDialog>
       </PageTransition>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["legalnations-clients"].sop} color={LEGALNATIONS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["legalnations-clients"].tutorial} color={LEGALNATIONS_COLOR} />
     </PageShell>
   );
 }

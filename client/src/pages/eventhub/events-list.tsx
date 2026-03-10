@@ -19,6 +19,8 @@ import {
   DetailSection,
 } from "@/components/layout";
 import { verticals } from "@/lib/verticals-config";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -58,6 +60,8 @@ export default function HubEventsList() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [events] = useState(hubEvents);
 
   const vertical = verticals.find((v) => v.id === "eventhub")!;
@@ -81,15 +85,18 @@ export default function HubEventsList() {
         title="All Events"
         subtitle={`${events.length} networking events`}
         actions={
-          <Button
-            onClick={() => setDialogOpen(true)}
-            className="gap-2"
-            style={{ backgroundColor: vertical.color, color: "#fff" }}
-            data-testid="button-create-event"
-          >
-            <Plus className="size-4" />
-            Create Event
-          </Button>
+          <>
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            <Button
+              onClick={() => setDialogOpen(true)}
+              className="gap-2"
+              style={{ backgroundColor: vertical.color, color: "#fff" }}
+              data-testid="button-create-event"
+            >
+              <Plus className="size-4" />
+              Create Event
+            </Button>
+          </>
         }
       />
 
@@ -268,6 +275,8 @@ export default function HubEventsList() {
           </div>
         </DetailSection>
       </DetailModal>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["eventhub-events"].sop} color={vertical.color} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["eventhub-events"].tutorial} color={vertical.color} />
     </PageShell>
   );
 }

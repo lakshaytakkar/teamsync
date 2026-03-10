@@ -21,6 +21,8 @@ import {
 } from "@/components/layout";
 import { Target, Calendar, BarChart3 } from "lucide-react";
 import { CRM_COLOR } from "@/lib/crm-config";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 const stageBadge: Record<string, string> = {
   new: "bg-slate-100 text-slate-700",
@@ -56,6 +58,8 @@ function formatINRShort(v: number) {
 
 export default function CrmDeals() {
   const isLoading = useSimulatedLoading(600);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [verticalFilter, setVerticalFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
@@ -127,7 +131,14 @@ export default function CrmDeals() {
   return (
     <PageShell>
       <Fade>
-        <PageHeader title="All Deals" />
+        <PageHeader
+          title="All Deals"
+          actions={
+            <div className="flex items-center gap-2">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            </div>
+          }
+        />
 
         <StatGrid>
           <StatCard
@@ -462,6 +473,8 @@ export default function CrmDeals() {
           );
         })()}
       </DetailModal>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["crm-deals"].sop} color={CRM_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["crm-deals"].tutorial} color={CRM_COLOR} />
     </PageShell>
   );
 }

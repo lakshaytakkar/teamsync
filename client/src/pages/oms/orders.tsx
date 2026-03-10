@@ -15,12 +15,16 @@ import {
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { verticals } from "@/lib/verticals-config";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 export default function OmsOrders() {
   const loading = useSimulatedLoading(600);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const vertical = verticals.find((v) => v.id === "oms")!;
 
@@ -51,14 +55,17 @@ export default function OmsOrders() {
         title="Orders"
         subtitle={`${omsOrders.length} orders across all channels`}
         actions={
-          <Button
-            className="gap-2"
-            style={{ backgroundColor: vertical.color, color: "#fff" }}
-            data-testid="btn-new-order"
-          >
-            <Plus className="h-4 w-4" />
-            New Order
-          </Button>
+          <>
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            <Button
+              className="gap-2"
+              style={{ backgroundColor: vertical.color, color: "#fff" }}
+              data-testid="btn-new-order"
+            >
+              <Plus className="h-4 w-4" />
+              New Order
+            </Button>
+          </>
         }
       />
 
@@ -142,6 +149,8 @@ export default function OmsOrders() {
           </table>
         </DataTableContainer>
       )}
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["oms-orders"].sop} color={vertical.color} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["oms-orders"].tutorial} color={vertical.color} />
     </PageShell>
   );
 }

@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { List, LayoutGrid, Plus } from "lucide-react";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { ATS_COLOR } from "@/lib/ats-config";
 import { Fade } from "@/components/ui/animated";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,6 +49,8 @@ export default function AtsCandidates() {
   const [jobFilter, setJobFilter] = useState("all");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [addOpen, setAddOpen] = useState(false);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [candidates, setCandidates] = useState(allCandidatesData);
 
   const activeCandidates = candidates.filter(c => c.stage !== "rejected");
@@ -75,6 +80,7 @@ export default function AtsCandidates() {
           subtitle={`${activeCandidates.length} candidates in pipeline`}
           actions={
             <div className="flex gap-2">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
               <div className="flex gap-1 bg-muted rounded-lg p-1">
                 <Button variant={view === "kanban" ? "default" : "ghost"} size="sm" onClick={() => setView("kanban")} data-testid="kanban-view-btn"><LayoutGrid className="size-4" /></Button>
                 <Button variant={view === "table" ? "default" : "ghost"} size="sm" onClick={() => setView("table")} data-testid="table-view-btn"><List className="size-4" /></Button>
@@ -250,6 +256,8 @@ export default function AtsCandidates() {
           </div>
         </DetailSection>
       </DetailModal>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["ats-candidates"].sop} color={ATS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["ats-candidates"].tutorial} color={ATS_COLOR} />
     </PageShell>
   );
 }

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Copy } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +34,8 @@ export default function FaireShipments() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const PAGE_SIZE = 25;
 
   const handleSort = (key: string) => {
@@ -134,10 +138,13 @@ export default function FaireShipments() {
           title="Shipments"
           subtitle="All in-transit and recent shipments"
           actions={
+            <div className="flex items-center gap-2">
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
             <select value={selectedStore} onChange={e => { setSelectedStore(e.target.value); setCurrentPage(1); }} className="h-9 text-sm border rounded-lg px-3 bg-background" data-testid="select-store">
               <option value="all">All Stores</option>
               {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
+            </div>
           }
         />
       </Fade>
@@ -237,6 +244,9 @@ export default function FaireShipments() {
           </div>
         </div>
       )}
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["faire-shipments"].sop} color={FAIRE_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["faire-shipments"].tutorial} color={FAIRE_COLOR} />
     </PageShell>
   );
 }

@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { omsPurchaseOrders, omsSuppliers } from "@/lib/mock-data-oms";
 import { cn } from "@/lib/utils";
 import { PageShell } from "@/components/layout";
+import { verticals } from "@/lib/verticals-config";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 const STATUS_STYLES: Record<string, string> = {
   draft: "bg-slate-100 text-slate-600",
@@ -25,6 +28,10 @@ export default function OmsPurchaseOrders() {
   const [supplierFilter, setSupplierFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+
+  const vertical = verticals.find((v) => v.id === "oms")!;
 
   const filtered = useMemo(() => {
     let list = [...omsPurchaseOrders].sort((a, b) => b.orderedDate.localeCompare(a.orderedDate));
@@ -63,9 +70,12 @@ export default function OmsPurchaseOrders() {
               </div>
               <p className="text-sm text-muted-foreground mt-0.5">Manage supplier POs and inbound stock receiving</p>
             </div>
-            <Button style={{ backgroundColor: "#0891B2" }} className="text-white hover:opacity-90" data-testid="btn-new-po">
-              + New PO
-            </Button>
+            <div className="flex items-center gap-2">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+              <Button style={{ backgroundColor: "#0891B2" }} className="text-white hover:opacity-90" data-testid="btn-new-po">
+                + New PO
+              </Button>
+            </div>
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
@@ -211,6 +221,8 @@ export default function OmsPurchaseOrders() {
           </div>
         </div>
       </div>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["oms-purchase-orders"].sop} color={vertical.color} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["oms-purchase-orders"].tutorial} color={vertical.color} />
     </PageTransition>
   );
 }

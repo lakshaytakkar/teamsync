@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, CheckCircle, XCircle, Eye, ShoppingCart, FileText, Plus } from "lucide-react";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 import { Fade } from "@/components/ui/animated";
 import { CompanyCell } from "@/components/ui/avatar-cells";
@@ -80,6 +82,8 @@ export default function FaireOrders() {
   const [cancelLoading, setCancelLoading] = useState(false);
 
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const [quoteOrderId, setQuoteOrderId] = useState<string | null>(null);
   const [quoteFulfillerId, setQuoteFulfillerId] = useState("");
@@ -279,6 +283,7 @@ export default function FaireOrders() {
           subtitle={`${allOrders.length} orders across ${selectedStore === "all" ? "all stores" : storeName(selectedStore)}`}
           actions={
             <div className="flex items-center gap-2">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
               <Button size="sm" variant="outline" className="h-9" onClick={handleSync} disabled={syncing} data-testid="btn-sync-orders">
                 <RefreshCw size={14} className={`mr-2 ${syncing ? "animate-spin" : ""}`} /> Sync
               </Button>
@@ -555,6 +560,9 @@ export default function FaireOrders() {
           </div>
         </div>
       </DetailModal>
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["faire-orders"].sop} color={FAIRE_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["faire-orders"].tutorial} color={FAIRE_COLOR} />
     </PageShell>
   );
 }

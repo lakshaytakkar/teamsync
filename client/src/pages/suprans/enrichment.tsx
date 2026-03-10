@@ -23,6 +23,8 @@ import {
 import { cn } from "@/lib/utils";
 import { SUPRANS_COLOR } from "@/lib/suprans-config";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 
 const PRIORITY_OPTIONS = [
@@ -60,6 +62,8 @@ const VERTICAL_LABELS: Record<string, string> = {
 
 export default function SupransEnrichment() {
   const { toast } = useToast();
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [leads, setLeads] = useState<SupransLead[]>(
     initialLeads.filter(l => l.status === "validated")
   );
@@ -97,12 +101,15 @@ export default function SupransEnrichment() {
           <h1 className="text-2xl font-bold font-heading">Enrichment</h1>
           <p className="text-muted-foreground text-sm mt-0.5">Validate details and route leads to the right vertical</p>
         </div>
-        <div
-          className="rounded-full px-3 py-1 text-white text-xs font-bold"
-          style={{ backgroundColor: SUPRANS_COLOR }}
-          data-testid="badge-enrichment-count"
-        >
-          {leads.length} to enrich
+        <div className="flex items-center gap-2">
+          <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+          <div
+            className="rounded-full px-3 py-1 text-white text-xs font-bold"
+            style={{ backgroundColor: SUPRANS_COLOR }}
+            data-testid="badge-enrichment-count"
+          >
+            {leads.length} to enrich
+          </div>
         </div>
       </div>
 
@@ -247,6 +254,8 @@ export default function SupransEnrichment() {
         </DialogContent>
       </Dialog>
     </PageTransition>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["suprans-enrichment"].sop} color={SUPRANS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["suprans-enrichment"].tutorial} color={SUPRANS_COLOR} />
     </PageShell>
   );
 }

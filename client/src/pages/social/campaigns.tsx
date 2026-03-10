@@ -17,6 +17,9 @@ import { useToast } from "@/hooks/use-toast";
 import { campaigns, type Campaign } from "@/lib/mock-data-social";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { PageShell } from "@/components/layout";
+import { SOCIAL_COLOR } from "@/lib/social-config";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 
 const platformIcons: Record<string, { icon: React.ElementType; color: string }> = {
@@ -34,6 +37,8 @@ export default function SocialCampaigns() {
   const [, setLocation] = useLocation();
   const isLoading = useSimulatedLoading(600);
   const { toast } = useToast();
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All");
   const [brandFilter, setBrandFilter] = useState("All");
   const [createOpen, setCreateOpen] = useState(false);
@@ -74,10 +79,13 @@ export default function SocialCampaigns() {
             <h1 className="text-2xl font-bold font-heading">Campaigns</h1>
             <p className="text-muted-foreground text-sm mt-0.5">{campaigns.length} campaigns across all brands</p>
           </div>
-          <Button onClick={() => setCreateOpen(true)} data-testid="btn-create-campaign">
-            <Plus size={16} className="mr-2" />
-            Create Campaign
-          </Button>
+          <div className="flex items-center gap-2">
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            <Button onClick={() => setCreateOpen(true)} data-testid="btn-create-campaign">
+              <Plus size={16} className="mr-2" />
+              Create Campaign
+            </Button>
+          </div>
         </div>
       </Fade>
 
@@ -224,6 +232,8 @@ export default function SocialCampaigns() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["social-campaigns"].sop} color={SOCIAL_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["social-campaigns"].tutorial} color={SOCIAL_COLOR} />
     </PageTransition>
   );
 }

@@ -22,6 +22,9 @@ import {
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { HRMS_COLOR } from "@/lib/hrms-config";
 
 export default function HrmsPayroll() {
   const isLoading = useSimulatedLoading(700);
@@ -29,6 +32,8 @@ export default function HrmsPayroll() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [runDialog, setRunDialog] = useState(false);
   const [search, setSearch] = useState("");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const totalThisMonth = payrollEntries.filter(p => p.month === "Feb 2026").reduce((sum, p) => sum + p.netSalary, 0);
   const processed = payrollEntries.filter(p => p.status === "processed").length;
@@ -66,14 +71,17 @@ export default function HrmsPayroll() {
           title="Payroll"
           subtitle="Manage monthly payroll processing and disbursements"
           actions={
-            <PrimaryAction
-              color="#0284c7"
-              icon={Play}
-              onClick={() => setRunDialog(true)}
-              testId="run-payroll-btn"
-            >
-              Run Payroll
-            </PrimaryAction>
+            <>
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+              <PrimaryAction
+                color="#0284c7"
+                icon={Play}
+                onClick={() => setRunDialog(true)}
+                testId="run-payroll-btn"
+              >
+                Run Payroll
+              </PrimaryAction>
+            </>
           }
         />
       </Fade>
@@ -194,6 +202,9 @@ export default function HrmsPayroll() {
           </div>
         </DetailSection>
       </DetailModal>
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["hrms-payroll"].sop} color={HRMS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["hrms-payroll"].tutorial} color={HRMS_COLOR} />
     </PageShell>
   );
 }

@@ -42,6 +42,9 @@ import { SiWhatsapp } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 import { PageShell } from "@/components/layout";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { ETS_COLOR } from "@/lib/ets-config";
 import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
 
 const tierColors: Record<EtsPackageTier, string> = {
@@ -99,6 +102,8 @@ function formatInvestment(value: number): string {
 export default function EtsPipeline() {
   const { toast } = useToast();
   const qc = useQueryClient();
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [view, setView] = useState<"kanban" | "table">("kanban");
   const [stageFilter, setStageFilter] = useState<string>("all");
   const [tierFilter, setTierFilter] = useState<string>("all");
@@ -460,8 +465,13 @@ export default function EtsPipeline() {
     <PageShell>
       <PageTransition>
         <Fade direction="up" distance={10} delay={0.1}>
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
             <h1 className="text-xl font-bold" data-testid="text-pipeline-title">Client Pipeline</h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            </div>
+          </div>
+          <div className="flex items-center justify-end mb-3">
             <div className="text-sm text-muted-foreground">
               {clients.length} clients · Total:{" "}
               <span className="font-semibold text-foreground">
@@ -621,6 +631,8 @@ export default function EtsPipeline() {
           </div>
         </FormDialog>
       </PageTransition>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["ets-pipeline"].sop} color={ETS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["ets-pipeline"].tutorial} color={ETS_COLOR} />
     </PageShell>
   );
 }

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Printer, Truck } from "lucide-react";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 import { Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { CompanyCell } from "@/components/ui/avatar-cells";
 import { PageShell, PageHeader } from "@/components/layout";
@@ -29,6 +31,8 @@ function getAge(dateStr: string) {
 export default function FaireFulfillment() {
   const { toast } = useToast();
   const [selectedStore, setSelectedStore] = useState("all");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [shipOrderId, setShipOrderId] = useState<string | null>(null);
   const [carrier, setCarrier] = useState("UPS");
   const [tracking, setTracking] = useState("");
@@ -81,6 +85,7 @@ export default function FaireFulfillment() {
           subtitle="Orders ready to pack and ship — sorted oldest first"
           actions={
             <div className="flex items-center gap-2">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
               <select value={selectedStore} onChange={e => setSelectedStore(e.target.value)} className="h-8 text-xs border rounded-lg px-2" data-testid="select-store">
                 <option value="all">All Stores</option>
                 {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -214,6 +219,9 @@ export default function FaireFulfillment() {
           </div>
         </div>
       </DetailModal>
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["faire-fulfillment"].sop} color={FAIRE_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["faire-fulfillment"].tutorial} color={FAIRE_COLOR} />
     </PageShell>
   );
 }

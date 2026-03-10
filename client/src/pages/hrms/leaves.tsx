@@ -22,6 +22,9 @@ import {
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { HRMS_COLOR } from "@/lib/hrms-config";
 
 export default function HrmsLeaves() {
   const isLoading = useSimulatedLoading(700);
@@ -30,6 +33,8 @@ export default function HrmsLeaves() {
   const [requestOpen, setRequestOpen] = useState(false);
   const [leaveData, setLeaveData] = useState(leaveRequests);
   const [search, setSearch] = useState("");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const handleApprove = (id: string) => {
     setLeaveData((prev) => prev.map((l) => l.id === id ? { ...l, status: "approved" as const } : l));
@@ -80,14 +85,17 @@ export default function HrmsLeaves() {
           title="Leave Requests"
           subtitle="Manage and approve team leave applications"
           actions={
-            <PrimaryAction
-              color="#0284c7"
-              icon={CalendarDays}
-              onClick={() => setRequestOpen(true)}
-              testId="request-leave-btn"
-            >
-              Request Leave
-            </PrimaryAction>
+            <>
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+              <PrimaryAction
+                color="#0284c7"
+                icon={CalendarDays}
+                onClick={() => setRequestOpen(true)}
+                testId="request-leave-btn"
+              >
+                Request Leave
+              </PrimaryAction>
+            </>
           }
         />
       </Fade>
@@ -225,6 +233,9 @@ export default function HrmsLeaves() {
         </div>
         <Button className="w-full mt-4 bg-sky-600 hover:bg-sky-700" data-testid="submit-leave">Submit Request</Button>
       </FormDialog>
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["hrms-leaves"].sop} color={HRMS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["hrms-leaves"].tutorial} color={HRMS_COLOR} />
     </PageShell>
   );
 }

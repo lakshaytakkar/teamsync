@@ -23,6 +23,9 @@ import {
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { HRMS_COLOR } from "@/lib/hrms-config";
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -41,6 +44,8 @@ export default function HrmsPerformance() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [cycleDialog, setCycleDialog] = useState(false);
   const [search, setSearch] = useState("");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const pending = performanceReviews.filter(r => r.status === "pending").length;
   const submitted = performanceReviews.filter(r => r.status === "submitted").length;
@@ -78,14 +83,17 @@ export default function HrmsPerformance() {
           title="Performance Reviews"
           subtitle="Track and manage employee performance evaluations"
           actions={
-            <PrimaryAction
-              color="#0284c7"
-              icon={Award}
-              onClick={() => setCycleDialog(true)}
-              testId="start-review-btn"
-            >
-              Start Review Cycle
-            </PrimaryAction>
+            <>
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+              <PrimaryAction
+                color="#0284c7"
+                icon={Award}
+                onClick={() => setCycleDialog(true)}
+                testId="start-review-btn"
+              >
+                Start Review Cycle
+              </PrimaryAction>
+            </>
           }
         />
       </Fade>
@@ -217,6 +225,9 @@ export default function HrmsPerformance() {
           </div>
         </DetailSection>
       </DetailModal>
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["hrms-performance"].sop} color={HRMS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["hrms-performance"].tutorial} color={HRMS_COLOR} />
     </PageShell>
   );
 }

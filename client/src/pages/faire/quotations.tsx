@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, FileText, Eye, AlertCircle } from "lucide-react";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
@@ -88,6 +90,8 @@ export default function FaireQuotations() {
     });
     setCurrentPage(1);
   };
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [newOrderId, setNewOrderId] = useState("");
   const [newFulfillerId, setNewFulfillerId] = useState("");
@@ -179,14 +183,17 @@ export default function FaireQuotations() {
           title="Quotations"
           subtitle={`${total} quote requests across all stores`}
           actions={
-            <Button
-              data-testid="button-new-quotation"
+            <div className="flex items-center gap-2">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+              <Button
+                data-testid="button-new-quotation"
               onClick={() => setShowNew(true)}
               style={{ background: FAIRE_COLOR }}
               className="text-white hover:opacity-90"
             >
               <Plus className="h-4 w-4 mr-1" /> New Quotation
             </Button>
+            </div>
           }
         />
       </Fade>
@@ -385,6 +392,9 @@ export default function FaireQuotations() {
           </div>
         </div>
       </DetailModal>
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["faire-quotations"].sop} color={FAIRE_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["faire-quotations"].tutorial} color={FAIRE_COLOR} />
     </PageShell>
   );
 }

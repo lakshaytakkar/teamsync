@@ -44,6 +44,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { PageShell } from "@/components/layout";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { ETS_COLOR } from "@/lib/ets-config";
 
 const ORDER_STATUS_STEPS: EtsOrderStatus[] = [
   "ordered",
@@ -126,6 +129,8 @@ export default function OrdersPage() {
 
   const orders = ordersData?.orders || [];
 
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [docsDialog, setDocsDialog] = useState<{ open: boolean; order: EtsOrder | null }>({
     open: false,
     order: null,
@@ -351,9 +356,14 @@ export default function OrdersPage() {
     <PageShell>
       <PageTransition>
         <Fade direction="down" distance={10} duration={0.3}>
-          <h1 className="mb-1 text-2xl font-bold font-heading" data-testid="text-page-title">
-            Order Tracker
-          </h1>
+          <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
+            <h1 className="text-2xl font-bold font-heading" data-testid="text-page-title">
+              Order Tracker
+            </h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            </div>
+          </div>
           <p className="mb-5 text-sm text-muted-foreground" data-testid="text-page-description">
             Track orders from factory to delivery
           </p>
@@ -461,6 +471,8 @@ export default function OrdersPage() {
           </DialogContent>
         </Dialog>
       </PageTransition>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["ets-orders"].sop} color={ETS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["ets-orders"].tutorial} color={ETS_COLOR} />
     </PageShell>
   );
 }

@@ -21,6 +21,8 @@ import {
 } from "@/components/layout";
 import { verticals } from "@/lib/verticals-config";
 import { Badge } from "@/components/ui/badge";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 const STATUS_STYLES: Record<string, { cls: string; icon: typeof CheckCircle2 }> = {
   captured: { cls: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
@@ -54,6 +56,8 @@ function fmtINR(v: number) {
 export default function FinancePayments() {
   const isLoading = useSimulatedLoading(600);
   const [gatewayFilter, setGatewayFilter] = useState("all");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const vertical = verticals.find((v) => v.id === "finance")!;
 
@@ -94,13 +98,16 @@ export default function FinancePayments() {
         title="Payment Gateways"
         subtitle="Razorpay (INR) + Stripe (USD) transaction log & reconciliation"
         actions={
-          <Button
-            style={{ backgroundColor: vertical.color, color: "#fff" }}
-            data-testid="btn-sync"
-          >
-            <RefreshCw className="h-4 w-4 mr-1" />
-            Sync Now
-          </Button>
+          <>
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            <Button
+              style={{ backgroundColor: vertical.color, color: "#fff" }}
+              data-testid="btn-sync"
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              Sync Now
+            </Button>
+          </>
         }
       />
 
@@ -224,6 +231,8 @@ export default function FinancePayments() {
           </table>
         </DataTableContainer>
       )}
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["finance-payments"].sop} color={vertical.color} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["finance-payments"].tutorial} color={vertical.color} />
     </PageShell>
   );
 }

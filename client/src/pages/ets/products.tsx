@@ -30,6 +30,9 @@ import {
   getDefaultPriceInputs,
 } from "@/lib/mock-data-ets";
 import { PageShell } from "@/components/layout";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { ETS_COLOR } from "@/lib/ets-config";
 
 const formatInr = (v: number) => "₹" + v.toLocaleString("en-IN", { maximumFractionDigits: 2 });
 const formatYuan = (v: number) => "¥" + v.toFixed(2);
@@ -118,6 +121,8 @@ export default function EtsProductsPage() {
   const { data: productsData, isLoading } = useQuery<{ products: EtsProduct[] }>({ queryKey: ['/api/ets/products'] });
   const products = productsData?.products || [];
 
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [marginTierFilter, setMarginTierFilter] = useState<string>("all");
@@ -277,6 +282,17 @@ export default function EtsProductsPage() {
   return (
     <PageShell>
       <PageTransition>
+        <Fade direction="down" distance={10} duration={0.3}>
+          <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+            <div>
+              <h1 className="text-2xl font-bold font-heading" data-testid="text-page-title">Product Catalog</h1>
+              <p className="text-sm text-muted-foreground">Manage products, pricing, and visibility</p>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            </div>
+          </div>
+        </Fade>
         <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StaggerItem>
             <StatsCard
@@ -570,6 +586,8 @@ export default function EtsProductsPage() {
           </div>
         </Fade>
       </PageTransition>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["ets-products"].sop} color={ETS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["ets-products"].tutorial} color={ETS_COLOR} />
     </PageShell>
   );
 }

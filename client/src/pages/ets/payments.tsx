@@ -23,6 +23,9 @@ import { cn } from "@/lib/utils";
 import { type EtsPayment } from "@/lib/mock-data-ets";
 import { PageShell } from "@/components/layout";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { ETS_COLOR } from "@/lib/ets-config";
 
 const paymentStatusVariant: Record<string, "success" | "error" | "warning" | "neutral" | "info"> = {
   received: "success",
@@ -64,6 +67,8 @@ export default function PaymentsPage() {
 
   const payments = paymentsData?.payments || [];
 
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
 
   const stats = useMemo(() => {
@@ -181,9 +186,14 @@ export default function PaymentsPage() {
     <PageShell>
       <PageTransition>
         <Fade direction="down" distance={10} duration={0.3}>
-          <h1 className="mb-1 text-2xl font-bold font-heading" data-testid="text-page-title">
-            Payments
-          </h1>
+          <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
+            <h1 className="text-2xl font-bold font-heading" data-testid="text-page-title">
+              Payments
+            </h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            </div>
+          </div>
           <p className="mb-5 text-sm text-muted-foreground" data-testid="text-page-description">
             Track collections, pending invoices, and overdue payments
           </p>
@@ -354,6 +364,8 @@ export default function PaymentsPage() {
           </Fade>
         )}
       </PageTransition>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["ets-payments"].sop} color={ETS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["ets-payments"].tutorial} color={ETS_COLOR} />
     </PageShell>
   );
 }

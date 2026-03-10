@@ -12,6 +12,8 @@ import { socialPosts, campaigns, socialAccounts, type PostStage } from "@/lib/mo
 import { StatusBadge } from "@/components/hr/status-badge";
 import { SOCIAL_COLOR } from "@/lib/social-config";
 import { PageShell } from "@/components/layout";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 
 const mediaColors: Record<string, string> = {
@@ -43,6 +45,8 @@ const scoreColor = (score: number | null) => {
 export default function SocialPosts() {
   const [, setLocation] = useLocation();
   const isLoading = useSimulatedLoading(600);
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [stageFilter, setStageFilter] = useState<PostStage | "all">("all");
   const [platformFilter, setPlatformFilter] = useState("All");
   const [campaignFilter, setCampaignFilter] = useState("All");
@@ -74,10 +78,13 @@ export default function SocialPosts() {
             <h1 className="text-2xl font-bold font-heading">Post Library</h1>
             <p className="text-muted-foreground text-sm mt-0.5">{socialPosts.length} total posts across all brands and stages</p>
           </div>
-          <Button onClick={() => setLocation("/social/composer")} data-testid="btn-new-post">
-            <Plus size={16} className="mr-2" />
-            New Post
-          </Button>
+          <div className="flex items-center gap-2">
+            <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+            <Button onClick={() => setLocation("/social/composer")} data-testid="btn-new-post">
+              <Plus size={16} className="mr-2" />
+              New Post
+            </Button>
+          </div>
         </div>
       </Fade>
 
@@ -207,6 +214,8 @@ export default function SocialPosts() {
           </table>
         </div>
       </Fade>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["social-posts"].sop} color={SOCIAL_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["social-posts"].tutorial} color={SOCIAL_COLOR} />
     </PageTransition>
   );
 }

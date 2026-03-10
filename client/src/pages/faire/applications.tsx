@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, ClipboardList, CheckCircle2, Clock, AlertTriangle, XCircle,
-  FileText, BookOpen, PlayCircle, ExternalLink, Eye,
+  FileText, Eye,
 } from "lucide-react";
 import { CompanyCell } from "@/components/ui/avatar-cells";
 import { Fade } from "@/components/ui/animated";
@@ -22,9 +22,8 @@ import { FAIRE_COLOR } from "@/lib/faire-config";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
-} from "@/components/ui/dialog";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
 
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; icon: typeof Clock }> = {
@@ -51,48 +50,6 @@ interface SellerApplication {
   created_at: string | null;
 }
 
-const SOP_STEPS = [
-  {
-    n: 1, title: "Decide Brand Identity",
-    body: "Choose a brand name, product category, and write a compelling brand story. Create/procure a logo and banner image. These must be ready before starting the Faire registration.",
-    warn: "Brand name must be unique and not conflict with existing Faire sellers."
-  },
-  {
-    n: 2, title: "Set Up Brand Email",
-    body: "Create a dedicated email for the brand — either a branded email (name@domain.com) or a free Gmail/Outlook. Branded email significantly increases approval chances.",
-    warn: "Use a professional-looking email. Avoid random strings or numbers."
-  },
-  {
-    n: 3, title: "Purchase Domain & Build Website OR Create Etsy Store",
-    body: "Faire requires evidence of an established brand. You can either: (A) Purchase a domain, build a simple website and deploy it, OR (B) Create an Etsy store with your products listed. Both options work; using Etsy is faster but option A looks more professional.",
-    warn: "Etsy store must have at least 10–15 active product listings before applying."
-  },
-  {
-    n: 4, title: "Scrape & List Products",
-    body: "Identify a reference store (competitor or brand you'll model after). Use the internal scraping process to extract ~15 products with images, titles, and descriptions. List them on Etsy via CSV upload, Shopify sync, or manual entry. Save the CSV file for records.",
-    warn: "Product listings must match Faire's category and not violate any IP rights."
-  },
-  {
-    n: 5, title: "Prepare Legal Documents",
-    body: "Have the following ready to upload: (1) EIN (Employer Identification Number) — get from IRS.gov. (2) Articles of Organization — state-issued LLC formation document. These may be requested during review.",
-    warn: "EIN must match the business name used in the Faire application."
-  },
-  {
-    n: 6, title: "Submit Faire Application",
-    body: "Go to the Faire brand registration page (link in Quick Links). Fill in all brand details, upload logo, write brand story, set MOQ and pricing. Submit and record the application date.",
-    warn: "Do not leave any required fields blank. Incomplete applications are auto-rejected."
-  },
-  {
-    n: 7, title: "Follow Up & Monitor",
-    body: "Faire typically responds within 1–4 weeks. Log all communication in the Follow-up Timeline. If Faire requests additional documents (common for new brands), upload and respond promptly. Change status to 'Pending Docs' when this happens.",
-    warn: "Responding to doc requests within 48 hours significantly improves approval rates."
-  },
-  {
-    n: 8, title: "Approval / Rejection",
-    body: "If approved: Use 'Promote to Store' to move this application to the Stores section and connect credentials. If rejected: Document the reason, address issues, and reapply after 90 days. Update status accordingly.",
-  },
-];
-
 export default function FaireApplications() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -114,7 +71,7 @@ export default function FaireApplications() {
   const [currentPage, setCurrentPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
   const [sopOpen, setSopOpen] = useState(false);
-  const [videoOpen, setVideoOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const [fBrandName, setFBrandName] = useState("");
   const [fCategory, setFCategory] = useState("");
@@ -191,12 +148,7 @@ export default function FaireApplications() {
           subtitle="Manage Faire wholesale seller account applications from start to approval"
           actions={
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setSopOpen(true)} data-testid="btn-open-sop">
-                <BookOpen size={14} className="mr-1.5" /> SOP
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setVideoOpen(true)} data-testid="btn-open-video">
-                <PlayCircle size={14} className="mr-1.5" /> Tutorial
-              </Button>
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
               <Button onClick={openAdd} style={{ background: FAIRE_COLOR }} className="text-white hover:opacity-90" data-testid="btn-new-application">
                 <Plus size={15} className="mr-1.5" /> New Application
               </Button>
@@ -421,72 +373,8 @@ export default function FaireApplications() {
         </div>
       </DetailModal>
 
-      {/* SOP Modal */}
-      <Dialog open={sopOpen} onOpenChange={setSopOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <BookOpen size={18} style={{ color: FAIRE_COLOR }} /> Faire Seller Account Application — SOP
-            </DialogTitle>
-            <DialogDescription>
-              Standard Operating Procedure for getting a new Faire wholesale seller account approved.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 mt-2">
-            {SOP_STEPS.map(step => (
-              <div key={step.n} className="flex gap-3">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 mt-0.5" style={{ background: FAIRE_COLOR }}>
-                  {step.n}
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-sm mb-1">{step.title}</p>
-                  <p className="text-sm text-muted-foreground">{step.body}</p>
-                  {step.warn && (
-                    <div className="mt-2 flex items-start gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2.5 py-1.5">
-                      <AlertTriangle size={12} className="shrink-0 mt-0.5" /> {step.warn}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-            <div className="border-t pt-3 flex items-center gap-2">
-              <a
-                href="https://www.faire.com/brand-portal/signup"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
-                style={{ color: FAIRE_COLOR }}
-              >
-                <ExternalLink size={13} /> Open Faire Registration Page
-              </a>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Video Tutorial Modal */}
-      <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <PlayCircle size={18} style={{ color: FAIRE_COLOR }} /> Faire Seller Account — Video Tutorial
-            </DialogTitle>
-            <DialogDescription>
-              Step-by-step walkthrough of the entire application process.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="aspect-video w-full bg-muted rounded-lg flex items-center justify-center mt-2">
-            <div className="text-center text-muted-foreground">
-              <PlayCircle size={48} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium">Tutorial video coming soon</p>
-              <p className="text-xs mt-1">Upload a Loom or YouTube link to embed here.</p>
-            </div>
-          </div>
-          <div className="flex justify-end mt-2">
-            <Button variant="outline" size="sm" onClick={() => setVideoOpen(false)}>Close</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["faire-applications"].sop} color={FAIRE_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["faire-applications"].tutorial} color={FAIRE_COLOR} />
     </PageShell>
   );
 }

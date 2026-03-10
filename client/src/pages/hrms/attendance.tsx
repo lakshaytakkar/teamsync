@@ -19,6 +19,9 @@ import {
 } from "@/components/layout";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import { HRMS_COLOR } from "@/lib/hrms-config";
 
 const calendarStatusDot: Record<string, string> = {
   present: "bg-emerald-500",
@@ -42,6 +45,8 @@ export default function HrmsAttendance() {
   const [empFilter, setEmpFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const uniqueEmps = Array.from(new Set(attendanceRecords.map((a) => a.employeeName)));
 
@@ -74,10 +79,13 @@ export default function HrmsAttendance() {
           title="Attendance Log"
           subtitle="Track daily attendance across the organization"
           actions={
-            <div className="flex gap-1 bg-muted rounded-lg p-1">
-              <Button variant={view === "table" ? "default" : "ghost"} size="sm" onClick={() => setView("table")} data-testid="table-view-btn"><List className="size-4" /></Button>
-              <Button variant={view === "calendar" ? "default" : "ghost"} size="sm" onClick={() => setView("calendar")} data-testid="calendar-view-btn"><LayoutGrid className="size-4" /></Button>
-            </div>
+            <>
+              <SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />
+              <div className="flex gap-1 bg-muted rounded-lg p-1">
+                <Button variant={view === "table" ? "default" : "ghost"} size="sm" onClick={() => setView("table")} data-testid="table-view-btn"><List className="size-4" /></Button>
+                <Button variant={view === "calendar" ? "default" : "ghost"} size="sm" onClick={() => setView("calendar")} data-testid="calendar-view-btn"><LayoutGrid className="size-4" /></Button>
+              </div>
+            </>
           }
         />
       </Fade>
@@ -225,6 +233,9 @@ export default function HrmsAttendance() {
           </DataTableContainer>
         </Fade>
       )}
+
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["hrms-attendance"].sop} color={HRMS_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["hrms-attendance"].tutorial} color={HRMS_COLOR} />
     </PageShell>
   );
 }

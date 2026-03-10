@@ -32,6 +32,10 @@ All 17 verticals and 177 pages follow a single unified design system. Structure,
 - **`@/components/layout`**: `PageShell`, `PageHeader`, `HeroBanner`, `StatCard`, `StatGrid`, `SectionCard`, `SectionGrid`, `FilterPill`, `PrimaryAction`, `IndexToolbar`, `DataTableContainer`, `DataTH/TD/TR`, `SortableDataTH`, `DetailSection`, `DetailModal`, `InfoRow`
 - **`@/components/hr`**: `DataTable` (column-config), `StatusBadge` (extended variant system), `FormDialog`, `StatsCard`, `EmptyState`, `StageStepper`
 - **`@/components/ui/team-member-card`**: `TeamMemberCard` — shared thin vertical card for team member display across all verticals. Props: name, role, department, email, phone, status, location, accentColor, action callbacks (onEmailClick, onWhatsAppClick, onSlackClick, onPhoneClick). Uses `react-icons/si` for WhatsApp/Slack logos.
+- **`@/components/sop/sop-modal`**: `SopModal`, `TutorialModal`, `SopTutorialButtons` — reusable SOP + Tutorial button/modal system. Each page gets two outline buttons ("SOP" with BookOpen icon, "Tutorial" with PlayCircle icon) in the header. SOP modal shows numbered step-by-step process with warnings and quick links. Tutorial modal embeds YouTube video.
+
+#### SOP System (`client/src/lib/sop-data.ts`)
+Centralized `SOP_REGISTRY` with 25+ configs keyed by `"{vertical}-{page}"` (e.g., `"faire-orders"`, `"ets-pipeline"`, `"hrms-payroll"`). Each entry has `.sop` (title, steps with warnings/links) and `.tutorial` (title, videoUrl, description). Applied to 33 pages across 11 verticals: Faire (7), ETS (4), LegalNations (2), HRMS (5), ATS (2), CRM (3), Finance (2), OMS (2), Social (2), Suprans (2), EventHub (1). Integration pattern: import components + `SOP_REGISTRY`, add `sopOpen`/`tutorialOpen` state, place `SopTutorialButtons` in PageHeader actions, add modals before closing `PageShell`.
 
 #### Master Barrel: `client/src/lib/ds.ts`
 Single import for all design primitives — any page can import from `@/lib/ds` instead of multiple sources.
