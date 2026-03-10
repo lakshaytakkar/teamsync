@@ -7,6 +7,7 @@ import { imageGenRouter } from "./image-gen";
 import { devProjectsRouter } from "./dev-projects";
 import { legalnationsRouter } from "./legalnations-api";
 import { etsRouter } from "./ets-api";
+import { etsPortalRouter } from "./ets-portal-api";
 import {
   getStoreCredentials,
   listStores,
@@ -1399,6 +1400,7 @@ export async function registerRoutes(
   app.use("/api/dev", devProjectsRouter);
   app.use("/api/legalnations", legalnationsRouter);
   app.use("/api/ets", etsRouter);
+  app.use("/api/ets-portal", etsPortalRouter);
 
   return httpServer;
 }

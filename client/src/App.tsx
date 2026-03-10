@@ -194,6 +194,12 @@ import PortalLNCompanies from "@/pages/portal/legalnations/companies";
 import PortalLNDocuments from "@/pages/portal/legalnations/documents";
 import PortalLNInvoices from "@/pages/portal/legalnations/invoices";
 import PortalLNMessages from "@/pages/portal/legalnations/messages";
+import EtsPortalLayout from "@/components/portal/ets-portal-layout";
+import EtsPortalDashboard from "@/pages/portal/ets/dashboard";
+import EtsPortalStore from "@/pages/portal/ets/store";
+import EtsPortalOrders from "@/pages/portal/ets/orders";
+import EtsPortalPayments from "@/pages/portal/ets/payments";
+import EtsPortalMessages from "@/pages/portal/ets/messages";
 import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
@@ -611,7 +617,7 @@ function Router() {
   );
 }
 
-function PortalRouter() {
+function PortalLNRouter() {
   return (
     <Switch>
       <Route path="/portal/legalnations/companies" component={PortalLNCompanies} />
@@ -619,6 +625,19 @@ function PortalRouter() {
       <Route path="/portal/legalnations/invoices" component={PortalLNInvoices} />
       <Route path="/portal/legalnations/messages" component={PortalLNMessages} />
       <Route path="/portal/legalnations" component={PortalLNDashboard} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+function PortalEtsRouter() {
+  return (
+    <Switch>
+      <Route path="/portal/ets/store" component={EtsPortalStore} />
+      <Route path="/portal/ets/orders" component={EtsPortalOrders} />
+      <Route path="/portal/ets/payments" component={EtsPortalPayments} />
+      <Route path="/portal/ets/messages" component={EtsPortalMessages} />
+      <Route path="/portal/ets" component={EtsPortalDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -655,15 +674,25 @@ function App() {
 
   const [loc] = useLocation();
   const isPortal = loc.startsWith("/portal/");
+  const isEtsPortal = loc.startsWith("/portal/ets");
+  const isLnPortal = loc.startsWith("/portal/legalnations");
 
   return (
     <VerticalContext.Provider value={{ currentVertical, setCurrentVertical }}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <VerticalSync setCurrentVertical={setCurrentVertical} />
-          {isPortal ? (
+          {isEtsPortal ? (
+            <EtsPortalLayout>
+              <PortalEtsRouter />
+            </EtsPortalLayout>
+          ) : isLnPortal ? (
             <PortalLayout>
-              <PortalRouter />
+              <PortalLNRouter />
+            </PortalLayout>
+          ) : isPortal ? (
+            <PortalLayout>
+              <PortalLNRouter />
             </PortalLayout>
           ) : (
             <div className="flex h-screen w-full flex-col">
