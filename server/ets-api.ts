@@ -16,18 +16,61 @@ export const etsRouter = Router();
 function mapClient(row: any): any {
   if (!row) return row;
   return {
-    ...row,
     id: row.id,
+    name: row.name,
+    email: row.email,
+    city: row.city,
+    state: row.state,
+    phone: row.phone,
+    stage: row.stage,
     storeSize: row.store_size,
+    storeArea: row.store_area,
+    storeFrontage: row.store_frontage,
+    storeAddress: row.store_address,
+    storeName: row.store_name,
+    storeType: row.store_type,
+    storeFloor: row.store_floor,
+    nearbyLandmark: row.nearby_landmark,
+    monthlyRent: row.monthly_rent != null ? parseFloat(row.monthly_rent) : null,
+    expectedFootfall: row.expected_footfall,
+    marketType: row.market_type,
     packageTier: row.package_tier,
+    selectedPackage: row.selected_package,
     daysInStage: row.days_in_stage,
     lastNote: row.last_note,
+    notes: row.notes,
     totalPaid: parseFloat(row.total_paid) || 0,
     pendingDues: parseFloat(row.pending_dues) || 0,
+    totalInvestment: parseFloat(row.total_investment) || 0,
+    inventoryBudget: parseFloat(row.inventory_budget) || 0,
+    score: row.total_score || row.score || 0,
     leadSource: row.lead_source,
     assignedTo: row.assigned_to,
     nextAction: row.next_action,
     nextActionDate: row.next_action_date,
+    managerName: row.manager_name,
+    managerPhone: row.manager_phone,
+    gstNumber: row.gst_number,
+    panNumber: row.pan_number,
+    bankName: row.bank_name,
+    bankAccountNumber: row.bank_account_number,
+    bankIfsc: row.bank_ifsc,
+    totalScore: row.total_score || 0,
+    scoreBudget: row.score_budget || 0,
+    scoreLocation: row.score_location || 0,
+    scoreOperator: row.score_operator || 0,
+    scoreTimeline: row.score_timeline || 0,
+    scoreExperience: row.score_experience || 0,
+    scoreEngagement: row.score_engagement || 0,
+    launchPhase: row.launch_phase,
+    estimatedLaunchDate: row.estimated_launch_date,
+    actualLaunchDate: row.actual_launch_date,
+    qualificationFormCompleted: row.qualification_form_completed,
+    scopeDocShared: row.scope_doc_shared,
+    agreementSigned: row.agreement_signed,
+    operatingHours: row.operating_hours,
+    profileCompleted: row.profile_completed,
+    onboardingStep: row.onboarding_step,
     createdDate: row.created_at ? row.created_at.split("T")[0] : "",
   };
 }
@@ -36,8 +79,11 @@ function mapProduct(row: any): any {
   if (!row) return row;
   const cat = row.ets_categories;
   return {
-    ...row,
     id: row.id,
+    name: row.name,
+    image: row.image,
+    categoryId: row.category_id,
+    tags: row.tags || [],
     exwPriceYuan: parseFloat(row.exw_price_yuan) || 0,
     unitsPerCarton: row.units_per_carton,
     cartonLength: parseFloat(row.carton_length_cm) || 0,
@@ -54,6 +100,22 @@ function mapProduct(row: any): any {
     marginTier: row.margin_tier,
     category: cat ? cat.slug : row.category_id,
     categoryName: cat ? cat.name : "",
+    costPrice: parseFloat(row.cost_price) || 0,
+    mrp: parseFloat(row.mrp) || 0,
+    status: row.status || "Active",
+    fobPriceYuan: parseFloat(row.fob_price_yuan) || 0,
+    fobPriceInr: parseFloat(row.fob_price_inr) || 0,
+    cbmPerUnit: parseFloat(row.cbm_per_unit) || 0,
+    freightPerUnit: parseFloat(row.freight_per_unit) || 0,
+    cifPriceInr: parseFloat(row.cif_price_inr) || 0,
+    customsDuty: parseFloat(row.customs_duty) || 0,
+    swSurcharge: parseFloat(row.sw_surcharge) || 0,
+    igst: parseFloat(row.igst) || 0,
+    totalLandedCost: parseFloat(row.total_landed_cost) || 0,
+    storeLandingPrice: parseFloat(row.store_landing_price) || 0,
+    suggestedMrp: parseFloat(row.suggested_mrp) || 0,
+    storeMarginPercent: parseFloat(row.store_margin_percent) || 0,
+    storeMarginRs: parseFloat(row.store_margin_rs) || 0,
   };
 }
 
@@ -305,13 +367,14 @@ etsRouter.delete("/clients/:id", async (req, res) => {
 
 etsRouter.get("/products", async (_req, res) => {
   try {
-    const { data, error } = await etsSupabase
+    const { data, error, count } = await etsSupabase
       .from("ets_products")
-      .select("*, ets_categories(name, slug, customs_duty_percent, igst_percent)")
-      .order("id");
+      .select("*, ets_categories(name, slug, customs_duty_percent, igst_percent)", { count: "exact" })
+      .order("id")
+      .range(0, 4999);
 
     if (error) throw error;
-    res.json({ products: (data || []).map(mapProduct) });
+    res.json({ products: (data || []).map(mapProduct), total: count });
   } catch (err: any) {
     console.error("[ets] GET /products error:", err.message);
     res.status(500).json({ error: err.message });

@@ -229,7 +229,7 @@ export default function EtsPipeline() {
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <Store className="size-3.5" />
-            <span>{client.storeSize} sqft</span>
+            <span>{client.storeSize || client.storeArea ? `${client.storeSize || client.storeArea} sqft` : "—"}</span>
           </div>
           <div className="flex items-center gap-1">
             <Clock className="size-3.5" />

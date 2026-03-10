@@ -320,20 +320,24 @@ EazyToSell uses the `easytosell` schema in Supabase (project `ngvrnwjisntjmqrtnu
 - Permissions: `GRANT USAGE ON SCHEMA easytosell TO anon, authenticated, service_role`
 - All table permissions granted to `anon, authenticated, service_role`
 
-### Tables (11 — all in `easytosell` schema)
+### Data Source
+Real data migrated from EazyToSell source Supabase (`cnzzmbddkurnztfjhxpp`) into TeamSync Supabase (`ngvrnwjisntjmqrtnume`) `easytosell` schema. Stage values normalized (source "In Execution"→"inventory-ordered", "Discovery Call"/"New Inquiry"→"new-lead", "Launched"→"launched", "Token Paid"→"token-paid"). Package values normalized to lowercase (Lite→lite, Pro→pro, Elite→elite).
+
+### Tables (12 — all in `easytosell` schema)
 | Table | Rows | Description |
 |-------|------|-------------|
-| `clients` | 15 | Client records with pipeline stage, package tier, scores |
-| `products` | 20 | Product catalog with EXW pricing, carton dims, duty/IGST rates |
-| `orders` | 8 | Import orders with status, ETA, value, documents (JSONB) |
-| `payments` | 12 | Payment records (token/milestone/final) with status tracking |
-| `proposal_templates` | 3 | Package proposals (lite/pro/elite) with investment breakdowns (JSONB) |
-| `whatsapp_templates` | 8 | WhatsApp message templates with variables |
-| `checklist_items` | 9 | Master checklist definitions (9 items per client) |
-| `client_checklist_status` | 135 | Per-client checklist completion (15 clients x 9 items) |
-| `price_settings` | 14 | Key-value pricing config (exchange rate, freight, margins) |
-| `product_categories` | 7 | Category definitions with duty rates |
-| `calc_templates` | 6 | Calculator quick-fill templates |
+| `ets_clients` | 25 | Real client records with pipeline stage, package tier, scores, store details, banking info, onboarding state |
+| `ets_products` | 990 | Real product catalog with EXW pricing, carton dims, pre-calculated landed costs, MRP, margins |
+| `ets_categories` | 23 | Product categories (Headwear, Jewelry, Dressing, Accessory, Craft, etc.) with duty/IGST rates |
+| `ets_orders` | 0 | Import orders (cleared — source had 0) |
+| `ets_payments` | 12 | Real payment records with amounts, dates, descriptions |
+| `ets_proposal_templates` | 0 | Package proposals (cleared — to be re-populated) |
+| `ets_whatsapp_templates` | 9 | Real WhatsApp message templates with stage-based categories |
+| `ets_checklist_items` | 44 | Real readiness checklist items with categories (Infrastructure, etc.) |
+| `ets_checklist_status` | 7 | Per-client checklist completion status |
+| `ets_price_settings` | 7 | Real pricing config (exchange rate 12.0, sourcing 5%, freight 8000/CBM, etc.) |
+| `ets_launch_kit_submissions` | 0 | Launch kit submissions |
+| `client_messages` | 0 | Client portal messages |
 
 ### API Routes (`/api/ets/*` — `server/ets-api.ts`)
 | Method | Path | Description |
@@ -357,7 +361,13 @@ EazyToSell uses the `easytosell` schema in Supabase (project `ngvrnwjisntjmqrtnu
 | PATCH | `/api/ets/checklist/:id` | Toggle checklist item completion |
 
 ### Mapper Functions
-All GET responses apply camelCase mappers (e.g., `mapClient`, `mapProduct`, `mapOrder`, `mapPayment`) converting snake_case DB columns to camelCase for frontend consumption. Product mapper uses `carton_length_cm`, `carton_width_cm`, `carton_height_cm` with `parseFloat()`.
+All GET responses apply camelCase mappers converting snake_case DB columns to camelCase. `mapClient` maps all client fields including store details, banking, scores, onboarding state. `mapProduct` maps raw + pre-calculated pricing fields (costPrice, mrp, totalLandedCost, suggestedMrp, storeMarginPercent, etc.) without spreading raw row. Products endpoint uses `.range(0, 4999)` to return all products.
+
+### ets_clients Extended Columns (added for migration)
+store_area, store_frontage, total_investment, bank_name, bank_account_number, bank_ifsc, auth_id, notes, total_score, score_budget, score_location, score_operator, score_timeline, score_experience, score_engagement, selected_package, launch_phase, estimated_launch_date, actual_launch_date, qualification_form_completed, scope_doc_shared, agreement_signed, operating_hours, profile_completed, onboarding_step, inventory_budget
+
+### ets_products Extended Columns (added for migration)
+cost_price, mrp, status, fob_price_yuan, fob_price_inr, cbm_per_unit, freight_per_unit, cif_price_inr, customs_duty, sw_surcharge, igst, total_landed_cost, store_landing_price, suggested_mrp, store_margin_percent, store_margin_rs
 
 ### Frontend Pages (10 — all real data)
 | Page | Route | File |
