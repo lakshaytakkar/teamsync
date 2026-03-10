@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { DataTable, type Column } from "@/components/hr/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { StatusBadge } from "@/components/hr/status-badge";
 import { FormDialog } from "@/components/hr/form-dialog";
 import { Card } from "@/components/ui/card";
@@ -20,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import {
   ETS_PIPELINE_STAGES,
@@ -33,14 +31,12 @@ import {
   LayoutGrid,
   Table2,
   Clock,
-  Users,
   MapPin,
   Store,
   Search,
-  ChevronRight,
   StickyNote,
-  FileText,
   Eye,
+  IndianRupee,
 } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
@@ -52,6 +48,17 @@ const tierColors: Record<EtsPackageTier, string> = {
   lite: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
   pro: "bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
   elite: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+};
+
+const STAGE_COLORS: Record<EtsPipelineStage, { border: string; bg: string; text: string; hdr: string }> = {
+  "new-lead": { border: "border-slate-200", bg: "bg-slate-50", text: "text-slate-700", hdr: "bg-slate-100" },
+  "qualified": { border: "border-sky-200", bg: "bg-sky-50", text: "text-sky-700", hdr: "bg-sky-100" },
+  "token-paid": { border: "border-amber-200", bg: "bg-amber-50", text: "text-amber-700", hdr: "bg-amber-100" },
+  "store-design": { border: "border-violet-200", bg: "bg-violet-50", text: "text-violet-700", hdr: "bg-violet-100" },
+  "inventory-ordered": { border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", hdr: "bg-blue-100" },
+  "in-transit": { border: "border-orange-200", bg: "bg-orange-50", text: "text-orange-700", hdr: "bg-orange-100" },
+  "launched": { border: "border-emerald-200", bg: "bg-emerald-50", text: "text-emerald-700", hdr: "bg-emerald-100" },
+  "reordering": { border: "border-teal-200", bg: "bg-teal-50", text: "text-teal-700", hdr: "bg-teal-100" },
 };
 
 const stageVariant: Record<EtsPipelineStage, "success" | "error" | "warning" | "neutral" | "info"> = {
@@ -71,10 +78,22 @@ function scoreColor(score: number): string {
   return "text-red-600 dark:text-red-400";
 }
 
+function scoreBg(score: number): string {
+  if (score >= 80) return "bg-emerald-50 dark:bg-emerald-950";
+  if (score >= 60) return "bg-amber-50 dark:bg-amber-950";
+  return "bg-red-50 dark:bg-red-950";
+}
+
 function scoreLabel(score: number): string {
   if (score >= 80) return "Hot";
   if (score >= 60) return "Warm";
   return "Cold";
+}
+
+function formatInvestment(value: number): string {
+  if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+  if (value >= 1000) return `₹${(value / 1000).toFixed(0)}K`;
+  return `₹${value}`;
 }
 
 export default function EtsPipeline() {
@@ -149,6 +168,16 @@ export default function EtsPipeline() {
     return counts;
   }, [clients]);
 
+  const stageInvestment = useMemo(() => {
+    const totals: Record<string, number> = {};
+    for (const stage of ETS_PIPELINE_STAGES) {
+      totals[stage] = clients
+        .filter((c) => c.stage === stage)
+        .reduce((sum, c) => sum + (c.totalInvestment || 0), 0);
+    }
+    return totals;
+  }, [clients]);
+
   const handleAddNote = () => {
     if (noteClient && noteText.trim()) {
       toast({
@@ -184,47 +213,57 @@ export default function EtsPipeline() {
     const client = clientMap[card.id];
     if (!client) return null;
     return (
-      <Card
-        className="p-3 hover-elevate cursor-pointer"
+      <div
+        className="bg-card rounded-xl p-3.5 shadow-sm border border-border/50 cursor-pointer hover:shadow-md hover:border-border transition-all space-y-2.5"
         data-testid={`card-pipeline-${client.id}`}
       >
         <Link href={`/ets/clients/${client.id}`}>
-          <div className="flex items-start justify-between gap-1 mb-1.5">
-            <PersonCell name={client.name} size="xs" />
-
-            <span className={`text-[10px] font-bold shrink-0 ${scoreColor(client.score)}`}>
+          <div className="flex items-start justify-between gap-2">
+            <PersonCell name={client.name} subtitle={client.city} size="xs" />
+            <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full shrink-0 ${scoreColor(client.score)} ${scoreBg(client.score)}`}>
               {client.score}
             </span>
           </div>
         </Link>
-        <div className="flex items-center gap-1 mb-1.5">
-          <MapPin className="size-2.5 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground truncate">{client.city}</span>
+
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Store className="size-3.5" />
+            <span>{client.storeSize} sqft</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="size-3.5" />
+            <span className={client.daysInStage > 10 ? "text-amber-600 dark:text-amber-400 font-medium" : ""}>
+              {client.daysInStage}d
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-1 mb-1.5">
-          <Store className="size-2.5 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground">{client.storeSize} sqft</span>
-        </div>
-        <div className="flex items-center justify-between gap-1 mb-1.5">
+
+        <div className="flex items-center justify-between gap-2">
           <Badge
             variant="secondary"
-            className={`border-0 text-[10px] px-1.5 py-0 capitalize ${tierColors[client.packageTier]}`}
+            className={`border-0 text-xs px-2 py-0.5 capitalize ${tierColors[client.packageTier]}`}
           >
             {client.packageTier}
           </Badge>
-          <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground shrink-0">
-            <Clock className="size-2.5" />
-            {client.daysInStage}d
-          </div>
+          {client.totalInvestment > 0 && (
+            <span className="text-xs font-semibold text-foreground">
+              {formatInvestment(client.totalInvestment)}
+            </span>
+          )}
         </div>
-        <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1" title={client.lastNote}>
-          {client.lastNote}
-        </p>
-        <div className="flex items-center gap-1 mt-2 pt-1.5 border-t">
+
+        {client.lastNote && (
+          <p className="text-xs text-muted-foreground line-clamp-2" title={client.lastNote}>
+            {client.lastNote}
+          </p>
+        )}
+
+        <div className="flex items-center gap-1 pt-2 border-t border-border/50">
           <Button
             size="icon"
             variant="ghost"
-            className="size-6"
+            className="size-7"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -234,63 +273,62 @@ export default function EtsPipeline() {
             title="Add Note"
             data-testid={`button-note-${client.id}`}
           >
-            <StickyNote className="size-3" />
+            <StickyNote className="size-3.5" />
           </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="size-6"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              window.location.href = `/ets/proposals`;
-            }}
-            title="Generate Proposal"
-            data-testid={`button-proposal-${client.id}`}
+          <a
+            href={`https://wa.me/${client.phone.replace(/\D/g, "")}`}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
           >
-            <FileText className="size-3" />
-          </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="size-7 text-green-600 hover:text-green-700 hover:bg-green-50"
+              title="WhatsApp"
+              data-testid={`button-whatsapp-${client.id}`}
+            >
+              <SiWhatsapp className="size-3.5" />
+            </Button>
+          </a>
           <Link href={`/ets/clients/${client.id}`} className="ml-auto">
             <Button
               size="icon"
               variant="ghost"
-              className="size-6"
+              className="size-7"
               title="View Detail"
               data-testid={`button-detail-${client.id}`}
             >
-              <Eye className="size-3" />
+              <Eye className="size-3.5" />
             </Button>
           </Link>
-          <Select
-            value={client.stage}
-            onValueChange={(val) => handleMoveStage(client, val as EtsPipelineStage)}
-          >
-            <SelectTrigger
-              className="h-6 w-auto min-w-[60px] text-[10px] px-1.5"
-              data-testid={`select-move-stage-${client.id}`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ChevronRight className="size-2.5" />
-            </SelectTrigger>
-            <SelectContent>
-              {ETS_PIPELINE_STAGES.map((s) => (
-                <SelectItem key={s} value={s} className="text-xs">
-                  {ETS_STAGE_LABELS[s]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
-      </Card>
+      </div>
     );
   };
 
-  const renderColumnHeader = (column: KanbanColumnData) => (
-    <div className="flex items-center gap-2 mb-3 px-1">
-      <span className="text-xs font-medium truncate">{column.title}</span>
-      <span className="text-xs text-muted-foreground ml-auto">{column.cards.length}</span>
-    </div>
-  );
+  const renderColumnHeader = (column: KanbanColumnData) => {
+    const stageKey = column.id as EtsPipelineStage;
+    const colors = STAGE_COLORS[stageKey];
+    const investment = stageInvestment[stageKey] || 0;
+    return (
+      <div data-testid={`pipeline-col-${stageKey}`}>
+        <div className={`${colors.hdr} rounded-t-lg px-3 py-2.5`}>
+          <div className="flex items-center justify-between gap-1">
+            <span className={`text-sm font-semibold ${colors.text}`}>{column.title}</span>
+            <span className={`text-xs px-2 py-0.5 rounded-full bg-white/60 dark:bg-black/20 ${colors.text} font-semibold`}>
+              {column.cards.length}
+            </span>
+          </div>
+          {investment > 0 && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {formatInvestment(investment)}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const columns: Column<EtsClient>[] = [
     {
@@ -314,7 +352,7 @@ export default function EtsPipeline() {
       sortable: true,
       render: (item) => (
         <div className="flex items-center gap-1.5">
-          <MapPin className="size-3 text-muted-foreground" />
+          <MapPin className="size-3.5 text-muted-foreground" />
           <span className="text-sm">{item.city}</span>
         </div>
       ),
@@ -356,7 +394,7 @@ export default function EtsPipeline() {
       sortable: true,
       render: (item) => (
         <div className="flex items-center gap-1.5">
-          <Clock className="size-3 text-muted-foreground" />
+          <Clock className="size-3.5 text-muted-foreground" />
           <span className={`text-sm ${item.daysInStage > 10 ? "text-amber-600 dark:text-amber-400 font-medium" : ""}`}>
             {item.daysInStage}d
           </span>
@@ -421,19 +459,32 @@ export default function EtsPipeline() {
   return (
     <PageShell>
       <PageTransition>
-<Fade direction="up" distance={10} delay={0.1}>
-          <Stagger className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-5">
-            {ETS_PIPELINE_STAGES.map((stage) => (
-              <StaggerItem key={stage}>
-                <Card
-                  className={`p-3 cursor-pointer hover-elevate ${stageFilter === stage ? "ring-2 ring-primary" : ""}`}
-                  onClick={() => setStageFilter(stageFilter === stage ? "all" : stage)}
-                  data-testid={`card-stage-count-${stage}`}
-                >
-                  <p className="text-xs text-muted-foreground truncate">{ETS_STAGE_LABELS[stage]}</p>
-                  <p className="text-lg font-semibold font-heading mt-0.5" data-testid={`text-stage-count-${stage}`}>
-                    {stageCounts[stage]}
-                  </p>
+        <Fade direction="up" distance={10} delay={0.1}>
+          <div className="flex items-center justify-between mb-5">
+            <h1 className="text-xl font-bold" data-testid="text-pipeline-title">Client Pipeline</h1>
+            <div className="text-sm text-muted-foreground">
+              {clients.length} clients · Total:{" "}
+              <span className="font-semibold text-foreground">
+                {formatInvestment(clients.reduce((s, c) => s + (c.totalInvestment || 0), 0))}
+              </span>
+            </div>
+          </div>
+
+          <Stagger className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            {[
+              { label: "New Leads", count: (stageCounts["new-lead"] || 0) + (stageCounts["qualified"] || 0), icon: MapPin, desc: "Awaiting qualification" },
+              { label: "In Setup", count: (stageCounts["token-paid"] || 0) + (stageCounts["store-design"] || 0), icon: Store, desc: "Store preparation" },
+              { label: "In Fulfillment", count: (stageCounts["inventory-ordered"] || 0) + (stageCounts["in-transit"] || 0), icon: IndianRupee, desc: "Orders & shipping" },
+              { label: "Active Stores", count: (stageCounts["launched"] || 0) + (stageCounts["reordering"] || 0), icon: Clock, desc: "Operational" },
+            ].map((stat) => (
+              <StaggerItem key={stat.label}>
+                <Card className="p-4 hover-elevate" data-testid={`card-stat-${stat.label}`}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <stat.icon className="size-4 text-muted-foreground" />
+                  </div>
+                  <p className="text-2xl font-semibold font-heading mt-1">{stat.count}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{stat.desc}</p>
                 </Card>
               </StaggerItem>
             ))}
@@ -444,18 +495,18 @@ export default function EtsPipeline() {
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2 flex-wrap">
               <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Search by name or city..."
                   value={citySearch}
                   onChange={(e) => setCitySearch(e.target.value)}
-                  className="h-9 w-56 pl-8 text-sm"
+                  className="h-9 w-56 pl-9 text-sm rounded-lg"
                   data-testid="input-pipeline-search"
                 />
               </div>
               <Select value={stageFilter} onValueChange={setStageFilter}>
-                <SelectTrigger className="h-9 w-auto min-w-[140px] text-sm" data-testid="filter-stage">
+                <SelectTrigger className="h-9 w-auto min-w-[140px] text-sm rounded-lg" data-testid="filter-stage">
                   <SelectValue placeholder="All Stages" />
                 </SelectTrigger>
                 <SelectContent>
@@ -466,7 +517,7 @@ export default function EtsPipeline() {
                 </SelectContent>
               </Select>
               <Select value={tierFilter} onValueChange={setTierFilter}>
-                <SelectTrigger className="h-9 w-auto min-w-[130px] text-sm" data-testid="filter-tier">
+                <SelectTrigger className="h-9 w-auto min-w-[130px] text-sm rounded-lg" data-testid="filter-tier">
                   <SelectValue placeholder="All Packages" />
                 </SelectTrigger>
                 <SelectContent>
@@ -477,23 +528,25 @@ export default function EtsPipeline() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-1 rounded-md border p-0.5">
+            <div className="flex items-center gap-1 rounded-lg border p-0.5">
               <Button
                 size="sm"
                 variant={view === "kanban" ? "default" : "ghost"}
                 onClick={() => setView("kanban")}
+                className="rounded-md"
                 data-testid="button-view-kanban"
               >
-                <LayoutGrid className="size-4" />
+                <LayoutGrid className="size-4 mr-1.5" />
                 Kanban
               </Button>
               <Button
                 size="sm"
                 variant={view === "table" ? "default" : "ghost"}
                 onClick={() => setView("table")}
+                className="rounded-md"
                 data-testid="button-view-table"
               >
-                <Table2 className="size-4" />
+                <Table2 className="size-4 mr-1.5" />
                 Table
               </Button>
             </div>
@@ -503,9 +556,9 @@ export default function EtsPipeline() {
         <Fade direction="up" distance={10} delay={0.2}>
           {view === "kanban" ? (
             isLoading ? (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 mt-2">
+              <div className="flex gap-4 overflow-hidden pb-6">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <StatsCardSkeleton key={i} />
+                  <div key={i} className="w-[280px] shrink-0 h-96 bg-muted rounded-xl" />
                 ))}
               </div>
             ) : (
@@ -514,8 +567,8 @@ export default function EtsPipeline() {
                 onCardMove={handleCardMove}
                 renderCard={renderEtsCard}
                 renderColumnHeader={renderColumnHeader}
-                columnClassName="flex-1 min-w-[160px]"
-                className="mt-2"
+                columnClassName="shrink-0 w-[280px]"
+                className="pb-6 -mx-2 px-2"
               />
             )
           ) : (

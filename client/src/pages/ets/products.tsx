@@ -277,7 +277,7 @@ export default function EtsProductsPage() {
   return (
     <PageShell>
       <PageTransition>
-        <Stagger className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StaggerItem>
             <StatsCard
               title="Total Products"
@@ -298,6 +298,7 @@ export default function EtsProductsPage() {
             <StatsCard
               title="Hero SKUs"
               value={stats.heroSkus}
+              change={`${stats.categories} categories`}
               icon={<Star className="size-5" />}
             />
           </StaggerItem>
@@ -310,33 +311,26 @@ export default function EtsProductsPage() {
               icon={<Package className="size-5" />}
             />
           </StaggerItem>
-          <StaggerItem>
-            <StatsCard
-              title="Categories"
-              value={stats.categories}
-              icon={<Package className="size-5" />}
-            />
-          </StaggerItem>
         </Stagger>
 
         <Fade direction="up" distance={8} delay={0.15}>
           <div className="flex flex-col rounded-lg border bg-background">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
               <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-8 w-60 pl-8 text-sm"
+                  className="h-9 w-60 pl-9 text-sm rounded-lg"
                   data-testid="input-product-search"
                 />
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="h-8 w-auto min-w-[120px] text-sm" data-testid="filter-category">
-                    <Filter className="mr-1.5 size-3 text-muted-foreground" />
+                  <SelectTrigger className="h-9 w-auto min-w-[120px] text-sm rounded-lg" data-testid="filter-category">
+                    <Filter className="mr-1.5 size-3.5 text-muted-foreground" />
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -348,8 +342,8 @@ export default function EtsProductsPage() {
                 </Select>
 
                 <Select value={marginTierFilter} onValueChange={setMarginTierFilter}>
-                  <SelectTrigger className="h-8 w-auto min-w-[120px] text-sm" data-testid="filter-margin-tier">
-                    <Filter className="mr-1.5 size-3 text-muted-foreground" />
+                  <SelectTrigger className="h-9 w-auto min-w-[120px] text-sm rounded-lg" data-testid="filter-margin-tier">
+                    <Filter className="mr-1.5 size-3.5 text-muted-foreground" />
                     <SelectValue placeholder="Margin Tier" />
                   </SelectTrigger>
                   <SelectContent>
@@ -361,8 +355,8 @@ export default function EtsProductsPage() {
                 </Select>
 
                 <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
-                  <SelectTrigger className="h-8 w-auto min-w-[110px] text-sm" data-testid="filter-visibility">
-                    <Filter className="mr-1.5 size-3 text-muted-foreground" />
+                  <SelectTrigger className="h-9 w-auto min-w-[110px] text-sm rounded-lg" data-testid="filter-visibility">
+                    <Filter className="mr-1.5 size-3.5 text-muted-foreground" />
                     <SelectValue placeholder="Visibility" />
                   </SelectTrigger>
                   <SelectContent>
@@ -373,8 +367,8 @@ export default function EtsProductsPage() {
                 </Select>
 
                 <Select value={heroFilter} onValueChange={setHeroFilter}>
-                  <SelectTrigger className="h-8 w-auto min-w-[110px] text-sm" data-testid="filter-hero">
-                    <Filter className="mr-1.5 size-3 text-muted-foreground" />
+                  <SelectTrigger className="h-9 w-auto min-w-[110px] text-sm rounded-lg" data-testid="filter-hero">
+                    <Filter className="mr-1.5 size-3.5 text-muted-foreground" />
                     <SelectValue placeholder="Hero SKU" />
                   </SelectTrigger>
                   <SelectContent>
