@@ -6,6 +6,7 @@ import { useVertical } from "@/lib/vertical-store";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { LegalNationsLogo } from "@/components/brand/legalnations-logo";
+import { EazyToSellLogo } from "@/components/brand/eazytosell-logo";
 import { Separator } from "@/components/ui/separator";
 
 const businessProducts = verticals.filter((v) => !v.isDepartment && !v.isPortal);
@@ -131,6 +132,18 @@ export function VerticalSwitcher() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate leading-tight">LegalNations</p>
                   <p className="text-[11px] text-muted-foreground truncate">Client Portal</p>
+                </div>
+                <ExternalLink className="size-3 text-muted-foreground shrink-0" />
+              </button>
+              <button
+                onClick={() => { setLocation("/portal/ets"); setOpen(false); }}
+                className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-left transition-colors hover:bg-accent"
+                data-testid="portal-option-ets"
+              >
+                <EazyToSellLogo size={32} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate leading-tight">EazyToSell</p>
+                  <p className="text-[11px] text-muted-foreground truncate">Franchise Portal</p>
                 </div>
                 <ExternalLink className="size-3 text-muted-foreground shrink-0" />
               </button>

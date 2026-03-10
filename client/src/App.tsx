@@ -205,6 +205,8 @@ import EtsPortalLaunchKit from "@/pages/portal/ets/launch-kit";
 import EtsPortalInvoices from "@/pages/portal/ets/invoices";
 import EtsPortalProfile from "@/pages/portal/ets/profile";
 import EtsPortalSupport from "@/pages/portal/ets/support";
+import EtsPortalChecklist from "@/pages/portal/ets/checklist";
+import EtsPortalOnboarding from "@/pages/portal/ets/onboarding";
 import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
@@ -647,6 +649,8 @@ function PortalEtsRouter() {
       <Route path="/portal/ets/messages" component={EtsPortalMessages} />
       <Route path="/portal/ets/profile" component={EtsPortalProfile} />
       <Route path="/portal/ets/support" component={EtsPortalSupport} />
+      <Route path="/portal/ets/checklist" component={EtsPortalChecklist} />
+      <Route path="/portal/ets/onboarding" component={EtsPortalOnboarding} />
       <Route path="/portal/ets" component={EtsPortalDashboard} />
       <Route component={NotFound} />
     </Switch>

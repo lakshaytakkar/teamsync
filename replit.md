@@ -1405,7 +1405,7 @@ Client-facing portal prototype accessible via vertical switcher under "Client Po
 | Invoices | `/portal/legalnations/invoices` | `client/src/pages/portal/legalnations/invoices.tsx` |
 | Messages | `/portal/legalnations/messages` | `client/src/pages/portal/legalnations/messages.tsx` |
 
-### EazyToSell Client Portal (10 pages)
+### EazyToSell Client Portal (12 pages)
 | Page | Route | File |
 |------|-------|------|
 | Dashboard | `/portal/ets` | `client/src/pages/portal/ets/dashboard.tsx` |
@@ -1418,6 +1418,8 @@ Client-facing portal prototype accessible via vertical switcher under "Client Po
 | Messages | `/portal/ets/messages` | `client/src/pages/portal/ets/messages.tsx` |
 | Profile | `/portal/ets/profile` | `client/src/pages/portal/ets/profile.tsx` |
 | Support | `/portal/ets/support` | `client/src/pages/portal/ets/support.tsx` |
+| Checklist | `/portal/ets/checklist` | `client/src/pages/portal/ets/checklist.tsx` |
+| Onboarding | `/portal/ets/onboarding` | `client/src/pages/portal/ets/onboarding.tsx` |
 
 - Layout: `client/src/components/portal/ets-portal-layout.tsx` — top nav with "EazyToSell" branding (#F97316), horizontal nav, "More" dropdown for secondary pages, mobile hamburger menu, user profile dropdown
 - API: `server/ets-portal-api.ts` — all endpoints under `/api/ets-portal/*`, uses Supabase `easytosell` schema

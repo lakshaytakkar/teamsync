@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import {
   LayoutDashboard, Store, Package, IndianRupee,
   MessageSquare, Bell, LogOut, ShoppingBag, FileText,
-  User, HelpCircle, Menu, X, ChevronDown, Boxes,
+  User, HelpCircle, Menu, X, ChevronDown, Boxes, ClipboardCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,7 @@ export default function EtsPortalLayout({ children }: { children: React.ReactNod
   ];
 
   const secondaryNavItems: NavItem[] = [
+    { title: "Checklist", url: "/portal/ets/checklist", icon: ClipboardCheck },
     { title: "Invoices", url: "/portal/ets/invoices", icon: FileText },
     { title: "Profile", url: "/portal/ets/profile", icon: User },
     { title: "Support", url: "/portal/ets/support", icon: HelpCircle },
