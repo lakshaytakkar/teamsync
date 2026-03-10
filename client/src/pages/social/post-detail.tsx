@@ -1,6 +1,7 @@
 import { useLocation, useRoute } from "wouter";
 import { ArrowLeft, Mail, RefreshCw } from "lucide-react";
-import { SiWhatsapp, SiInstagram, SiYoutube, SiLinkedin, SiFacebook, SiThreads } from "react-icons/si";
+import { SiWhatsapp, SiInstagram, SiYoutube,  SiFacebook, SiThreads } from "react-icons/si";
+import { SiLinkedin } from "@/lib/icon-compat";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { Bell, TrendingUp, TrendingDown, Calendar, Target, Eye, BarChart2 } from "lucide-react";
-import { SiInstagram, SiYoutube, SiLinkedin, SiFacebook, SiThreads } from "react-icons/si";
+import { SiInstagram, SiYoutube,  SiFacebook, SiThreads } from "react-icons/si";
+import { SiLinkedin } from "@/lib/icon-compat";
 import { Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 import {
   PageShell,

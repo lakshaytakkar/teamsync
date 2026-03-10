@@ -41,7 +41,6 @@ import {
   SiResend,
   SiSlack,
   SiGmail,
-  SiLinkedin,
   SiWhatsapp,
   SiZoom,
   SiCanva,
@@ -52,7 +51,6 @@ import {
   SiMeta,
   SiRazorpay,
   SiZoho,
-  SiAmazonwebservices,
 } from "react-icons/si";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
@@ -91,7 +89,6 @@ const siIconMap: Record<string, IconComponent> = {
   SiResend: (props: { className?: string }) => <SiResend className={props.className} />,
   SiSlack: (props: { className?: string }) => <SiSlack className={props.className} />,
   SiGmail: (props: { className?: string }) => <SiGmail className={props.className} />,
-  SiLinkedin: (props: { className?: string }) => <SiLinkedin className={props.className} />,
   SiWhatsapp: (props: { className?: string }) => <SiWhatsapp className={props.className} />,
   SiZoom: (props: { className?: string }) => <SiZoom className={props.className} />,
   SiCanva: (props: { className?: string }) => <SiCanva className={props.className} />,
@@ -102,7 +99,6 @@ const siIconMap: Record<string, IconComponent> = {
   SiMeta: (props: { className?: string }) => <SiMeta className={props.className} />,
   SiRazorpay: (props: { className?: string }) => <SiRazorpay className={props.className} />,
   SiZoho: (props: { className?: string }) => <SiZoho className={props.className} />,
-  SiAmazonwebservices: (props: { className?: string }) => <SiAmazonwebservices className={props.className} />,
 };
 
 function getIcon(iconName: string): IconComponent {

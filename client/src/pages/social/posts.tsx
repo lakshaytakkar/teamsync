@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Plus, Search } from "lucide-react";
-import { SiInstagram, SiYoutube, SiLinkedin, SiFacebook, SiThreads } from "react-icons/si";
+import { SiInstagram, SiYoutube,  SiFacebook, SiThreads } from "react-icons/si";
+import { SiLinkedin } from "@/lib/icon-compat";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

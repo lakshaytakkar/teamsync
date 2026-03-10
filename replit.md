@@ -1405,10 +1405,34 @@ Client-facing portal prototype accessible via vertical switcher under "Client Po
 | Invoices | `/portal/legalnations/invoices` | `client/src/pages/portal/legalnations/invoices.tsx` |
 | Messages | `/portal/legalnations/messages` | `client/src/pages/portal/legalnations/messages.tsx` |
 
+### EazyToSell Client Portal (10 pages)
+| Page | Route | File |
+|------|-------|------|
+| Dashboard | `/portal/ets` | `client/src/pages/portal/ets/dashboard.tsx` |
+| Product Catalog | `/portal/ets/catalog` | `client/src/pages/portal/ets/catalog.tsx` |
+| My Store | `/portal/ets/store` | `client/src/pages/portal/ets/store.tsx` |
+| Launch Kit | `/portal/ets/launch-kit` | `client/src/pages/portal/ets/launch-kit.tsx` |
+| Orders | `/portal/ets/orders` | `client/src/pages/portal/ets/orders.tsx` |
+| Payments | `/portal/ets/payments` | `client/src/pages/portal/ets/payments.tsx` |
+| Invoices | `/portal/ets/invoices` | `client/src/pages/portal/ets/invoices.tsx` |
+| Messages | `/portal/ets/messages` | `client/src/pages/portal/ets/messages.tsx` |
+| Profile | `/portal/ets/profile` | `client/src/pages/portal/ets/profile.tsx` |
+| Support | `/portal/ets/support` | `client/src/pages/portal/ets/support.tsx` |
+
+- Layout: `client/src/components/portal/ets-portal-layout.tsx` — top nav with "EazyToSell" branding (#F97316), horizontal nav, "More" dropdown for secondary pages, mobile hamburger menu, user profile dropdown
+- API: `server/ets-portal-api.ts` — all endpoints under `/api/ets-portal/*`, uses Supabase `easytosell` schema
+- Data: `client/src/lib/mock-data-portal-ets.ts` — portal client config, stage labels/descriptions, order stages
+- Features: Product catalog with filters/sort/add-to-kit, launch kit builder with investment summary, invoice history, profile editing with PATCH mutation, support page with FAQ accordion, real-time messages
+
 ### Navigation Entry
 - Vertical switcher (`vertical-switcher.tsx`) has two portal categories:
-  - **Client Portals**: LegalNations entry (navigates to `/portal/legalnations`)
+  - **Client Portals**: LegalNations entry (navigates to `/portal/legalnations`), EazyToSell entry (navigates to `/portal/ets`)
   - **Vendor Portals**: Vendor Portal entry (navigates to `/vendor/quotations`, uses main app layout)
 - Portals are flagged with `isPortal: true` in verticals-config and filtered out of "Business Products"
 - LegalNations portal top nav has LogOut icon button navigating back to `/hr`
+- EazyToSell portal top nav has "Back to Admin" option in user dropdown
 - "Preview Mode" badge shown at top of portal pages
+
+### Icon Compatibility
+- `client/src/lib/icon-compat.tsx` — Provides `SiLinkedin` as Lucide `Linkedin` fallback (removed from react-icons v5)
+- `SiAmazonwebservices` — removed from imports, falls back to `Globe` via `getIcon()` function

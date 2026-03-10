@@ -1,7 +1,8 @@
 import { useLocation, useRoute } from "wouter";
 import { PersonCell } from "@/components/ui/avatar-cells";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { SiInstagram, SiYoutube, SiLinkedin, SiFacebook, SiThreads } from "react-icons/si";
+import { SiInstagram, SiYoutube,  SiFacebook, SiThreads } from "react-icons/si";
+import { SiLinkedin } from "@/lib/icon-compat";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

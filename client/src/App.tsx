@@ -200,6 +200,11 @@ import EtsPortalStore from "@/pages/portal/ets/store";
 import EtsPortalOrders from "@/pages/portal/ets/orders";
 import EtsPortalPayments from "@/pages/portal/ets/payments";
 import EtsPortalMessages from "@/pages/portal/ets/messages";
+import EtsPortalCatalog from "@/pages/portal/ets/catalog";
+import EtsPortalLaunchKit from "@/pages/portal/ets/launch-kit";
+import EtsPortalInvoices from "@/pages/portal/ets/invoices";
+import EtsPortalProfile from "@/pages/portal/ets/profile";
+import EtsPortalSupport from "@/pages/portal/ets/support";
 import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
@@ -633,10 +638,15 @@ function PortalLNRouter() {
 function PortalEtsRouter() {
   return (
     <Switch>
+      <Route path="/portal/ets/catalog" component={EtsPortalCatalog} />
       <Route path="/portal/ets/store" component={EtsPortalStore} />
+      <Route path="/portal/ets/launch-kit" component={EtsPortalLaunchKit} />
       <Route path="/portal/ets/orders" component={EtsPortalOrders} />
       <Route path="/portal/ets/payments" component={EtsPortalPayments} />
+      <Route path="/portal/ets/invoices" component={EtsPortalInvoices} />
       <Route path="/portal/ets/messages" component={EtsPortalMessages} />
+      <Route path="/portal/ets/profile" component={EtsPortalProfile} />
+      <Route path="/portal/ets/support" component={EtsPortalSupport} />
       <Route path="/portal/ets" component={EtsPortalDashboard} />
       <Route component={NotFound} />
     </Switch>

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { SiInstagram, SiYoutube, SiLinkedin, SiFacebook } from "react-icons/si";
+import { SiInstagram, SiYoutube,  SiFacebook } from "react-icons/si";
+import { SiLinkedin } from "@/lib/icon-compat";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

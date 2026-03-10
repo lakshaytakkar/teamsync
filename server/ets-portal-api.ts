@@ -18,21 +18,38 @@ function mapClient(row: any): any {
   return {
     id: row.id,
     name: row.name,
+    email: row.email,
     city: row.city,
+    state: row.state,
     phone: row.phone,
     stage: row.stage,
     storeSize: row.store_size,
+    storeAddress: row.store_address,
+    storeArea: row.store_area,
+    storeFrontage: row.store_frontage,
     packageTier: row.package_tier,
     daysInStage: row.days_in_stage,
     lastNote: row.last_note,
     totalPaid: parseFloat(row.total_paid) || 0,
     pendingDues: parseFloat(row.pending_dues) || 0,
+    totalInvestment: parseFloat(row.total_investment) || 0,
     score: row.score,
     leadSource: row.lead_source,
     assignedTo: row.assigned_to,
     nextAction: row.next_action,
     nextActionDate: row.next_action_date,
     createdDate: row.created_at ? row.created_at.split("T")[0] : "",
+    managerName: row.manager_name,
+    managerPhone: row.manager_phone,
+    gstNumber: row.gst_number,
+    panNumber: row.pan_number,
+    bankName: row.bank_name,
+    bankAccountNumber: row.bank_account_number,
+    bankIfsc: row.bank_ifsc,
+    estimatedLaunchDate: row.estimated_launch_date,
+    qualificationFormCompleted: row.qualification_form_completed,
+    agreementSigned: row.agreement_signed,
+    scopeDocShared: row.scope_doc_shared,
   };
 }
 
@@ -63,6 +80,8 @@ function mapPayment(row: any): any {
     status: row.status,
     date: row.date,
     notes: row.notes,
+    description: row.description,
+    method: row.method,
   };
 }
 
@@ -91,6 +110,56 @@ function mapMessage(row: any): any {
   };
 }
 
+function mapProduct(row: any): any {
+  if (!row) return row;
+  return {
+    id: row.id,
+    name: row.name,
+    categoryId: row.category_id,
+    categoryName: row.ets_categories?.name || "",
+    exwPrice: parseFloat(row.exw_price) || 0,
+    landedCost: parseFloat(row.landed_cost) || 0,
+    mrp: parseFloat(row.mrp) || 0,
+    margin: parseFloat(row.margin) || 0,
+    multiplier: parseFloat(row.multiplier) || 0,
+    moq: row.moq || 1,
+    unitsPerCarton: row.units_per_carton || 1,
+    weight: row.weight,
+    dimensions: row.dimensions,
+    tags: row.tags || [],
+    imageUrl: row.image_url,
+    description: row.description,
+    sku: row.sku,
+    inStock: row.in_stock !== false,
+  };
+}
+
+function mapCategory(row: any): any {
+  if (!row) return row;
+  return {
+    id: row.id,
+    name: row.name,
+    dutyPercent: parseFloat(row.duty_percent) || 0,
+    igstPercent: parseFloat(row.igst_percent) || 0,
+    productCount: row.product_count || 0,
+  };
+}
+
+function mapKitItem(row: any): any {
+  if (!row) return row;
+  return {
+    id: row.id,
+    clientId: row.client_id,
+    productId: row.product_id,
+    quantity: row.quantity || 1,
+    productName: row.ets_products?.name || "",
+    categoryName: row.ets_products?.ets_categories?.name || "",
+    landedCost: parseFloat(row.ets_products?.landed_cost) || 0,
+    mrp: parseFloat(row.ets_products?.mrp) || 0,
+    unitsPerCarton: row.ets_products?.units_per_carton || 1,
+  };
+}
+
 etsPortalRouter.get("/client/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -100,6 +169,51 @@ etsPortalRouter.get("/client/:id", async (req, res) => {
       .eq("id", id)
       .single();
     if (error || !data) return res.status(404).json({ error: "Client not found" });
+    res.json({ client: mapClient(data) });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+etsPortalRouter.patch("/client/:id/profile", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const allowedFields: Record<string, string> = {
+      name: "name",
+      email: "email",
+      phone: "phone",
+      city: "city",
+      state: "state",
+      storeAddress: "store_address",
+      storeArea: "store_area",
+      storeFrontage: "store_frontage",
+      managerName: "manager_name",
+      managerPhone: "manager_phone",
+      gstNumber: "gst_number",
+      panNumber: "pan_number",
+      bankName: "bank_name",
+      bankAccountNumber: "bank_account_number",
+      bankIfsc: "bank_ifsc",
+    };
+
+    const updateData: Record<string, any> = {};
+    for (const [camelKey, snakeKey] of Object.entries(allowedFields)) {
+      if (req.body[camelKey] !== undefined) {
+        updateData[snakeKey] = req.body[camelKey];
+      }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: "No valid fields provided" });
+    }
+
+    const { data, error } = await etsSupabase
+      .from("ets_clients")
+      .update(updateData)
+      .eq("id", id)
+      .select("*")
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
     res.json({ client: mapClient(data) });
   } catch (e: any) {
     res.status(500).json({ error: e.message });
@@ -236,6 +350,124 @@ etsPortalRouter.get("/client/:id/proposal", async (req, res) => {
       .eq("package_tier", client.package_tier)
       .single();
     res.json({ template: template || null });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+etsPortalRouter.get("/products", async (_req, res) => {
+  try {
+    const { data, error } = await etsSupabase
+      .from("ets_products")
+      .select("*, ets_categories(name)")
+      .order("name", { ascending: true });
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ products: (data || []).map(mapProduct) });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+etsPortalRouter.get("/categories", async (_req, res) => {
+  try {
+    const { data, error } = await etsSupabase
+      .from("ets_categories")
+      .select("*")
+      .order("name", { ascending: true });
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ categories: (data || []).map(mapCategory) });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+etsPortalRouter.get("/client/:id/kit-items", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await etsSupabase
+      .from("ets_kit_items")
+      .select("*, ets_products(name, landed_cost, mrp, units_per_carton, ets_categories(name))")
+      .eq("client_id", id)
+      .order("id", { ascending: true });
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ kitItems: (data || []).map(mapKitItem) });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+etsPortalRouter.post("/client/:id/kit-items", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { productId, quantity } = req.body;
+
+    const { data: existing } = await etsSupabase
+      .from("ets_kit_items")
+      .select("id, quantity")
+      .eq("client_id", id)
+      .eq("product_id", productId)
+      .maybeSingle();
+
+    let data, error;
+    if (existing) {
+      ({ data, error } = await etsSupabase
+        .from("ets_kit_items")
+        .update({ quantity: (existing.quantity || 0) + (quantity || 1) })
+        .eq("id", existing.id)
+        .select("*, ets_products(name, landed_cost, mrp, units_per_carton, ets_categories(name))")
+        .single());
+    } else {
+      ({ data, error } = await etsSupabase
+        .from("ets_kit_items")
+        .insert({
+          client_id: parseInt(id),
+          product_id: productId,
+          quantity: quantity || 1,
+        })
+        .select("*, ets_products(name, landed_cost, mrp, units_per_carton, ets_categories(name))")
+        .single());
+    }
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ kitItem: mapKitItem(data) });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+etsPortalRouter.patch("/client/:id/kit-items/:itemId", async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const { quantity } = req.body;
+    if (quantity <= 0) {
+      const { error } = await etsSupabase
+        .from("ets_kit_items")
+        .delete()
+        .eq("id", itemId);
+      if (error) return res.status(500).json({ error: error.message });
+      return res.json({ deleted: true });
+    }
+    const { data, error } = await etsSupabase
+      .from("ets_kit_items")
+      .update({ quantity })
+      .eq("id", itemId)
+      .select("*, ets_products(name, landed_cost, mrp, units_per_carton, ets_categories(name))")
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ kitItem: mapKitItem(data) });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+etsPortalRouter.delete("/client/:id/kit-items/:itemId", async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const { error } = await etsSupabase
+      .from("ets_kit_items")
+      .delete()
+      .eq("id", itemId);
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ success: true });
   } catch (e: any) {
     res.status(500).json({ error: e.message });
   }

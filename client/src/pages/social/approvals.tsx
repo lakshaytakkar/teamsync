@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { PersonCell } from "@/components/ui/avatar-cells";
 import { CheckCircle2, XCircle, Clock, ShieldCheck } from "lucide-react";
-import { SiInstagram, SiYoutube, SiLinkedin, SiFacebook, SiThreads } from "react-icons/si";
+import { SiInstagram, SiYoutube,  SiFacebook, SiThreads } from "react-icons/si";
+import { SiLinkedin } from "@/lib/icon-compat";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
