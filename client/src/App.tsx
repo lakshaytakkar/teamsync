@@ -213,7 +213,14 @@ import FaireInventory from "@/pages/faire/inventory";
 import FaireApplications from "@/pages/faire/applications";
 import FaireApplicationDetail from "@/pages/faire/application-detail";
 import VendorQuotations from "@/pages/vendor-portal/quotations";
+import VendorDashboard from "@/pages/vendor-portal/dashboard";
+import VendorOrders from "@/pages/vendor-portal/orders";
+import VendorOrderDetail from "@/pages/vendor-portal/order-detail";
+import VendorClients from "@/pages/vendor-portal/clients";
+import VendorStores from "@/pages/vendor-portal/stores";
+import VendorProducts from "@/pages/vendor-portal/products";
 import VendorLedger from "@/pages/vendor-portal/ledger";
+import VendorTracking from "@/pages/vendor-portal/tracking";
 import SupransDashboard from "@/pages/suprans/dashboard";
 import SupransInbound from "@/pages/suprans/inbound";
 import SupransEnrichment from "@/pages/suprans/enrichment";
@@ -608,10 +615,27 @@ function Router() {
       <Route path="/faire/analytics" component={FaireAnalytics} />
       <Route path="/faire/applications/:id" component={FaireApplicationDetail} />
       <Route path="/faire/applications" component={FaireApplications} />
+      <Route path="/vendor" component={VendorDashboard} />
+      <Route path="/vendor/notifications" component={UniversalNotifications} />
+      <Route path="/vendor/chat" component={UniversalChat} />
+      <Route path="/vendor/team" component={UniversalTeam} />
+      <Route path="/vendor/resources" component={UniversalResources} />
+      <Route path="/vendor/tasks" component={UniversalTasks} />
+      <Route path="/vendor/orders/:id" component={VendorOrderDetail} />
+      <Route path="/vendor/orders" component={VendorOrders} />
+      <Route path="/vendor/clients" component={VendorClients} />
+      <Route path="/vendor/stores" component={VendorStores} />
+      <Route path="/vendor/products" component={VendorProducts} />
+      <Route path="/vendor/tracking" component={VendorTracking} />
       <Route path="/vendor/quotations" component={VendorQuotations} />
       <Route path="/vendor/ledger" component={VendorLedger} />
       <Route path="/vendor/tickets/:id" component={UniversalTicketDetail} />
       <Route path="/vendor/tickets" component={UniversalTickets} />
+      <Route path="/vendor/reports" component={UniversalReports} />
+      <Route path="/vendor/important-contacts" component={UniversalImportantContacts} />
+      <Route path="/vendor/users" component={UniversalUsersAccess} />
+      <Route path="/vendor/apps" component={UniversalApps} />
+      <Route path="/vendor/image-studio" component={ImageStudio} />
       <Route path="/rnd" component={RndDashboard} />
       <Route path="/rnd/notifications" component={UniversalNotifications} />
       <Route path="/rnd/chat" component={UniversalChat} />

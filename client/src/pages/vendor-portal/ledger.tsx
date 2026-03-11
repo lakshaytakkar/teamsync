@@ -1,202 +1,198 @@
-import { useState, useEffect, Fragment } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
 import {
-  DollarSign, TrendingUp, TrendingDown, FileText, Building2, User,
-  ChevronDown, ChevronUp, Tag,
+  DollarSign, TrendingUp, TrendingDown, Percent, Search, FileText, Calendar,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Fade } from "@/components/ui/animated";
 import {
-  PageShell, DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR, StatGrid, StatCard,
+  PageShell, PageHeader, StatGrid, StatCard, IndexToolbar,
+  DataTableContainer, DataTH, SortableDataTH, DataTD, DataTR,
 } from "@/components/layout";
-import { formatUSD } from "@/lib/faire-currency";
-import { VENDOR_COLOR } from "@/lib/suprans-config";
+import { VENDOR_COLOR, LEDGER_PAYMENT_STATUS_CONFIG } from "@/lib/vendor-config";
+import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
+import { SOP_REGISTRY } from "@/lib/sop-data";
+import {
+  vendorLedger, vendorClients,
+  type VendorLedgerEntry, type VendorLedgerPaymentStatus,
+} from "@/lib/mock-data-vendor";
 
-
-const FULFILLER_KEYWORDS: Record<string, string[]> = {
-  "ShipFast Logistics": ["shipfast", "ship fast"],
-  "GlobalPack Co":      ["globalpack", "global pack"],
-  "QuickFulfill EU":    ["quickfulfill", "quick fulfill"],
-  "AsiaDirect Supply":  ["asiadirect", "asia direct", "riya"],
+const STATUS_TABS: (VendorLedgerPaymentStatus | "all")[] = ["all", "Paid", "Pending", "Overdue"];
+const STATUS_LABELS: Record<string, string> = {
+  all: "All", Paid: "Paid", Pending: "Pending", Overdue: "Overdue",
 };
 
-interface BankTx {
-  id: string;
-  source: string;
-  date: string;
-  description: string;
-  amount: number;
-  currency: string;
-  amount_usd: number | null;
-  type: string;
-  category: string | null;
-  is_business: boolean;
-  tags: string[];
-  reference: string | null;
-  faire_order_id: string | null;
-  reconciled: boolean;
-  notes: string | null;
+function fmt(n: number): string {
+  return "$" + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export default function VendorLedger() {
-  const [selectedVendorId, setSelectedVendorId] = useState<string>("");
-  const [typeFilter, setTypeFilter] = useState<"all" | "credit" | "debit">("all");
-  const [sortKey, setSortKey] = useState<string | null>("date");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<VendorLedgerPaymentStatus | "all">("all");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [clientFilter, setClientFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [sopOpen, setSopOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>({ key: "date", dir: "desc" });
 
-  const { data: vendorsData } = useQuery<{ vendors: any[] }>({ queryKey: ["/api/faire/vendors"] });
-  const allVendors: any[] = vendorsData?.vendors ?? [];
+  const handleSort = (key: string) => {
+    setSort(prev => {
+      if (!prev || prev.key !== key) return { key, dir: "desc" };
+      if (prev.dir === "desc") return { key, dir: "asc" };
+      return null;
+    });
+  };
 
-  const { data: txData, isLoading } = useQuery<{ transactions: BankTx[]; total: number }>({
-    queryKey: ["/api/bank-transactions", { source: "faire_payout" }],
-    queryFn: () => fetch("/api/bank-transactions?source=faire_payout&limit=200").then(r => r.json()),
-  });
-  const allTx: BankTx[] = txData?.transactions ?? [];
+  const filtered = useMemo(() => {
+    return vendorLedger.filter(e => {
+      if (statusFilter !== "all" && e.paymentStatus !== statusFilter) return false;
+      if (clientFilter !== "all" && e.clientId !== clientFilter) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        if (
+          !e.description.toLowerCase().includes(q) &&
+          !e.invoiceNumber.toLowerCase().includes(q) &&
+          !e.clientName.toLowerCase().includes(q)
+        ) return false;
+      }
+      return true;
+    });
+  }, [statusFilter, clientFilter, search]);
 
-  useEffect(() => {
-    if (allVendors.length > 0 && !selectedVendorId) {
-      const stored = localStorage.getItem("vp_vendor_id");
-      const match = allVendors.find(v => v.id === stored);
-      setSelectedVendorId(match ? stored! : allVendors[0].id);
+  const sorted = useMemo(() => {
+    if (!sort) return filtered;
+    return [...filtered].sort((a, b) => {
+      const dir = sort.dir === "asc" ? 1 : -1;
+      const k = sort.key;
+      let aVal: any, bVal: any;
+      if (k === "date") { aVal = a.date; bVal = b.date; }
+      else if (k === "amount") { aVal = a.amount; bVal = b.amount; }
+      else if (k === "balance") { aVal = a.balance; bVal = b.balance; }
+      else if (k === "client") { aVal = a.clientName; bVal = b.clientName; }
+      else { aVal = (a as any)[k]; bVal = (b as any)[k]; }
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+      if (typeof aVal === "number") return (aVal - bVal) * dir;
+      return String(aVal).localeCompare(String(bVal)) * dir;
+    });
+  }, [filtered, sort]);
+
+  const totalRevenue = vendorLedger.filter(e => e.type === "Credit").reduce((s, e) => s + e.amount, 0);
+  const totalPayouts = vendorLedger.filter(e => e.type === "Debit").reduce((s, e) => s + e.amount, 0);
+  const outstanding = vendorLedger.filter(e => e.paymentStatus === "Pending" || e.paymentStatus === "Overdue").reduce((s, e) => s + (e.type === "Credit" ? e.amount : -e.amount), 0);
+  const profitMargin = totalRevenue > 0 ? ((totalRevenue - totalPayouts) / totalRevenue * 100) : 0;
+
+  const runningBalances = useMemo(() => {
+    const map: Record<string, number> = {};
+    let bal = 0;
+    const sortedByDate = [...vendorLedger].sort((a, b) => a.date.localeCompare(b.date));
+    for (const entry of sortedByDate) {
+      bal += entry.type === "Credit" ? entry.amount : -entry.amount;
+      map[entry.id] = +bal.toFixed(2);
     }
-  }, [allVendors, selectedVendorId]);
-
-  function handleVendorChange(id: string) {
-    setSelectedVendorId(id);
-    localStorage.setItem("vp_vendor_id", id);
-  }
-
-  const vendor = allVendors.find(v => v.id === selectedVendorId);
-  const vendorName = vendor?.name ?? "";
-  const keywords = FULFILLER_KEYWORDS[vendorName] ?? [vendorName.toLowerCase().split(" ")[0]];
-
-  const myTx = allTx.filter(t =>
-    keywords.some(kw => t.description?.toLowerCase().includes(kw))
-  );
-
-  const filtered = myTx.filter(t => {
-    if (typeFilter === "credit" && t.type !== "credit") return false;
-    if (typeFilter === "debit" && t.type !== "debit") return false;
-    return true;
-  });
-
-  const sorted = [...filtered].sort((a, b) => {
-    const dir = sortDir === "asc" ? 1 : -1;
-    const k = sortKey ?? "date";
-    const aVal = k === "amount" ? (a.amount_usd ?? a.amount) : (a as any)[k];
-    const bVal = k === "amount" ? (b.amount_usd ?? b.amount) : (b as any)[k];
-    if (aVal == null) return 1;
-    if (bVal == null) return -1;
-    if (typeof aVal === "number") return (aVal - bVal) * dir;
-    return String(aVal).localeCompare(String(bVal)) * dir;
-  });
-
-  function handleSort(key: string) {
-    if (sortKey === key) {
-      setSortDir(d => d === "asc" ? "desc" : "asc");
-    } else {
-      setSortKey(key);
-      setSortDir("desc");
-    }
-  }
-
-  const totalCredits = myTx.filter(t => t.type === "credit").reduce((s, t) => s + (t.amount_usd ?? t.amount), 0);
-  const totalDebits  = myTx.filter(t => t.type === "debit").reduce((s, t) => s + (t.amount_usd ?? t.amount), 0);
-  const balance      = totalCredits - totalDebits;
-  const unrec        = myTx.filter(t => !t.reconciled).length;
-
-  const sort = sortKey ? { key: sortKey, dir: sortDir } : null;
+    return map;
+  }, []);
 
   return (
     <PageShell>
       <Fade>
-        <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold font-heading">Ledger</h1>
-            <p className="text-sm text-muted-foreground mt-1">Financial transactions and payment history</p>
-          </div>
-          <div className="w-64">
-            <Select value={selectedVendorId} onValueChange={handleVendorChange}>
-              <SelectTrigger data-testid="select-vendor-ledger">
-                <SelectValue placeholder="Select your company…" />
-              </SelectTrigger>
-              <SelectContent>
-                {allVendors.map(v => (
-                  <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <PageHeader
+          title="Ledger"
+          subtitle="Financial transactions, payment history, and running balance"
+          actions={<SopTutorialButtons onSopClick={() => setSopOpen(true)} onTutorialClick={() => setTutorialOpen(true)} />}
+        />
       </Fade>
 
       <Fade>
         <StatGrid cols={4}>
           <StatCard
-            label="Total Credits"
-            value={formatUSD(totalCredits)}
+            label="Total Revenue"
+            value={fmt(totalRevenue)}
             icon={TrendingUp}
             iconBg="#ECFDF5"
             iconColor="#059669"
           />
           <StatCard
-            label="Total Debits"
-            value={formatUSD(totalDebits)}
+            label="Total Payouts"
+            value={fmt(totalPayouts)}
             icon={TrendingDown}
             iconBg="#FEF2F2"
             iconColor="#DC2626"
           />
           <StatCard
-            label="Net Balance"
-            value={formatUSD(balance)}
+            label="Outstanding"
+            value={fmt(Math.abs(outstanding))}
             icon={DollarSign}
-            iconBg="#F5F3FF"
-            iconColor="#7C3AED"
-          />
-          <StatCard
-            label="Unreconciled"
-            value={String(unrec)}
-            icon={FileText}
             iconBg="#FFFBEB"
             iconColor="#D97706"
+          />
+          <StatCard
+            label="Profit Margin"
+            value={`${profitMargin.toFixed(1)}%`}
+            icon={Percent}
+            iconBg="#F5F3FF"
+            iconColor="#7C3AED"
           />
         </StatGrid>
       </Fade>
 
       <Fade>
-        <div className="flex gap-1.5 p-1 bg-muted/50 rounded-xl w-fit border mb-4">
-          {(["all", "credit", "debit"] as const).map(f => (
-            <button
-              key={f}
-              onClick={() => setTypeFilter(f)}
-              className="px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all"
-              style={typeFilter === f ? { background: VENDOR_COLOR, color: "#fff" } : { color: "var(--muted-foreground)" }}
-              data-testid={`filter-${f}`}
-            >
-              {f === "all" ? "All" : f === "credit" ? "Credits Received" : "Debits Paid"}
-              <span className="ml-1.5 text-xs opacity-70">
-                ({f === "all" ? myTx.length : f === "credit" ? myTx.filter(t => t.type === "credit").length : myTx.filter(t => t.type === "debit").length})
-              </span>
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search description, invoice, client..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-9"
+              data-testid="input-search-ledger"
+            />
+          </div>
+          <div className="w-52">
+            <Select value={clientFilter} onValueChange={setClientFilter}>
+              <SelectTrigger data-testid="select-client-filter">
+                <SelectValue placeholder="All Clients" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Clients</SelectItem>
+                {vendorClients.map(c => (
+                  <SelectItem key={c.id} value={c.id}>{c.businessName}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex gap-1.5 p-1 bg-muted/50 rounded-xl w-fit border">
+            {STATUS_TABS.map(f => (
+              <button
+                key={f}
+                onClick={() => setStatusFilter(f)}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                style={statusFilter === f ? { background: VENDOR_COLOR, color: "#fff" } : { color: "var(--muted-foreground)" }}
+                data-testid={`filter-ledger-${f}`}
+              >
+                {STATUS_LABELS[f]}
+                <span className="ml-1.5 text-xs opacity-70">
+                  ({f === "all"
+                    ? vendorLedger.length
+                    : vendorLedger.filter(e => e.paymentStatus === f).length
+                  })
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </Fade>
 
       <Fade>
-        {isLoading ? (
-          <div className="h-48 animate-pulse bg-muted/30 rounded-xl" />
-        ) : sorted.length === 0 ? (
+        {sorted.length === 0 ? (
           <div className="p-12 text-center border rounded-xl bg-card">
-            <DollarSign className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
-            <div className="font-medium text-muted-foreground">No transactions found</div>
-            <div className="text-sm text-muted-foreground mt-1">
-              {!vendorName ? "Select a vendor to view transactions." : `No ledger entries found for ${vendorName}.`}
-            </div>
+            <FileText className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
+            <div className="font-medium text-muted-foreground">No ledger entries found</div>
+            <div className="text-sm text-muted-foreground mt-1">Try adjusting your filters or search terms.</div>
           </div>
         ) : (
           <DataTableContainer>
@@ -204,118 +200,94 @@ export default function VendorLedger() {
               <thead>
                 <tr className="border-b bg-muted/30">
                   <SortableDataTH sortKey="date" currentSort={sort} onSort={handleSort}>Date</SortableDataTH>
+                  <SortableDataTH sortKey="client" currentSort={sort} onSort={handleSort}>Client</SortableDataTH>
                   <DataTH>Description</DataTH>
-                  <SortableDataTH sortKey="type" currentSort={sort} onSort={handleSort}>Type</SortableDataTH>
-                  <SortableDataTH sortKey="amount" currentSort={sort} onSort={handleSort}>Amount (USD)</SortableDataTH>
-                  <DataTH>Reference</DataTH>
-                  <DataTH>Tags</DataTH>
-                  <DataTH>Business?</DataTH>
+                  <DataTH>Invoice #</DataTH>
+                  <DataTH>Debit</DataTH>
+                  <DataTH>Credit</DataTH>
+                  <SortableDataTH sortKey="balance" currentSort={sort} onSort={handleSort}>Balance</SortableDataTH>
                   <DataTH>Status</DataTH>
-                  <DataTH></DataTH>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {sorted.map(t => {
-                  const amount = t.amount_usd ?? t.amount;
-                  const isExpanded = expandedId === t.id;
+                {sorted.map(entry => {
+                  const sc = LEDGER_PAYMENT_STATUS_CONFIG[entry.paymentStatus.toLowerCase() as keyof typeof LEDGER_PAYMENT_STATUS_CONFIG];
+                  const balance = runningBalances[entry.id] ?? entry.balance;
                   return (
-                    <Fragment key={t.id}>
-                    <DataTR
-                      data-testid={`row-tx-${t.id}`}
-                      className={!t.reconciled ? "border-l-[3px] border-l-amber-400" : ""}
-                    >
-                        <DataTD className="text-muted-foreground whitespace-nowrap">
-                          {new Date(t.date).toLocaleDateString()}
-                        </DataTD>
-                        <DataTD className="max-w-xs">
-                          <span className="line-clamp-2 text-sm">{t.description}</span>
-                        </DataTD>
-                        <DataTD>
-                          <span
-                            className="text-xs px-2 py-1 rounded-full font-semibold uppercase"
-                            style={t.type === "credit"
-                              ? { background: "#ECFDF5", color: "#059669" }
-                              : { background: "#FEF2F2", color: "#DC2626" }}
-                          >
-                            {t.type}
-                          </span>
-                        </DataTD>
-                        <DataTD>
-                          <span className={`font-bold ${t.type === "credit" ? "text-emerald-600" : "text-red-500"}`}>
-                            {t.type === "credit" ? "+" : "−"}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </span>
-                        </DataTD>
-                        <DataTD>
-                          {t.reference
-                            ? <span className="text-xs text-muted-foreground">{t.reference}</span>
-                            : <span className="text-muted-foreground">—</span>}
-                        </DataTD>
-                        <DataTD>
-                          <div className="flex flex-wrap gap-1">
-                            {t.tags?.slice(0, 2).map((tag: string) => (
-                              <span key={tag} className="text-xs px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground flex items-center gap-0.5">
-                                <Tag className="h-2.5 w-2.5" />{tag}
-                              </span>
-                            ))}
-                          </div>
-                        </DataTD>
-                        <DataTD>
-                          <span
-                            className="flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium border w-fit"
-                            style={t.is_business
-                              ? { background: "#ECFDF5", color: "#059669", borderColor: "#A7F3D0" }
-                              : { background: "#FFFBEB", color: "#D97706", borderColor: "#FDE68A" }}
-                          >
-                            {t.is_business ? <Building2 size={11} /> : <User size={11} />}
-                            {t.is_business ? "Biz" : "Personal"}
-                          </span>
-                        </DataTD>
-                        <DataTD>
-                          <span
-                            className="text-xs px-2 py-1 rounded-full font-medium"
-                            style={t.reconciled
-                              ? { background: "#ECFDF5", color: "#059669" }
-                              : { background: "#FFFBEB", color: "#D97706" }}
-                          >
-                            {t.reconciled ? "Reconciled" : "Pending"}
-                          </span>
-                        </DataTD>
-                        <DataTD>
-                          {t.notes && (
-                            <Button variant="ghost" size="sm" onClick={() => setExpandedId(isExpanded ? null : t.id)} data-testid={`button-notes-${t.id}`}>
-                              {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                            </Button>
-                          )}
-                        </DataTD>
-                      </DataTR>
-                      {isExpanded && t.notes && (
-                        <tr className="bg-muted/20">
-                          <td colSpan={9} className="px-4 py-3 text-sm text-muted-foreground italic">
-                            {t.notes}
-                          </td>
-                        </tr>
-                      )}
-                    </Fragment>
+                    <DataTR key={entry.id} data-testid={`row-ledger-${entry.id}`}>
+                      <DataTD className="text-muted-foreground whitespace-nowrap">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {new Date(entry.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </span>
+                      </DataTD>
+                      <DataTD>
+                        <span className="font-medium">{entry.clientName}</span>
+                      </DataTD>
+                      <DataTD className="max-w-xs">
+                        <span className="line-clamp-2 text-sm">{entry.description}</span>
+                      </DataTD>
+                      <DataTD>
+                        <span className="text-xs text-muted-foreground font-mono">{entry.invoiceNumber}</span>
+                      </DataTD>
+                      <DataTD>
+                        {entry.type === "Debit" ? (
+                          <span className="font-semibold text-red-500">-{fmt(entry.amount)}</span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </DataTD>
+                      <DataTD>
+                        {entry.type === "Credit" ? (
+                          <span className="font-semibold text-emerald-600">+{fmt(entry.amount)}</span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </DataTD>
+                      <DataTD>
+                        <span className={`font-bold ${balance >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                          {fmt(balance)}
+                        </span>
+                      </DataTD>
+                      <DataTD>
+                        <Badge
+                          style={{ background: sc?.bg, color: sc?.color }}
+                          className="border-0 text-xs"
+                          data-testid={`badge-status-${entry.id}`}
+                        >
+                          {sc?.label ?? entry.paymentStatus}
+                        </Badge>
+                      </DataTD>
+                    </DataTR>
                   );
                 })}
               </tbody>
-              {sorted.length > 0 && (
-                <tfoot>
-                  <tr className="border-t bg-muted/20">
-                    <td colSpan={3} className="px-4 py-3 text-sm font-semibold">Total</td>
-                    <td className="px-4 py-3 font-bold">
-                      <span style={{ color: balance >= 0 ? "#059669" : "#DC2626" }}>
-                        {balance >= 0 ? "+" : "−"}${Math.abs(balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </span>
-                    </td>
-                    <td colSpan={5} />
-                  </tr>
-                </tfoot>
-              )}
+              <tfoot>
+                <tr className="border-t bg-muted/20">
+                  <td colSpan={4} className="px-4 py-3 text-sm font-semibold">
+                    Totals ({sorted.length} entries)
+                  </td>
+                  <td className="px-4 py-3 font-bold text-red-500">
+                    -{fmt(sorted.filter(e => e.type === "Debit").reduce((s, e) => s + e.amount, 0))}
+                  </td>
+                  <td className="px-4 py-3 font-bold text-emerald-600">
+                    +{fmt(sorted.filter(e => e.type === "Credit").reduce((s, e) => s + e.amount, 0))}
+                  </td>
+                  <td className="px-4 py-3 font-bold" style={{ color: VENDOR_COLOR }}>
+                    {fmt(
+                      sorted.filter(e => e.type === "Credit").reduce((s, e) => s + e.amount, 0) -
+                      sorted.filter(e => e.type === "Debit").reduce((s, e) => s + e.amount, 0)
+                    )}
+                  </td>
+                  <td />
+                </tr>
+              </tfoot>
             </table>
           </DataTableContainer>
         )}
       </Fade>
+      <SopModal open={sopOpen} onOpenChange={setSopOpen} config={SOP_REGISTRY["vendor-ledger"].sop} color={VENDOR_COLOR} />
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} config={SOP_REGISTRY["vendor-ledger"].tutorial} color={VENDOR_COLOR} />
     </PageShell>
   );
 }

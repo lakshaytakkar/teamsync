@@ -827,6 +827,123 @@ export const SOP_REGISTRY: Record<string, { sop: SopConfig; tutorial: TutorialCo
       description: "Managing external tools and apps for trips.",
     },
   },
+  "vendor-dashboard": {
+    sop: {
+      title: "HQ Dropshipping Dashboard — SOP",
+      description: "How to use the HQ Dropshipping dashboard to monitor fulfillment operations.",
+      steps: [
+        { n: 1, title: "Review KPIs", body: "Check new orders, processing count, shipped, delivered, total revenue, and active clients. All stats are real-time." },
+        { n: 2, title: "Recent Orders", body: "Review the latest 10 orders in the Recent Orders table. Click any row to view full order details." },
+        { n: 3, title: "Client Overview", body: "Check top clients by order volume in the Client Overview section." },
+        { n: 4, title: "Quick Actions", body: "Use quick action buttons to navigate to Orders, Clients, Tracking, or Ledger." },
+      ],
+    },
+    tutorial: {
+      title: "HQ Dropshipping Dashboard — Video Tutorial",
+      description: "Overview of the HQ Dropshipping dashboard.",
+    },
+  },
+
+  "vendor-orders": {
+    sop: {
+      title: "Order Management — SOP",
+      description: "How to manage incoming orders from USDrop Shopify clients.",
+      steps: [
+        { n: 1, title: "Review New Orders", body: "Filter by 'New' status to see unprocessed orders. Check customer address, items, and store." },
+        { n: 2, title: "Quote Order", body: "Click into the order detail. Enter your cost quote for each line item. Submit the quote for approval.", warn: "Quotes must be submitted within 24 hours of order receipt." },
+        { n: 3, title: "Process Order", body: "Once quote is accepted, mark the order as 'Processing'. Begin fulfillment preparation." },
+        { n: 4, title: "Add Tracking", body: "Enter carrier, tracking number, and ship date. Mark as 'Shipped'." },
+        { n: 5, title: "Confirm Delivery", body: "When tracking shows delivered, mark the order as 'Delivered'. This triggers ledger entry." },
+      ],
+    },
+    tutorial: {
+      title: "Order Management — Video Tutorial",
+      description: "Complete guide to managing dropshipping orders.",
+    },
+  },
+
+  "vendor-clients": {
+    sop: {
+      title: "Client Management — SOP",
+      description: "How to manage USDrop client accounts and their order history.",
+      steps: [
+        { n: 1, title: "Browse Clients", body: "View all USDrop client businesses with their contact info, Shopify domains, and plan tiers." },
+        { n: 2, title: "View Client Detail", body: "Click a client card to see their full profile: stores, order history, and ledger summary." },
+        { n: 3, title: "Track Performance", body: "Monitor total orders, spending, and store connectivity per client." },
+      ],
+    },
+    tutorial: {
+      title: "Client Management — Video Tutorial",
+      description: "Managing USDrop client relationships.",
+    },
+  },
+
+  "vendor-stores": {
+    sop: {
+      title: "Store Management — SOP",
+      description: "How to monitor connected Shopify stores and their sync status.",
+      steps: [
+        { n: 1, title: "Check Connectivity", body: "Review store connection status: Connected (syncing orders), Syncing (in progress), Disconnected (needs attention).", warn: "Disconnected stores will not receive new orders." },
+        { n: 2, title: "View Store Orders", body: "Click any store row to see all orders from that specific store." },
+        { n: 3, title: "Monitor Sync", body: "Check 'Last Sync' timestamp to ensure stores are syncing regularly." },
+      ],
+    },
+    tutorial: {
+      title: "Store Management — Video Tutorial",
+      description: "Managing Shopify store connections.",
+    },
+  },
+
+  "vendor-products": {
+    sop: {
+      title: "Product Catalogue — SOP",
+      description: "How to browse and manage the product catalogue for fulfillment.",
+      steps: [
+        { n: 1, title: "Browse Products", body: "Switch between grid view (visual) and table view (data) to browse products." },
+        { n: 2, title: "Check Stock", body: "Monitor stock status: In Stock (green), Low Stock (amber), Out of Stock (red).", warn: "Low stock products should be reordered immediately to avoid fulfillment delays." },
+        { n: 3, title: "Review Pricing", body: "Check cost price vs selling price and margin percentages for each product." },
+        { n: 4, title: "Filter & Search", body: "Use the search bar and category filters to find specific products." },
+      ],
+    },
+    tutorial: {
+      title: "Product Catalogue — Video Tutorial",
+      description: "Browsing and managing the product catalogue.",
+    },
+  },
+
+  "vendor-tracking": {
+    sop: {
+      title: "Shipment Tracking — SOP",
+      description: "How to track all shipments and update delivery status.",
+      steps: [
+        { n: 1, title: "Monitor Shipments", body: "View all active shipments with their carrier, tracking number, and current status." },
+        { n: 2, title: "Track Progress", body: "Expand any shipment row to see the full tracking timeline with locations and timestamps." },
+        { n: 3, title: "Filter by Status", body: "Use status filters to focus on specific shipment stages: Label Created, In Transit, Out for Delivery, Delivered." },
+        { n: 4, title: "Update Tracking", body: "Tracking updates are synced automatically from carrier APIs." },
+      ],
+    },
+    tutorial: {
+      title: "Shipment Tracking — Video Tutorial",
+      description: "Tracking shipments and managing deliveries.",
+    },
+  },
+
+  "vendor-ledger": {
+    sop: {
+      title: "Financial Ledger — SOP",
+      description: "How to manage the financial ledger for all client transactions.",
+      steps: [
+        { n: 1, title: "Review Summary", body: "Check total revenue, payouts, outstanding balance, and profit margin in the stat cards." },
+        { n: 2, title: "Filter Transactions", body: "Filter by client, payment status (Paid/Pending/Overdue), or search by description/invoice number." },
+        { n: 3, title: "Track Balances", body: "The running balance column shows cumulative balance after each transaction." },
+        { n: 4, title: "Follow Up on Overdue", body: "Filter by 'Overdue' status to identify payments that need follow-up.", warn: "Overdue payments beyond 30 days should be escalated." },
+      ],
+    },
+    tutorial: {
+      title: "Financial Ledger — Video Tutorial",
+      description: "Managing financial records and transactions.",
+    },
+  },
 };
 
 export function getSopConfig(pageKey: string): { sop: SopConfig; tutorial: TutorialConfig } | null {
