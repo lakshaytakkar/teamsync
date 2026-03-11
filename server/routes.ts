@@ -8,6 +8,7 @@ import { devProjectsRouter } from "./dev-projects";
 import { legalnationsRouter } from "./legalnations-api";
 import { etsRouter } from "./ets-api";
 import { etsPortalRouter } from "./ets-portal-api";
+import { triphqRouter } from "./triphq-api";
 import {
   getStoreCredentials,
   listStores,
@@ -1401,6 +1402,7 @@ export async function registerRoutes(
   app.use("/api/legalnations", legalnationsRouter);
   app.use("/api/ets", etsRouter);
   app.use("/api/ets-portal", etsPortalRouter);
+  app.use("/api/triphq", triphqRouter);
 
   return httpServer;
 }

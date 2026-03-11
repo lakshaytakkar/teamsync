@@ -228,6 +228,19 @@ import RndMarketIntelligence from "@/pages/rnd/market-intelligence";
 import RndKeyFindings from "@/pages/rnd/key-findings";
 import RndSaasReferences from "@/pages/rnd/saas-references";
 
+import TripHQDashboard from "@/pages/triphq/dashboard";
+import TripHQItinerary from "@/pages/triphq/itinerary";
+import TripHQContacts from "@/pages/triphq/contacts";
+import TripHQCatalogue from "@/pages/triphq/catalogue";
+import TripHQBudget from "@/pages/triphq/budget";
+import TripHQChecklist from "@/pages/triphq/checklist";
+import TripHQPacking from "@/pages/triphq/packing";
+import TripHQTransport from "@/pages/triphq/transport";
+import TripHQContent from "@/pages/triphq/content";
+import TripHQDeliverables from "@/pages/triphq/deliverables";
+import TripHQDocuments from "@/pages/triphq/documents";
+import TripHQApps from "@/pages/triphq/apps";
+
 function Router() {
   return (
     <Switch>
@@ -619,6 +632,31 @@ function Router() {
       <Route path="/rnd/market-intelligence" component={RndMarketIntelligence} />
       <Route path="/rnd/key-findings" component={RndKeyFindings} />
       <Route path="/rnd/saas-references" component={RndSaasReferences} />
+      <Route path="/triphq" component={TripHQDashboard} />
+      <Route path="/triphq/notifications" component={UniversalNotifications} />
+      <Route path="/triphq/chat" component={UniversalChat} />
+      <Route path="/triphq/team" component={UniversalTeam} />
+      <Route path="/triphq/resources" component={UniversalResources} />
+      <Route path="/triphq/tasks" component={UniversalTasks} />
+      <Route path="/triphq/tickets/:id" component={UniversalTicketDetail} />
+      <Route path="/triphq/tickets" component={UniversalTickets} />
+      <Route path="/triphq/important-contacts" component={UniversalImportantContacts} />
+      <Route path="/triphq/reports" component={UniversalReports} />
+      <Route path="/triphq/image-studio" component={UniversalImageStudio} />
+      <Route path="/triphq/user-management" component={UniversalUsers} />
+      <Route path="/triphq/user-groups" component={UniversalUserGroups} />
+      <Route path="/triphq/apps-credentials" component={UniversalAppsCredentials} />
+      <Route path="/triphq/itinerary" component={TripHQItinerary} />
+      <Route path="/triphq/contacts" component={TripHQContacts} />
+      <Route path="/triphq/catalogue" component={TripHQCatalogue} />
+      <Route path="/triphq/budget" component={TripHQBudget} />
+      <Route path="/triphq/checklist" component={TripHQChecklist} />
+      <Route path="/triphq/packing" component={TripHQPacking} />
+      <Route path="/triphq/transport" component={TripHQTransport} />
+      <Route path="/triphq/content" component={TripHQContent} />
+      <Route path="/triphq/deliverables" component={TripHQDeliverables} />
+      <Route path="/triphq/documents" component={TripHQDocuments} />
+      <Route path="/triphq/apps" component={TripHQApps} />
       <Route component={NotFound} />
     </Switch>
   );

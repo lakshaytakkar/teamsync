@@ -59,6 +59,7 @@ import {
   Globe,
   Search,
   Library,
+  Compass,
   type LucideIcon,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -78,6 +79,7 @@ import { SocialLogo } from "@/components/brand/social-logo";
 import { FaireLogo } from "@/components/brand/faire-logo";
 import { SupransLogo } from "@/components/brand/suprans-logo";
 import { VendorPortalLogo } from "@/components/brand/vendor-portal-logo";
+import { TripHQLogo } from "@/components/brand/triphq-logo";
 import { RndLogo } from "@/components/brand/rnd-logo";
 
 export interface NavItem {
@@ -1156,6 +1158,140 @@ export const verticals: Vertical[] = [
     ],
   },
   {
+    id: "triphq",
+    routePrefix: "triphq",
+    name: "Trip HQ",
+    shortName: "Trip HQ",
+    icon: Compass,
+    logo: TripHQLogo,
+    color: "#0891B2",
+    tagline: "Travel Operations",
+    description: "Internal travel operations portal — sourcing trips, contacts, budgets & logistics",
+    isDepartment: false,
+    navCategories: [
+      {
+        title: "Dashboard",
+        defaultUrl: "/triphq",
+        icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/triphq/chat",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Team",
+        defaultUrl: "/triphq/team",
+        icon: UserRound,
+        items: [],
+      },
+      {
+        title: "Resources",
+        defaultUrl: "/triphq/resources",
+        icon: FolderOpen,
+        items: [],
+      },
+      {
+        title: "Tasks",
+        defaultUrl: "/triphq/tasks",
+        icon: ListChecks,
+        items: [],
+      },
+      {
+        title: "Tickets",
+        defaultUrl: "/triphq/tickets",
+        icon: Ticket,
+        items: [],
+      },
+      {
+        title: "Itinerary",
+        defaultUrl: "/triphq/itinerary",
+        icon: CalendarDays,
+        items: [],
+      },
+      {
+        title: "Contacts",
+        defaultUrl: "/triphq/contacts",
+        icon: Users,
+        items: [],
+      },
+      {
+        title: "Catalogue",
+        defaultUrl: "/triphq/catalogue",
+        icon: Package,
+        items: [],
+      },
+      {
+        title: "Budget",
+        defaultUrl: "/triphq/budget",
+        icon: DollarSign,
+        items: [],
+      },
+      {
+        title: "Checklist",
+        defaultUrl: "/triphq/checklist",
+        icon: CheckSquare,
+        items: [
+          { title: "Pre-Departure", url: "/triphq/checklist" },
+          { title: "Packing List", url: "/triphq/packing" },
+        ],
+      },
+      {
+        title: "Transport",
+        defaultUrl: "/triphq/transport",
+        icon: Truck,
+        items: [],
+      },
+      {
+        title: "Content",
+        defaultUrl: "/triphq/content",
+        icon: FileImage,
+        items: [],
+      },
+      {
+        title: "Deliverables",
+        defaultUrl: "/triphq/deliverables",
+        icon: ClipboardList,
+        items: [],
+      },
+      {
+        title: "Documents",
+        defaultUrl: "/triphq/documents",
+        icon: FileText,
+        items: [],
+      },
+      {
+        title: "External Apps",
+        defaultUrl: "/triphq/apps",
+        icon: Blocks,
+        items: [],
+      },
+      {
+        title: "Reports",
+        defaultUrl: "/triphq/reports",
+        icon: BarChart3,
+        items: [],
+      },
+      {
+        title: "Contacts Book",
+        defaultUrl: "/triphq/important-contacts",
+        icon: Phone,
+        items: [],
+      },
+      {
+        title: "Users & Access",
+        defaultUrl: "/triphq/user-management",
+        icon: Shield,
+        items: [
+          { title: "Users", url: "/triphq/user-management" },
+          { title: "User Groups", url: "/triphq/user-groups" },
+        ],
+      },
+    ],
+  },
+  {
     id: "vendor-portal",
     routePrefix: "vendor",
     name: "Vendor Portal",
@@ -2084,5 +2220,6 @@ export function detectVerticalFromUrl(location: string): Vertical | undefined {
   if (location.startsWith("/dev")) return getVerticalById("dev");
   if (location.startsWith("/ets")) return getVerticalById("ets");
   if (location.startsWith("/rnd")) return getVerticalById("rnd");
+  if (location.startsWith("/triphq")) return getVerticalById("triphq");
   return undefined;
 }

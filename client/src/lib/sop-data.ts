@@ -621,6 +621,212 @@ export const SOP_REGISTRY: Record<string, { sop: SopConfig; tutorial: TutorialCo
       description: "Complete guide to planning and executing events.",
     },
   },
+
+  "triphq-dashboard": {
+    sop: {
+      title: "Trip HQ Dashboard — SOP",
+      description: "How to use the Trip HQ dashboard to monitor trip preparation and progress.",
+      steps: [
+        { n: 1, title: "Review Stats", body: "Check days until departure, contacts met, products scouted, budget spent, checklist progress, and content shots. All stats are real-time from your data." },
+        { n: 2, title: "Upcoming Itinerary", body: "Review the next 3 days of your itinerary. Click 'View All' to see the full trip timeline." },
+        { n: 3, title: "Quick Actions", body: "Use the quick action buttons to add expenses, contacts, products, or upload files without navigating away." },
+        { n: 4, title: "Track Progress", body: "Monitor packing, checklist, transport booking, and contact meeting progress bars." },
+      ],
+    },
+    tutorial: {
+      title: "Trip HQ Dashboard — Video Tutorial",
+      description: "Overview of the Trip HQ dashboard and how to use it effectively.",
+    },
+  },
+
+  "triphq-itinerary": {
+    sop: {
+      title: "Trip Itinerary Management — SOP",
+      description: "How to plan and manage your day-by-day trip itinerary.",
+      steps: [
+        { n: 1, title: "Add Days", body: "Click 'Add Day' to create a new itinerary day. Fill in the day number, date, city, morning plan, evening plan, hotel name, and notes." },
+        { n: 2, title: "Expand Day Details", body: "Click on any day card to expand it and view the full morning/evening plans, hotel info, and notes." },
+        { n: 3, title: "Edit or Delete", body: "Use the edit button to modify day details or the delete button to remove a day entirely." },
+        { n: 4, title: "Attach Files", body: "Upload voice notes, photos, or documents per day from the Contacts or Documents page using entity tagging." },
+      ],
+    },
+    tutorial: {
+      title: "Trip Itinerary — Video Tutorial",
+      description: "How to build and manage your trip itinerary.",
+    },
+  },
+
+  "triphq-contacts": {
+    sop: {
+      title: "Trip Contacts Management — SOP",
+      description: "How to manage supplier contacts, meeting status, and business card uploads.",
+      steps: [
+        { n: 1, title: "Add Contact", body: "Click 'Add Contact' to add a new supplier or meeting contact. Fill in name, company, role, email, phone, WeChat ID, and city." },
+        { n: 2, title: "Track Meeting Status", body: "Update contact status: Upcoming (not yet met), Met (meeting completed), Followed Up (post-meeting action taken)." },
+        { n: 3, title: "Upload Business Cards", body: "Use the upload button on each contact card to attach business card photos (front/back) or voice note recordings." },
+        { n: 4, title: "Search & Filter", body: "Use the search bar and status filter pills to quickly find contacts." },
+      ],
+      quickLink: { label: "WeChat Web", url: "https://web.wechat.com" },
+    },
+    tutorial: {
+      title: "Trip Contacts — Video Tutorial",
+      description: "Managing contacts and supplier relationships during sourcing trips.",
+    },
+  },
+
+  "triphq-catalogue": {
+    sop: {
+      title: "Catalogue Builder — SOP",
+      description: "How to scout, photograph, and catalogue products during sourcing trips.",
+      steps: [
+        { n: 1, title: "Add Product", body: "Click 'Add Product' when you find an interesting item. Fill in name, category, sub-category, supplier name, CNY price, MOQ, and franchise fit score (1-5)." },
+        { n: 2, title: "Upload Photos", body: "Use the upload button on each product card to attach product photos. Multiple photos per product are supported." },
+        { n: 3, title: "Rate Franchise Fit", body: "Score products 1-5 on franchise fit. 5 = perfect fit for existing stores, 1 = interesting but not a match." },
+        { n: 4, title: "Manage Status", body: "Move products through: Shortlisted (initial interest) → Confirmed (will order) → Rejected (passed)." },
+        { n: 5, title: "Toggle Views", body: "Switch between grid view (visual browsing) and table view (data comparison) using the view toggle." },
+      ],
+    },
+    tutorial: {
+      title: "Catalogue Builder — Video Tutorial",
+      description: "Building a product catalogue during sourcing trips.",
+    },
+  },
+
+  "triphq-budget": {
+    sop: {
+      title: "Budget Tracker — SOP",
+      description: "How to log expenses, attach receipts, and track trip spending.",
+      steps: [
+        { n: 1, title: "Log Expense", body: "Click 'Add Expense' for each purchase. Fill in date, city, category (transport/food/hotel/shopping/business/misc), amount, currency, description, and payment method." },
+        { n: 2, title: "Upload Receipt", body: "Use the receipt upload icon in the table to attach a photo of the receipt for each expense." },
+        { n: 3, title: "Track by Currency", body: "View spending totals broken down by currency (CNY, USD, INR, THB) in the stat cards." },
+        { n: 4, title: "Filter by Category", body: "Use the category filter pills to view expenses by type." },
+      ],
+      quickLink: { label: "XE Currency Converter", url: "https://www.xe.com" },
+    },
+    tutorial: {
+      title: "Budget Tracker — Video Tutorial",
+      description: "Tracking expenses and managing trip budgets.",
+    },
+  },
+
+  "triphq-checklist": {
+    sop: {
+      title: "Pre-Departure Checklist — SOP",
+      description: "How to manage pre-departure tasks and document requirements.",
+      steps: [
+        { n: 1, title: "Review Tasks", body: "Check all pre-departure tasks. Items are categorized: documents, travel, tech, business, health, general." },
+        { n: 2, title: "Check Off Items", body: "Click the checkbox to mark items as completed. The progress bar updates automatically." },
+        { n: 3, title: "Upload Documents", body: "For document-related tasks (visa, insurance, TDAC), upload the relevant file using the upload button." },
+        { n: 4, title: "Watch Deadlines", body: "Items past their deadline show an 'Overdue' badge. Address these first.", warn: "Visa applications and TDAC registration have firm deadlines." },
+      ],
+    },
+    tutorial: {
+      title: "Pre-Departure Checklist — Video Tutorial",
+      description: "Completing all pre-departure preparations.",
+    },
+  },
+
+  "triphq-packing": {
+    sop: {
+      title: "Packing List — SOP",
+      description: "How to manage your packing list for the trip.",
+      steps: [
+        { n: 1, title: "Review Items", body: "Check all packing items organized by category: documents, tech, clothing, toiletries, health, business, general." },
+        { n: 2, title: "Pack Items", body: "Click the checkbox as you pack each item. The progress bar shows your packing completion." },
+        { n: 3, title: "Add Items", body: "Click 'Add Item' to add anything missing. Set the quantity and category." },
+      ],
+    },
+    tutorial: {
+      title: "Packing List — Video Tutorial",
+      description: "Organizing and tracking your packing.",
+    },
+  },
+
+  "triphq-transport": {
+    sop: {
+      title: "Transport Management — SOP",
+      description: "How to plan and track all transport legs of the trip.",
+      steps: [
+        { n: 1, title: "Add Transport Leg", body: "Click 'Add Leg' for each segment. Fill in: from city, to city, mode (flight/train/bus/taxi/ferry), departure and arrival times." },
+        { n: 2, title: "Book & Update Status", body: "Move legs through: Planned → Booked (after purchasing tickets) → Completed (after travel)." },
+        { n: 3, title: "Upload Tickets", body: "Attach ticket PDFs or screenshots using the upload button on each leg card." },
+        { n: 4, title: "Add Booking Reference", body: "Record booking references (PNR, confirmation numbers) for each leg." },
+      ],
+      quickLink: { label: "Trip.com", url: "https://www.trip.com" },
+    },
+    tutorial: {
+      title: "Transport Management — Video Tutorial",
+      description: "Planning and tracking trip transport.",
+    },
+  },
+
+  "triphq-content": {
+    sop: {
+      title: "Content Planner — SOP",
+      description: "How to plan and track content creation during the trip.",
+      steps: [
+        { n: 1, title: "Plan Shots", body: "Click 'Add Shot Idea' to plan content. Fill in title, description, city, equipment needed." },
+        { n: 2, title: "Track Progress", body: "Update status: Planned → Shot (captured) → Editing (post-production) → Published." },
+        { n: 3, title: "Upload Thumbnails", body: "After shooting, upload thumbnail images to each content card for visual reference." },
+        { n: 4, title: "Add Video Links", body: "Once published, add the video link (YouTube, social media) to each content item." },
+      ],
+    },
+    tutorial: {
+      title: "Content Planner — Video Tutorial",
+      description: "Planning and creating content during trips.",
+    },
+  },
+
+  "triphq-deliverables": {
+    sop: {
+      title: "Post-Trip Deliverables — SOP",
+      description: "How to manage and track post-trip action items and deliverables.",
+      steps: [
+        { n: 1, title: "Review Deliverables", body: "Check all post-trip deliverables with their due dates and current status." },
+        { n: 2, title: "Update Progress", body: "Move items through: Pending → In Progress → Done as work completes." },
+        { n: 3, title: "Attach Files", body: "Upload completed deliverable files (reports, catalogues, databases) using the upload button." },
+        { n: 4, title: "Add Links", body: "For online deliverables (Google Sheets, shared drives), add the link URL." },
+      ],
+    },
+    tutorial: {
+      title: "Post-Trip Deliverables — Video Tutorial",
+      description: "Completing and tracking post-trip deliverables.",
+    },
+  },
+
+  "triphq-documents": {
+    sop: {
+      title: "Documents Hub — SOP",
+      description: "How to manage the central document repository for the trip.",
+      steps: [
+        { n: 1, title: "Upload Files", body: "Click 'Upload File' to add standalone documents. Files uploaded from other pages (contacts, transport, etc.) also appear here." },
+        { n: 2, title: "Search & Filter", body: "Use the search bar and doc type filter pills to find specific files. Filter by: business card, receipt, ticket, product photo, voice note, etc." },
+        { n: 3, title: "Preview & Download", body: "Click images to preview them full-screen. Use the download button to save files locally. Audio files play inline." },
+        { n: 4, title: "Manage Files", body: "Delete unwanted files using the delete button on each file card." },
+      ],
+    },
+    tutorial: {
+      title: "Documents Hub — Video Tutorial",
+      description: "Managing trip documents and files.",
+    },
+  },
+
+  "triphq-apps": {
+    sop: {
+      title: "External Apps — SOP",
+      description: "How to manage and quick-launch external tools used during the trip.",
+      steps: [
+        { n: 1, title: "Browse Apps", body: "View all pre-configured external apps organized by category: transport, payment, communication, navigation, business." },
+        { n: 2, title: "Quick Launch", body: "Click 'Open' on any app card to launch it in a new browser tab." },
+        { n: 3, title: "Add New Apps", body: "Click 'Add App' to add any tool or website you need during the trip. Set the name, URL, category, and notes." },
+      ],
+    },
+    tutorial: {
+      title: "External Apps — Video Tutorial",
+      description: "Managing external tools and apps for trips.",
+    },
+  },
 };
 
 export function getSopConfig(pageKey: string): { sop: SopConfig; tutorial: TutorialConfig } | null {
