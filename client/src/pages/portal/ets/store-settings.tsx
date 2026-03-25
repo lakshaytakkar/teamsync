@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Settings, Store, Save, Search, X, Printer, Package, Shield,
 } from "lucide-react";
+import { ProductImage } from "@/components/product-image";
 import {
   POS_PRODUCTS, STORE_SETTINGS,
   type StoreSettings,
@@ -155,7 +156,7 @@ export default function EtsStoreSettings() {
           <div className="flex flex-wrap gap-2">
             {quickAddProducts.map(p => (
               <Badge key={p.id} variant="secondary" className="text-xs gap-1.5 py-1 pl-2 pr-1">
-                <span>{p.emoji}</span>
+                <ProductImage src={p.image} alt={p.name} size="xs" />
                 <span>{p.name}</span>
                 <button
                   className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
@@ -187,7 +188,7 @@ export default function EtsStoreSettings() {
                       data-testid={`button-add-quick-${p.id}`}
                     >
                       <span className="flex items-center gap-2">
-                        <span>{p.emoji}</span>
+                        <ProductImage src={p.image} alt={p.name} size="xs" />
                         <span>{p.name}</span>
                       </span>
                       <span className="text-xs text-muted-foreground">{formatINR(p.mrp)}</span>

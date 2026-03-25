@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
-  Package, Search, Filter, ArrowUpDown,
+  Package, Search, Filter, ArrowUpDown, ScrollText,
   ArrowDownRight, ArrowUpRight, Minus, RotateCcw, ClipboardList,
 } from "lucide-react";
+import { ProductImage } from "@/components/product-image";
 import {
   POS_PRODUCTS, INVENTORY,
   getStockStatus, STOCK_STATUS_CONFIG,
@@ -190,7 +191,7 @@ export default function EtsInventory() {
                   >
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">{item.emoji}</span>
+                        <ProductImage src={item.image} alt={item.name} size="sm" />
                         <span className="font-medium truncate max-w-[200px]">{item.name}</span>
                       </div>
                     </td>
@@ -234,7 +235,7 @@ export default function EtsInventory() {
             <>
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
-                  <span className="text-2xl">{selectedProd.emoji}</span>
+                  <ProductImage src={selectedProd.image} alt={selectedProd.name} size="md" />
                   {selectedProd.name}
                 </SheetTitle>
               </SheetHeader>
@@ -270,7 +271,7 @@ export default function EtsInventory() {
 
                 <div>
                   <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
-                    📜 Stock Movement History
+                    <ScrollText className="w-4 h-4" /> Stock Movement History
                   </h3>
                   {movements.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-6">No movements recorded</p>

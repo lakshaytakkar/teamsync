@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ClipboardList, Search, Barcode, Check, AlertTriangle, ArrowRight,
 } from "lucide-react";
+import { ProductImage } from "@/components/product-image";
 import {
   POS_PRODUCTS, INVENTORY, ADJUSTMENT_REASONS, addAdjustmentToInventory,
   type AdjustmentReason,
@@ -18,7 +19,7 @@ interface AdjustmentLog {
   id: string;
   productId: string;
   productName: string;
-  emoji: string;
+  image: string | null;
   systemCount: number;
   physicalCount: number;
   difference: number;
@@ -74,7 +75,7 @@ export default function EtsStockAdjustment() {
     if (!selectedProduct || !selectedInv || !reason) return;
     const log: AdjustmentLog = {
       id: `adj-${Date.now()}`,
-      productId: selectedProduct.id, productName: selectedProduct.name, emoji: selectedProduct.emoji,
+      productId: selectedProduct.id, productName: selectedProduct.name, image: selectedProduct.image,
       systemCount, physicalCount: physicalNum, difference,
       reason: ADJUSTMENT_REASONS[reason as AdjustmentReason],
       timestamp: new Date().toISOString(),
@@ -153,7 +154,7 @@ export default function EtsStockAdjustment() {
                         data-testid={`button-select-${p.id}`}
                       >
                         <span className="flex items-center gap-2">
-                          <span>{p.emoji}</span>
+                          <ProductImage src={p.image} alt={p.name} size="xs" />
                           <span>{p.name}</span>
                         </span>
                         <span className="text-xs text-muted-foreground font-mono">{p.barcode}</span>
@@ -169,7 +170,7 @@ export default function EtsStockAdjustment() {
             <Card className="border-0 shadow-sm border-l-4 border-l-amber-400">
               <CardContent className="p-4 space-y-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl">{selectedProduct.emoji}</span>
+                  <ProductImage src={selectedProduct.image} alt={selectedProduct.name} size="xl" />
                   <div>
                     <p className="font-semibold">{selectedProduct.name}</p>
                     <p className="text-xs text-muted-foreground font-mono">{selectedProduct.barcode}</p>
@@ -253,7 +254,7 @@ export default function EtsStockAdjustment() {
               <Card key={log.id} className="border-0 shadow-sm">
                 <CardContent className="p-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{log.emoji}</span>
+                    <ProductImage src={log.image} alt={log.productName} size="md" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{log.productName}</p>
                       <p className="text-[10px] text-muted-foreground">{log.reason}</p>
@@ -291,7 +292,7 @@ export default function EtsStockAdjustment() {
           </DialogHeader>
           {selectedProduct && (
             <div className="bg-amber-50 rounded-lg p-4 text-center space-y-1">
-              <p className="text-3xl">{selectedProduct.emoji}</p>
+              <ProductImage src={selectedProduct.image} alt={selectedProduct.name} size="xl" className="mx-auto" />
               <p className="font-semibold">{selectedProduct.name}</p>
               <div className="flex items-center justify-center gap-3 mt-2">
                 <span className="text-lg text-muted-foreground">{systemCount}</span>

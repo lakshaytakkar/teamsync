@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   RotateCcw, Search, Check, Receipt, Minus, Plus, History,
 } from "lucide-react";
+import { ProductImage } from "@/components/product-image";
 import {
   EXPANDED_SALES, RETURN_RECORDS, RETURN_REASONS,
   getNextReturnNumber, addStockMovement, updateInventoryStock, INVENTORY,
@@ -63,7 +64,7 @@ export default function EtsReturns() {
     if (!selectedSale || !canSubmit) return;
     const refNum = getNextReturnNumber();
     const items: ReturnItem[] = checkedItems.map(i => ({
-      productId: i.productId, productName: i.name, emoji: i.emoji,
+      productId: i.productId, productName: i.name, image: i.image,
       mrp: i.mrp, originalQty: i.quantity,
       returnQty: returnItems[i.id]?.qty ?? 0,
       lineTotal: i.mrp * (returnItems[i.id]?.qty ?? 0),
@@ -196,7 +197,7 @@ export default function EtsReturns() {
                         onCheckedChange={checked => setReturnItems(prev => ({ ...prev, [item.id]: { ...prev[item.id], checked: !!checked } }))}
                         data-testid={`checkbox-return-${item.id}`}
                       />
-                      <span className="text-xl">{item.emoji}</span>
+                      <ProductImage src={item.image} alt={item.name} size="md" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">{item.name}</p>
                         <p className="text-xs text-muted-foreground">{formatINR(item.mrp)} x {item.quantity} = {formatINR(item.lineTotal)}</p>
@@ -326,8 +327,9 @@ export default function EtsReturns() {
                   </div>
                   <div className="flex gap-2 mt-2 flex-wrap">
                     {ret.items.map(i => (
-                      <Badge key={i.productId} variant="secondary" className="text-[10px] gap-1">
-                        {i.emoji} {i.productName} x{i.returnQty}
+                      <Badge key={i.productId} variant="secondary" className="text-[10px] gap-1.5 py-0.5">
+                        <ProductImage src={i.image} alt={i.productName} size="xs" />
+                        {i.productName} x{i.returnQty}
                       </Badge>
                     ))}
                   </div>
@@ -352,7 +354,7 @@ export default function EtsReturns() {
             {checkedItems.map(i => (
               <div key={i.id} className="flex items-center justify-between py-1.5 text-sm">
                 <span className="flex items-center gap-1.5">
-                  <span>{i.emoji}</span>
+                  <ProductImage src={i.image} alt={i.name} size="xs" />
                   <span className="truncate max-w-[160px]">{i.name}</span>
                   <span className="text-muted-foreground">x{returnItems[i.id]?.qty}</span>
                 </span>
@@ -389,7 +391,7 @@ export default function EtsReturns() {
               <div className="space-y-2">
                 {selectedReturn.items.map(i => (
                   <div key={i.productId} className="flex items-center gap-3 py-2 border-b last:border-0">
-                    <span className="text-xl">{i.emoji}</span>
+                    <ProductImage src={i.image} alt={i.productName} size="md" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">{i.productName}</p>
                       <p className="text-xs text-muted-foreground">{formatINR(i.mrp)} x {i.returnQty}</p>

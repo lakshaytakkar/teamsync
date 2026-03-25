@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Truck, Search, Plus, Minus, Check, Package, History, Barcode, Trash2,
 } from "lucide-react";
+import { ProductImage } from "@/components/product-image";
 import {
   POS_PRODUCTS, STOCK_RECEIVES, getNextSRNumber, addReceiveToInventory,
   type StockReceiveSession, type StockReceiveItem,
@@ -50,7 +51,7 @@ export default function EtsStockReceive() {
     } else {
       setReceiveItems(prev => [...prev, {
         productId: prod.id, productName: prod.name, barcode: prod.barcode,
-        quantity, emoji: prod.emoji,
+        quantity, image: prod.image,
       }]);
     }
     navigator.vibrate?.(50);
@@ -187,7 +188,7 @@ export default function EtsStockReceive() {
                           data-testid={`button-add-product-${p.id}`}
                         >
                           <span className="flex items-center gap-2">
-                            <span>{p.emoji}</span>
+                            <ProductImage src={p.image} alt={p.name} size="xs" />
                             <span>{p.name}</span>
                           </span>
                           <span className="text-xs text-muted-foreground font-mono">{p.barcode}</span>
@@ -238,7 +239,7 @@ export default function EtsStockReceive() {
                 {receiveItems.map(item => (
                   <Card key={item.productId} className="border-0 shadow-sm">
                     <CardContent className="p-3 flex items-center gap-3">
-                      <span className="text-2xl">{item.emoji}</span>
+                      <ProductImage src={item.image} alt={item.productName} size="lg" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{item.productName}</p>
                         <p className="text-[10px] text-muted-foreground font-mono">{item.barcode}</p>
@@ -323,8 +324,9 @@ export default function EtsStockReceive() {
                   </div>
                   <div className="flex gap-2 mt-3 flex-wrap">
                     {session.items.map(it => (
-                      <Badge key={it.productId} variant="secondary" className="text-[10px] gap-1">
-                        {it.emoji} {it.productName} × {it.quantity}
+                      <Badge key={it.productId} variant="secondary" className="text-[10px] gap-1.5 py-0.5">
+                        <ProductImage src={it.image} alt={it.productName} size="xs" />
+                        {it.productName} × {it.quantity}
                       </Badge>
                     ))}
                   </div>
@@ -349,7 +351,7 @@ export default function EtsStockReceive() {
             {receiveItems.map(i => (
               <div key={i.productId} className="flex items-center justify-between py-1.5 text-sm">
                 <span className="flex items-center gap-1.5">
-                  <span>{i.emoji}</span>
+                  <ProductImage src={i.image} alt={i.productName} size="xs" />
                   <span className="truncate max-w-[180px]">{i.productName}</span>
                 </span>
                 <span className="font-bold text-green-600">+{i.quantity}</span>
@@ -387,7 +389,7 @@ export default function EtsStockReceive() {
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {selectedHistory.items.map(i => (
                   <div key={i.productId} className="flex items-center gap-3 py-2 border-b last:border-0">
-                    <span className="text-xl">{i.emoji}</span>
+                    <ProductImage src={i.image} alt={i.productName} size="md" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">{i.productName}</p>
                       <p className="text-[10px] text-muted-foreground font-mono">{i.barcode}</p>

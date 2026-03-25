@@ -171,7 +171,7 @@ export default function EtsPortalDashboard() {
               <div className="space-y-1.5 flex-1">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm">
-                    <span className="text-lg">🧾</span>
+                    <FileText className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold" data-testid="text-pos-cta">POS Billing</h3>

@@ -5,8 +5,9 @@ import {
   BarChart3, TrendingUp, ShoppingCart, Receipt, Banknote, Smartphone,
   CreditCard, RotateCcw,
 } from "lucide-react";
+import { ProductImage } from "@/components/product-image";
 import {
-  EXPANDED_SALES, RETURN_RECORDS, POS_PRODUCTS,
+  EXPANDED_SALES, RETURN_RECORDS, POS_PRODUCTS, getProductImage,
 } from "@/lib/mock-data-pos-ets";
 
 type DateRange = "today" | "yesterday" | "week" | "month";
@@ -62,11 +63,10 @@ export default function EtsDailyReport() {
   }, [filteredSales]);
 
   const topByQty = useMemo(() => {
-    const map: Record<string, { productId: string; name: string; emoji: string; qty: number; revenue: number }> = {};
+    const map: Record<string, { productId: string; name: string; image: string | null; qty: number; revenue: number }> = {};
     filteredSales.forEach(sale => sale.items.forEach(item => {
       if (!map[item.productId]) {
-        const prod = POS_PRODUCTS.find(p => p.id === item.productId);
-        map[item.productId] = { productId: item.productId, name: item.name, emoji: prod?.emoji ?? "", qty: 0, revenue: 0 };
+        map[item.productId] = { productId: item.productId, name: item.name, image: getProductImage(item.productId), qty: 0, revenue: 0 };
       }
       map[item.productId].qty += item.quantity;
       map[item.productId].revenue += item.lineTotal;
@@ -194,7 +194,7 @@ export default function EtsDailyReport() {
                 {(topTab === "qty" ? topByQty : topByRevenue).map((item, idx) => (
                   <div key={item.productId} className="flex items-center gap-2 py-1.5">
                     <span className="text-xs font-bold text-muted-foreground w-5 text-right">{idx + 1}.</span>
-                    <span className="text-lg">{item.emoji}</span>
+                    <ProductImage src={item.image} alt={item.name} size="md" />
                     <span className="text-sm flex-1 truncate">{item.name}</span>
                     <span className="text-xs text-muted-foreground">{item.qty} sold</span>
                     <span className="text-sm font-bold w-20 text-right">{formatINR(item.revenue)}</span>

@@ -15,6 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { ProductImage } from "@/components/product-image";
 import {
   POS_PRODUCTS, QUICK_ADD_PRODUCTS, POS_STORE,
   getNextReceiptNumber,
@@ -114,7 +115,7 @@ export default function PosBilling() {
         mrp: product.mrp,
         quantity: 1,
         lineTotal: product.mrp,
-        emoji: product.emoji,
+        image: product.image,
       }];
     });
 
@@ -355,7 +356,7 @@ export default function PosBilling() {
                     onClick={() => addProductToBill(p)}
                     data-testid={`search-result-${p.id}`}
                   >
-                    <span className="text-lg">{p.emoji}</span>
+                    <ProductImage src={p.image} alt={p.name} size="sm" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{p.name}</p>
                       <p className="text-[10px] text-muted-foreground">{p.category}</p>
@@ -386,7 +387,7 @@ export default function PosBilling() {
                   data-testid={`bill-item-${idx}`}
                 >
                   <span className="text-xs font-mono text-muted-foreground w-5 text-right">{idx + 1}</span>
-                  <span className="text-lg">{item.emoji}</span>
+                  <ProductImage src={item.image} alt={item.name} size="sm" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.name}</p>
                     <p className="text-xs text-muted-foreground">{formatINR(item.mrp)} each</p>
@@ -472,7 +473,7 @@ export default function PosBilling() {
                 onClick={() => addProductToBill(p)}
                 data-testid={`quickadd-${p.id}`}
               >
-                <span className="text-2xl group-hover:scale-110 transition-transform">{p.emoji}</span>
+                <ProductImage src={p.image} alt={p.name} size="lg" className="group-hover:scale-110 transition-transform" />
                 <p className="text-[10px] font-medium text-gray-700 leading-tight line-clamp-2">{p.name}</p>
                 <p className="text-xs font-bold text-orange-600">{formatINR(p.mrp)}</p>
               </button>
@@ -841,7 +842,7 @@ function ThermalReceipt({ sale, store, dateStr, timeStr }: {
         </>
       )}
       <div className="border-t border-dashed border-gray-300 my-2" />
-      <p className="text-[10px] text-gray-500 mt-1">Thank you! Visit again 🙏</p>
+      <p className="text-[10px] text-gray-500 mt-1">Thank you! Visit again</p>
       <p className="text-[9px] text-gray-400 mt-0.5">Powered by EazyToSell</p>
     </div>
   );

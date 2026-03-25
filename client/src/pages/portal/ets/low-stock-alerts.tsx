@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   AlertTriangle, TrendingDown, Clock, ShoppingCart, Package,
 } from "lucide-react";
+import { ProductImage } from "@/components/product-image";
 import {
   POS_PRODUCTS, INVENTORY, getDailySalesRate, getStockStatus,
 } from "@/lib/mock-data-pos-ets";
@@ -98,7 +99,7 @@ export default function EtsLowStockAlerts() {
               >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl mt-0.5">{item.emoji}</span>
+                    <ProductImage src={item.image} alt={item.name} size="lg" className="mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-sm">{item.name}</h3>
