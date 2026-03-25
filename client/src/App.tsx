@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { TopNavigation } from "@/components/layout/top-navigation";
+import { EtsSubNavSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
 import { AIChatWidget } from "@/components/ai-chat/AIChatWidget";
 import { VerticalContext, getStoredVertical, setStoredVerticalId } from "@/lib/vertical-store";
@@ -774,7 +775,13 @@ function App() {
               {!isEtsPortal && <AnnouncementBanner />}
               <TopNavigation />
               <main className="flex-1 overflow-auto">
-                <Router />
+                {isEtsPortal ? (
+                  <EtsSubNavSidebar>
+                    <Router />
+                  </EtsSubNavSidebar>
+                ) : (
+                  <Router />
+                )}
               </main>
             </div>
           )}

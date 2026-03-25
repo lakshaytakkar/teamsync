@@ -1492,6 +1492,8 @@ The ETS client portal uses the same admin panel layout (TopNavigation, vertical 
 
 **Layout Normalization (Mar 2026):** All ETS portal pages standardized to consistent `p-4 md:p-6 space-y-5` with appropriate max-widths. Older pages (catalog, store, orders, payments, support, profile, invoices, launch-kit, checklist, onboarding) use `max-w-[1200px] mx-auto`. POS pages keep their individual widths. POS billing is full-height (intentional). Onboarding uses `max-w-3xl`. The TeamSync announcement banner is hidden on ETS portal routes via conditional render in App.tsx.
 
+**Posive-Style Sidebar Navigation (Mar 2026):** All ETS portal pages with submenus use a vertical left sidebar layout instead of the horizontal blue bar. Component: `client/src/components/layout/ets-subnav-sidebar.tsx` (`EtsSubNavSidebar`). Auto-detects when the active nav category has multiple items and renders a 224px sidebar with icons, orange active state, and dot indicator. The horizontal sub-nav bar in `TopNavigation` is suppressed for the ETS portal (`isEtsPortal` check). Affected page groups: Inventory (4 items), Operations (4 items), My Store (3 items), Payments (2 items). Pages without submenus (Home, Products, POS Billing, Orders, Support, Profile) render full-width without sidebar.
+
 **Dashboard Redesign (Mar 2026):** Premium dashboard with two states:
 - **Post-launch (isLive):** Orange gradient hero, 4 live sales stat cards (Revenue/Avg Basket/Digital/Cash), 6 quick-action tiles with gradient icons, Top Selling Products with `ProductImage` thumbnails, Recent Sales feed, Stock Alerts panel with amber accent
 - **Pre-launch:** Launch Progress bar, Next Steps with icons, Timeline, Store Readiness checklist, financial summary cards (Total Paid/Inventory/Manager)

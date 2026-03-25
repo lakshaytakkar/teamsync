@@ -44,7 +44,8 @@ export function TopNavigation() {
   const { currentVertical } = useVertical();
   const navCategories = currentVertical.navCategories;
   const activeCategory = getActiveCategory(location, navCategories);
-  const showSubNav = activeCategory && activeCategory.items.length > 1;
+  const isEtsPortal = currentVertical?.id === "ets-portal";
+  const showSubNav = !isEtsPortal && activeCategory && activeCategory.items.length > 1;
 
   const findUrl = (...titles: string[]) => {
     for (const t of titles) {
