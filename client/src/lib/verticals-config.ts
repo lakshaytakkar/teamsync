@@ -1406,6 +1406,70 @@ export const verticals: Vertical[] = [
     ],
   },
   {
+    id: "ets-portal",
+    routePrefix: "portal-ets",
+    name: "EazyToSell Client Portal",
+    shortName: "EazyToSell",
+    icon: ShoppingBag,
+    logo: EazyToSellLogo,
+    color: "#F97316",
+    tagline: "Client Portal",
+    description: "Franchise owner portal — track your store journey, orders & payments",
+    isPortal: true,
+    navCategories: [
+      {
+        title: "Dashboard",
+        defaultUrl: "/portal-ets",
+        icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Store",
+        defaultUrl: "/portal-ets/store",
+        icon: Store,
+        items: [
+          { title: "My Store", url: "/portal-ets/store" },
+          { title: "Launch Kit", url: "/portal-ets/launch-kit" },
+          { title: "Checklist", url: "/portal-ets/checklist" },
+        ],
+      },
+      {
+        title: "Products",
+        defaultUrl: "/portal-ets/catalog",
+        icon: Package,
+        items: [],
+      },
+      {
+        title: "Orders & Payments",
+        defaultUrl: "/portal-ets/orders",
+        icon: Truck,
+        items: [
+          { title: "Orders", url: "/portal-ets/orders" },
+          { title: "Payments", url: "/portal-ets/payments" },
+          { title: "Invoices", url: "/portal-ets/invoices" },
+        ],
+      },
+      {
+        title: "Chat",
+        defaultUrl: "/portal-ets/messages",
+        icon: MessageCircle,
+        items: [],
+      },
+      {
+        title: "Support",
+        defaultUrl: "/portal-ets/support",
+        icon: Headphones,
+        items: [],
+      },
+      {
+        title: "Profile",
+        defaultUrl: "/portal-ets/profile",
+        icon: UserRound,
+        items: [],
+      },
+    ],
+  },
+  {
     id: "hrms",
     routePrefix: "hrms",
     name: "HR / HRMS",
@@ -2299,6 +2363,7 @@ export function detectVerticalFromUrl(location: string): Vertical | undefined {
   if (location.startsWith("/eventhub")) return getVerticalById("eventhub");
   if (location.startsWith("/lbm")) return getVerticalById("admin");
   if (location.startsWith("/dev")) return getVerticalById("dev");
+  if (location.startsWith("/portal-ets")) return getVerticalById("ets-portal");
   if (location.startsWith("/ets")) return getVerticalById("ets");
   if (location.startsWith("/rnd")) return getVerticalById("rnd");
   if (location.startsWith("/triphq")) return getVerticalById("triphq");

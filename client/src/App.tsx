@@ -194,7 +194,6 @@ import PortalLNCompanies from "@/pages/portal/legalnations/companies";
 import PortalLNDocuments from "@/pages/portal/legalnations/documents";
 import PortalLNInvoices from "@/pages/portal/legalnations/invoices";
 import PortalLNMessages from "@/pages/portal/legalnations/messages";
-import EtsPortalLayout from "@/components/portal/ets-portal-layout";
 import EtsPortalDashboard from "@/pages/portal/ets/dashboard";
 import EtsPortalStore from "@/pages/portal/ets/store";
 import EtsPortalOrders from "@/pages/portal/ets/orders";
@@ -436,6 +435,18 @@ function Router() {
       <Route path="/ets/proposals" component={EtsProposals} />
       <Route path="/ets/templates" component={EtsTemplates} />
       <Route path="/ets/settings" component={EtsSettings} />
+      <Route path="/portal-ets/catalog" component={EtsPortalCatalog} />
+      <Route path="/portal-ets/store" component={EtsPortalStore} />
+      <Route path="/portal-ets/launch-kit" component={EtsPortalLaunchKit} />
+      <Route path="/portal-ets/orders" component={EtsPortalOrders} />
+      <Route path="/portal-ets/payments" component={EtsPortalPayments} />
+      <Route path="/portal-ets/invoices" component={EtsPortalInvoices} />
+      <Route path="/portal-ets/messages" component={EtsPortalMessages} />
+      <Route path="/portal-ets/profile" component={EtsPortalProfile} />
+      <Route path="/portal-ets/support" component={EtsPortalSupport} />
+      <Route path="/portal-ets/checklist" component={EtsPortalChecklist} />
+      <Route path="/portal-ets/onboarding" component={EtsPortalOnboarding} />
+      <Route path="/portal-ets" component={EtsPortalDashboard} />
       <Route path="/hrms" component={HrmsDashboard} />
       <Route path="/hrms/notifications" component={UniversalNotifications} />
       <Route path="/hrms/chat" component={UniversalChat} />
@@ -699,26 +710,6 @@ function PortalLNRouter() {
   );
 }
 
-function PortalEtsRouter() {
-  return (
-    <Switch>
-      <Route path="/portal/ets/catalog" component={EtsPortalCatalog} />
-      <Route path="/portal/ets/store" component={EtsPortalStore} />
-      <Route path="/portal/ets/launch-kit" component={EtsPortalLaunchKit} />
-      <Route path="/portal/ets/orders" component={EtsPortalOrders} />
-      <Route path="/portal/ets/payments" component={EtsPortalPayments} />
-      <Route path="/portal/ets/invoices" component={EtsPortalInvoices} />
-      <Route path="/portal/ets/messages" component={EtsPortalMessages} />
-      <Route path="/portal/ets/profile" component={EtsPortalProfile} />
-      <Route path="/portal/ets/support" component={EtsPortalSupport} />
-      <Route path="/portal/ets/checklist" component={EtsPortalChecklist} />
-      <Route path="/portal/ets/onboarding" component={EtsPortalOnboarding} />
-      <Route path="/portal/ets" component={EtsPortalDashboard} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
-
 function VerticalSync({ setCurrentVertical }: { setCurrentVertical: (id: string) => void }) {
   const [location, setLocation] = useLocation();
   useEffect(() => {
@@ -749,24 +740,16 @@ function App() {
   }, []);
 
   const [loc] = useLocation();
-  const isPortal = loc.startsWith("/portal/");
-  const isEtsPortal = loc.startsWith("/portal/ets");
-  const isLnPortal = loc.startsWith("/portal/legalnations");
+  const isLnPortal = loc.startsWith("/portal/legalnations") || (loc.startsWith("/portal/") && !loc.startsWith("/portal-ets"));
+  const isEtsPortal = loc.startsWith("/portal-ets");
+  const isAnyPortal = isLnPortal || isEtsPortal;
 
   return (
     <VerticalContext.Provider value={{ currentVertical, setCurrentVertical }}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <VerticalSync setCurrentVertical={setCurrentVertical} />
-          {isEtsPortal ? (
-            <EtsPortalLayout>
-              <PortalEtsRouter />
-            </EtsPortalLayout>
-          ) : isLnPortal ? (
-            <PortalLayout>
-              <PortalLNRouter />
-            </PortalLayout>
-          ) : isPortal ? (
+          {isLnPortal ? (
             <PortalLayout>
               <PortalLNRouter />
             </PortalLayout>
@@ -780,8 +763,8 @@ function App() {
             </div>
           )}
           <Toaster />
-          {!isPortal && <PwaInstallPrompt />}
-          {!isPortal && <AIChatWidget />}
+          {!isAnyPortal && <PwaInstallPrompt />}
+          {!isAnyPortal && <AIChatWidget />}
         </TooltipProvider>
       </QueryClientProvider>
     </VerticalContext.Provider>

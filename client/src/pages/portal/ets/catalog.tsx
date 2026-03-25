@@ -305,7 +305,7 @@ export default function EtsPortalCatalog() {
         <Button
           variant="outline"
           className="gap-2"
-          onClick={() => window.location.href = "/portal/ets/launch-kit"}
+          onClick={() => window.location.href = "/portal-ets/launch-kit"}
           data-testid="button-view-kit"
         >
           <ShoppingCart className="size-4" /> View Kit

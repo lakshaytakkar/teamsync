@@ -136,7 +136,7 @@ export function VerticalSwitcher() {
                 <ExternalLink className="size-3 text-muted-foreground shrink-0" />
               </button>
               <button
-                onClick={() => { setLocation("/portal/ets"); setOpen(false); }}
+                onClick={() => { setLocation("/portal-ets"); setOpen(false); }}
                 className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-left transition-colors hover:bg-accent"
                 data-testid="portal-option-ets"
               >

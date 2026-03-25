@@ -291,7 +291,7 @@ export default function EtsPortalDashboard() {
         <SectionCard
           title="Active Orders"
           viewAllLabel="View All Orders"
-          onViewAll={() => navigate("/portal/ets/orders")}
+          onViewAll={() => navigate("/portal-ets/orders")}
         >
           <div className="space-y-4">
             {activeOrders.slice(0, 3).map((order: any) => (
@@ -302,21 +302,21 @@ export default function EtsPortalDashboard() {
       )}
 
       <SectionGrid cols={3}>
-        <SectionCard title="My Store" onViewAll={() => navigate("/portal/ets/store")} viewAllLabel="View">
+        <SectionCard title="My Store" onViewAll={() => navigate("/portal-ets/store")} viewAllLabel="View">
           <div className="space-y-2" data-testid="quickaction-store">
             <Store className="size-5" style={{ color: ETS_PORTAL_COLOR }} />
             <p className="text-xs text-muted-foreground">View your store journey, checklist progress, and package details</p>
             <ArrowRight className="size-4 text-muted-foreground" />
           </div>
         </SectionCard>
-        <SectionCard title="My Orders" onViewAll={() => navigate("/portal/ets/orders")} viewAllLabel="View">
+        <SectionCard title="My Orders" onViewAll={() => navigate("/portal-ets/orders")} viewAllLabel="View">
           <div className="space-y-2" data-testid="quickaction-orders">
             <Package className="size-5" style={{ color: ETS_PORTAL_COLOR }} />
             <p className="text-xs text-muted-foreground">Track your product orders, shipments, and delivery status</p>
             <ArrowRight className="size-4 text-muted-foreground" />
           </div>
         </SectionCard>
-        <SectionCard title="Messages" onViewAll={() => navigate("/portal/ets/messages")} viewAllLabel="View">
+        <SectionCard title="Messages" onViewAll={() => navigate("/portal-ets/messages")} viewAllLabel="View">
           <div className="space-y-2" data-testid="quickaction-messages">
             <MessageSquare className="size-5" style={{ color: ETS_PORTAL_COLOR }} />
             <p className="text-xs text-muted-foreground">Chat with your EazyToSell account manager and support team</p>
