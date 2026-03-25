@@ -131,12 +131,8 @@ export default function VendorTracking() {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [carrierFilter, setCarrierFilter] = useState<string>("all");
-  const [sopOpen, setSopOpen] = useState(false);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [sortKey, setSortKey] = useState<string>("shipDate");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
-  const [sopOpen, setSopOpen] = useState(false);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const carriers = useMemo(() => Array.from(new Set(vendorTracking.map(t => t.carrier))), []);

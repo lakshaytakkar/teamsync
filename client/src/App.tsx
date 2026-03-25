@@ -633,9 +633,9 @@ function Router() {
       <Route path="/vendor/tickets" component={UniversalTickets} />
       <Route path="/vendor/reports" component={UniversalReports} />
       <Route path="/vendor/important-contacts" component={UniversalImportantContacts} />
-      <Route path="/vendor/users" component={UniversalUsersAccess} />
-      <Route path="/vendor/apps" component={UniversalApps} />
-      <Route path="/vendor/image-studio" component={ImageStudio} />
+      <Route path="/vendor/users" component={UniversalUsers} />
+      <Route path="/vendor/apps" component={UniversalAppsCredentials} />
+      <Route path="/vendor/image-studio" component={UniversalImageStudio} />
       <Route path="/rnd" component={RndDashboard} />
       <Route path="/rnd/notifications" component={UniversalNotifications} />
       <Route path="/rnd/chat" component={UniversalChat} />

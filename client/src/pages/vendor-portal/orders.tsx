@@ -38,12 +38,8 @@ export default function VendorOrders() {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const loading = useSimulatedLoading(500);
   const [search, setSearch] = useState("");
-  const [sopOpen, setSopOpen] = useState(false);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<VendorOrderStatus | "all">("all");
   const [storeFilter, setStoreFilter] = useState("all");
-  const [sopOpen, setSopOpen] = useState(false);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
 
   const statusCounts = useMemo(() => {

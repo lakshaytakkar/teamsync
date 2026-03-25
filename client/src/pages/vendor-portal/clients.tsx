@@ -396,8 +396,6 @@ export default function VendorClients() {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "Inactive">("all");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [sopOpen, setSopOpen] = useState(false);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const filteredClients = useMemo(() => {
     return vendorClients.filter(c => {

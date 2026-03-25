@@ -35,8 +35,6 @@ export default function VendorLedger() {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [clientFilter, setClientFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
-  const [sopOpen, setSopOpen] = useState(false);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>({ key: "date", dir: "desc" });
 
   const handleSort = (key: string) => {

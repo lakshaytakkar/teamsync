@@ -38,8 +38,6 @@ export default function VendorProducts() {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
-  const [sopOpen, setSopOpen] = useState(false);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const filtered = vendorProducts.filter((p) => {
     if (search) {

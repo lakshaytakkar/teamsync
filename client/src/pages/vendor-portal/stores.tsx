@@ -47,8 +47,6 @@ export default function VendorStores() {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [sopOpen, setSopOpen] = useState(false);
-  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return vendorStores.filter((s) => {
