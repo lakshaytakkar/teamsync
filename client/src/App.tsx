@@ -198,7 +198,6 @@ import EtsPortalDashboard from "@/pages/portal/ets/dashboard";
 import EtsPortalStore from "@/pages/portal/ets/store";
 import EtsPortalOrders from "@/pages/portal/ets/orders";
 import EtsPortalPayments from "@/pages/portal/ets/payments";
-import EtsPortalMessages from "@/pages/portal/ets/messages";
 import EtsPortalCatalog from "@/pages/portal/ets/catalog";
 import EtsPortalLaunchKit from "@/pages/portal/ets/launch-kit";
 import EtsPortalInvoices from "@/pages/portal/ets/invoices";
@@ -441,7 +440,7 @@ function Router() {
       <Route path="/portal-ets/orders" component={EtsPortalOrders} />
       <Route path="/portal-ets/payments" component={EtsPortalPayments} />
       <Route path="/portal-ets/invoices" component={EtsPortalInvoices} />
-      <Route path="/portal-ets/messages" component={EtsPortalMessages} />
+
       <Route path="/portal-ets/profile" component={EtsPortalProfile} />
       <Route path="/portal-ets/support" component={EtsPortalSupport} />
       <Route path="/portal-ets/checklist" component={EtsPortalChecklist} />

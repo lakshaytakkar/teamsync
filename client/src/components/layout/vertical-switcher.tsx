@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { LegalNationsLogo } from "@/components/brand/legalnations-logo";
 import { EazyToSellLogo } from "@/components/brand/eazytosell-logo";
 import { Separator } from "@/components/ui/separator";
+import etsLogoLargeUrl from "@assets/eazytosell-logo-large.png";
 
 const businessProducts = verticals.filter((v) => !v.isDepartment && !v.isPortal);
 const departments = verticals.filter((v) => v.isDepartment);
@@ -28,6 +29,7 @@ export function VerticalSwitcher() {
   };
 
   const CurrentLogo = currentVertical.logo;
+  const isEtsPortal = currentVertical.id === "ets-portal" || currentVertical.id === "ets";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -36,15 +38,27 @@ export function VerticalSwitcher() {
           className="flex items-center gap-2.5 shrink-0 rounded-md px-1.5 py-1 transition-colors hover:bg-accent outline-none"
           data-testid="vertical-switcher"
         >
-          <CurrentLogo size={36} />
-          <div className="hidden sm:flex flex-col items-start">
-            <span className="text-base font-bold font-heading tracking-tight leading-tight">
-              {currentVertical.shortName}
-            </span>
-            <span className="text-[11px] text-muted-foreground leading-none">
-              {currentVertical.tagline}
-            </span>
-          </div>
+          {isEtsPortal ? (
+            <img
+              src={etsLogoLargeUrl}
+              alt="EazyToSell"
+              className="h-10 w-auto object-contain"
+              loading="eager"
+              data-testid="img-ets-logo-large"
+            />
+          ) : (
+            <>
+              <CurrentLogo size={36} />
+              <div className="hidden sm:flex flex-col items-start">
+                <span className="text-base font-bold font-heading tracking-tight leading-tight">
+                  {currentVertical.shortName}
+                </span>
+                <span className="text-[11px] text-muted-foreground leading-none">
+                  {currentVertical.tagline}
+                </span>
+              </div>
+            </>
+          )}
           <ChevronsUpDown className="size-3.5 text-muted-foreground hidden sm:block" />
         </button>
       </PopoverTrigger>

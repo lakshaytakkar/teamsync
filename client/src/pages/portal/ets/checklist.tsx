@@ -1,245 +1,149 @@
-import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import {
-  CheckCircle2, Circle, FileText, Store, Package,
-  Users, ShieldCheck, Megaphone, ListChecks,
+  CheckCircle2, Circle, Store, Package,
+  Truck, FileText, ChevronRight,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageShell } from "@/components/layout";
 import { cn } from "@/lib/utils";
-import { portalEtsClient, ETS_PORTAL_COLOR } from "@/lib/mock-data-portal-ets";
+import {
+  portalEtsClient,
+  ETS_PORTAL_COLOR,
+} from "@/lib/mock-data-portal-ets";
 
-interface ChecklistItem {
-  id: number;
-  itemId: number;
-  clientId: number;
-  completed: boolean;
-  label: string;
-  sortOrder: number;
-}
-
-const CATEGORY_DEFINITIONS = [
-  { key: "documentation", label: "Documentation & Legal", icon: FileText, sortRange: [0, 4] },
-  { key: "store-setup", label: "Store Setup", icon: Store, sortRange: [5, 9] },
-  { key: "inventory", label: "Inventory & Products", icon: Package, sortRange: [10, 14] },
-  { key: "team", label: "Team & Training", icon: Users, sortRange: [15, 19] },
-  { key: "compliance", label: "Compliance & Approvals", icon: ShieldCheck, sortRange: [20, 24] },
-  { key: "marketing", label: "Marketing & Launch", icon: Megaphone, sortRange: [25, 99] },
+const DEFAULT_CHECKLIST = [
+  { id: 1, category: "Profile", title: "Complete store profile", description: "Fill in all required business and personal details.", completed: false },
+  { id: 2, category: "Profile", title: "Upload store photos", description: "Add photos of your store location (exterior and interior).", completed: false },
+  { id: 3, category: "Design", title: "Approve store layout", description: "Review and approve the 3D design provided by our architects.", completed: false },
+  { id: 4, category: "Design", title: "Confirm signage design", description: "Approve the branding and signage for your storefront.", completed: false },
+  { id: 5, category: "Inventory", title: "Select launch inventory", description: "Choose products from the catalog for your initial stock.", completed: false },
+  { id: 6, category: "Inventory", title: "Confirm category mix", description: "Set your product category distribution preferences.", completed: false },
+  { id: 7, category: "Operations", title: "Set up POS system", description: "Install and configure your point-of-sale system.", completed: false },
+  { id: 8, category: "Operations", title: "Train staff on operations", description: "Complete the training modules for store operations.", completed: false },
+  { id: 9, category: "Launch", title: "Plan grand opening event", description: "Coordinate launch event details with the marketing team.", completed: false },
+  { id: 10, category: "Launch", title: "Final walkthrough", description: "Complete the final store inspection before opening.", completed: false },
 ];
 
-function categorizeItems(items: ChecklistItem[]) {
-  if (items.length === 0) return [];
+const categoryIcons: Record<string, typeof Store> = {
+  Profile: FileText,
+  Design: Store,
+  Inventory: Package,
+  Operations: Truck,
+  Launch: CheckCircle2,
+};
 
-  const sorted = [...items].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-  const perCategory = Math.max(1, Math.ceil(sorted.length / CATEGORY_DEFINITIONS.length));
-
-  return CATEGORY_DEFINITIONS.map((cat, catIdx) => {
-    const start = catIdx * perCategory;
-    const end = start + perCategory;
-    const categoryItems = sorted.slice(start, end);
-    const completed = categoryItems.filter((i) => i.completed).length;
-
-    return {
-      ...cat,
-      items: categoryItems,
-      completed,
-      total: categoryItems.length,
-    };
-  }).filter((cat) => cat.items.length > 0);
+function ChecklistSkeleton() {
+  return (
+    <div className="space-y-6 p-6">
+      <Skeleton className="h-10 w-48" />
+      <Skeleton className="h-20 rounded-xl" />
+      {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 rounded-xl" />)}
+    </div>
+  );
 }
 
-function progressColor(percent: number): string {
-  if (percent >= 75) return "text-emerald-600 dark:text-emerald-400";
-  if (percent >= 40) return "text-amber-600 dark:text-amber-400";
-  return "text-red-600 dark:text-red-400";
-}
-
-function progressBadgeVariant(percent: number): { bg: string; text: string } {
-  if (percent >= 75) return { bg: "bg-emerald-100 dark:bg-emerald-900/30", text: "text-emerald-700 dark:text-emerald-400" };
-  if (percent >= 40) return { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400" };
-  return { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400" };
-}
-
-export default function EtsPortalChecklistPage() {
-  const qc = useQueryClient();
+export default function EtsPortalChecklist() {
   const clientId = portalEtsClient.id;
+  const queryClient = useQueryClient();
 
-  const { data: checklistData, isLoading } = useQuery<{ checklist: ChecklistItem[] }>({
-    queryKey: ["/api/ets-portal/client", clientId, "checklist"],
+  const { data: checklistData, isLoading } = useQuery<{ checklist: any[] }>({
+    queryKey: ['/api/ets-portal/client', clientId, 'checklist'],
   });
 
-  const toggleChecklist = useMutation({
+  const toggleMutation = useMutation({
     mutationFn: async ({ statusId, completed }: { statusId: number; completed: boolean }) => {
       return apiRequest("PATCH", `/api/ets-portal/client/${clientId}/checklist/${statusId}`, { completed });
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/ets-portal/client", clientId, "checklist"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/ets-portal/client', clientId, 'checklist'] });
     },
   });
 
-  const checklist = checklistData?.checklist || [];
-  const totalCompleted = checklist.filter((c) => c.completed).length;
-  const totalItems = checklist.length;
-  const overallPercent = totalItems > 0 ? Math.round((totalCompleted / totalItems) * 100) : 0;
+  if (isLoading) return <ChecklistSkeleton />;
 
-  const categories = useMemo(() => categorizeItems(checklist), [checklist]);
+  const checklist = checklistData?.checklist || DEFAULT_CHECKLIST;
+  const completedCount = checklist.filter((c: any) => c.completed).length;
+  const totalCount = checklist.length;
+  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
-  const badgeStyle = progressBadgeVariant(overallPercent);
-
-  if (isLoading) {
-    return (
-      <PageShell>
-        <div className="space-y-6">
-          <Skeleton className="h-10 w-64" />
-          <Skeleton className="h-24 w-full rounded-xl" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-48 rounded-xl" />
-            ))}
-          </div>
-        </div>
-      </PageShell>
-    );
-  }
+  const categories = [...new Set(checklist.map((c: any) => c.category || "General"))];
 
   return (
-    <PageShell>
-      <div className="space-y-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap" data-testid="checklist-header">
-          <div>
-            <h1 className="text-2xl font-bold font-heading text-foreground" data-testid="text-checklist-title">
-              Store Readiness Checklist
-            </h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Complete all items to get your store launch-ready
-            </p>
-          </div>
-          <Badge
-            className={cn("text-sm border-0", badgeStyle.bg, badgeStyle.text)}
-            data-testid="badge-overall-progress"
-          >
-            {overallPercent}% Ready
-          </Badge>
-        </div>
-
-        <Card data-testid="card-overall-progress">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-              <div className="flex items-center gap-2">
-                <ListChecks className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold">Overall Progress</h3>
-              </div>
-              <span className="text-xs text-muted-foreground" data-testid="text-overall-count">
-                {totalCompleted} of {totalItems} items completed
-              </span>
-            </div>
-            <Progress value={overallPercent} className="h-3" data-testid="progress-overall" />
-            <p className={cn("text-xs font-medium mt-2", progressColor(overallPercent))} data-testid="text-overall-percent">
-              {overallPercent}% complete
-            </p>
-          </CardContent>
-        </Card>
-
-        {checklist.length === 0 ? (
-          <div className="py-16 text-center text-sm text-muted-foreground" data-testid="text-empty-checklist">
-            No checklist items available yet. Your account manager will set these up soon.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" data-testid="checklist-categories-grid">
-            {categories.map((category) => {
-              const catPercent = category.total > 0
-                ? Math.round((category.completed / category.total) * 100)
-                : 0;
-              const CatIcon = category.icon;
-              const isComplete = catPercent === 100;
-
-              return (
-                <Card key={category.key} data-testid={`card-category-${category.key}`}>
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-md",
-                            isComplete
-                              ? "bg-emerald-100 dark:bg-emerald-900/30"
-                              : "bg-muted"
-                          )}
-                        >
-                          {isComplete ? (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                          ) : (
-                            <CatIcon className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-semibold" data-testid={`text-category-name-${category.key}`}>
-                            {category.label}
-                          </h3>
-                          <p className="text-[10px] text-muted-foreground" data-testid={`text-category-progress-${category.key}`}>
-                            {category.completed}/{category.total} completed
-                          </p>
-                        </div>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "text-[10px]",
-                          isComplete && "border-emerald-300 text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400"
-                        )}
-                        data-testid={`badge-category-${category.key}`}
-                      >
-                        {catPercent}%
-                      </Badge>
-                    </div>
-
-                    <Progress value={catPercent} className="h-1.5 mb-3" data-testid={`progress-category-${category.key}`} />
-
-                    <div className="space-y-1" data-testid={`checklist-items-${category.key}`}>
-                      {category.items.map((item) => (
-                        <label
-                          key={item.id}
-                          className={cn(
-                            "flex items-center gap-3 rounded-md px-3 py-2.5 cursor-pointer transition-colors",
-                            item.completed
-                              ? "bg-green-50/60 dark:bg-green-900/10"
-                              : "hover-elevate"
-                          )}
-                          data-testid={`checklist-item-${item.id}`}
-                        >
-                          <Checkbox
-                            checked={item.completed}
-                            disabled={toggleChecklist.isPending}
-                            onCheckedChange={(checked) => {
-                              toggleChecklist.mutate({ statusId: item.id, completed: !!checked });
-                            }}
-                            data-testid={`checkbox-checklist-${item.id}`}
-                            className={item.completed ? "border-green-600 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600" : ""}
-                          />
-                          <span
-                            className={cn(
-                              "text-sm",
-                              item.completed && "line-through text-muted-foreground"
-                            )}
-                            data-testid={`text-checklist-label-${item.id}`}
-                          >
-                            {item.label}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+    <div className="space-y-6 p-6" data-testid="ets-portal-checklist">
+      <div>
+        <h1 className="text-3xl font-bold" data-testid="text-checklist-title">Readiness Checklist</h1>
+        <p className="text-muted-foreground">Complete all items before your store launch.</p>
       </div>
-    </PageShell>
+
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl font-bold" data-testid="text-checklist-progress">{completedCount}/{totalCount}</div>
+              <span className="text-muted-foreground text-sm">items completed</span>
+            </div>
+            <Badge
+              variant="outline"
+              className={cn(progress === 100 ? "bg-green-50 text-green-700 border-green-200" : "")}
+              data-testid="badge-progress"
+            >
+              {Math.round(progress)}%
+            </Badge>
+          </div>
+          <Progress value={progress} className="h-3" />
+        </CardContent>
+      </Card>
+
+      {categories.map((category) => {
+        const items = checklist.filter((c: any) => (c.category || "General") === category);
+        const catDone = items.filter((c: any) => c.completed).length;
+        const CatIcon = categoryIcons[category] || FileText;
+
+        return (
+          <Card key={category}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CatIcon className="h-5 w-5" style={{ color: ETS_PORTAL_COLOR }} />
+                  <CardTitle className="text-lg">{category}</CardTitle>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  {catDone}/{items.length}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {items.map((item: any) => (
+                  <div
+                    key={item.id}
+                    className={cn(
+                      "flex items-start gap-3 p-3 rounded-lg border transition-colors cursor-pointer hover:bg-accent/30",
+                      item.completed ? "bg-green-50/50 dark:bg-green-950/10 border-green-200 dark:border-green-900" : ""
+                    )}
+                    onClick={() => toggleMutation.mutate({ statusId: item.id, completed: !item.completed })}
+                    data-testid={`checklist-item-${item.id}`}
+                  >
+                    {item.completed ? (
+                      <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                    ) : (
+                      <Circle className="h-5 w-5 text-muted-foreground/40 shrink-0 mt-0.5" />
+                    )}
+                    <div className="flex-1">
+                      <p className={cn("font-medium text-sm", item.completed ? "line-through text-muted-foreground" : "")}>{item.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
   );
 }

@@ -1487,8 +1487,8 @@ Client-facing portal prototype accessible via vertical switcher under "Client Po
 | Invoices | `/portal/legalnations/invoices` | `client/src/pages/portal/legalnations/invoices.tsx` |
 | Messages | `/portal/legalnations/messages` | `client/src/pages/portal/legalnations/messages.tsx` |
 
-### EazyToSell Client Portal (12 pages) — Uses Admin Panel Layout
-The ETS client portal uses the same admin panel layout (TopNavigation, vertical switcher, sub-navigation) as all other verticals. It is registered as a vertical with `id: "ets-portal"`, `routePrefix: "portal-ets"`, `isPortal: true` in `verticals-config.ts`.
+### EazyToSell Client Portal (11 pages) — Uses Admin Panel Layout
+The ETS client portal uses the same admin panel layout (TopNavigation, vertical switcher, sub-navigation) as all other verticals. Registered as vertical `id: "ets-portal"`, `routePrefix: "portal-ets"`, `isPortal: true` in `verticals-config.ts`. Pages aligned with the original EazyToSell GitHub project's partner portal (https://github.com/lakshaytakkar/Eazy-Sell.git).
 
 | Page | Route | File |
 |------|-------|------|
@@ -1499,16 +1499,16 @@ The ETS client portal uses the same admin panel layout (TopNavigation, vertical 
 | Orders | `/portal-ets/orders` | `client/src/pages/portal/ets/orders.tsx` |
 | Payments | `/portal-ets/payments` | `client/src/pages/portal/ets/payments.tsx` |
 | Invoices | `/portal-ets/invoices` | `client/src/pages/portal/ets/invoices.tsx` |
-| Messages | `/portal-ets/messages` | `client/src/pages/portal/ets/messages.tsx` |
 | Profile | `/portal-ets/profile` | `client/src/pages/portal/ets/profile.tsx` |
 | Support | `/portal-ets/support` | `client/src/pages/portal/ets/support.tsx` |
 | Checklist | `/portal-ets/checklist` | `client/src/pages/portal/ets/checklist.tsx` |
 | Onboarding | `/portal-ets/onboarding` | `client/src/pages/portal/ets/onboarding.tsx` |
 
-- Layout: Uses main admin TopNavigation with EazyToSell branding (#F97316, "Client Portal" tagline). Nav categories: Dashboard, Store (My Store / Launch Kit / Checklist), Products, Orders & Payments (Orders / Payments / Invoices), Chat, Support, Profile.
-- API: `server/ets-portal-api.ts` — all endpoints under `/api/ets-portal/*`, uses Supabase `easytosell` schema
-- Data: `client/src/lib/mock-data-portal-ets.ts` — portal client config, stage labels/descriptions, order stages
-- Features: Product catalog with filters/sort/add-to-kit, launch kit builder with investment summary, invoice history, profile editing with PATCH mutation, support page with FAQ accordion, real-time messages
+- Layout: Uses main admin TopNavigation with EazyToSell branding (#F97316). Nav: Home, Products (Catalog / Launch Kit), My Store (Store Setup / Readiness Checklist), Orders, Payments (Payment History / Invoices), Support, Profile. Large EazyToSell logo (`attached_assets/eazytosell-logo-large.png`) shown in vertical-switcher for ETS portals.
+- Messages page removed (not in original project).
+- API: `server/ets-portal-api.ts` — all endpoints under `/api/ets-portal/*`, uses Supabase `easytosell` schema. Key mutations: PATCH `/client/:id/profile`, PATCH `/client/:clientId/checklist/:statusId`, POST `/client/:id/kit-items`.
+- Data: `client/src/lib/mock-data-portal-ets.ts` — portal client config, stage labels/descriptions, order stages. Catalog uses `normalizeProduct()` to map API fields (suggestedMrp/storeLandingPrice/categoryName) to display fields.
+- Features: Product catalog with grid/list view + search + category filter + Add-to-Kit, launch kit builder with investment summary, order tracking with visual stage timeline, payment history with download, invoice search, multi-step onboarding wizard, categorized readiness checklist with toggle, profile with account details, support page with WhatsApp/Phone/Email + FAQ accordion.
 
 ### Navigation Entry
 - Vertical switcher (`vertical-switcher.tsx`) has two portal categories:

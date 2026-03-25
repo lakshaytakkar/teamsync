@@ -1,191 +1,131 @@
-import { Phone, MessageCircle, Mail, Clock, HelpCircle } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Phone, MessageCircle, Mail, Clock, HelpCircle, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { PageShell, SectionCard } from "@/components/layout";
-import { ETS_PORTAL_COLOR } from "@/lib/mock-data-portal-ets";
+  portalEtsClient,
+  ETS_PORTAL_COLOR,
+} from "@/lib/mock-data-portal-ets";
 
-const CONTACT_CHANNELS = [
-  {
-    id: "call",
-    title: "Call Us",
-    description: "Speak directly with your account manager",
-    detail: "+91 98765 43210",
-    icon: Phone,
-    action: "Call Now",
-    href: "tel:+919876543210",
-  },
-  {
-    id: "whatsapp",
-    title: "WhatsApp",
-    description: "Quick chat support on WhatsApp",
-    detail: "+91 98765 43210",
-    icon: MessageCircle,
-    action: "Open WhatsApp",
-    href: "https://wa.me/919876543210",
-  },
-  {
-    id: "email",
-    title: "Email",
-    description: "Send us a detailed query via email",
-    detail: "support@eazytosell.com",
-    icon: Mail,
-    action: "Send Email",
-    href: "mailto:support@eazytosell.com",
-  },
+const DEFAULT_FAQS = [
+  { question: "How long does it take to set up a store?", answer: "The typical timeline from onboarding to launch is 45-90 days, depending on your city, store area, and inventory requirements." },
+  { question: "What is included in the franchise package?", answer: "The package includes store interior design, product inventory (imported from China), POS system, branding materials, launch marketing support, and ongoing operational guidance." },
+  { question: "How do I track my shipment?", answer: "Go to the Orders page to see real-time tracking for all your inventory shipments — from factory to your doorstep." },
+  { question: "What payment methods are accepted?", answer: "We accept bank transfers (NEFT/RTGS/IMPS), UPI, and credit/debit cards for all payments." },
+  { question: "Who is my account manager?", answer: "Your account manager's contact details are shown on the Dashboard. You can also reach the EazyToSell team anytime via WhatsApp." },
+  { question: "Can I reorder products after launch?", answer: "Yes! Once your store is live, you can place reorders directly through the catalog. Bulk reorder discounts are available." },
 ];
 
-const SUPPORT_HOURS = [
-  { day: "Monday - Friday", hours: "9:00 AM - 7:00 PM IST" },
-  { day: "Saturday", hours: "10:00 AM - 4:00 PM IST" },
-  { day: "Sunday", hours: "Closed" },
-];
+function FaqItem({ faq }: { faq: { question: string; answer: string } }) {
+  const [open, setOpen] = useState(false);
 
-const FAQ_ITEMS = [
-  {
-    question: "How long does it take to launch my store?",
-    answer:
-      "The typical timeline from token payment to store launch is 60-90 days. This includes store design approval, inventory sourcing from China, shipping, customs clearance, and final setup. Your account manager will keep you updated at every stage.",
-  },
-  {
-    question: "What is included in my franchise package?",
-    answer:
-      "Your package includes complete store interior design, product inventory, branding materials, POS system setup, staff training, marketing launch kit, and 6 months of dedicated account management support. The exact items depend on your selected package tier (Standard, Premium, or Enterprise).",
-  },
-  {
-    question: "How do I track my shipment?",
-    answer:
-      "You can track all your orders in the Orders section of this portal. Each order shows real-time status updates from factory production through customs clearance to final delivery. You will also receive WhatsApp notifications at key milestones.",
-  },
-  {
-    question: "What payment methods are accepted?",
-    answer:
-      "We accept bank transfers (NEFT/RTGS/IMPS), UPI payments, and cheques. All payment details are shared by your account manager. You can view your payment history and pending dues in the Payments section.",
-  },
-  {
-    question: "Can I customize the products for my store?",
-    answer:
-      "Yes! During the inventory selection phase, you can work with your account manager to choose from our product catalog. You can select categories, adjust quantities, and even request custom branding on select products based on your package tier.",
-  },
-  {
-    question: "What happens after my store launches?",
-    answer:
-      "Post-launch, you get continued support including reorder assistance, marketing guidance, inventory management tips, and access to new product launches. Our team conducts monthly review calls to help optimize your store performance.",
-  },
-  {
-    question: "How do I place a reorder?",
-    answer:
-      "Once your store is launched, you can place reorders through the Orders section or by contacting your account manager. Reorders typically have a faster turnaround of 30-45 days since your store setup is already complete.",
-  },
-  {
-    question: "What if I face issues with product quality?",
-    answer:
-      "We have a dedicated quality assurance process. If you receive any defective items, report them within 7 days of delivery through this portal or contact support. We will arrange replacements at no additional cost for manufacturing defects.",
-  },
-];
+  return (
+    <div className="border-b last:border-b-0">
+      <button
+        className="flex items-center justify-between w-full py-4 text-left hover:bg-accent/30 rounded-lg px-3 transition-colors"
+        onClick={() => setOpen(!open)}
+        data-testid={`button-faq-${faq.question.slice(0, 20).replace(/\s+/g, '-').toLowerCase()}`}
+      >
+        <span className="font-medium text-sm pr-4">{faq.question}</span>
+        {open ? <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />}
+      </button>
+      {open && (
+        <div className="pb-4 px-3">
+          <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function EtsPortalSupport() {
+  const { data: faqData } = useQuery<{ faqs: { question: string; answer: string }[] }>({
+    queryKey: ['/api/ets-portal/faqs'],
+  });
+
+  const faqs = faqData?.faqs || DEFAULT_FAQS;
+
   return (
-    <PageShell>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold" data-testid="text-support-title">
-            Support
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1" data-testid="text-support-subtitle">
-            Get help from the EazyToSell team
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {CONTACT_CHANNELS.map((channel) => (
-            <Card key={channel.id} className="p-5 space-y-4" data-testid={`card-contact-${channel.id}`}>
-              <div className="flex items-start gap-3">
-                <div
-                  className="size-10 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: "rgba(249, 115, 22, 0.12)" }}
-                >
-                  <channel.icon className="size-5" style={{ color: ETS_PORTAL_COLOR }} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold" data-testid={`text-channel-title-${channel.id}`}>
-                    {channel.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {channel.description}
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm font-medium" data-testid={`text-channel-detail-${channel.id}`}>
-                {channel.detail}
-              </p>
-              <Button
-                className="w-full"
-                style={{ backgroundColor: ETS_PORTAL_COLOR }}
-                asChild
-                data-testid={`button-contact-${channel.id}`}
-              >
-                <a href={channel.href} target="_blank" rel="noopener noreferrer">
-                  {channel.action}
-                </a>
-              </Button>
-            </Card>
-          ))}
-        </div>
-
-        <SectionCard title="Support Hours">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 mb-3">
-              <Clock className="size-4" style={{ color: ETS_PORTAL_COLOR }} />
-              <span className="text-sm font-medium">Business Hours (IST)</span>
-            </div>
-            {SUPPORT_HOURS.map((item) => (
-              <div
-                key={item.day}
-                className="flex items-center justify-between gap-4"
-                data-testid={`text-hours-${item.day.replace(/\s+/g, "-").toLowerCase()}`}
-              >
-                <span className="text-sm">{item.day}</span>
-                <Badge variant={item.hours === "Closed" ? "secondary" : "outline"}>
-                  {item.hours}
-                </Badge>
-              </div>
-            ))}
-            <p className="text-xs text-muted-foreground mt-3">
-              For urgent issues outside business hours, please send a WhatsApp message and we will respond as soon as possible.
-            </p>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Frequently Asked Questions">
-          <div className="flex items-center gap-2 mb-4">
-            <HelpCircle className="size-4" style={{ color: ETS_PORTAL_COLOR }} />
-            <span className="text-sm text-muted-foreground">
-              Find answers to common questions about the EazyToSell franchise program
-            </span>
-          </div>
-          <Accordion type="single" collapsible className="w-full">
-            {FAQ_ITEMS.map((faq, index) => (
-              <AccordionItem key={index} value={`faq-${index}`} data-testid={`accordion-faq-${index}`}>
-                <AccordionTrigger className="text-sm text-left" data-testid={`button-faq-${index}`}>
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed" data-testid={`text-faq-answer-${index}`}>
-                    {faq.answer}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </SectionCard>
+    <div className="space-y-8 p-6" data-testid="ets-portal-support">
+      <div>
+        <h1 className="text-3xl font-bold" data-testid="text-support-title">Support</h1>
+        <p className="text-muted-foreground">Get help from the EazyToSell team or find answers in our FAQ.</p>
       </div>
-    </PageShell>
+
+      <div className="grid md:grid-cols-3 gap-6">
+        <a href="https://wa.me/919306566900" target="_blank" rel="noopener noreferrer" className="block">
+          <Card className="h-full hover:shadow-md transition-shadow cursor-pointer border-green-200 dark:border-green-900">
+            <CardContent className="p-6 flex flex-col items-center text-center">
+              <div className="h-14 w-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+                <MessageCircle className="h-7 w-7 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-1">WhatsApp</h3>
+              <p className="text-sm text-muted-foreground mb-3">Chat with us on WhatsApp for quick support.</p>
+              <Button className="bg-green-600 hover:bg-green-700 text-white" data-testid="button-whatsapp">
+                Open WhatsApp <ExternalLink className="h-4 w-4 ml-2" />
+              </Button>
+            </CardContent>
+          </Card>
+        </a>
+
+        <a href="tel:+919306566900" className="block">
+          <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-6 flex flex-col items-center text-center">
+              <div className="h-14 w-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
+                <Phone className="h-7 w-7 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-1">Call Us</h3>
+              <p className="text-sm text-muted-foreground mb-3">Speak directly with your account manager.</p>
+              <p className="text-lg font-bold" data-testid="text-support-phone">+91 93065 66900</p>
+            </CardContent>
+          </Card>
+        </a>
+
+        <a href="mailto:support@eazytosell.com" className="block">
+          <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-6 flex flex-col items-center text-center">
+              <div className="h-14 w-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
+                <Mail className="h-7 w-7 text-purple-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-1">Email</h3>
+              <p className="text-sm text-muted-foreground mb-3">Send us a detailed inquiry via email.</p>
+              <p className="text-sm font-medium" data-testid="text-support-email">support@eazytosell.com</p>
+            </CardContent>
+          </Card>
+        </a>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <HelpCircle className="h-5 w-5" style={{ color: ETS_PORTAL_COLOR }} />
+            <CardTitle>Frequently Asked Questions</CardTitle>
+          </div>
+          <CardDescription>Find quick answers to common questions about your store setup.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="divide-y">
+            {faqs.map((faq, idx) => (
+              <FaqItem key={idx} faq={faq} />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-3 text-muted-foreground">
+            <Clock className="h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-medium text-foreground">Business Hours</p>
+              <p className="text-sm">Monday – Saturday, 10:00 AM – 7:00 PM IST</p>
+              <p className="text-xs mt-1">WhatsApp messages are answered within 2 hours during business hours.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
