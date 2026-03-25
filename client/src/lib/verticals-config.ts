@@ -60,6 +60,7 @@ import {
   Search,
   Library,
   Compass,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -1444,6 +1445,17 @@ export const verticals: Vertical[] = [
           { title: "Stock Receive", url: "/portal-ets/stock-receive" },
           { title: "Stock Adjustment", url: "/portal-ets/stock-adjustment" },
           { title: "Low Stock Alerts", url: "/portal-ets/low-stock-alerts" },
+        ],
+      },
+      {
+        title: "Operations",
+        defaultUrl: "/portal-ets/cash-register",
+        icon: Wallet,
+        items: [
+          { title: "Cash Register", url: "/portal-ets/cash-register" },
+          { title: "Returns", url: "/portal-ets/returns" },
+          { title: "Daily Report", url: "/portal-ets/daily-report" },
+          { title: "Store Settings", url: "/portal-ets/store-settings" },
         ],
       },
       {

@@ -290,6 +290,169 @@ export function addReceiveToInventory(items: StockReceiveItem[], referenceId: st
   });
 }
 
+export interface RegisterSession {
+  id: string;
+  storeId: string;
+  openedBy: string;
+  openedAt: string;
+  openingAmount: number;
+  closedBy?: string;
+  closedAt?: string;
+  closingAmount?: number;
+  expectedAmount?: number;
+  difference?: number;
+  status: "open" | "closed";
+  notes?: string;
+}
+
+export interface ReturnRecord {
+  id: string;
+  referenceNumber: string;
+  storeId: string;
+  originalSaleId: string;
+  originalReceiptNumber: string;
+  items: ReturnItem[];
+  totalRefund: number;
+  refundMethod: "cash" | "store-credit";
+  reason: string;
+  processedBy: string;
+  timestamp: string;
+}
+
+export interface ReturnItem {
+  productId: string;
+  productName: string;
+  emoji: string;
+  mrp: number;
+  originalQty: number;
+  returnQty: number;
+  lineTotal: number;
+}
+
+export const RETURN_REASONS = [
+  "Defective product",
+  "Wrong product given",
+  "Customer changed mind",
+  "Damaged packaging",
+  "Other",
+];
+
+export interface StoreSettings {
+  storeName: string;
+  address: string;
+  gstin: string;
+  phone: string;
+  lowStockThreshold: number;
+  quickAddProductIds: string[];
+  autoPrintReceipt: boolean;
+  storeId: string;
+  partnerPackage: "Lite" | "Pro" | "Elite";
+  storeStatus: "active" | "setup" | "inactive";
+}
+
+export const STORE_SETTINGS: StoreSettings = {
+  storeName: POS_STORE.name,
+  address: POS_STORE.address,
+  gstin: POS_STORE.gstin,
+  phone: POS_STORE.phone,
+  lowStockThreshold: 5,
+  quickAddProductIds: POS_PRODUCTS.slice(0, 8).map(p => p.id),
+  autoPrintReceipt: false,
+  storeId: "store-001",
+  partnerPackage: "Pro",
+  storeStatus: "active",
+};
+
+function todayAt(hour: number) {
+  const d = new Date();
+  d.setHours(hour, Math.floor(Math.random() * 59), 0, 0);
+  return d.toISOString();
+}
+
+export const EXPANDED_SALES: PosSale[] = [
+  ...RECENT_SALES,
+  { id: "s4", receiptNumber: "R-0004", storeId: "store-001", items: [
+    { id: "i6", productId: "p2", name: "LED Desk Lamp", mrp: 899, quantity: 1, lineTotal: 899, emoji: "💡" },
+    { id: "i7", productId: "p14", name: "Tissue Box Cover", mrp: 279, quantity: 2, lineTotal: 558, emoji: "🧻" },
+  ], totalAmount: 1457, paymentMethod: "cash", cashReceived: 1500, changeReturned: 43, timestamp: todayAt(10) },
+  { id: "s5", receiptNumber: "R-0005", storeId: "store-001", items: [
+    { id: "i8", productId: "p15", name: "Wine Glass Set (4)", mrp: 1499, quantity: 1, lineTotal: 1499, emoji: "🍷" },
+  ], totalAmount: 1499, paymentMethod: "upi", timestamp: todayAt(11) },
+  { id: "s6", receiptNumber: "R-0006", storeId: "store-001", items: [
+    { id: "i9", productId: "p4", name: "Bathroom Caddy", mrp: 449, quantity: 2, lineTotal: 898, emoji: "🚿" },
+    { id: "i10", productId: "p12", name: "Soap Dispenser Glass", mrp: 399, quantity: 1, lineTotal: 399, emoji: "🧴" },
+  ], totalAmount: 1297, paymentMethod: "cash", cashReceived: 1300, changeReturned: 3, timestamp: todayAt(12) },
+  { id: "s7", receiptNumber: "R-0007", storeId: "store-001", items: [
+    { id: "i11", productId: "p16", name: "Door Mat Premium", mrp: 499, quantity: 3, lineTotal: 1497, emoji: "🚪" },
+  ], totalAmount: 1497, paymentMethod: "card", timestamp: todayAt(13) },
+  { id: "s8", receiptNumber: "R-0008", storeId: "store-001", items: [
+    { id: "i12", productId: "p5", name: "Spice Rack 3-Tier", mrp: 349, quantity: 2, lineTotal: 698, emoji: "🫙" },
+    { id: "i13", productId: "p9", name: "Fridge Magnet Set", mrp: 199, quantity: 4, lineTotal: 796, emoji: "🧲" },
+    { id: "i14", productId: "p13", name: "Key Holder Wall Mount", mrp: 329, quantity: 1, lineTotal: 329, emoji: "🔑" },
+  ], totalAmount: 1823, paymentMethod: "upi", timestamp: todayAt(14) },
+  { id: "s9", receiptNumber: "R-0009", storeId: "store-001", items: [
+    { id: "i15", productId: "p18", name: "Photo Frame Set (3)", mrp: 899, quantity: 1, lineTotal: 899, emoji: "🖼️" },
+    { id: "i16", productId: "p17", name: "Pen Stand Wooden", mrp: 349, quantity: 1, lineTotal: 349, emoji: "✏️" },
+  ], totalAmount: 1248, paymentMethod: "cash", cashReceived: 1250, changeReturned: 2, timestamp: todayAt(15) },
+  { id: "s10", receiptNumber: "R-0010", storeId: "store-001", items: [
+    { id: "i17", productId: "p11", name: "Cable Organizer", mrp: 249, quantity: 3, lineTotal: 747, emoji: "🔌" },
+  ], totalAmount: 747, paymentMethod: "upi", timestamp: todayAt(16) },
+  { id: "s11", receiptNumber: "R-0011", storeId: "store-001", items: [
+    { id: "i18", productId: "p1", name: "Kitchen Organizer Set", mrp: 599, quantity: 1, lineTotal: 599, emoji: "🍳" },
+    { id: "i19", productId: "p8", name: "Storage Box Set (3)", mrp: 699, quantity: 1, lineTotal: 699, emoji: "📦" },
+  ], totalAmount: 1298, paymentMethod: "card", timestamp: todayAt(17) },
+  { id: "s12", receiptNumber: "R-0012", storeId: "store-001", items: [
+    { id: "i20", productId: "p10", name: "Laundry Basket Foldable", mrp: 549, quantity: 1, lineTotal: 549, emoji: "🧺" },
+  ], totalAmount: 549, paymentMethod: "cash", cashReceived: 550, changeReturned: 1, timestamp: todayAt(18) },
+];
+
+export const REGISTER_SESSIONS: RegisterSession[] = [
+  {
+    id: "reg-3", storeId: "store-001", openedBy: "Rajesh Kumar",
+    openedAt: new Date(new Date().setHours(9, 15, 0, 0)).toISOString(),
+    openingAmount: 5000, status: "open",
+  },
+  {
+    id: "reg-2", storeId: "store-001", openedBy: "Rajesh Kumar",
+    openedAt: daysAgo(1).replace(/T.*/, "T09:00:00.000Z"), openingAmount: 4500,
+    closedBy: "Rajesh Kumar", closedAt: daysAgo(1).replace(/T.*/, "T21:30:00.000Z"),
+    closingAmount: 12350, expectedAmount: 12400, difference: -50,
+    status: "closed", notes: "Minor rounding differences throughout the day",
+  },
+  {
+    id: "reg-1", storeId: "store-001", openedBy: "Rajesh Kumar",
+    openedAt: daysAgo(2).replace(/T.*/, "T09:30:00.000Z"), openingAmount: 5000,
+    closedBy: "Rajesh Kumar", closedAt: daysAgo(2).replace(/T.*/, "T21:00:00.000Z"),
+    closingAmount: 14200, expectedAmount: 14180, difference: 20,
+    status: "closed",
+  },
+];
+
+export const RETURN_RECORDS: ReturnRecord[] = [
+  {
+    id: "ret-1", referenceNumber: "RET-001", storeId: "store-001",
+    originalSaleId: "s2", originalReceiptNumber: "R-0002",
+    items: [
+      { productId: "p3", productName: "Wall Clock Modern", emoji: "🕐", mrp: 1299, originalQty: 1, returnQty: 1, lineTotal: 1299 },
+    ],
+    totalRefund: 1299, refundMethod: "cash", reason: "Defective product",
+    processedBy: "Rajesh Kumar", timestamp: daysAgo(0),
+  },
+];
+
+let nextReturnNum = 2;
+export function getNextReturnNumber(): string {
+  const num = nextReturnNum++;
+  return `RET-${String(num).padStart(3, "0")}`;
+}
+
+export function getCashSalesToday(): number {
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+  return EXPANDED_SALES.filter(s =>
+    s.paymentMethod === "cash" && new Date(s.timestamp) >= todayStart
+  ).reduce((sum, s) => sum + s.totalAmount, 0);
+}
+
 export function addAdjustmentToInventory(productId: string, systemCount: number, physicalCount: number, reason: string) {
   const difference = physicalCount - systemCount;
   updateInventoryStock(productId, physicalCount);
