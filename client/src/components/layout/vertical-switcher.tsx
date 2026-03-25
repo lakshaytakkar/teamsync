@@ -12,7 +12,7 @@ import etsLogoLargeUrl from "@assets/eazytosell-logo-large.png";
 
 const businessProducts = verticals.filter((v) => !v.isDepartment && !v.isPortal);
 const departments = verticals.filter((v) => v.isDepartment);
-const vendorPortals = verticals.filter((v) => v.isPortal);
+const vendorPortals = verticals.filter((v) => v.isPortal && v.id !== "ets-portal");
 
 export function VerticalSwitcher() {
   const { currentVertical, setCurrentVertical } = useVertical();

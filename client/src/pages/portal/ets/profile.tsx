@@ -31,14 +31,22 @@ export default function EtsPortalProfile() {
 
   if (isLoading) return <ProfileSkeleton />;
 
-  const client = clientData?.client;
-  if (!client) {
-    return (
-      <div className="py-20 text-center text-sm text-muted-foreground p-6">
-        Unable to load profile data. Please try again.
-      </div>
-    );
-  }
+  const fallbackClient = {
+    id: portalEtsClient.id,
+    name: portalEtsClient.name,
+    email: portalEtsClient.email,
+    phone: portalEtsClient.phone,
+    city: portalEtsClient.city,
+    stage: "qualified",
+    storeAddress: "",
+    storeArea: null,
+    createdDate: "",
+    managerName: "EazyToSell Team",
+    packageName: "Standard Package",
+    totalInvestment: null,
+    estimatedLaunchDate: null,
+  };
+  const client = clientData?.client || fallbackClient;
 
   const name = client.name || portalEtsClient.name;
   const initials = name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();

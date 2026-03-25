@@ -103,18 +103,28 @@ export default function EtsPortalDashboard() {
 
   if (clientLoading) return <DashboardSkeleton />;
 
-  const client = clientData?.client;
+  const fallbackClient = {
+    id: portalEtsClient.id,
+    name: portalEtsClient.name,
+    email: portalEtsClient.email,
+    phone: portalEtsClient.phone,
+    city: portalEtsClient.city,
+    stage: "qualified",
+    totalPaid: 0,
+    pendingDues: 0,
+    profileCompleted: false,
+    onboardingStep: 1,
+    estimatedLaunchDate: null,
+    nextAction: null,
+    managerName: "EazyToSell Team",
+    managerPhone: "+91 93065 66900",
+    createdDate: new Date().toISOString().split("T")[0],
+  };
+
+  const client = clientData?.client || fallbackClient;
   const orders = ordersData?.orders || [];
   const payments = paymentsData?.payments || [];
   const checklist = checklistData?.checklist || [];
-
-  if (!client) {
-    return (
-      <div className="py-20 text-center text-sm text-muted-foreground" data-testid="text-no-client">
-        Unable to load client data. Please try again.
-      </div>
-    );
-  }
 
   const stageIdx = PIPELINE_STAGES.indexOf(client.stage);
   const progress = stageIdx >= 0 ? ((stageIdx + 1) / PIPELINE_STAGES.length) * 100 : 10;

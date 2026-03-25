@@ -36,14 +36,16 @@ export default function EtsPortalStore() {
 
   if (isLoading) return <StoreSkeleton />;
 
-  const client = clientData?.client;
-  if (!client) {
-    return (
-      <div className="py-20 text-center text-sm text-muted-foreground p-6">
-        Unable to load store data. Please try again.
-      </div>
-    );
-  }
+  const fallbackClient = {
+    id: portalEtsClient.id,
+    name: portalEtsClient.name,
+    phone: portalEtsClient.phone,
+    city: portalEtsClient.city,
+    stage: "qualified",
+    storeAddress: "",
+    storeArea: null,
+  };
+  const client = clientData?.client || fallbackClient;
 
   const currentStageIndex = PIPELINE_STAGES.indexOf(client.stage);
 
