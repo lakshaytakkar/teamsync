@@ -1487,12 +1487,13 @@ Client-facing portal prototype accessible via vertical switcher under "Client Po
 | Invoices | `/portal/legalnations/invoices` | `client/src/pages/portal/legalnations/invoices.tsx` |
 | Messages | `/portal/legalnations/messages` | `client/src/pages/portal/legalnations/messages.tsx` |
 
-### EazyToSell Client Portal (11 pages) — Uses Admin Panel Layout
+### EazyToSell Client Portal (12 pages) — Uses Admin Panel Layout
 The ETS client portal uses the same admin panel layout (TopNavigation, vertical switcher, sub-navigation) as all other verticals. Registered as vertical `id: "ets-portal"`, `routePrefix: "portal-ets"`, `isPortal: true` in `verticals-config.ts`. Pages aligned with the original EazyToSell GitHub project's partner portal (https://github.com/lakshaytakkar/Eazy-Sell.git).
 
 | Page | Route | File |
 |------|-------|------|
 | Dashboard | `/portal-ets` | `client/src/pages/portal/ets/dashboard.tsx` |
+| **POS Billing** | `/portal-ets/pos` | `client/src/pages/portal/ets/pos-billing.tsx` |
 | Product Catalog | `/portal-ets/catalog` | `client/src/pages/portal/ets/catalog.tsx` |
 | My Store | `/portal-ets/store` | `client/src/pages/portal/ets/store.tsx` |
 | Launch Kit | `/portal-ets/launch-kit` | `client/src/pages/portal/ets/launch-kit.tsx` |
@@ -1503,6 +1504,17 @@ The ETS client portal uses the same admin panel layout (TopNavigation, vertical 
 | Support | `/portal-ets/support` | `client/src/pages/portal/ets/support.tsx` |
 | Checklist | `/portal-ets/checklist` | `client/src/pages/portal/ets/checklist.tsx` |
 | Onboarding | `/portal-ets/onboarding` | `client/src/pages/portal/ets/onboarding.tsx` |
+
+#### POS Billing System (`/portal-ets/pos`)
+Full-screen point-of-sale billing screen for store cashiers. Renders outside the standard layout for maximum screen use.
+- **Left panel**: Barcode scanner input (auto-focused, USB scanner compatible), product search dropdown, bill item grid (qty +/-, delete), item count + grand total, Charge button
+- **Right panel**: Quick-add product tiles (8 most common items), held bills indicator with recall
+- **Payment flow**: Full-screen modal with Cash (change calculator, quick amount buttons), UPI (confirmation), Card (confirmation)
+- **Receipt**: 58mm thermal printer format, print via `window.print()` with print-specific CSS
+- **Held bills**: Save current bill, recall later, auto-expire after 24h
+- **Store lock**: POS only visible when store status is "active"
+- **Haptics**: `navigator.vibrate()` on scan, add, remove, payment actions
+- **Mock data**: `client/src/lib/mock-data-pos-ets.ts` — 20 products, quick-add tiles, sale history
 
 - Layout: Uses main admin TopNavigation with EazyToSell branding (#F97316). Nav: Home, Products (Catalog / Launch Kit), My Store (Store Setup / Readiness Checklist), Orders, Payments (Payment History / Invoices), Support, Profile. Large EazyToSell logo (`attached_assets/eazytosell-logo-large.png`) shown in vertical-switcher for ETS portals.
 - Messages page removed (not in original project).

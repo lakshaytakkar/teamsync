@@ -193,3 +193,29 @@
     animation: ai-shimmer-sweep 2.4s ease-in-out infinite;
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .receipt-thermal,
+  .receipt-thermal * {
+    visibility: visible !important;
+  }
+  .receipt-thermal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 58mm;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10px;
+    line-height: 1.3;
+    color: #000;
+    background: #fff;
+    padding: 4mm;
+  }
+  @page {
+    size: 58mm auto;
+    margin: 0;
+  }
+}

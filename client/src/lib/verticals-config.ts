@@ -1430,6 +1430,12 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
+        title: "POS Billing",
+        defaultUrl: "/portal-ets/pos",
+        icon: Receipt,
+        items: [],
+      },
+      {
         title: "My Store",
         defaultUrl: "/portal-ets/launch-kit",
         icon: Store,

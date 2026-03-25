@@ -205,6 +205,7 @@ import EtsPortalProfile from "@/pages/portal/ets/profile";
 import EtsPortalSupport from "@/pages/portal/ets/support";
 import EtsPortalChecklist from "@/pages/portal/ets/checklist";
 import EtsPortalOnboarding from "@/pages/portal/ets/onboarding";
+import EtsPortalPosBilling from "@/pages/portal/ets/pos-billing";
 import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
@@ -445,6 +446,7 @@ function Router() {
       <Route path="/portal-ets/support" component={EtsPortalSupport} />
       <Route path="/portal-ets/checklist" component={EtsPortalChecklist} />
       <Route path="/portal-ets/onboarding" component={EtsPortalOnboarding} />
+      <Route path="/portal-ets/pos" component={EtsPortalPosBilling} />
       <Route path="/portal-ets" component={EtsPortalDashboard} />
       <Route path="/hrms" component={HrmsDashboard} />
       <Route path="/hrms/notifications" component={UniversalNotifications} />
@@ -742,13 +744,16 @@ function App() {
   const isLnPortal = loc.startsWith("/portal/legalnations") || (loc.startsWith("/portal/") && !loc.startsWith("/portal-ets"));
   const isEtsPortal = loc.startsWith("/portal-ets");
   const isAnyPortal = isLnPortal || isEtsPortal;
+  const isFullScreenPos = loc === "/portal-ets/pos";
 
   return (
     <VerticalContext.Provider value={{ currentVertical, setCurrentVertical }}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <VerticalSync setCurrentVertical={setCurrentVertical} />
-          {isLnPortal ? (
+          {isFullScreenPos ? (
+            <Router />
+          ) : isLnPortal ? (
             <PortalLayout>
               <PortalLNRouter />
             </PortalLayout>

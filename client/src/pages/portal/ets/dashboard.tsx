@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import {
   AlertCircle, CheckCircle2, ChevronRight, Clock, MapPin,
   Package, Phone, Store, ShoppingCart, FileText, CreditCard,
-  TrendingUp, DollarSign, ListChecks,
+  TrendingUp, DollarSign, ListChecks, Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -163,6 +163,31 @@ export default function EtsPortalDashboard() {
           </Button>
         </a>
       </div>
+
+      {client.stage === "launched" || client.stage === "reordering" ? (
+        <Card className="border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 dark:border-orange-800 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1.5 flex-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm">
+                    <span className="text-lg">🧾</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold" data-testid="text-pos-cta">POS Billing</h3>
+                    <p className="text-xs text-muted-foreground">Your store is live — start billing customers</p>
+                  </div>
+                </div>
+              </div>
+              <Link href="/portal-ets/pos">
+                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold shadow-md gap-2" data-testid="button-open-pos">
+                  <Zap className="h-4 w-4" /> Open POS <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {!client.profileCompleted && (
         <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-950/20 dark:border-orange-900">
