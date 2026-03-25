@@ -771,7 +771,7 @@ function App() {
             </PortalLayout>
           ) : (
             <div className="flex h-screen w-full flex-col">
-              <AnnouncementBanner />
+              {!isEtsPortal && <AnnouncementBanner />}
               <TopNavigation />
               <main className="flex-1 overflow-auto">
                 <Router />

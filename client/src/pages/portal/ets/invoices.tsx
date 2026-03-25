@@ -14,7 +14,7 @@ import {
 
 function InvoicesSkeleton() {
   return (
-    <div className="space-y-6 p-6">
+    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
       <Skeleton className="h-10 w-48" />
       <Skeleton className="h-64 rounded-xl" />
     </div>
@@ -37,7 +37,7 @@ export default function EtsPortalInvoices() {
   );
 
   return (
-    <div className="space-y-6 p-6" data-testid="ets-portal-invoices">
+    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-invoices">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" data-testid="text-invoices-title">Invoices</h1>

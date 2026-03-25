@@ -130,7 +130,7 @@ function OrderCard({ order }: { order: any }) {
 
 function OrdersSkeleton() {
   return (
-    <div className="space-y-6 p-6">
+    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
       <Skeleton className="h-10 w-48" />
       {[1, 2].map(i => <Skeleton key={i} className="h-64 rounded-xl" />)}
     </div>
@@ -151,7 +151,7 @@ export default function EtsPortalOrders() {
   const deliveredOrders = orders.filter(o => o.status === "dispatched");
 
   return (
-    <div className="space-y-6 p-6" data-testid="ets-portal-orders">
+    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-orders">
       <div>
         <h1 className="text-2xl font-bold tracking-tight" data-testid="text-page-title">Order Tracking</h1>
         <p className="text-muted-foreground">Track the status of your inventory shipments and deliveries</p>

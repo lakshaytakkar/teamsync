@@ -1,21 +1,28 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import {
-  AlertCircle, CheckCircle2, ChevronRight, Clock, MapPin,
-  Package, Phone, Store, ShoppingCart, FileText, CreditCard,
-  TrendingUp, DollarSign, ListChecks, Zap,
+  AlertCircle, ChevronRight, MapPin, Phone, Store,
+  ShoppingCart, FileText, CreditCard, TrendingUp, Zap,
+  Banknote, Smartphone, BarChart3, Package, ArrowUpRight,
+  RotateCcw, ClipboardList, AlertTriangle, Sparkles, Receipt,
+  Timer, Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ProductImage } from "@/components/product-image";
 import {
   portalEtsClient,
   ETS_PORTAL_COLOR,
-  ETS_STAGE_DESCRIPTIONS,
   ETS_STAGE_DISPLAY_LABELS,
 } from "@/lib/mock-data-portal-ets";
+import {
+  EXPANDED_SALES, RETURN_RECORDS, POS_PRODUCTS, INVENTORY,
+  getProductImage, getStockStatus,
+} from "@/lib/mock-data-pos-ets";
 
 const PIPELINE_STAGES = [
   "new-lead", "qualified", "token-paid", "store-design",
@@ -26,40 +33,36 @@ function formatCurrency(val: number): string {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
 }
 
-function getDaysRemaining(estimatedLaunchDate: string | null): string {
-  if (!estimatedLaunchDate) return "TBD";
-  const days = Math.ceil((new Date(estimatedLaunchDate).getTime() - new Date().getTime()) / 86400000);
-  if (days < 0) return "Launched";
-  if (days === 0) return "Today";
-  return `${days} days`;
+function formatINR(n: number): string {
+  return "₹" + n.toLocaleString("en-IN");
 }
 
-function getNextSteps(client: any, kitItemCount: number): { title: string; description: string; active: boolean; href: string }[] {
-  const steps: { title: string; description: string; active: boolean; href: string }[] = [];
+function getNextSteps(client: any, kitItemCount: number): { title: string; description: string; active: boolean; href: string; icon: typeof Store }[] {
+  const steps: { title: string; description: string; active: boolean; href: string; icon: typeof Store }[] = [];
   const stageIdx = PIPELINE_STAGES.indexOf(client.stage);
 
   if (!client.profileCompleted) {
-    steps.push({ title: "Complete your store profile", description: "Fill in your store details and preferences.", active: true, href: "/portal-ets/onboarding" });
+    steps.push({ title: "Complete your store profile", description: "Fill in your store details and preferences.", active: true, href: "/portal-ets/onboarding", icon: Store });
   }
 
   if (stageIdx >= 2 && stageIdx < 5) {
     if (kitItemCount === 0) {
-      steps.push({ title: "Select your launch inventory", description: "Browse the catalog and build your launch kit.", active: steps.length === 0, href: "/portal-ets/catalog" });
+      steps.push({ title: "Select your launch inventory", description: "Browse the catalog and build your launch kit.", active: steps.length === 0, href: "/portal-ets/catalog", icon: Package });
     }
     if (stageIdx === 2) {
-      steps.push({ title: "Approve 3D store design", description: "Review the layout shared by the design team.", active: steps.length === 0, href: "/portal-ets/store" });
-      steps.push({ title: "Release partial payment", description: "50% payment to start production.", active: false, href: "/portal-ets/payments" });
+      steps.push({ title: "Approve 3D store design", description: "Review the layout shared by the design team.", active: steps.length === 0, href: "/portal-ets/store", icon: Store });
+      steps.push({ title: "Release partial payment", description: "50% payment to start production.", active: false, href: "/portal-ets/payments", icon: CreditCard });
     }
     if (stageIdx >= 4) {
-      steps.push({ title: "Track your order shipments", description: "Monitor delivery status for your inventory.", active: steps.length === 0, href: "/portal-ets/orders" });
-      steps.push({ title: "Complete readiness checklist", description: "Ensure your store is ready for launch.", active: false, href: "/portal-ets/checklist" });
+      steps.push({ title: "Track your order shipments", description: "Monitor delivery status for your inventory.", active: steps.length === 0, href: "/portal-ets/orders", icon: ShoppingCart });
+      steps.push({ title: "Complete readiness checklist", description: "Ensure your store is ready for launch.", active: false, href: "/portal-ets/checklist", icon: ClipboardList });
     }
   } else {
     if (kitItemCount === 0) {
-      steps.push({ title: "Select your launch inventory", description: "Browse the catalog and build your launch kit.", active: steps.length === 0, href: "/portal-ets/catalog" });
+      steps.push({ title: "Select your launch inventory", description: "Browse the catalog and build your launch kit.", active: steps.length === 0, href: "/portal-ets/catalog", icon: Package });
     }
-    steps.push({ title: "Review your program scope", description: "Understand the services included in your package.", active: steps.length === 0, href: "/portal-ets/store" });
-    steps.push({ title: "Connect with your manager", description: "Reach out via WhatsApp for any questions.", active: false, href: "/portal-ets/support" });
+    steps.push({ title: "Review your program scope", description: "Understand the services included in your package.", active: steps.length === 0, href: "/portal-ets/store", icon: Store });
+    steps.push({ title: "Connect with your manager", description: "Reach out via WhatsApp for any questions.", active: false, href: "/portal-ets/support", icon: Phone });
   }
 
   return steps.slice(0, 3);
@@ -67,14 +70,13 @@ function getNextSteps(client: any, kitItemCount: number): { title: string; descr
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-6 p-6">
-      <Skeleton className="h-10 w-64" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-xl" />)}
+    <div className="p-4 md:p-6 space-y-5 max-w-[1400px] mx-auto">
+      <Skeleton className="h-32 rounded-2xl" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}
       </div>
-      <Skeleton className="h-44 rounded-xl" />
-      <div className="grid md:grid-cols-2 gap-6">
-        <Skeleton className="h-60 rounded-xl" />
+      <div className="grid md:grid-cols-3 gap-4">
+        <Skeleton className="h-60 rounded-xl md:col-span-2" />
         <Skeleton className="h-60 rounded-xl" />
       </div>
     </div>
@@ -100,6 +102,52 @@ export default function EtsPortalDashboard() {
   const { data: checklistData } = useQuery<{ checklist: any[] }>({
     queryKey: ['/api/ets-portal/client', clientId, 'checklist'],
   });
+
+  const todayStats = useMemo(() => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const todayEnd = todayStart + 86400000;
+    const todaySales = EXPANDED_SALES.filter(s => {
+      const t = new Date(s.timestamp).getTime();
+      return t >= todayStart && t < todayEnd;
+    });
+    const totalRevenue = todaySales.reduce((s, x) => s + x.totalAmount, 0);
+    const txCount = todaySales.length;
+    const cashTotal = todaySales.filter(s => s.paymentMethod === "cash").reduce((s, x) => s + x.totalAmount, 0);
+    const upiTotal = todaySales.filter(s => s.paymentMethod === "upi").reduce((s, x) => s + x.totalAmount, 0);
+    const cardTotal = todaySales.filter(s => s.paymentMethod === "card").reduce((s, x) => s + x.totalAmount, 0);
+    const avgBasket = txCount > 0 ? Math.round(totalRevenue / txCount) : 0;
+    const returnsToday = RETURN_RECORDS.filter(r => {
+      const t = new Date(r.timestamp).getTime();
+      return t >= todayStart && t < todayEnd;
+    });
+    const returnAmount = returnsToday.reduce((s, r) => s + r.refundTotal, 0);
+    return { totalRevenue, txCount, cashTotal, upiTotal, cardTotal, avgBasket, returnAmount, returnsCount: returnsToday.length };
+  }, []);
+
+  const topProducts = useMemo(() => {
+    const map: Record<string, { productId: string; name: string; image: string | null; qty: number; revenue: number }> = {};
+    EXPANDED_SALES.forEach(sale => sale.items.forEach(item => {
+      if (!map[item.productId]) {
+        map[item.productId] = { productId: item.productId, name: item.name, image: getProductImage(item.productId), qty: 0, revenue: 0 };
+      }
+      map[item.productId].qty += item.quantity;
+      map[item.productId].revenue += item.lineTotal;
+    }));
+    return Object.values(map).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+  }, []);
+
+  const stockAlerts = useMemo(() => {
+    return INVENTORY
+      .filter(inv => inv.currentStock <= inv.reorderThreshold)
+      .map(inv => {
+        const prod = POS_PRODUCTS.find(p => p.id === inv.productId)!;
+        return { ...inv, ...prod };
+      })
+      .slice(0, 4);
+  }, []);
+
+  const recentSales = useMemo(() => EXPANDED_SALES.slice(0, 5), []);
 
   if (clientLoading) return <DashboardSkeleton />;
 
@@ -130,83 +178,82 @@ export default function EtsPortalDashboard() {
   const progress = stageIdx >= 0 ? ((stageIdx + 1) / PIPELINE_STAGES.length) * 100 : 10;
   const totalPaid = client.totalPaid || 0;
   const pendingDues = client.pendingDues || 0;
-  const totalInvestment = totalPaid + pendingDues;
   const kitItemCount = orders.reduce((sum: number, o: any) => sum + (o.itemCount || 0), 0);
-  const daysRemaining = getDaysRemaining(client.estimatedLaunchDate || null);
   const nextSteps = getNextSteps(client, kitItemCount);
   const checklistDone = checklist.filter((c: any) => c.completed).length;
   const checklistTotal = checklist.length;
+  const isLive = client.stage === "launched" || client.stage === "reordering";
 
-  const timelineEvents = [
-    { label: "Onboarding started", completed: stageIdx >= 0, date: client.createdDate },
-    { label: "Token amount received", completed: stageIdx >= 2 },
-    { label: "Inventory ordered", completed: stageIdx >= 4 },
-    { label: stageIdx >= 6 ? "Store launched" : "Estimated launch", completed: stageIdx >= 6, date: client.estimatedLaunchDate },
+  const quickActions = [
+    { label: "POS Billing", href: "/portal-ets/pos", icon: Receipt, color: "from-orange-500 to-orange-600", desc: "Start billing" },
+    { label: "Inventory", href: "/portal-ets/inventory", icon: Package, color: "from-blue-500 to-blue-600", desc: "Stock control" },
+    { label: "Daily Report", href: "/portal-ets/daily-report", icon: BarChart3, color: "from-emerald-500 to-emerald-600", desc: "View analytics" },
+    { label: "Returns", href: "/portal-ets/returns", icon: RotateCcw, color: "from-violet-500 to-violet-600", desc: "Process refunds" },
+    { label: "Cash Register", href: "/portal-ets/cash-register", icon: Banknote, color: "from-amber-500 to-amber-600", desc: "Cash management" },
+    { label: "Store Settings", href: "/portal-ets/store-settings", icon: ClipboardList, color: "from-slate-500 to-slate-600", desc: "Configure store" },
   ];
 
   return (
-    <div className="space-y-8 p-6" data-testid="ets-portal-dashboard">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground" data-testid="text-dashboard-title">My Store Dashboard</h1>
-          <p className="text-muted-foreground flex items-center gap-2 mt-1">
-            <MapPin className="h-4 w-4" />
-            <span data-testid="text-client-city">{client.city || portalEtsClient.city}</span> Store
-            <span className="font-medium" style={{ color: ETS_PORTAL_COLOR }} data-testid="text-client-stage">
-              {ETS_STAGE_DISPLAY_LABELS[client.stage] || client.stage}
-            </span>
-          </p>
+    <div className="p-4 md:p-6 space-y-5 max-w-[1400px] mx-auto" data-testid="ets-portal-dashboard">
+
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 p-5 md:p-8 text-white shadow-lg">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+        <div className="relative z-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles className="w-5 h-5 text-amber-200" />
+                <span className="text-sm font-medium text-orange-100">Welcome back</span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight" data-testid="text-dashboard-title">
+                {client.name || portalEtsClient.name}'s Store
+              </h1>
+              <div className="flex items-center gap-3 mt-2 text-sm text-orange-100">
+                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {client.city || portalEtsClient.city}</span>
+                <span className="w-px h-4 bg-white/30" />
+                <Badge className="bg-white/20 text-white border-0 text-[10px] font-semibold hover:bg-white/30" data-testid="text-client-stage">
+                  {ETS_STAGE_DISPLAY_LABELS[client.stage] || client.stage}
+                </Badge>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              {isLive && (
+                <Link href="/portal-ets/pos">
+                  <Button className="bg-white text-orange-600 hover:bg-orange-50 font-bold shadow-md gap-2" data-testid="button-open-pos">
+                    <Zap className="h-4 w-4" /> Open POS
+                  </Button>
+                </Link>
+              )}
+              <a href="https://wa.me/919306566900" target="_blank" rel="noopener noreferrer">
+                <Button className="bg-white/15 backdrop-blur-sm text-white border border-white/30 hover:bg-white/25 gap-2" data-testid="button-contact-manager">
+                  <Phone className="h-4 w-4" /> Manager
+                </Button>
+              </a>
+            </div>
+          </div>
         </div>
-        <a href="https://wa.me/919306566900" target="_blank" rel="noopener noreferrer">
-          <Button className="bg-green-600 hover:bg-green-700 text-white" data-testid="button-contact-manager">
-            <Phone className="h-4 w-4 mr-2" /> Contact Manager
-          </Button>
-        </a>
       </div>
 
-      {client.stage === "launched" || client.stage === "reordering" ? (
-        <Card className="border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 dark:border-orange-800 overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1.5 flex-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm">
-                    <FileText className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold" data-testid="text-pos-cta">POS Billing</h3>
-                    <p className="text-xs text-muted-foreground">Your store is live — start billing customers</p>
-                  </div>
-                </div>
-              </div>
-              <Link href="/portal-ets/pos">
-                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold shadow-md gap-2" data-testid="button-open-pos">
-                  <Zap className="h-4 w-4" /> Open POS <ChevronRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      ) : null}
-
       {!client.profileCompleted && (
-        <Card className="border-orange-200 bg-orange-50/50 dark:bg-orange-950/20 dark:border-orange-900">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-2 flex-1">
-                <div className="flex items-center gap-2">
-                  <Store className="h-5 w-5" style={{ color: ETS_PORTAL_COLOR }} />
-                  <h3 className="text-lg font-semibold" data-testid="text-onboarding-cta">Complete Your Store Profile</h3>
+        <Card className="border-orange-200 bg-orange-50/60">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-9 h-9 rounded-lg bg-orange-100 flex items-center justify-center shrink-0">
+                  <Store className="w-4 h-4 text-orange-600" />
                 </div>
-                <p className="text-sm text-muted-foreground">Finish setting up your store details to unlock all features.</p>
-                <div className="flex items-center gap-3 mt-2">
-                  <Progress value={(client.onboardingStep || 1) / 5 * 100} className="h-2 flex-1 max-w-[200px]" />
-                  <span className="text-xs text-muted-foreground font-medium" data-testid="text-onboarding-progress">{client.onboardingStep || 1}/5 steps</span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold" data-testid="text-onboarding-cta">Complete your store profile</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Progress value={(client.onboardingStep || 1) / 5 * 100} className="h-1.5 flex-1 max-w-[140px]" />
+                    <span className="text-[10px] text-muted-foreground font-medium" data-testid="text-onboarding-progress">{client.onboardingStep || 1}/5</span>
+                  </div>
                 </div>
               </div>
               <Link href="/portal-ets/onboarding">
-                <Button data-testid="button-complete-profile" style={{ backgroundColor: ETS_PORTAL_COLOR }}>
-                  Continue Setup <ChevronRight className="h-4 w-4 ml-1" />
+                <Button size="sm" data-testid="button-complete-profile" style={{ backgroundColor: ETS_PORTAL_COLOR }} className="text-white gap-1">
+                  Continue <ChevronRight className="h-3.5 w-3.5" />
                 </Button>
               </Link>
             </div>
@@ -214,153 +261,382 @@ export default function EtsPortalDashboard() {
         </Card>
       )}
 
-      <Card className="border-orange-200/50 bg-orange-50/30 dark:bg-orange-950/10 dark:border-orange-900/30">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Launch Progress</CardTitle>
-          <CardDescription data-testid="text-launch-countdown">
-            {daysRemaining === "TBD"
-              ? "Launch date to be determined."
-              : daysRemaining === "Launched"
-                ? "Your store has launched!"
-                : daysRemaining === "Today"
-                  ? "Your store opens today!"
-                  : `You are on track for opening in ${daysRemaining}.`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm font-medium mb-1">
-              <span>Stage {stageIdx + 1} of {PIPELINE_STAGES.length}</span>
-              <span data-testid="text-progress-percent">{Math.round(progress)}% Complete</span>
-            </div>
-            <Progress value={progress} className="h-3" />
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>Token Paid</span>
-              <span className="font-semibold" style={{ color: ETS_PORTAL_COLOR }}>
-                Current: {ETS_STAGE_DISPLAY_LABELS[client.stage] || client.stage}
-              </span>
-              <span>Launch</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {client.nextAction && (
-        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-lg p-4 flex items-start gap-4">
-          <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500 mt-0.5" />
-          <div>
-            <h3 className="font-semibold text-amber-900 dark:text-amber-100">Action Required</h3>
-            <p className="text-amber-800 dark:text-amber-200 text-sm mt-1" data-testid="text-next-action">{client.nextAction}</p>
-            <Button size="sm" variant="outline" className="mt-3 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-100" data-testid="button-complete-now">
-              Complete Now <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Payment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-total-paid">{formatCurrency(totalPaid)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {totalInvestment > 0 ? `of ${formatCurrency(totalInvestment)} total` : "No payments yet"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Inventory Selected</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-inventory-units">{kitItemCount} Items</div>
-            <p className="text-xs text-muted-foreground mt-1" data-testid="text-inventory-items">
-              {kitItemCount > 0 ? `${orders.length} orders placed` : "Launch Kit pending"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Assigned Manager</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold" data-testid="text-manager-name">{client.managerName || "EazyToSell Team"}</div>
-            <p className="text-xs text-muted-foreground mt-1" data-testid="text-manager-phone">{client.managerPhone || "+91 93065 66900"}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Next Steps</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {nextSteps.map((step, idx) => (
-                <Link key={idx} href={step.href}>
-                  <div className={`flex items-start gap-3 cursor-pointer hover:bg-accent/50 rounded-lg p-2 -m-2 transition-colors ${!step.active ? "opacity-60" : ""}`}>
-                    <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 ${step.active ? "text-white" : "bg-muted text-muted-foreground"}`}
-                      style={step.active ? { backgroundColor: ETS_PORTAL_COLOR } : {}}>
-                      {idx + 1}
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm" data-testid={`text-next-step-${idx}`}>{step.title}</p>
-                      <p className="text-xs text-muted-foreground">{step.description}</p>
-                    </div>
+      {isLive && (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-green-100 flex items-center justify-center">
+                    <TrendingUp className="w-3.5 h-3.5 text-green-600" />
                   </div>
-                </Link>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Timeline</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="relative border-l border-muted ml-2 space-y-6 pb-2">
-              {timelineEvents.map((event, idx) => (
-                <div key={idx} className="pl-6 relative">
-                  <div
-                    className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-background"
-                    style={{ backgroundColor: event.completed ? ETS_PORTAL_COLOR : "rgba(249, 115, 22, 0.3)" }}
-                  />
-                  {event.date && <p className="text-xs text-muted-foreground mb-0.5">{event.date}</p>}
-                  <p className="text-sm font-medium" data-testid={`text-timeline-${idx}`}>{event.label}</p>
+                  <span className="text-[10px] font-semibold text-green-700 uppercase tracking-wider">Revenue</span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                <p className="text-xl md:text-2xl font-bold text-green-800" data-testid="text-today-revenue">{formatINR(todayStats.totalRevenue)}</p>
+                <p className="text-[10px] text-green-600 mt-0.5">{todayStats.txCount} transactions today</p>
+              </CardContent>
+            </Card>
 
-      {checklistTotal > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Store Readiness</CardTitle>
-              <Link href="/portal-ets/checklist">
-                <Button variant="outline" size="sm" data-testid="button-view-checklist">
-                  View Checklist <ChevronRight className="h-4 w-4 ml-1" />
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
+                    <ShoppingCart className="w-3.5 h-3.5 text-blue-600" />
+                  </div>
+                  <span className="text-[10px] font-semibold text-blue-700 uppercase tracking-wider">Avg Basket</span>
+                </div>
+                <p className="text-xl md:text-2xl font-bold text-blue-800" data-testid="text-avg-basket">{formatINR(todayStats.avgBasket)}</p>
+                <p className="text-[10px] text-blue-600 mt-0.5">per transaction</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-purple-50 to-violet-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center">
+                    <Smartphone className="w-3.5 h-3.5 text-purple-600" />
+                  </div>
+                  <span className="text-[10px] font-semibold text-purple-700 uppercase tracking-wider">Digital</span>
+                </div>
+                <p className="text-xl md:text-2xl font-bold text-purple-800" data-testid="text-digital-total">{formatINR(todayStats.upiTotal + todayStats.cardTotal)}</p>
+                <p className="text-[10px] text-purple-600 mt-0.5">UPI + Card payments</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-amber-50 to-yellow-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
+                    <Banknote className="w-3.5 h-3.5 text-amber-600" />
+                  </div>
+                  <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider">Cash</span>
+                </div>
+                <p className="text-xl md:text-2xl font-bold text-amber-800" data-testid="text-cash-total">{formatINR(todayStats.cashTotal)}</p>
+                <p className="text-[10px] text-amber-600 mt-0.5">in cash drawer</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+            {quickActions.map(action => {
+              const Icon = action.icon;
+              return (
+                <Link key={action.label} href={action.href}>
+                  <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group h-full" data-testid={`card-action-${action.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                    <CardContent className="p-3 flex flex-col items-center text-center gap-2">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold leading-tight">{action.label}</p>
+                        <p className="text-[9px] text-muted-foreground mt-0.5">{action.desc}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="grid md:grid-cols-5 gap-4">
+            <Card className="md:col-span-3 border-0 shadow-sm">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-semibold">Top Selling Products</CardTitle>
+                  <Link href="/portal-ets/daily-report">
+                    <Button variant="ghost" size="sm" className="text-xs text-orange-600 hover:text-orange-700 gap-1 h-7" data-testid="link-view-report">
+                      View Report <ChevronRight className="w-3 h-3" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-2.5">
+                  {topProducts.map((product, idx) => (
+                    <div key={product.productId} className="flex items-center gap-3 py-1.5" data-testid={`top-product-${idx}`}>
+                      <span className="text-xs font-bold text-muted-foreground w-4 text-right">{idx + 1}</span>
+                      <ProductImage src={product.image} alt={product.name} size="md" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{product.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{product.qty} sold</p>
+                      </div>
+                      <span className="text-sm font-bold">{formatINR(product.revenue)}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="md:col-span-2 border-0 shadow-sm">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-semibold">Recent Sales</CardTitle>
+                  <Badge variant="outline" className="text-[9px] font-medium">{todayStats.txCount} today</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-2">
+                  {recentSales.map(sale => (
+                    <div key={sale.id} className="flex items-center gap-3 py-1.5 border-b last:border-0" data-testid={`recent-sale-${sale.id}`}>
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center shrink-0">
+                        <Receipt className="w-3.5 h-3.5 text-gray-500" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium">{sale.receiptNumber}</p>
+                        <p className="text-[10px] text-muted-foreground">{sale.items.length} items · {sale.paymentMethod}</p>
+                      </div>
+                      <span className="text-xs font-bold">{formatINR(sale.totalAmount)}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {stockAlerts.length > 0 && (
+            <Card className="shadow-sm border border-amber-200 bg-amber-50/30">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-500" /> Stock Alerts
+                  </CardTitle>
+                  <Link href="/portal-ets/low-stock-alerts">
+                    <Button variant="ghost" size="sm" className="text-xs text-amber-600 hover:text-amber-700 gap-1 h-7" data-testid="link-view-alerts">
+                      View All <ChevronRight className="w-3 h-3" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {stockAlerts.map(item => (
+                    <div key={item.productId} className={`rounded-lg p-2.5 ${item.currentStock === 0 ? "bg-red-50" : "bg-amber-50"}`} data-testid={`stock-alert-${item.productId}`}>
+                      <div className="flex items-center gap-2">
+                        <ProductImage src={item.image} alt={item.name} size="sm" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium truncate">{item.name}</p>
+                          <p className={`text-[10px] font-bold ${item.currentStock === 0 ? "text-red-600" : "text-amber-600"}`}>
+                            {item.currentStock === 0 ? "Out of Stock" : `${item.currentStock} left`}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
+                    <Banknote className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cash Payments</p>
+                    <p className="text-lg font-bold">{formatINR(todayStats.cashTotal)}</p>
+                  </div>
+                </div>
+                <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-green-500 rounded-full" style={{ width: `${todayStats.totalRevenue > 0 ? (todayStats.cashTotal / todayStats.totalRevenue * 100) : 0}%` }} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+                    <Smartphone className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">UPI Payments</p>
+                    <p className="text-lg font-bold">{formatINR(todayStats.upiTotal)}</p>
+                  </div>
+                </div>
+                <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-purple-500 rounded-full" style={{ width: `${todayStats.totalRevenue > 0 ? (todayStats.upiTotal / todayStats.totalRevenue * 100) : 0}%` }} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Card Payments</p>
+                    <p className="text-lg font-bold">{formatINR(todayStats.cardTotal)}</p>
+                  </div>
+                </div>
+                <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: `${todayStats.totalRevenue > 0 ? (todayStats.cardTotal / todayStats.totalRevenue * 100) : 0}%` }} />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
+
+      {!isLive && (
+        <>
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold">Launch Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-medium">
+                  <span>Stage {stageIdx + 1} of {PIPELINE_STAGES.length}</span>
+                  <span data-testid="text-progress-percent">{Math.round(progress)}% Complete</span>
+                </div>
+                <Progress value={progress} className="h-2.5" />
+                <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                  <span>Token Paid</span>
+                  <span className="font-semibold" style={{ color: ETS_PORTAL_COLOR }}>
+                    Current: {ETS_STAGE_DISPLAY_LABELS[client.stage] || client.stage}
+                  </span>
+                  <span>Launch</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {client.nextAction && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+              <div>
+                <h3 className="font-semibold text-amber-900 text-sm">Action Required</h3>
+                <p className="text-amber-800 text-xs mt-1" data-testid="text-next-action">{client.nextAction}</p>
+                <Button size="sm" variant="outline" className="mt-2 border-amber-300 text-amber-900 text-xs h-7" data-testid="button-complete-now">
+                  Complete Now <ChevronRight className="h-3 w-3 ml-1" />
                 </Button>
-              </Link>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <Progress value={checklistTotal > 0 ? (checklistDone / checklistTotal) * 100 : 0} className="flex-1 h-2.5" />
-              <Badge variant="outline" className="shrink-0" data-testid="badge-checklist-progress">
-                {checklistDone}/{checklistTotal}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Total Paid</p>
+                    <p className="text-lg font-bold" data-testid="text-total-paid">{formatCurrency(totalPaid)}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center">
+                    <Package className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Inventory</p>
+                    <p className="text-lg font-bold" data-testid="text-inventory-units">{kitItemCount} Items</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-orange-100 flex items-center justify-center">
+                    <Users className="w-4 h-4 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Manager</p>
+                    <p className="text-sm font-bold" data-testid="text-manager-name">{client.managerName || "EazyToSell Team"}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="border-0 shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold">Next Steps</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  {nextSteps.map((step, idx) => {
+                    const Icon = step.icon;
+                    return (
+                      <Link key={idx} href={step.href}>
+                        <div className={`flex items-start gap-3 cursor-pointer hover:bg-accent/50 rounded-lg p-2 -mx-2 transition-colors ${!step.active ? "opacity-50" : ""}`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${step.active ? "bg-orange-100" : "bg-muted"}`}>
+                            <Icon className={`w-4 h-4 ${step.active ? "text-orange-600" : "text-muted-foreground"}`} />
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm" data-testid={`text-next-step-${idx}`}>{step.title}</p>
+                            <p className="text-xs text-muted-foreground">{step.description}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold">Timeline</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="relative border-l-2 border-orange-200 ml-3 space-y-5 pb-2">
+                  {[
+                    { label: "Onboarding started", completed: stageIdx >= 0, date: client.createdDate },
+                    { label: "Token amount received", completed: stageIdx >= 2 },
+                    { label: "Inventory ordered", completed: stageIdx >= 4 },
+                    { label: stageIdx >= 6 ? "Store launched" : "Estimated launch", completed: stageIdx >= 6, date: client.estimatedLaunchDate },
+                  ].map((event, idx) => (
+                    <div key={idx} className="pl-5 relative">
+                      <div
+                        className="absolute -left-[7px] top-1 h-3 w-3 rounded-full border-2 border-white shadow-sm"
+                        style={{ backgroundColor: event.completed ? ETS_PORTAL_COLOR : "#e5e7eb" }}
+                      />
+                      {event.date && <p className="text-[10px] text-muted-foreground">{event.date}</p>}
+                      <p className="text-sm font-medium" data-testid={`text-timeline-${idx}`}>{event.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {checklistTotal > 0 && (
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold">Store Readiness</span>
+                  <Link href="/portal-ets/checklist">
+                    <Button variant="ghost" size="sm" className="text-xs text-orange-600 hover:text-orange-700 gap-1 h-7" data-testid="button-view-checklist">
+                      View Checklist <ChevronRight className="w-3 h-3" />
+                    </Button>
+                  </Link>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Progress value={checklistTotal > 0 ? (checklistDone / checklistTotal) * 100 : 0} className="flex-1 h-2" />
+                  <Badge variant="outline" className="shrink-0 text-[10px]" data-testid="badge-checklist-progress">
+                    {checklistDone}/{checklistTotal}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
     </div>
   );

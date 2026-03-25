@@ -12,7 +12,7 @@ import {
 
 function PaymentsSkeleton() {
   return (
-    <div className="space-y-6 p-6">
+    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
       <Skeleton className="h-10 w-48" />
       <div className="grid md:grid-cols-3 gap-6">
         {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-xl" />)}
@@ -37,7 +37,7 @@ export default function EtsPortalPayments() {
   const nextDue = payments.find((p: any) => p.status === "pending" || p.status === "overdue");
 
   return (
-    <div className="space-y-6 p-6" data-testid="ets-portal-payments">
+    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-payments">
       <div>
         <h1 className="text-3xl font-bold" data-testid="text-payments-title">Payments</h1>
         <p className="text-muted-foreground">Track your investment and download invoices.</p>
