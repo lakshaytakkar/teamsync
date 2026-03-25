@@ -3,10 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import {
   AlertCircle, ChevronRight, MapPin, Phone, Store,
-  ShoppingCart, FileText, CreditCard, TrendingUp, Zap,
-  Banknote, Smartphone, BarChart3, Package, ArrowUpRight,
-  RotateCcw, ClipboardList, AlertTriangle, Sparkles, Receipt,
-  Timer, Users,
+  ShoppingCart, CreditCard, TrendingUp, Zap,
+  Package, ClipboardList, AlertTriangle, Receipt,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,8 +20,19 @@ import {
 } from "@/lib/mock-data-portal-ets";
 import {
   EXPANDED_SALES, RETURN_RECORDS, POS_PRODUCTS, INVENTORY,
-  getProductImage, getStockStatus,
+  getProductImage,
 } from "@/lib/mock-data-pos-ets";
+
+import iconPosBilling from "@assets/generated_images/icon-pos-billing.png";
+import iconInventory from "@assets/generated_images/icon-inventory.png";
+import iconDailyReport from "@assets/generated_images/icon-daily-report.png";
+import iconReturns from "@assets/generated_images/icon-returns.png";
+import iconCashRegister from "@assets/generated_images/icon-cash-register.png";
+import iconStoreSettings from "@assets/generated_images/icon-store-settings.png";
+import iconRevenue from "@assets/generated_images/icon-revenue.png";
+import iconAvgBasket from "@assets/generated_images/icon-avg-basket.png";
+import iconDigitalPayment from "@assets/generated_images/icon-digital-payment.png";
+import iconCashPayment from "@assets/generated_images/icon-cash-payment.png";
 
 const PIPELINE_STAGES = [
   "new-lead", "qualified", "token-paid", "store-design",
@@ -185,12 +195,12 @@ export default function EtsPortalDashboard() {
   const isLive = client.stage === "launched" || client.stage === "reordering";
 
   const quickActions = [
-    { label: "POS Billing", href: "/portal-ets/pos", icon: Receipt, color: "from-orange-500 to-orange-600", desc: "Start billing" },
-    { label: "Inventory", href: "/portal-ets/inventory", icon: Package, color: "from-blue-500 to-blue-600", desc: "Stock control" },
-    { label: "Daily Report", href: "/portal-ets/daily-report", icon: BarChart3, color: "from-emerald-500 to-emerald-600", desc: "View analytics" },
-    { label: "Returns", href: "/portal-ets/returns", icon: RotateCcw, color: "from-violet-500 to-violet-600", desc: "Process refunds" },
-    { label: "Cash Register", href: "/portal-ets/cash-register", icon: Banknote, color: "from-amber-500 to-amber-600", desc: "Cash management" },
-    { label: "Store Settings", href: "/portal-ets/store-settings", icon: ClipboardList, color: "from-slate-500 to-slate-600", desc: "Configure store" },
+    { label: "POS Billing", href: "/portal-ets/pos", img: iconPosBilling, desc: "Start billing" },
+    { label: "Inventory", href: "/portal-ets/inventory", img: iconInventory, desc: "Stock control" },
+    { label: "Daily Report", href: "/portal-ets/daily-report", img: iconDailyReport, desc: "View analytics" },
+    { label: "Returns", href: "/portal-ets/returns", img: iconReturns, desc: "Process refunds" },
+    { label: "Cash Register", href: "/portal-ets/cash-register", img: iconCashRegister, desc: "Cash management" },
+    { label: "Store Settings", href: "/portal-ets/store-settings", img: iconStoreSettings, desc: "Configure store" },
   ];
 
   return (
@@ -203,7 +213,6 @@ export default function EtsPortalDashboard() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="w-5 h-5 text-amber-200" />
                 <span className="text-sm font-medium text-orange-100">Welcome back</span>
               </div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight" data-testid="text-dashboard-title">
@@ -266,10 +275,8 @@ export default function EtsPortalDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card className="border-0 shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-lg bg-green-100 flex items-center justify-center">
-                    <TrendingUp className="w-3.5 h-3.5 text-green-600" />
-                  </div>
+                <div className="flex items-center gap-2.5 mb-2">
+                  <img src={iconRevenue} alt="Revenue" className="w-9 h-9 object-contain" />
                   <span className="text-[10px] font-semibold text-green-700 uppercase tracking-wider">Revenue</span>
                 </div>
                 <p className="text-xl md:text-2xl font-bold text-green-800" data-testid="text-today-revenue">{formatINR(todayStats.totalRevenue)}</p>
@@ -279,10 +286,8 @@ export default function EtsPortalDashboard() {
 
             <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
-                    <ShoppingCart className="w-3.5 h-3.5 text-blue-600" />
-                  </div>
+                <div className="flex items-center gap-2.5 mb-2">
+                  <img src={iconAvgBasket} alt="Avg Basket" className="w-9 h-9 object-contain" />
                   <span className="text-[10px] font-semibold text-blue-700 uppercase tracking-wider">Avg Basket</span>
                 </div>
                 <p className="text-xl md:text-2xl font-bold text-blue-800" data-testid="text-avg-basket">{formatINR(todayStats.avgBasket)}</p>
@@ -292,10 +297,8 @@ export default function EtsPortalDashboard() {
 
             <Card className="border-0 shadow-sm bg-gradient-to-br from-purple-50 to-violet-50">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <Smartphone className="w-3.5 h-3.5 text-purple-600" />
-                  </div>
+                <div className="flex items-center gap-2.5 mb-2">
+                  <img src={iconDigitalPayment} alt="Digital" className="w-9 h-9 object-contain" />
                   <span className="text-[10px] font-semibold text-purple-700 uppercase tracking-wider">Digital</span>
                 </div>
                 <p className="text-xl md:text-2xl font-bold text-purple-800" data-testid="text-digital-total">{formatINR(todayStats.upiTotal + todayStats.cardTotal)}</p>
@@ -305,10 +308,8 @@ export default function EtsPortalDashboard() {
 
             <Card className="border-0 shadow-sm bg-gradient-to-br from-amber-50 to-yellow-50">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
-                    <Banknote className="w-3.5 h-3.5 text-amber-600" />
-                  </div>
+                <div className="flex items-center gap-2.5 mb-2">
+                  <img src={iconCashPayment} alt="Cash" className="w-9 h-9 object-contain" />
                   <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider">Cash</span>
                 </div>
                 <p className="text-xl md:text-2xl font-bold text-amber-800" data-testid="text-cash-total">{formatINR(todayStats.cashTotal)}</p>
@@ -318,15 +319,11 @@ export default function EtsPortalDashboard() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-            {quickActions.map(action => {
-              const Icon = action.icon;
-              return (
+            {quickActions.map(action => (
                 <Link key={action.label} href={action.href}>
-                  <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group h-full" data-testid={`card-action-${action.label.toLowerCase().replace(/\s+/g, "-")}`}>
-                    <CardContent className="p-3 flex flex-col items-center text-center gap-2">
-                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
-                        <Icon className="w-5 h-5 text-white" />
-                      </div>
+                  <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full" data-testid={`card-action-${action.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                    <CardContent className="p-3 flex flex-col items-center text-center gap-1.5">
+                      <img src={action.img} alt={action.label} className="w-12 h-12 object-contain" />
                       <div>
                         <p className="text-xs font-semibold leading-tight">{action.label}</p>
                         <p className="text-[9px] text-muted-foreground mt-0.5">{action.desc}</p>
@@ -334,8 +331,7 @@ export default function EtsPortalDashboard() {
                     </CardContent>
                   </Card>
                 </Link>
-              );
-            })}
+            ))}
           </div>
 
           <div className="grid md:grid-cols-5 gap-4">
@@ -431,9 +427,7 @@ export default function EtsPortalDashboard() {
             <Card className="border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
-                    <Banknote className="w-5 h-5 text-green-600" />
-                  </div>
+                  <img src={iconCashPayment} alt="Cash" className="w-10 h-10 object-contain" />
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cash Payments</p>
                     <p className="text-lg font-bold">{formatINR(todayStats.cashTotal)}</p>
@@ -448,9 +442,7 @@ export default function EtsPortalDashboard() {
             <Card className="border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-                    <Smartphone className="w-5 h-5 text-purple-600" />
-                  </div>
+                  <img src={iconDigitalPayment} alt="UPI" className="w-10 h-10 object-contain" />
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">UPI Payments</p>
                     <p className="text-lg font-bold">{formatINR(todayStats.upiTotal)}</p>
@@ -465,9 +457,7 @@ export default function EtsPortalDashboard() {
             <Card className="border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-blue-600" />
-                  </div>
+                  <img src={iconDigitalPayment} alt="Card" className="w-10 h-10 object-contain" />
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Card Payments</p>
                     <p className="text-lg font-bold">{formatINR(todayStats.cardTotal)}</p>
