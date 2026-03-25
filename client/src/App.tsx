@@ -206,6 +206,10 @@ import EtsPortalSupport from "@/pages/portal/ets/support";
 import EtsPortalChecklist from "@/pages/portal/ets/checklist";
 import EtsPortalOnboarding from "@/pages/portal/ets/onboarding";
 import EtsPortalPosBilling from "@/pages/portal/ets/pos-billing";
+import EtsPortalInventory from "@/pages/portal/ets/inventory";
+import EtsPortalStockReceive from "@/pages/portal/ets/stock-receive";
+import EtsPortalStockAdjustment from "@/pages/portal/ets/stock-adjustment";
+import EtsPortalLowStockAlerts from "@/pages/portal/ets/low-stock-alerts";
 import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
@@ -447,6 +451,10 @@ function Router() {
       <Route path="/portal-ets/checklist" component={EtsPortalChecklist} />
       <Route path="/portal-ets/onboarding" component={EtsPortalOnboarding} />
       <Route path="/portal-ets/pos" component={EtsPortalPosBilling} />
+      <Route path="/portal-ets/inventory" component={EtsPortalInventory} />
+      <Route path="/portal-ets/stock-receive" component={EtsPortalStockReceive} />
+      <Route path="/portal-ets/stock-adjustment" component={EtsPortalStockAdjustment} />
+      <Route path="/portal-ets/low-stock-alerts" component={EtsPortalLowStockAlerts} />
       <Route path="/portal-ets" component={EtsPortalDashboard} />
       <Route path="/hrms" component={HrmsDashboard} />
       <Route path="/hrms/notifications" component={UniversalNotifications} />

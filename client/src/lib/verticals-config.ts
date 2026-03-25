@@ -1436,6 +1436,17 @@ export const verticals: Vertical[] = [
         items: [],
       },
       {
+        title: "Inventory",
+        defaultUrl: "/portal-ets/inventory",
+        icon: Package,
+        items: [
+          { title: "Stock Overview", url: "/portal-ets/inventory" },
+          { title: "Stock Receive", url: "/portal-ets/stock-receive" },
+          { title: "Stock Adjustment", url: "/portal-ets/stock-adjustment" },
+          { title: "Low Stock Alerts", url: "/portal-ets/low-stock-alerts" },
+        ],
+      },
+      {
         title: "My Store",
         defaultUrl: "/portal-ets/launch-kit",
         icon: Store,

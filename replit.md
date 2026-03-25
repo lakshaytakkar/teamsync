@@ -1504,9 +1504,13 @@ The ETS client portal uses the same admin panel layout (TopNavigation, vertical 
 | Support | `/portal-ets/support` | `client/src/pages/portal/ets/support.tsx` |
 | Checklist | `/portal-ets/checklist` | `client/src/pages/portal/ets/checklist.tsx` |
 | Onboarding | `/portal-ets/onboarding` | `client/src/pages/portal/ets/onboarding.tsx` |
+| **Inventory** | `/portal-ets/inventory` | `client/src/pages/portal/ets/inventory.tsx` |
+| **Stock Receive** | `/portal-ets/stock-receive` | `client/src/pages/portal/ets/stock-receive.tsx` |
+| **Stock Adjustment** | `/portal-ets/stock-adjustment` | `client/src/pages/portal/ets/stock-adjustment.tsx` |
+| **Low Stock Alerts** | `/portal-ets/low-stock-alerts` | `client/src/pages/portal/ets/low-stock-alerts.tsx` |
 
 #### POS Billing System (`/portal-ets/pos`)
-Full-screen point-of-sale billing screen for store cashiers. Renders outside the standard layout for maximum screen use.
+Point-of-sale billing screen for store cashiers. Renders within the standard portal layout.
 - **Left panel**: Barcode scanner input (auto-focused, USB scanner compatible), product search dropdown, bill item grid (qty +/-, delete), item count + grand total, Charge button
 - **Right panel**: Quick-add product tiles (8 most common items), held bills indicator with recall
 - **Payment flow**: Full-screen modal with Cash (change calculator, quick amount buttons), UPI (confirmation), Card (confirmation)
@@ -1514,7 +1518,15 @@ Full-screen point-of-sale billing screen for store cashiers. Renders outside the
 - **Held bills**: Save current bill, recall later, auto-expire after 24h
 - **Store lock**: POS only visible when store status is "active"
 - **Haptics**: `navigator.vibrate()` on scan, add, remove, payment actions
-- **Mock data**: `client/src/lib/mock-data-pos-ets.ts` — 20 products, quick-add tiles, sale history
+- **Mock data**: `client/src/lib/mock-data-pos-ets.ts` — 20 products, quick-add tiles, sale history, inventory items, stock movements, stock receives, adjustment reasons, shared state mutation functions
+
+#### Inventory Management System (`/portal-ets/inventory`, `/portal-ets/stock-receive`, `/portal-ets/stock-adjustment`, `/portal-ets/low-stock-alerts`)
+Full stock control center with 4 sub-pages under the "Inventory" nav section:
+- **Stock Overview** (`inventory.tsx`): Searchable/filterable product table with summary cards (total SKUs, healthy/low/out counts, inventory value). Click any row to open side sheet with stock movement history timeline. Filters: category, status, sort by name/stock/value.
+- **Stock Receive** (`stock-receive.tsx`): Record incoming deliveries. Auto-generates SR reference numbers. Barcode scan + product search to add items with quantity controls. Confirm Receive updates shared inventory state and creates movement records. History tab shows all past receive sessions with item details.
+- **Stock Adjustment** (`stock-adjustment.tsx`): Owner-only. Fix stock mismatches — scan/search product, see system count vs actual count, select reason (physical count correction, damaged, found in backroom, lost/stolen, miscount during receive). Adjustments update shared inventory and create audit trail movement records.
+- **Low Stock Alerts** (`low-stock-alerts.tsx`): Products below reorder threshold sorted by urgency (out of stock → critical 1-2 → low 3-5). Shows daily sales rate (14-day avg), estimated days until stockout, and suggested reorder quantity (30-day supply).
+- **Shared state**: All pages share INVENTORY and STOCK_MOVEMENTS arrays via `mock-data-pos-ets.ts`. Mutation functions (`addReceiveToInventory`, `addAdjustmentToInventory`, `updateInventoryStock`, `addStockMovement`) ensure cross-page consistency.
 
 - Layout: Uses main admin TopNavigation with EazyToSell branding (#F97316). Nav: Home, Products (Catalog / Launch Kit), My Store (Store Setup / Readiness Checklist), Orders, Payments (Payment History / Invoices), Support, Profile. Large EazyToSell logo (`attached_assets/eazytosell-logo-large.png`) shown in vertical-switcher for ETS portals.
 - Messages page removed (not in original project).
