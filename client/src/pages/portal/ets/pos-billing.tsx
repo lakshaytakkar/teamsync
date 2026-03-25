@@ -27,7 +27,7 @@ function formatINR(val: number): string {
 
 function StoreLocked() {
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50">
+    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50">
       <div className="max-w-md text-center px-6 space-y-6">
         <div className="mx-auto w-24 h-24 rounded-3xl bg-orange-100 flex items-center justify-center shadow-lg">
           <Lock className="w-12 h-12 text-orange-500" />
@@ -267,35 +267,22 @@ export default function PosBilling() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-gray-50 overflow-hidden print:hidden">
+    <div className="flex h-[calc(100vh-3.5rem)] w-full bg-gray-50 overflow-hidden print:hidden">
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="bg-white border-b px-4 py-2.5 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => navigate("/portal-ets")}
-              data-testid="button-back-portal"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-sm">
-                <Store className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h1 className="text-sm font-bold leading-none" data-testid="text-store-name">{store.name}</h1>
-                <p className="text-[10px] text-muted-foreground leading-none mt-0.5">POS Billing</p>
-              </div>
+        <div className="bg-white border-b px-4 py-2 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+              <Receipt className="w-3.5 h-3.5 text-white" />
             </div>
+            <h1 className="text-sm font-bold" data-testid="text-store-name">POS Billing</h1>
+            <Badge variant="outline" className="text-[9px] border-green-300 text-green-700 bg-green-50 ml-1">Live</Badge>
           </div>
           <div className="flex items-center gap-2">
             {heldBills.length > 0 && (
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1.5 text-xs h-8 border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100"
+                className="gap-1.5 text-xs h-7 border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100"
                 onClick={() => setShowHeldBills(!showHeldBills)}
                 data-testid="button-held-bills"
               >
@@ -306,7 +293,7 @@ export default function PosBilling() {
             <Button
               variant="outline"
               size="sm"
-              className="gap-1.5 text-xs h-8"
+              className="gap-1.5 text-xs h-7"
               onClick={holdBill}
               disabled={billItems.length === 0}
               data-testid="button-hold-bill"
@@ -591,7 +578,7 @@ function PaymentScreen({
     : paymentMethod !== null;
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 print:hidden">
+    <div className="flex h-[calc(100vh-3.5rem)] w-full items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 print:hidden">
       <div className="w-full max-w-lg mx-4">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6 text-white text-center">
@@ -760,7 +747,7 @@ function ReceiptScreen({ sale, store, onNewSale, onPrint }: {
   const timeStr = date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="flex h-screen w-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="flex h-[calc(100vh-3.5rem)] w-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <div className="hidden print:block w-full">
         <ThermalReceipt sale={sale} store={store} dateStr={dateStr} timeStr={timeStr} />
       </div>

@@ -744,16 +744,12 @@ function App() {
   const isLnPortal = loc.startsWith("/portal/legalnations") || (loc.startsWith("/portal/") && !loc.startsWith("/portal-ets"));
   const isEtsPortal = loc.startsWith("/portal-ets");
   const isAnyPortal = isLnPortal || isEtsPortal;
-  const isFullScreenPos = loc === "/portal-ets/pos";
-
   return (
     <VerticalContext.Provider value={{ currentVertical, setCurrentVertical }}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <VerticalSync setCurrentVertical={setCurrentVertical} />
-          {isFullScreenPos ? (
-            <Router />
-          ) : isLnPortal ? (
+          {isLnPortal ? (
             <PortalLayout>
               <PortalLNRouter />
             </PortalLayout>
