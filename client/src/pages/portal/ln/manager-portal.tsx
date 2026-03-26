@@ -49,7 +49,7 @@ const TICKET_STATUS_COLORS: Record<string, string> = {
 const TODAY = "2026-03-26";
 
 function StageTracker({ stage, onTabChange }: { stage: number; onTabChange: (tab: ClientTabId) => void }) {
-  const tabForStage: Record<number, ClientTabId> = { 2: "documents", 3: "llc", 4: "ein", 5: "boi", 6: "banking", 7: "tasks" };
+  const tabForStage: Record<number, ClientTabId> = { 1: "overview", 2: "documents", 3: "llc", 4: "ein", 5: "boi", 6: "banking", 7: "tasks" };
   return (
     <div className="space-y-1">
       {FORMATION_STAGES.map((s, idx) => {
@@ -675,6 +675,7 @@ export function LnManagerClientDetail() {
     5: [
       { label: "BOI filed with FinCEN", met: effectiveBoiStatus === "filed" },
       { label: "FinCEN confirmation number recorded", met: !!effectiveBoiConfirmNum },
+      { label: "Confirmation document uploaded", met: !!(boiConfirmDocFilename || client.boiConfirmDocUploaded) },
     ],
     6: [
       { label: "Mercury checklist complete", met: mercuryAllDone },
@@ -1016,29 +1017,57 @@ export function LnManagerClientDetail() {
               {effectiveArticleState === "stamped" && (
                 <div className="flex items-center gap-2 text-xs text-green-600"><CheckCircle2 className="w-4 h-4" /> Stamped copy received & filed in vault</div>
               )}
-              <div className="pt-2">
-                <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-sky-300 text-sky-700 hover:bg-sky-50" data-testid="btn-generate-oa">
-                  <FileText className="w-3.5 h-3.5" /> Generate OA
-                </Button>
-              </div>
+              {preFilingDone && effectiveArticleState === "not-started" && (
+                <div className="pt-2">
+                  <Button size="sm" className="h-7 text-xs gap-1 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => setArticleState("draft")} data-testid="btn-start-articles">
+                    <ArrowRight className="w-3.5 h-3.5" /> Start Drafting Articles
+                  </Button>
+                </div>
+              )}
+              {effectiveArticleState === "draft" && (
+                <div className="pt-2">
+                  <Button size="sm" className="h-7 text-xs gap-1 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => setArticleState("submitted")} data-testid="btn-submit-articles">
+                    <Send className="w-3.5 h-3.5" /> Submit Articles to State
+                  </Button>
+                </div>
+              )}
+              {(effectiveArticleState === "submitted" || effectiveArticleState === "under-review") && (
+                <div className="pt-2">
+                  <Button size="sm" className="h-7 text-xs gap-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => setArticleState("stamped")} data-testid="btn-mark-stamped">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Mark Stamped Copy Received
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
           <Card className="border shadow-none">
             <CardContent className="p-4 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Operating Agreement</p>
-              <div className="flex items-center gap-2 flex-wrap">
-                {oaStages.map(s => (
-                  <button key={s} onClick={() => setOaState(s)} className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${effectiveOaState === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground hover:border-gray-300"}`} data-testid={`oa-state-${s}`}>
-                    {s}
-                  </button>
-                ))}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {oaStages.map(s => (
+                    <button key={s} onClick={() => setOaState(s)} className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${effectiveOaState === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground hover:border-gray-300"}`} data-testid={`oa-state-${s}`}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+                {effectiveOaState === "pending" && effectiveArticleState !== "not-started" && (
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-sky-300 text-sky-700 hover:bg-sky-50" onClick={() => setOaState("generated")} data-testid="btn-generate-oa">
+                    <FileText className="w-3.5 h-3.5" /> Generate & Send OA to Client
+                  </Button>
+                )}
+                {effectiveOaState === "generated" && (
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-amber-600">Generated — sent to client for review and signature</p>
+                    <Button size="sm" className="h-7 text-xs gap-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => setOaState("signed")} data-testid="btn-mark-oa-signed">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Mark as Signed by Client
+                    </Button>
+                  </div>
+                )}
+                {effectiveOaState === "signed" && (
+                  <div className="flex items-center gap-2 text-xs text-green-600"><CheckCircle2 className="w-4 h-4" /> Operating Agreement signed & delivered</div>
+                )}
               </div>
-              {effectiveOaState === "generated" && (
-                <div className="text-xs text-amber-600">Generated — sent to client for review and signature</div>
-              )}
-              {effectiveOaState === "signed" && (
-                <div className="flex items-center gap-2 text-xs text-green-600"><CheckCircle2 className="w-4 h-4" /> Operating Agreement signed & delivered</div>
-              )}
             </CardContent>
           </Card>
         </div>

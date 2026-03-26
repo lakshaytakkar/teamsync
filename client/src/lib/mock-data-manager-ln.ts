@@ -431,7 +431,7 @@ export const MANAGER_CLIENTS: ManagerClient[] = [
     einReceivedDate: "2026-01-20",
     einMethod: "Online",
     einNotes: "EIN received online same-day. CP 575 uploaded to client vault.",
-    boiStatus: "in-progress",
+    boiStatus: "draft-ready",
     boiOwners: [
       { id: "bo-030", name: "Vikram Rao", ownership: "60%", dob: "1980-11-30", address: "Flat 5B, Jubilee Hills, Hyderabad 500033", passportNum: "A9988776" },
       { id: "bo-031", name: "Ananya Rao", ownership: "40%", dob: "1983-06-15", address: "Flat 5B, Jubilee Hills, Hyderabad 500033", passportNum: "A7766554" },
