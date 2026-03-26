@@ -239,7 +239,7 @@ import EtsPortalReturns from "@/pages/portal/ets/returns";
 import EtsPortalDailyReport from "@/pages/portal/ets/daily-report";
 import EtsPortalStoreSettings from "@/pages/portal/ets/store-settings";
 import EtsAdminPortal, { EtsAdminPipeline, EtsAdminTeam, EtsAdminRevenue, EtsAdminSettings } from "@/pages/portal/ets/admin-portal";
-import EtsSalesPortal, { EtsSalesPipeline, EtsSalesProposals, EtsSalesScripts, EtsSalesFollowups } from "@/pages/portal/ets/sales-portal";
+import EtsSalesPortal, { EtsSalesPipeline, EtsSalesProposals, EtsSalesScripts, EtsSalesFollowups, EtsSalesCalendar } from "@/pages/portal/ets/sales-portal";
 import EtsOpsPortal, { EtsOpsStages, EtsOpsMilestones, EtsOpsTickets, EtsOpsReadiness } from "@/pages/portal/ets/ops-portal";
 import EtsFulfillmentPortal, { EtsFulfillmentQC, EtsFulfillmentDispatch, EtsFulfillmentStickers, EtsFulfillmentBatches } from "@/pages/portal/ets/fulfillment-portal";
 import EtsProductPortal, { EtsProductCategories, EtsProductPricing, EtsProductCompliance, EtsProductBulkUpload, EtsProductList } from "@/pages/portal/ets/product-portal";
@@ -525,6 +525,8 @@ function Router() {
       <Route path="/portal-ets/sales/proposals" component={EtsSalesProposals} />
       <Route path="/portal-ets/sales/scripts" component={EtsSalesScripts} />
       <Route path="/portal-ets/sales/followups" component={EtsSalesFollowups} />
+      <Route path="/portal-ets/sales/calendar" component={EtsSalesCalendar} />
+      <Route path="/portal-ets/sales/dashboard" component={EtsSalesPortal} />
       <Route path="/portal-ets/sales" component={EtsSalesPortal} />
       <Route path="/portal-ets/ops/stages" component={EtsOpsStages} />
       <Route path="/portal-ets/ops/milestones" component={EtsOpsMilestones} />

@@ -18,6 +18,7 @@ import {
   Upload,
   AlertTriangle,
   Receipt,
+  Calendar,
   type LucideIcon,
 } from "lucide-react";
 
@@ -71,13 +72,13 @@ export const ETS_ROLES: EtsRoleDefinition[] = [
     textColor: "text-sky-700",
     userName: "Harsh / Suprans",
     userInitials: "SA",
-    defaultUrl: "/portal-ets/sales",
+    defaultUrl: "/portal-ets/sales/dashboard",
     navItems: [
-      { title: "Dashboard", url: "/portal-ets/sales", icon: LayoutDashboard },
+      { title: "Dashboard", url: "/portal-ets/sales/dashboard", icon: LayoutDashboard },
       { title: "Pipeline", url: "/portal-ets/sales/pipeline", icon: Kanban },
+      { title: "Scripts", url: "/portal-ets/sales/scripts", icon: MessageSquare },
       { title: "Proposals", url: "/portal-ets/sales/proposals", icon: FileText },
-      { title: "WhatsApp Scripts", url: "/portal-ets/sales/scripts", icon: MessageSquare },
-      { title: "Follow-ups", url: "/portal-ets/sales/followups", icon: ClipboardList },
+      { title: "Calendar", url: "/portal-ets/sales/calendar", icon: Calendar },
     ],
   },
   {
