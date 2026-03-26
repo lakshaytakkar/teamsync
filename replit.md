@@ -1616,7 +1616,11 @@ New role-based LN portal using the admin panel layout (TopNavigation + role swit
 | Sales Proposals | `/portal-ln/sales/proposals` | `sales-portal.tsx` → `LnSalesProposals` |
 | Sales Follow-ups | `/portal-ln/sales/followups` | `sales-portal.tsx` → `LnSalesFollowups` |
 | Sales Packages | `/portal-ln/sales/packages` | `sales-portal.tsx` → `LnSalesPackages` |
-| Tax (placeholder) | `/portal-ln/tax/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
+| Tax Dashboard | `/portal-ln/tax` | `client/src/pages/portal/ln/tax-portal.tsx` |
+| Tax Filing Queue | `/portal-ln/tax/queue` | `tax-portal.tsx` → `LnTaxQueue` |
+| Tax Preparation | `/portal-ln/tax/prep` | `tax-portal.tsx` → `LnTaxPrep` |
+| Tax Filing Detail | `/portal-ln/tax/detail` | `tax-portal.tsx` → `LnTaxDetail` |
+| Tax Calendar | `/portal-ln/tax/calendar` | `tax-portal.tsx` → `LnTaxCalendar` |
 
 ### Navigation Entry
 - Vertical switcher (`vertical-switcher.tsx`) has two portal categories:

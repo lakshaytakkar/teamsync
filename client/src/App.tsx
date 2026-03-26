@@ -208,6 +208,7 @@ import LnAdminPortal, { LnAdminPipeline, LnAdminTeam, LnAdminRevenue, LnAdminSet
 import LnFormationPortal, { LnFormationPipeline, LnFormationKYC, LnFormationEIN, LnFormationActions } from "@/pages/portal/ln/formation-portal";
 import LnSalesPortal, { LnSalesPipeline, LnSalesProposals, LnSalesFollowups, LnSalesPackages } from "@/pages/portal/ln/sales-portal";
 import LnCompliancePortal, { LnComplianceBOI, LnComplianceAnnual, LnComplianceAlerts, LnComplianceDetail } from "@/pages/portal/ln/compliance-portal";
+import LnTaxPortal, { LnTaxQueue, LnTaxPrep, LnTaxDetail, LnTaxCalendar } from "@/pages/portal/ln/tax-portal";
 import LnCompanyDetail from "@/pages/portal/ln/company-detail";
 import LnDocuments from "@/pages/portal/ln/documents";
 import LnInvoices from "@/pages/portal/ln/invoices";
@@ -568,8 +569,11 @@ function Router() {
       <Route path="/portal-ln/compliance/alerts" component={LnComplianceAlerts} />
       <Route path="/portal-ln/compliance/detail" component={LnComplianceDetail} />
       <Route path="/portal-ln/compliance" component={LnCompliancePortal} />
-      <Route path="/portal-ln/tax/:rest*" component={LnRolePlaceholder} />
-      <Route path="/portal-ln/tax" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/tax/queue" component={LnTaxQueue} />
+      <Route path="/portal-ln/tax/prep" component={LnTaxPrep} />
+      <Route path="/portal-ln/tax/detail" component={LnTaxDetail} />
+      <Route path="/portal-ln/tax/calendar" component={LnTaxCalendar} />
+      <Route path="/portal-ln/tax" component={LnTaxPortal} />
       <Route path="/portal-ln/sales/pipeline" component={LnSalesPipeline} />
       <Route path="/portal-ln/sales/proposals" component={LnSalesProposals} />
       <Route path="/portal-ln/sales/followups" component={LnSalesFollowups} />

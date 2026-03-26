@@ -1,12 +1,15 @@
-import { useLocation } from "wouter";
+import { useState } from "react";
+import { useLocation, Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 import {
   Building2, FileText, Receipt, MessageSquare, Calendar, Clock,
   Check, AlertTriangle, ArrowRight, Phone, Shield, DollarSign,
-  ChevronRight, Activity, ExternalLink,
+  ChevronRight, Activity, ExternalLink, CheckCircle2, Circle,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -17,6 +20,10 @@ import {
   RECENT_ACTIVITY,
   RM_CONTACT,
   LN_PORTAL_COLOR,
+  LN_SETUP_DATA,
+  getLnClientMode,
+  setLnClientMode,
+  type LnClientMode,
 } from "@/lib/mock-data-dashboard-ln";
 
 const CURRENT_STAGE_INDEX = 4;
@@ -39,30 +46,158 @@ function timeAgo(ts: string) {
   return "Just now";
 }
 
+function SetupDashboard() {
+  const [, setLocation] = useLocation();
+  const data = LN_SETUP_DATA;
+  const doneItems = data.setupItems.filter(i => i.done);
+  const pendingItems = data.setupItems.filter(i => !i.done);
+
+  return (
+    <div className="space-y-6">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 p-6 text-white shadow-lg">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/3" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm text-blue-200">Welcome, {CLIENT_PROFILE.name.split(" ")[0]}</span>
+            <Badge className="bg-white/20 text-white border-0 text-xs font-semibold">Getting Started</Badge>
+          </div>
+          <h1 className="text-2xl font-bold font-heading" data-testid="text-setup-title">Start Your US Company Formation</h1>
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-sm mb-1.5">
+              <span className="font-semibold text-white">{data.onboardingPercent}% complete</span>
+              <span className="text-blue-200">{data.tasksRemaining} steps remaining</span>
+            </div>
+            <div className="h-3 bg-white/20 rounded-full overflow-hidden">
+              <div className="h-full bg-white rounded-full transition-all" style={{ width: `${data.onboardingPercent}%` }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        <Card className="md:col-span-2 border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Shield className="w-4 h-4 text-blue-500" /> Formation Checklist
+              </CardTitle>
+              <Badge variant="outline" className="text-xs">{doneItems.length}/{data.setupItems.length} done</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Progress value={(doneItems.length / data.setupItems.length) * 100} className="h-2 mb-4" />
+            <div className="space-y-2">
+              {data.setupItems.map(item => (
+                <Link key={item.id} href={item.href}>
+                  <div
+                    className={`flex items-center gap-3 py-2.5 px-3 rounded-lg hover:bg-muted/30 cursor-pointer transition-colors ${item.done ? "opacity-60" : ""}`}
+                    data-testid={`setup-item-${item.id}`}
+                  >
+                    {item.done
+                      ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                      : <Circle className="w-4 h-4 text-blue-400 shrink-0" />
+                    }
+                    <span className={`text-sm ${item.done ? "line-through text-muted-foreground" : "font-medium"}`}>{item.label}</span>
+                    {!item.done && <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0" />}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-4">
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Next Step</p>
+              <p className="text-sm font-medium">{pendingItems[0]?.label}</p>
+              <Link href={pendingItems[0]?.href || "/portal-ln/onboarding"}>
+                <Button size="sm" className="w-full mt-3 bg-blue-600 hover:bg-blue-700 gap-1 text-xs" data-testid="button-continue-setup">
+                  <ArrowRight className="w-3 h-3" /> Continue
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm bg-sky-50/50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <Avatar className="size-9">
+                  <AvatarFallback className="bg-sky-100 text-sky-700 text-xs font-bold">{RM_CONTACT.avatar}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-semibold">{RM_CONTACT.name}</p>
+                  <p className="text-xs text-muted-foreground">{RM_CONTACT.role}</p>
+                </div>
+              </div>
+              <Button size="sm" className="w-full bg-sky-600 hover:bg-sky-700 text-white gap-2 text-xs" data-testid="button-setup-contact-rm">
+                <Phone className="w-3.5 h-3.5" /> Contact Specialist
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LnDashboard() {
   const [, setLocation] = useLocation();
+  const [mode, setMode] = useState<LnClientMode>(getLnClientMode);
   const m = DASHBOARD_METRICS;
+
+  const toggleMode = () => {
+    const next = mode === "active" ? "setup" : "active";
+    setLnClientMode(next);
+    setMode(next);
+  };
 
   return (
     <div className="p-6 space-y-8" data-testid="ln-dashboard-page">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight" data-testid="text-dashboard-greeting">
-            Welcome back, {CLIENT_PROFILE.name.split(" ")[0]}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Here's what's happening with your US company formations
-          </p>
+          {mode === "active" ? (
+            <>
+              <h1 className="text-2xl font-bold tracking-tight" data-testid="text-dashboard-greeting">
+                Welcome back, {CLIENT_PROFILE.name.split(" ")[0]}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Here's what's happening with your US company formations
+              </p>
+            </>
+          ) : (
+            <div />
+          )}
         </div>
-        <Button
-          onClick={() => setLocation("/portal-ln/onboarding")}
-          className="bg-blue-600 hover:bg-blue-700"
-          data-testid="button-new-formation"
-        >
-          <Building2 className="w-4 h-4 mr-2" />
-          New Formation
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-[10px] h-7 px-2 gap-1 text-muted-foreground"
+            onClick={toggleMode}
+            data-testid="button-toggle-client-mode"
+          >
+            <Settings className="w-3 h-3" />
+            {mode === "active" ? "View Setup Mode" : "View Active Mode"}
+          </Button>
+          {mode === "active" && (
+            <Button
+              onClick={() => setLocation("/portal-ln/onboarding")}
+              className="bg-blue-600 hover:bg-blue-700"
+              data-testid="button-new-formation"
+            >
+              <Building2 className="w-4 h-4 mr-2" />
+              New Formation
+            </Button>
+          )}
+        </div>
       </div>
+
+      {mode === "setup" && <SetupDashboard />}
+
+      {mode === "active" && (
+        <>
+      
 
       <Card className="overflow-hidden" data-testid="formation-stepper-card">
         <CardHeader className="pb-2">
@@ -299,6 +434,8 @@ export default function LnDashboard() {
           </Card>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

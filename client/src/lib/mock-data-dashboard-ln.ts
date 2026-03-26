@@ -442,6 +442,125 @@ export const COMPLIANCE_CLIENTS = [
   { id: "CC-004", company: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", boiStatus: "pending-kyc", annualReportDue: "2026-06-01", raExpiry: "2027-02-01", overallHealth: 45 },
 ];
 
+export type TaxFilingStatus = "not-started" | "docs-pending" | "in-prep" | "review" | "client-review" | "ready-to-file" | "mailed" | "filed";
+
+export interface TaxFiling {
+  id: string;
+  company: string;
+  client: string;
+  state: string;
+  ein: string;
+  entityType: "LLC" | "C-Corp" | "S-Corp";
+  taxYear: number;
+  status: TaxFilingStatus;
+  forms: string[];
+  revenue: number;
+  assignedTo: string;
+  dueDate: string;
+  filedDate?: string;
+  trackingNumber?: string;
+  notes: string;
+}
+
+export const TAX_FILINGS: TaxFiling[] = [
+  { id: "TF-001", company: "CloudBase Corp", client: "Rajesh Kumar", state: "WY", ein: "92-7654321", entityType: "C-Corp", taxYear: 2025, status: "in-prep", forms: ["Form 1120", "Form 5472"], revenue: 0, assignedTo: "Deepak Verma", dueDate: "2026-04-15", notes: "Zero-activity return, single foreign owner" },
+  { id: "TF-002", company: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", ein: "88-1234567", entityType: "LLC", taxYear: 2025, status: "docs-pending", forms: ["Form 1120", "Form 5472"], revenue: 0, assignedTo: "Deepak Verma", dueDate: "2026-04-15", notes: "Awaiting bank statements from client" },
+  { id: "TF-003", company: "MediCare Solutions LLC", client: "Sunita Agarwal", state: "FL", ein: "65-4321987", entityType: "LLC", taxYear: 2025, status: "filed", forms: ["Form 1120", "Form 5472"], revenue: 12500, assignedTo: "Deepak Verma", dueDate: "2026-04-15", filedDate: "2026-03-10", trackingNumber: "7025 0640 0001 2345 6789", notes: "Active LLC with revenue" },
+  { id: "TF-004", company: "DataBridge Analytics LLC", client: "Vikram Rao", state: "WY", ein: "92-8765432", entityType: "LLC", taxYear: 2025, status: "review", forms: ["Form 1120", "Form 5472"], revenue: 0, assignedTo: "Deepak Verma", dueDate: "2026-04-15", notes: "Zero-activity, QC pending senior review" },
+  { id: "TF-005", company: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", ein: "88-9123456", entityType: "C-Corp", taxYear: 2025, status: "ready-to-file", forms: ["Form 1120", "Form 5472", "Schedule L"], revenue: 45000, assignedTo: "Deepak Verma", dueDate: "2026-04-15", notes: "Revenue-generating corp, all forms complete" },
+  { id: "TF-006", company: "GreenLeaf Organics LLC", client: "Amit Patel", state: "DE", ein: "", entityType: "LLC", taxYear: 2025, status: "not-started", forms: ["Form 1120", "Form 5472"], revenue: 0, assignedTo: "Deepak Verma", dueDate: "2026-04-15", notes: "EIN not yet received — cannot start" },
+  { id: "TF-007", company: "UrbanNest Realty Corp", client: "Priya Singh", state: "TX", ein: "", entityType: "C-Corp", taxYear: 2025, status: "not-started", forms: ["Form 1120"], revenue: 0, assignedTo: "Deepak Verma", dueDate: "2026-04-15", notes: "New formation, no EIN yet" },
+  { id: "TF-008", company: "SwiftPay Solutions Inc", client: "Neha Joshi", state: "NV", ein: "", entityType: "C-Corp", taxYear: 2025, status: "not-started", forms: ["Form 1120"], revenue: 0, assignedTo: "Deepak Verma", dueDate: "2026-04-15", notes: "Formation still in KYC stage" },
+];
+
+export const TAX_STATUS_LABELS: Record<TaxFilingStatus, string> = {
+  "not-started": "Not Started",
+  "docs-pending": "Docs Pending",
+  "in-prep": "In Preparation",
+  "review": "Internal Review",
+  "client-review": "Client Review",
+  "ready-to-file": "Ready to File",
+  "mailed": "Mailed",
+  "filed": "Filed",
+};
+
+export const TAX_STATUS_COLORS: Record<TaxFilingStatus, string> = {
+  "not-started": "border-gray-200 text-gray-500 bg-gray-50",
+  "docs-pending": "border-red-300 text-red-700 bg-red-50",
+  "in-prep": "border-amber-300 text-amber-700 bg-amber-50",
+  "review": "border-blue-300 text-blue-700 bg-blue-50",
+  "client-review": "border-purple-300 text-purple-700 bg-purple-50",
+  "ready-to-file": "border-green-300 text-green-700 bg-green-50",
+  "mailed": "border-teal-300 text-teal-700 bg-teal-50",
+  "filed": "border-emerald-300 text-emerald-700 bg-emerald-50",
+};
+
+export const TAX_PREP_STEPS = [
+  { n: 1, key: "doc-collection", title: "Document Collection", description: "Request bank statements, income/expense records" },
+  { n: 2, key: "ein-verify", title: "EIN Verification", description: "Verify EIN with IRS records, confirm entity type" },
+  { n: 3, key: "form-1120", title: "Form 1120 Preparation", description: "Prepare with entity info, income/deductions, balance sheet" },
+  { n: 4, key: "form-5472", title: "Form 5472 Preparation", description: "Report transactions for 25%+ foreign owners" },
+  { n: 5, key: "review", title: "Internal Review & QC", description: "Cross-check all forms for accuracy" },
+  { n: 6, key: "client-review", title: "Client Review", description: "Send forms to client for review and confirmation" },
+  { n: 7, key: "print-sign", title: "Print & Package", description: "Print filing package, prepare cover letter" },
+  { n: 8, key: "mail", title: "Mail to IRS", description: "Ship via certified mail through LetterStream" },
+];
+
+export interface TaxCalendarDeadline {
+  id: string;
+  title: string;
+  date: string;
+  type: "filing" | "extension" | "estimated-tax" | "state" | "reminder";
+  company?: string;
+  priority: "critical" | "high" | "medium" | "low";
+  done: boolean;
+}
+
+export const TAX_CALENDAR_DEADLINES: TaxCalendarDeadline[] = [
+  { id: "TC-001", title: "Form 1120 Filing Deadline", date: "2026-04-15", type: "filing", priority: "critical", done: false },
+  { id: "TC-002", title: "Form 5472 Filing Deadline", date: "2026-04-15", type: "filing", priority: "critical", done: false },
+  { id: "TC-003", title: "Form 7004 Extension (if needed)", date: "2026-04-15", type: "extension", priority: "high", done: false },
+  { id: "TC-004", title: "Q1 Estimated Tax Payment", date: "2026-04-15", type: "estimated-tax", priority: "high", done: false },
+  { id: "TC-005", title: "Delaware Franchise Tax", date: "2026-06-01", type: "state", company: "TechVentures LLC", priority: "medium", done: false },
+  { id: "TC-006", title: "Q2 Estimated Tax Payment", date: "2026-06-15", type: "estimated-tax", priority: "medium", done: false },
+  { id: "TC-007", title: "Q3 Estimated Tax Payment", date: "2026-09-15", type: "estimated-tax", priority: "low", done: false },
+  { id: "TC-008", title: "Extended Filing Deadline", date: "2026-10-15", type: "filing", priority: "high", done: false },
+  { id: "TC-009", title: "Q4 Estimated Tax Payment", date: "2027-01-15", type: "estimated-tax", priority: "low", done: false },
+  { id: "TC-010", title: "MediCare Solutions — Filed", date: "2026-03-10", type: "filing", company: "MediCare Solutions LLC", priority: "critical", done: true },
+];
+
+export type LnClientMode = "setup" | "active";
+
+const LN_CLIENT_MODE_KEY = "ln-client-dashboard-mode";
+
+export function getLnClientMode(): LnClientMode {
+  try {
+    const v = localStorage.getItem(LN_CLIENT_MODE_KEY);
+    if (v === "setup" || v === "active") return v;
+  } catch {}
+  return "active";
+}
+
+export function setLnClientMode(mode: LnClientMode): void {
+  try {
+    localStorage.setItem(LN_CLIENT_MODE_KEY, mode);
+  } catch {}
+}
+
+export const LN_SETUP_DATA = {
+  onboardingPercent: 35,
+  currentStep: 2,
+  totalSteps: 5,
+  tasksRemaining: 3,
+  setupItems: [
+    { id: "s1", label: "Select Formation Package", done: true, href: "/portal-ln/onboarding" },
+    { id: "s2", label: "Complete KYC / Upload Documents", done: true, href: "/portal-ln/documents" },
+    { id: "s3", label: "Review & Submit Formation Details", done: false, href: "/portal-ln/onboarding" },
+    { id: "s4", label: "Make Payment", done: false, href: "/portal-ln/invoices" },
+    { id: "s5", label: "Track Formation Progress", done: false, href: "/portal-ln/companies" },
+  ],
+};
+
 export const US_STATES_POPULAR = [
   { code: "DE", name: "Delaware", tag: "Most Popular", description: "No state income tax for LLCs, business-friendly courts" },
   { code: "WY", name: "Wyoming", tag: "Best Value", description: "No state tax, strong privacy, low fees" },
