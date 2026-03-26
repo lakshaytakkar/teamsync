@@ -629,6 +629,7 @@ export function LnManagerClientDetail() {
 
   const [articleState, setArticleState] = useState<string | undefined>(undefined);
   const [oaState, setOaState] = useState<string | undefined>(undefined);
+  const [llcSubmitConfirm, setLlcSubmitConfirm] = useState(false);
   const [llcEntityName, setLlcEntityName] = useState<boolean | undefined>(undefined);
   const [llcRegAgent, setLlcRegAgent] = useState<boolean | undefined>(undefined);
   const [llcStateFee, setLlcStateFee] = useState<boolean | undefined>(undefined);
@@ -1083,9 +1084,23 @@ export function LnManagerClientDetail() {
               )}
               {effectiveArticleState === "draft" && (
                 <div className="pt-2">
-                  <Button size="sm" className="h-7 text-xs gap-1 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => setArticleState("submitted")} data-testid="btn-submit-articles">
-                    <Send className="w-3.5 h-3.5" /> Submit Articles to State
-                  </Button>
+                  {llcSubmitConfirm ? (
+                    <div className="p-3 rounded-xl border border-amber-200 bg-amber-50 space-y-2">
+                      <p className="text-xs text-amber-800 font-medium">Confirm: Submit Articles of Organization to state? This action is irreversible.</p>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" className="h-7 text-xs gap-1 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => { setArticleState("submitted"); setLlcSubmitConfirm(false); }} data-testid="btn-confirm-submit-articles">
+                          <Send className="w-3.5 h-3.5" /> Yes, Submit
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setLlcSubmitConfirm(false)} data-testid="btn-cancel-submit-articles">
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button size="sm" className="h-7 text-xs gap-1 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => setLlcSubmitConfirm(true)} data-testid="btn-submit-articles">
+                      <Send className="w-3.5 h-3.5" /> Submit Articles to State
+                    </Button>
+                  )}
                 </div>
               )}
               {(effectiveArticleState === "submitted" || effectiveArticleState === "under-review") && (
@@ -1189,12 +1204,24 @@ export function LnManagerClientDetail() {
 
             {(effectiveEinStatus === "submitted-fax" || effectiveEinStatus === "submitted-online") && (
               <div className="space-y-3 border-t pt-3">
-                <div className="flex items-center gap-2 text-xs">
-                  <Badge variant="outline" className="border-amber-300 text-amber-700 bg-amber-50">
-                    {effectiveEinStatus === "submitted-fax" ? "Fax" : "Online"} — Submitted {einDateSel || client.einSubmittedDate || "—"}
-                  </Badge>
-                  <span className="text-muted-foreground">Awaiting IRS response (4–6 weeks via fax)</span>
-                </div>
+                {(() => {
+                  const submittedOn = einDateSel || client.einSubmittedDate;
+                  const isOverdue = submittedOn ? ((new Date().getTime() - new Date(submittedOn).getTime()) / (1000 * 60 * 60 * 24)) > 42 : false;
+                  return (
+                    <>
+                      <div className="flex items-center gap-2 text-xs flex-wrap">
+                        <Badge variant="outline" className="border-amber-300 text-amber-700 bg-amber-50">
+                          {effectiveEinStatus === "submitted-fax" ? "Fax" : "Online"} — Submitted {submittedOn || "—"}
+                        </Badge>
+                        {isOverdue ? (
+                          <span className="text-red-600 font-medium flex items-center gap-1"><AlertCircle className="w-3 h-3" /> Overdue — 6+ weeks elapsed, follow up with IRS</span>
+                        ) : (
+                          <span className="text-muted-foreground">Pending IRS response (est. 4–6 weeks)</span>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
                 <p className="text-sm font-medium">Record EIN When Received</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
