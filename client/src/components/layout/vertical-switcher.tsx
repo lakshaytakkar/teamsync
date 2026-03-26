@@ -42,7 +42,7 @@ export function VerticalSwitcher() {
             <img
               src={etsLogoLargeUrl}
               alt="EazyToSell"
-              className="h-10 w-auto object-contain"
+              className="h-[76px] w-auto object-contain mix-blend-multiply -my-2"
               loading="eager"
               data-testid="img-ets-logo-large"
             />
