@@ -1319,15 +1319,19 @@ const DUTY_CATEGORY_LABELS: Record<string, string> = {
 };
 
 export function EtsProductPricing() {
-  const [settings, setSettings] = useState(() => ({
-    exchange_rate: 12.0,
-    sourcing_commission: 5,
-    freight_per_cbm: 8000,
-    insurance_percent: 0.5,
-    sw_surcharge_percent: 10,
-    our_markup_percent: 25,
-    target_store_margin: 50,
-  }));
+  const [settings, setSettings] = useState(() => {
+    const obj: Record<string, number> = {};
+    for (const s of defaultPriceSettings) obj[s.key] = s.value;
+    return obj as {
+      exchange_rate: number; sourcing_commission: number; freight_per_cbm: number;
+      insurance_percent: number; sw_surcharge_percent: number; our_markup_percent: number; target_store_margin: number;
+    };
+  });
+  const [categoryRates, setCategoryRates] = useState(() => {
+    const copy: Record<string, { duty: number; igst: number }> = {};
+    for (const [k, v] of Object.entries(ETS_CATEGORY_DUTY_RATES)) copy[k] = { ...v };
+    return copy;
+  });
   const [test, setTest] = useState({
     exwPriceYuan: 25,
     unitsPerCarton: 12,
@@ -1342,7 +1346,7 @@ export function EtsProductPricing() {
   const [recalcDone, setRecalcDone] = useState(false);
 
   const preview = useMemo(() => {
-    const duty = ETS_CATEGORY_DUTY_RATES[test.category];
+    const duty = categoryRates[test.category] ?? ETS_CATEGORY_DUTY_RATES[test.category];
     return calculateEtsPrices({
       exwPriceYuan: test.exwPriceYuan,
       unitsPerCarton: test.unitsPerCarton,
@@ -1359,10 +1363,15 @@ export function EtsProductPricing() {
       ourMarkupPercent: settings.our_markup_percent,
       targetStoreMargin: settings.target_store_margin,
     });
-  }, [settings, test]);
+  }, [settings, categoryRates, test]);
 
   function setSetting(key: keyof typeof settings, val: number) {
     setSettings(s => ({ ...s, [key]: val }));
+    setSaved(false);
+  }
+
+  function setCategoryRate(cat: string, field: "duty" | "igst", val: number) {
+    setCategoryRates(r => ({ ...r, [cat]: { ...r[cat], [field]: val } }));
     setSaved(false);
   }
 
@@ -1453,27 +1462,59 @@ export function EtsProductPricing() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-2">Per-Category Duty & IGST Rates</p>
+                <p className="text-xs font-medium text-muted-foreground mb-2">Per-Category Duty & IGST Rates <span className="text-pink-500">(editable)</span></p>
                 <div className="rounded-xl border overflow-hidden">
                   <table className="w-full text-xs">
                     <thead className="bg-muted/40">
                       <tr>
                         <th className="text-left px-3 py-2 font-medium">Category</th>
-                        <th className="text-right px-3 py-2 font-medium">Customs Duty</th>
-                        <th className="text-right px-3 py-2 font-medium">IGST</th>
+                        <th className="text-right px-3 py-2 font-medium w-28">Customs Duty %</th>
+                        <th className="text-right px-3 py-2 font-medium w-28">IGST %</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
-                      {Object.entries(ETS_CATEGORY_DUTY_RATES).map(([cat, rates]) => (
-                        <tr key={cat} className="hover:bg-muted/20">
-                          <td className="px-3 py-2 font-medium">{DUTY_CATEGORY_LABELS[cat] ?? cat}</td>
-                          <td className="px-3 py-2 text-right">{rates.duty}%</td>
-                          <td className="px-3 py-2 text-right">{rates.igst}%</td>
-                        </tr>
-                      ))}
+                      {Object.keys(ETS_CATEGORY_DUTY_RATES).map(cat => {
+                        const rates = categoryRates[cat] ?? ETS_CATEGORY_DUTY_RATES[cat as keyof typeof ETS_CATEGORY_DUTY_RATES];
+                        const defaults = ETS_CATEGORY_DUTY_RATES[cat as keyof typeof ETS_CATEGORY_DUTY_RATES];
+                        const dutyChanged = rates.duty !== defaults.duty;
+                        const igstChanged = rates.igst !== defaults.igst;
+                        return (
+                          <tr key={cat} className={`hover:bg-muted/20 ${test.category === cat ? "bg-pink-50/50" : ""}`}>
+                            <td className="px-3 py-2 font-medium">
+                              {DUTY_CATEGORY_LABELS[cat] ?? cat}
+                              {test.category === cat && <span className="ml-1 text-[9px] text-pink-500 font-medium">preview</span>}
+                            </td>
+                            <td className="px-3 py-1.5 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <Input
+                                  type="number" step="1" min="0" max="100"
+                                  value={rates.duty}
+                                  onChange={e => setCategoryRate(cat, "duty", +e.target.value)}
+                                  className={`h-7 w-16 text-right text-xs ${dutyChanged ? "border-pink-400 bg-pink-50" : ""}`}
+                                  data-testid={`duty-${cat}`}
+                                />
+                                <span className="text-muted-foreground">%</span>
+                              </div>
+                            </td>
+                            <td className="px-3 py-1.5 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <Input
+                                  type="number" step="1" min="0" max="100"
+                                  value={rates.igst}
+                                  onChange={e => setCategoryRate(cat, "igst", +e.target.value)}
+                                  className={`h-7 w-16 text-right text-xs ${igstChanged ? "border-pink-400 bg-pink-50" : ""}`}
+                                  data-testid={`igst-${cat}`}
+                                />
+                                <span className="text-muted-foreground">%</span>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
+                <p className="text-[10px] text-muted-foreground mt-1.5">Pink inputs indicate values changed from defaults. Click the category in the preview to test its rates.</p>
               </div>
             </CardContent>
           </Card>
@@ -1726,6 +1767,21 @@ const ROW_STATUS = {
 
 const STEPS = ["Download Template", "Upload File", "Preview & Validate", "Confirm", "Import"];
 
+function downloadCsvTemplate() {
+  const header = BULK_CSV_COLUMNS.join(",");
+  const sampleRows = [
+    "Bamboo Cutting Board XL,Premium bamboo chopping board with juice groove,Kitchen Zone,cooking-utensils,choppers-graters,india_deodap,Deodap,8901234500001,,145,6,24,35,25,15,safe,false,english,\"Recommended,Fast Mover\",299",
+    "LED Fairy String Lights 10m,Warm white 100-LED copper wire indoor lights,Home Decor Zone,indoor-decor,clocks,china_allen,Allen Exports,8901234500002,18,,4,12,40,30,10,,true,chinese,,399",
+    "Stainless Steel Tiffin 3-tier,BPA-free insulated lunch box with clip lock,Kitchen Zone,food-storage,containers,india_wholesaledock,Wholesaledock India,8901234500003,,210,6,12,30,20,20,safe,false,english,Bestseller,499",
+  ];
+  const csv = [header, ...sampleRows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "ets-product-template.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function EtsProductBulkUpload() {
   const [step, setStep] = useState(1);
   const [dragging, setDragging] = useState(false);
@@ -1799,7 +1855,7 @@ export function EtsProductBulkUpload() {
                 <div className="flex-1">
                   <p className="font-semibold">Download the CSV template</p>
                   <p className="text-sm text-muted-foreground mt-1 mb-4">Use our template to ensure your data is formatted correctly. Fill in all required columns before uploading.</p>
-                  <Button className="bg-pink-500 hover:bg-pink-600 text-white gap-2" onClick={() => setStep(2)} data-testid="button-download-template">
+                  <Button className="bg-pink-500 hover:bg-pink-600 text-white gap-2" onClick={() => { downloadCsvTemplate(); setStep(2); }} data-testid="button-download-template">
                     <Download className="w-4 h-4" />Download Template (CSV)
                   </Button>
                 </div>
@@ -2180,7 +2236,7 @@ export function EtsProductIntelligence() {
           </CardHeader>
           <CardContent className="pt-0 space-y-3">
             <p className="text-xs text-muted-foreground">Average partner price per source — higher indicates premium product positioning</p>
-            {bySource.sort((a, b) => b.avgPrice - a.avgPrice).map(s => {
+            {bySource.slice().sort((a, b) => b.avgPrice - a.avgPrice).map(s => {
               const maxAvg = Math.max(...bySource.map(x => x.avgPrice), 1);
               return (
                 <div key={s.source} className="space-y-1">
@@ -2199,6 +2255,66 @@ export function EtsProductIntelligence() {
             <div className="pt-2 border-t text-xs text-muted-foreground space-y-1">
               <p>China avg margin: <strong>{stats.avgMarginChina}%</strong> · India avg margin: <strong>{stats.avgMarginIndia}%</strong></p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm lg:col-span-2" data-testid="panel-margin-by-category">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-pink-500" />Margin by Category</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {(() => {
+              const catStats: Record<string, { count: number; totalMargin: number; marginCount: number }> = {};
+              for (const p of CATALOG_PRODUCTS) {
+                const cat = p.categoryId ?? "uncat";
+                if (!catStats[cat]) catStats[cat] = { count: 0, totalMargin: 0, marginCount: 0 };
+                catStats[cat].count++;
+                if (p.marginPercent !== undefined) { catStats[cat].totalMargin += p.marginPercent; catStats[cat].marginCount++; }
+              }
+              const rows = Object.entries(catStats)
+                .map(([catId, s]) => ({
+                  catId,
+                  label: CAT_NAME[catId] || catId,
+                  count: s.count,
+                  avgMargin: s.marginCount ? Math.round(s.totalMargin / s.marginCount) : 0,
+                }))
+                .filter(r => r.avgMargin > 0)
+                .sort((a, b) => b.avgMargin - a.avgMargin);
+              const maxMargin = Math.max(...rows.map(r => r.avgMargin), 1);
+              return (
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left pb-2 font-medium text-muted-foreground">Category</th>
+                      <th className="text-right pb-2 font-medium text-muted-foreground w-12">SKUs</th>
+                      <th className="text-right pb-2 font-medium text-muted-foreground w-20">Avg Margin</th>
+                      <th className="pb-2 pl-4 w-48">Margin bar</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {rows.map(r => (
+                      <tr key={r.catId} className="hover:bg-muted/20" data-testid={`margin-cat-${r.catId}`}>
+                        <td className="py-2 font-medium">{r.label}</td>
+                        <td className="py-2 text-right text-muted-foreground">{r.count}</td>
+                        <td className="py-2 text-right">
+                          <span className={`font-semibold ${r.avgMargin >= 38 ? "text-green-700" : r.avgMargin >= 33 ? "text-amber-700" : "text-red-600"}`}>
+                            {r.avgMargin}%
+                          </span>
+                        </td>
+                        <td className="py-2 pl-4">
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${r.avgMargin >= 38 ? "bg-green-400" : r.avgMargin >= 33 ? "bg-amber-400" : "bg-red-400"}`}
+                              style={{ width: `${(r.avgMargin / maxMargin) * 100}%` }}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
