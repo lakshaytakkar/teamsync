@@ -10,16 +10,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Check, ChevronRight, ChevronLeft, Upload, Building2, FileText, CreditCard, Star,
-  Shield, Globe, ArrowRight,
+  Shield, Globe, ArrowRight, PartyPopper, Rocket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FORMATION_PACKAGES, US_STATES_POPULAR } from "@/lib/mock-data-dashboard-ln";
 
 const STEPS = [
   { id: 1, title: "Package", icon: CreditCard },
-  { id: 2, title: "Entity Details", icon: Building2 },
-  { id: 3, title: "KYC Documents", icon: FileText },
-  { id: 4, title: "Review & Pay", icon: Check },
+  { id: 2, title: "KYC Documents", icon: FileText },
+  { id: 3, title: "Entity Details", icon: Building2 },
+  { id: 4, title: "Review & Submit", icon: Check },
 ];
 
 export default function LnOnboarding() {
@@ -30,14 +30,67 @@ export default function LnOnboarding() {
   const [formationState, setFormationState] = useState("DE");
   const [companyName, setCompanyName] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const canProceed = () => {
     if (currentStep === 1) return !!selectedPackage;
-    if (currentStep === 2) return !!companyName && !!entityType && !!formationState;
-    if (currentStep === 3) return true;
+    if (currentStep === 2) return true;
+    if (currentStep === 3) return !!companyName && !!entityType && !!formationState;
     if (currentStep === 4) return agreedToTerms;
     return false;
   };
+
+  if (submitted) {
+    return (
+      <div className="px-16 lg:px-24 py-16 max-w-2xl mx-auto" data-testid="ln-onboarding-success">
+        <Card>
+          <CardContent className="py-16 flex flex-col items-center text-center gap-6">
+            <div className="size-20 rounded-full bg-green-100 flex items-center justify-center">
+              <PartyPopper className="w-10 h-10 text-green-600" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold" data-testid="text-success-title">
+                Formation Submitted!
+              </h1>
+              <p className="text-muted-foreground text-sm max-w-md">
+                Your <strong>{companyName || "company"} {entityType.toUpperCase()}</strong> formation in{" "}
+                <strong>{US_STATES_POPULAR.find(s => s.code === formationState)?.name || formationState}</strong>{" "}
+                has been submitted. A dedicated specialist will be assigned within 24 hours.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+              <div className="p-3 rounded-lg bg-blue-50 text-center">
+                <p className="text-xs text-muted-foreground">Package</p>
+                <p className="text-sm font-bold text-blue-700">{FORMATION_PACKAGES.find(p => p.id === selectedPackage)?.name}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-green-50 text-center">
+                <p className="text-xs text-muted-foreground">Status</p>
+                <p className="text-sm font-bold text-green-700">Processing</p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button
+                onClick={() => setLocation("/portal-ln")}
+                className="bg-blue-600 hover:bg-blue-700"
+                data-testid="button-start-formation-tracking"
+              >
+                <Rocket className="w-4 h-4 mr-2" />
+                Start Formation Tracking
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setLocation("/portal-ln/companies")}
+                data-testid="button-view-companies"
+              >
+                <Building2 className="w-4 h-4 mr-2" />
+                View My Companies
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="px-16 lg:px-24 py-8 max-w-5xl mx-auto space-y-8" data-testid="ln-onboarding-page">
@@ -124,7 +177,7 @@ export default function LnOnboarding() {
                     ))}
                     {isSelected && (
                       <div className="pt-3">
-                        <Badge className="bg-blue-600 text-white">Selected</Badge>
+                        <Badge className="bg-blue-600 text-white" data-testid={`badge-selected-${pkg.id}`}>Selected</Badge>
                       </div>
                     )}
                   </CardContent>
@@ -136,9 +189,50 @@ export default function LnOnboarding() {
       )}
 
       {currentStep === 2 && (
+        <Card data-testid="step-kyc-documents">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-blue-500" />
+              KYC & Document Upload
+            </CardTitle>
+            <CardDescription>Upload identity documents for compliance verification</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {[
+              { label: "Passport (Color Scan)", desc: "Front page with photo & details", required: true },
+              { label: "Address Proof", desc: "Utility bill or bank statement (< 3 months old)", required: true },
+              { label: "Selfie with Passport", desc: "Hold passport next to your face", required: true },
+              { label: "Additional ID (Optional)", desc: "Driver's license or national ID", required: false },
+            ].map((doc, i) => (
+              <div key={i} className="flex items-start gap-4 p-4 rounded-lg border border-dashed border-gray-300 hover:border-blue-300 transition-colors" data-testid={`kyc-doc-row-${i}`}>
+                <div className="size-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                  <Upload className="w-5 h-5 text-gray-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{doc.label}</span>
+                    {doc.required && <Badge variant="secondary" className="text-[9px] py-0">Required</Badge>}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">{doc.desc}</p>
+                </div>
+                <Button variant="outline" size="sm" className="shrink-0" data-testid={`button-upload-doc-${i}`}>
+                  <Upload className="w-3.5 h-3.5 mr-1.5" />
+                  Upload
+                </Button>
+              </div>
+            ))}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 text-blue-800 text-xs">
+              <Globe className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>All documents are encrypted end-to-end and stored in compliance with US AML/KYC regulations. We never share your data with third parties.</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {currentStep === 3 && (
         <Card data-testid="step-entity-details">
           <CardHeader>
-            <CardTitle>Entity Details</CardTitle>
+            <CardTitle>State & Entity Details</CardTitle>
             <CardDescription>Tell us about the company you want to form</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -187,7 +281,7 @@ export default function LnOnboarding() {
                 </SelectTrigger>
                 <SelectContent>
                   {US_STATES_POPULAR.map((s) => (
-                    <SelectItem key={s.code} value={s.code}>
+                    <SelectItem key={s.code} value={s.code} data-testid={`state-option-${s.code}`}>
                       <div className="flex items-center gap-2">
                         <span>{s.name}</span>
                         {s.tag && <Badge variant="secondary" className="text-[9px] py-0">{s.tag}</Badge>}
@@ -217,63 +311,22 @@ export default function LnOnboarding() {
         </Card>
       )}
 
-      {currentStep === 3 && (
-        <Card data-testid="step-kyc-documents">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-blue-500" />
-              KYC & Document Upload
-            </CardTitle>
-            <CardDescription>Upload identity documents for compliance verification</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            {[
-              { label: "Passport (Color Scan)", desc: "Front page with photo & details", required: true },
-              { label: "Address Proof", desc: "Utility bill or bank statement (< 3 months old)", required: true },
-              { label: "Selfie with Passport", desc: "Hold passport next to your face", required: true },
-              { label: "Additional ID (Optional)", desc: "Driver's license or national ID", required: false },
-            ].map((doc, i) => (
-              <div key={i} className="flex items-start gap-4 p-4 rounded-lg border border-dashed border-gray-300 hover:border-blue-300 transition-colors">
-                <div className="size-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                  <Upload className="w-5 h-5 text-gray-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{doc.label}</span>
-                    {doc.required && <Badge variant="secondary" className="text-[9px] py-0">Required</Badge>}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{doc.desc}</p>
-                </div>
-                <Button variant="outline" size="sm" className="shrink-0" data-testid={`button-upload-doc-${i}`}>
-                  <Upload className="w-3.5 h-3.5 mr-1.5" />
-                  Upload
-                </Button>
-              </div>
-            ))}
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 text-blue-800 text-xs">
-              <Globe className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>All documents are encrypted end-to-end and stored in compliance with US AML/KYC regulations. We never share your data with third parties.</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {currentStep === 4 && (
         <Card data-testid="step-review">
           <CardHeader>
             <CardTitle>Review & Submit</CardTitle>
-            <CardDescription>Confirm your formation details before payment</CardDescription>
+            <CardDescription>Confirm your formation details before submission</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-lg bg-gray-50 space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Package</p>
-                <p className="text-sm font-bold">{FORMATION_PACKAGES.find(p => p.id === selectedPackage)?.name}</p>
+                <p className="text-sm font-bold" data-testid="text-review-package">{FORMATION_PACKAGES.find(p => p.id === selectedPackage)?.name}</p>
                 <p className="text-lg font-bold text-blue-600">${FORMATION_PACKAGES.find(p => p.id === selectedPackage)?.price} USD</p>
               </div>
               <div className="p-4 rounded-lg bg-gray-50 space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Entity</p>
-                <p className="text-sm font-bold">{companyName || "—"} {entityType.toUpperCase()}</p>
+                <p className="text-sm font-bold" data-testid="text-review-entity">{companyName || "—"} {entityType.toUpperCase()}</p>
                 <p className="text-sm text-muted-foreground">State: {US_STATES_POPULAR.find(s => s.code === formationState)?.name || formationState}</p>
               </div>
             </div>
@@ -328,13 +381,13 @@ export default function LnOnboarding() {
           </Button>
         ) : (
           <Button
-            onClick={() => setLocation("/portal-ln")}
+            onClick={() => setSubmitted(true)}
             disabled={!agreedToTerms}
             className="bg-blue-600 hover:bg-blue-700"
             data-testid="button-onboarding-submit"
           >
             <CreditCard className="w-4 h-4 mr-1" />
-            Proceed to Payment
+            Submit & Pay
           </Button>
         )}
       </div>

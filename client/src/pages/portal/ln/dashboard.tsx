@@ -44,7 +44,7 @@ export default function LnDashboard() {
   const m = DASHBOARD_METRICS;
 
   return (
-    <div className="px-16 lg:px-24 py-8 space-y-8" data-testid="ln-dashboard-page">
+    <div className="p-6 space-y-8" data-testid="ln-dashboard-page">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight" data-testid="text-dashboard-greeting">
@@ -130,7 +130,7 @@ export default function LnDashboard() {
         {[
           { label: "Active Entities", value: m.activeEntities, sub: `${m.completedEntities} completed`, icon: Building2, color: "text-blue-600", bg: "bg-blue-50" },
           { label: "Documents", value: m.verifiedDocuments, sub: `${m.pendingDocuments} pending`, icon: FileText, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Outstanding", value: `$${m.outstandingAmount}`, sub: `${m.pendingInvoices} invoices`, icon: Receipt, color: "text-amber-600", bg: "bg-amber-50" },
+          { label: "Pending Invoices", value: m.pendingInvoices, sub: `$${m.outstandingAmount} due`, icon: Receipt, color: "text-amber-600", bg: "bg-amber-50" },
           { label: "Messages", value: m.unreadMessages, sub: "unread", icon: MessageSquare, color: "text-violet-600", bg: "bg-violet-50" },
         ].map((stat) => (
           <Card key={stat.label} className="hover:shadow-sm transition-shadow" data-testid={`metric-${stat.label.toLowerCase().replace(/\s+/g, "-")}`}>

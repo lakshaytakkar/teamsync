@@ -202,6 +202,7 @@ import PortalLNMessages from "@/pages/portal/legalnations/messages";
 import LnDashboard from "@/pages/portal/ln/dashboard";
 import LnOnboarding from "@/pages/portal/ln/onboarding";
 import LnRolePlaceholder from "@/pages/portal/ln/role-placeholder";
+import LnClientPlaceholder from "@/pages/portal/ln/client-placeholder";
 import EtsPortalDashboard from "@/pages/portal/ets/dashboard";
 import EtsPortalStore from "@/pages/portal/ets/store";
 import EtsPortalOrders from "@/pages/portal/ets/orders";
@@ -532,6 +533,12 @@ function Router() {
       <Route path="/portal-ets/vendor" component={EtsVendorPortal} />
       <Route path="/portal-ets" component={EtsPortalDashboard} />
       <Route path="/portal-ln/onboarding" component={LnOnboarding} />
+      <Route path="/portal-ln/companies" component={LnClientPlaceholder} />
+      <Route path="/portal-ln/documents" component={LnClientPlaceholder} />
+      <Route path="/portal-ln/invoices" component={LnClientPlaceholder} />
+      <Route path="/portal-ln/messages" component={LnClientPlaceholder} />
+      <Route path="/portal-ln/support" component={LnClientPlaceholder} />
+      <Route path="/portal-ln/profile" component={LnClientPlaceholder} />
       <Route path="/portal-ln/admin/:rest*" component={LnRolePlaceholder} />
       <Route path="/portal-ln/admin" component={LnRolePlaceholder} />
       <Route path="/portal-ln/formation/:rest*" component={LnRolePlaceholder} />

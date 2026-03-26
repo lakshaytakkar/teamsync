@@ -1,5 +1,17 @@
 export const LN_PORTAL_COLOR = "#225AEA";
 
+export interface LnCompany {
+  id: string;
+  name: string;
+  entityType: "LLC" | "C-Corp" | "S-Corp";
+  state: string;
+  status: "active" | "forming" | "completed" | "dissolved";
+  currentStage: number;
+  ein?: string;
+  packageTier: string;
+  startedAt: string;
+}
+
 export interface LnClientProfile {
   id: string;
   name: string;
@@ -9,6 +21,7 @@ export interface LnClientProfile {
   joinedAt: string;
   specialistName: string;
   specialistRole: string;
+  companies: LnCompany[];
 }
 
 export const CLIENT_PROFILE: LnClientProfile = {
@@ -20,6 +33,29 @@ export const CLIENT_PROFILE: LnClientProfile = {
   joinedAt: "2025-11-15",
   specialistName: "Priya Sharma",
   specialistRole: "Formation Specialist",
+  companies: [
+    {
+      id: "co-001",
+      name: "TechVentures LLC",
+      entityType: "LLC",
+      state: "Delaware",
+      status: "forming",
+      currentStage: 4,
+      packageTier: "Premium",
+      startedAt: "2025-12-12",
+    },
+    {
+      id: "co-002",
+      name: "CloudBase Corp",
+      entityType: "C-Corp",
+      state: "Wyoming",
+      status: "completed",
+      currentStage: 7,
+      ein: "92-7654321",
+      packageTier: "Standard",
+      startedAt: "2025-06-01",
+    },
+  ],
 };
 
 export interface FormationStageDefinition {

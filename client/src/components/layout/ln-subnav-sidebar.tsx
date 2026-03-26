@@ -5,7 +5,7 @@ import { useLnRole } from "@/lib/use-ln-role";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Building2, FileText, Receipt,
-  MessageSquare, Phone, Shield, HelpCircle,
+  MessageSquare, Phone,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -14,37 +14,24 @@ export function useLnSidebar() {
   return useContext(LnSidebarContext);
 }
 
-const SUB_ITEM_ICONS: Record<string, LucideIcon> = {
-  "/portal-ln": LayoutDashboard,
-  "/portal-ln/companies": Building2,
-  "/portal-ln/documents": FileText,
-  "/portal-ln/invoices": Receipt,
-  "/portal-ln/messages": MessageSquare,
-  "/portal-ln/support": Phone,
-  "/portal-ln/onboarding": HelpCircle,
-  "/portal-ln/profile": Shield,
-};
+interface SidebarEntry {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+}
 
-const PHASE_SUBTITLES: Record<string, string> = {
-  "Formation Tracking": "Track your company formations",
-  "Documents & Billing": "Manage documents and invoices",
-  "Communication": "Messages and support",
-};
+const CLIENT_SIDEBAR_ENTRIES: SidebarEntry[] = [
+  { title: "Dashboard", url: "/portal-ln", icon: LayoutDashboard },
+  { title: "My Companies", url: "/portal-ln/companies", icon: Building2 },
+  { title: "Documents", url: "/portal-ln/documents", icon: FileText },
+  { title: "Invoices", url: "/portal-ln/invoices", icon: Receipt },
+  { title: "Messages", url: "/portal-ln/messages", icon: MessageSquare },
+  { title: "Support", url: "/portal-ln/support", icon: Phone },
+];
 
 function isItemActive(location: string, itemUrl: string): boolean {
   if (itemUrl === "/portal-ln") return location === itemUrl;
   return location === itemUrl || location.startsWith(itemUrl + "/");
-}
-
-function getActiveCategory(location: string, navCategories: any[]) {
-  for (const cat of navCategories) {
-    if (cat.items && cat.items.length > 1) {
-      for (const item of cat.items) {
-        if (isItemActive(location, item.url)) return cat;
-      }
-    }
-  }
-  return null;
 }
 
 export function LnSubNavSidebar({ children }: { children: React.ReactNode }) {
@@ -56,33 +43,18 @@ export function LnSubNavSidebar({ children }: { children: React.ReactNode }) {
   if (!isLnPortal) return <>{children}</>;
   if (roleId !== "client") return <>{children}</>;
 
-  const activeCategory = getActiveCategory(location, currentVertical.navCategories);
-  if (!activeCategory || !activeCategory.items || activeCategory.items.length <= 1) {
-    return <>{children}</>;
-  }
-
-  const CategoryIcon = activeCategory.icon;
-  const subtitle = PHASE_SUBTITLES[activeCategory.title] || "";
+  const isOnboarding = location === "/portal-ln/onboarding";
+  if (isOnboarding) return <>{children}</>;
 
   return (
     <LnSidebarContext.Provider value={true}>
-      <div className="px-16 lg:px-24 py-6 space-y-4" data-testid="ln-sidebar-layout">
-        <div className="flex items-center gap-3">
-          {CategoryIcon && <CategoryIcon className="w-6 h-6 text-blue-500" />}
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight" data-testid="text-ln-sidebar-category-title">
-              {activeCategory.title}
-            </h1>
-            {subtitle && <p className="text-sm text-muted-foreground" data-testid="text-ln-sidebar-category-subtitle">{subtitle}</p>}
-          </div>
-        </div>
-
+      <div className="px-16 lg:px-24 py-6" data-testid="ln-sidebar-layout">
         <div className="flex flex-col md:flex-row rounded-2xl bg-gray-50/60 min-h-[calc(100vh-200px)] overflow-hidden" data-testid="ln-sidebar-card">
           <nav className="w-full md:w-[200px] shrink-0 py-4 md:py-5 px-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible" data-testid="ln-subnav-sidebar">
-            <p className="hidden md:block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-4" data-testid="text-ln-submenu-label">Sub menu</p>
-            {activeCategory.items.map((item: any) => {
+            <p className="hidden md:block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-4" data-testid="text-ln-submenu-label">My Portal</p>
+            {CLIENT_SIDEBAR_ENTRIES.map((item) => {
               const isActive = isItemActive(location, item.url);
-              const Icon = SUB_ITEM_ICONS[item.url];
+              const Icon = item.icon;
 
               return (
                 <Link
@@ -98,14 +70,12 @@ export function LnSubNavSidebar({ children }: { children: React.ReactNode }) {
                         : "text-[#6c7278] font-semibold hover:bg-gray-100"
                     )}
                   >
-                    {Icon && (
-                      <Icon
-                        className={cn(
-                          "w-[18px] h-[18px] shrink-0",
-                          isActive ? "text-blue-500" : "text-gray-400"
-                        )}
-                      />
-                    )}
+                    <Icon
+                      className={cn(
+                        "w-[18px] h-[18px] shrink-0",
+                        isActive ? "text-blue-500" : "text-gray-400"
+                      )}
+                    />
                     <span className="truncate">{item.title}</span>
                   </div>
                 </Link>
