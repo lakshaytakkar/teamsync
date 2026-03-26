@@ -11,16 +11,24 @@ import {
   ClipboardList,
   BarChart3,
   Calendar,
-  AlertTriangle,
   Settings,
   Users,
   Briefcase,
-  Target,
-  CreditCard,
+  Ticket,
+  CheckSquare,
+  BookOpen,
+  Link,
+  Video,
   type LucideIcon,
 } from "lucide-react";
 
-export type LnRoleId = "admin" | "formation" | "compliance" | "tax" | "sales" | "client";
+export type LnRoleId =
+  | "admin"     // SuperAdmin — Lakshay
+  | "manager"   // Manager — Vikas
+  | "ops"       // Ops Executive — Nitin
+  | "sales"     // Sales Executive
+  | "tax"       // Tax Specialist — Task #3, not in dev switcher
+  | "client";   // Client self-service portal
 
 export interface LnRoleNavItem {
   title: string;
@@ -44,8 +52,8 @@ export interface LnRoleDefinition {
 export const LN_ROLES: LnRoleDefinition[] = [
   {
     id: "admin",
-    label: "Admin",
-    description: "CEO command center — full visibility",
+    label: "SuperAdmin",
+    description: "Full access — oversight, financials, control panel, SOPs",
     color: "#7c3aed",
     bgColor: "bg-violet-100",
     textColor: "text-violet-700",
@@ -54,46 +62,75 @@ export const LN_ROLES: LnRoleDefinition[] = [
     defaultUrl: "/portal-ln/admin",
     navItems: [
       { title: "Overview", url: "/portal-ln/admin", icon: LayoutDashboard },
-      { title: "Pipeline", url: "/portal-ln/admin/pipeline", icon: Kanban },
-      { title: "Team", url: "/portal-ln/admin/team", icon: Users },
+      { title: "All Formations", url: "/portal-ln/admin/pipeline", icon: Kanban },
+      { title: "Formation Pipeline", url: "/portal-ln/formation", icon: Briefcase },
+      { title: "KYC Queue", url: "/portal-ln/formation/kyc", icon: UserPlus },
+      { title: "EIN Tracker", url: "/portal-ln/formation/ein", icon: ClipboardList },
+      { title: "Compliance & BOI", url: "/portal-ln/compliance", icon: Shield },
+      { title: "Annual Reports", url: "/portal-ln/compliance/annual", icon: Calendar },
+      { title: "Ops Tasks", url: "/portal-ln/ops", icon: CheckSquare },
+      { title: "Lead Pipeline", url: "/portal-ln/sales/pipeline", icon: Kanban },
       { title: "Revenue", url: "/portal-ln/admin/revenue", icon: BarChart3 },
+      { title: "Team", url: "/portal-ln/admin/team", icon: Users },
+      { title: "Training Videos", url: "/portal-ln/admin/training", icon: Video },
       { title: "Settings", url: "/portal-ln/admin/settings", icon: Settings },
     ],
   },
   {
-    id: "formation",
-    label: "Formation Specialist",
-    description: "Pipeline execution & client stages",
+    id: "manager",
+    label: "Manager",
+    description: "Complete client journey — formation, filing, docs",
     color: "#0ea5e9",
     bgColor: "bg-sky-100",
     textColor: "text-sky-700",
-    userName: "Priya Sharma",
-    userInitials: "PS",
-    defaultUrl: "/portal-ln/formation",
+    userName: "Vikas",
+    userInitials: "VK",
+    defaultUrl: "/portal-ln/manager",
     navItems: [
-      { title: "Dashboard", url: "/portal-ln/formation", icon: LayoutDashboard },
-      { title: "Pipeline", url: "/portal-ln/formation/pipeline", icon: Kanban },
-      { title: "KYC Review", url: "/portal-ln/formation/kyc", icon: UserPlus },
-      { title: "EIN Tracker", url: "/portal-ln/formation/ein", icon: ClipboardList },
-      { title: "Stage Actions", url: "/portal-ln/formation/actions", icon: Briefcase },
+      { title: "Dashboard", url: "/portal-ln/manager", icon: LayoutDashboard },
+      { title: "Pipeline", url: "/portal-ln/manager/pipeline", icon: Kanban },
+      { title: "KYC Review", url: "/portal-ln/manager/kyc", icon: UserPlus },
+      { title: "EIN Tracker", url: "/portal-ln/manager/ein", icon: ClipboardList },
+      { title: "Stage Actions", url: "/portal-ln/manager/actions", icon: Briefcase },
+      { title: "Client Docs", url: "/portal-ln/manager/docs", icon: FileText },
+      { title: "Tickets", url: "/portal-ln/manager/tickets", icon: Ticket },
+      { title: "Tasks", url: "/portal-ln/manager/tasks", icon: CheckSquare },
     ],
   },
   {
-    id: "compliance",
-    label: "Compliance Officer",
-    description: "BOI filings, annual reports & deadlines",
+    id: "ops",
+    label: "Ops Executive",
+    description: "Assigned tasks, client docs, tickets — task executor",
     color: "#10b981",
     bgColor: "bg-emerald-100",
     textColor: "text-emerald-700",
-    userName: "Arjun Mehta",
-    userInitials: "AM",
-    defaultUrl: "/portal-ln/compliance",
+    userName: "Nitin",
+    userInitials: "NT",
+    defaultUrl: "/portal-ln/ops",
     navItems: [
-      { title: "Dashboard", url: "/portal-ln/compliance", icon: LayoutDashboard },
-      { title: "BOI Queue", url: "/portal-ln/compliance/boi", icon: Shield },
-      { title: "Annual Reports", url: "/portal-ln/compliance/annual", icon: Calendar },
-      { title: "Alerts", url: "/portal-ln/compliance/alerts", icon: AlertTriangle },
-      { title: "Client Detail", url: "/portal-ln/compliance/detail", icon: Building2 },
+      { title: "My Tasks", url: "/portal-ln/ops", icon: CheckSquare },
+      { title: "Client List", url: "/portal-ln/ops/clients", icon: Building2 },
+      { title: "Tickets", url: "/portal-ln/ops/tickets", icon: Ticket },
+      { title: "Documents", url: "/portal-ln/ops/docs", icon: FileText },
+    ],
+  },
+  {
+    id: "sales",
+    label: "Sales Executive",
+    description: "Leads CRM, bookings, scripts, assets, payment links",
+    color: "#ec4899",
+    bgColor: "bg-pink-100",
+    textColor: "text-pink-700",
+    userName: "Sales Executive",
+    userInitials: "SE",
+    defaultUrl: "/portal-ln/sales",
+    navItems: [
+      { title: "Dashboard", url: "/portal-ln/sales", icon: LayoutDashboard },
+      { title: "Lead Pipeline", url: "/portal-ln/sales/pipeline", icon: Kanban },
+      { title: "Bookings", url: "/portal-ln/sales/bookings", icon: Calendar },
+      { title: "Scripts", url: "/portal-ln/sales/scripts", icon: BookOpen },
+      { title: "Assets", url: "/portal-ln/sales/assets", icon: FileText },
+      { title: "Payment Links", url: "/portal-ln/sales/payment-links", icon: Link },
     ],
   },
   {
@@ -103,8 +140,8 @@ export const LN_ROLES: LnRoleDefinition[] = [
     color: "#f59e0b",
     bgColor: "bg-amber-100",
     textColor: "text-amber-700",
-    userName: "Deepak Verma",
-    userInitials: "DV",
+    userName: "Tax Specialist",
+    userInitials: "TS",
     defaultUrl: "/portal-ln/tax",
     navItems: [
       { title: "Dashboard", url: "/portal-ln/tax", icon: LayoutDashboard },
@@ -112,24 +149,6 @@ export const LN_ROLES: LnRoleDefinition[] = [
       { title: "Preparation", url: "/portal-ln/tax/prep", icon: FileText },
       { title: "Filing Detail", url: "/portal-ln/tax/detail", icon: Receipt },
       { title: "Tax Calendar", url: "/portal-ln/tax/calendar", icon: Calendar },
-    ],
-  },
-  {
-    id: "sales",
-    label: "Sales/BD",
-    description: "Lead pipeline & proposals",
-    color: "#ec4899",
-    bgColor: "bg-pink-100",
-    textColor: "text-pink-700",
-    userName: "Neha Gupta",
-    userInitials: "NG",
-    defaultUrl: "/portal-ln/sales",
-    navItems: [
-      { title: "Dashboard", url: "/portal-ln/sales", icon: LayoutDashboard },
-      { title: "Lead Pipeline", url: "/portal-ln/sales/pipeline", icon: Kanban },
-      { title: "Proposals", url: "/portal-ln/sales/proposals", icon: FileText },
-      { title: "Follow-ups", url: "/portal-ln/sales/followups", icon: Target },
-      { title: "Packages", url: "/portal-ln/sales/packages", icon: CreditCard },
     ],
   },
   {
@@ -153,8 +172,11 @@ export const LN_ROLES: LnRoleDefinition[] = [
   },
 ];
 
+export const LN_INTERNAL_ROLES: LnRoleId[] = ["admin", "manager", "ops", "sales"];
+export const LN_SWITCHER_ROLES: LnRoleId[] = ["admin", "manager", "ops", "sales"];
+
 export function getLnRole(id: LnRoleId): LnRoleDefinition {
-  return LN_ROLES.find((r) => r.id === id) ?? LN_ROLES[5];
+  return LN_ROLES.find((r) => r.id === id) ?? LN_ROLES[LN_ROLES.length - 1];
 }
 
 const ROLE_STORAGE_KEY = "ln-portal-role";

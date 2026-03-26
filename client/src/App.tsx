@@ -204,9 +204,11 @@ import LnOnboarding from "@/pages/portal/ln/onboarding";
 import LnRolePlaceholder from "@/pages/portal/ln/role-placeholder";
 import LnClientPlaceholder from "@/pages/portal/ln/client-placeholder";
 import LnCompanies from "@/pages/portal/ln/companies";
-import LnAdminPortal, { LnAdminPipeline, LnAdminTeam, LnAdminRevenue, LnAdminSettings } from "@/pages/portal/ln/admin-portal";
+import LnAdminPortal, { LnAdminPipeline, LnAdminTeam, LnAdminRevenue, LnAdminSettings, LnAdminTraining } from "@/pages/portal/ln/admin-portal";
 import LnFormationPortal, { LnFormationPipeline, LnFormationKYC, LnFormationEIN, LnFormationActions } from "@/pages/portal/ln/formation-portal";
-import LnSalesPortal, { LnSalesPipeline, LnSalesProposals, LnSalesFollowups, LnSalesPackages } from "@/pages/portal/ln/sales-portal";
+import LnManagerPortal, { LnManagerPipeline, LnManagerKYC, LnManagerEIN, LnManagerActions, LnManagerDocs, LnManagerTickets, LnManagerTasks } from "@/pages/portal/ln/manager-portal";
+import LnOpsPortal, { LnOpsClients, LnOpsTickets, LnOpsDocs } from "@/pages/portal/ln/ops-portal";
+import LnSalesPortal, { LnSalesPipeline, LnSalesBookings, LnSalesScripts, LnSalesAssets, LnSalesPaymentLinks } from "@/pages/portal/ln/sales-portal";
 import LnCompliancePortal, { LnComplianceBOI, LnComplianceAnnual, LnComplianceAlerts, LnComplianceDetail } from "@/pages/portal/ln/compliance-portal";
 import LnTaxPortal, { LnTaxQueue, LnTaxPrep, LnTaxDetail, LnTaxCalendar } from "@/pages/portal/ln/tax-portal";
 import LnCompanyDetail from "@/pages/portal/ln/company-detail";
@@ -559,12 +561,25 @@ function Router() {
       <Route path="/portal-ln/admin/team" component={LnAdminTeam} />
       <Route path="/portal-ln/admin/revenue" component={LnAdminRevenue} />
       <Route path="/portal-ln/admin/settings" component={LnAdminSettings} />
+      <Route path="/portal-ln/admin/training" component={LnAdminTraining} />
       <Route path="/portal-ln/admin" component={LnAdminPortal} />
       <Route path="/portal-ln/formation/pipeline" component={LnFormationPipeline} />
       <Route path="/portal-ln/formation/kyc" component={LnFormationKYC} />
       <Route path="/portal-ln/formation/ein" component={LnFormationEIN} />
       <Route path="/portal-ln/formation/actions" component={LnFormationActions} />
       <Route path="/portal-ln/formation" component={LnFormationPortal} />
+      <Route path="/portal-ln/manager/pipeline" component={LnManagerPipeline} />
+      <Route path="/portal-ln/manager/kyc" component={LnManagerKYC} />
+      <Route path="/portal-ln/manager/ein" component={LnManagerEIN} />
+      <Route path="/portal-ln/manager/actions" component={LnManagerActions} />
+      <Route path="/portal-ln/manager/docs" component={LnManagerDocs} />
+      <Route path="/portal-ln/manager/tickets" component={LnManagerTickets} />
+      <Route path="/portal-ln/manager/tasks" component={LnManagerTasks} />
+      <Route path="/portal-ln/manager" component={LnManagerPortal} />
+      <Route path="/portal-ln/ops/clients" component={LnOpsClients} />
+      <Route path="/portal-ln/ops/tickets" component={LnOpsTickets} />
+      <Route path="/portal-ln/ops/docs" component={LnOpsDocs} />
+      <Route path="/portal-ln/ops" component={LnOpsPortal} />
       <Route path="/portal-ln/compliance/boi" component={LnComplianceBOI} />
       <Route path="/portal-ln/compliance/annual" component={LnComplianceAnnual} />
       <Route path="/portal-ln/compliance/alerts" component={LnComplianceAlerts} />
@@ -576,9 +591,10 @@ function Router() {
       <Route path="/portal-ln/tax/calendar" component={LnTaxCalendar} />
       <Route path="/portal-ln/tax" component={LnTaxPortal} />
       <Route path="/portal-ln/sales/pipeline" component={LnSalesPipeline} />
-      <Route path="/portal-ln/sales/proposals" component={LnSalesProposals} />
-      <Route path="/portal-ln/sales/followups" component={LnSalesFollowups} />
-      <Route path="/portal-ln/sales/packages" component={LnSalesPackages} />
+      <Route path="/portal-ln/sales/bookings" component={LnSalesBookings} />
+      <Route path="/portal-ln/sales/scripts" component={LnSalesScripts} />
+      <Route path="/portal-ln/sales/assets" component={LnSalesAssets} />
+      <Route path="/portal-ln/sales/payment-links" component={LnSalesPaymentLinks} />
       <Route path="/portal-ln/sales" component={LnSalesPortal} />
       <Route path="/portal-ln" component={LnDashboard} />
       <Route path="/hrms" component={HrmsDashboard} />

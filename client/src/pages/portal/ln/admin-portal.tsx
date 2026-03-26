@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
-  Users, Building2, DollarSign, Kanban, Shield,
+  Users, Building2, DollarSign, Kanban, Shield, Video, Play, Clock,
 } from "lucide-react";
 import {
   ADMIN_COMPANIES_ALL, ADMIN_PIPELINE_COUNTS, ADMIN_TEAM, ADMIN_MONTHLY_REVENUE,
@@ -261,6 +261,71 @@ export function LnAdminSettings() {
           ))}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+export function LnAdminTraining() {
+  const TRAINING_VIDEOS = [
+    { id: "TV-001", title: "LLC Formation Process — End to End Walkthrough", category: "Formation", duration: "24:30", instructor: "Lakshay", views: 12, date: "2026-02-15" },
+    { id: "TV-002", title: "KYC Review SOP — Document Verification Standards", category: "KYC", duration: "18:45", instructor: "Lakshay", views: 9, date: "2026-02-20" },
+    { id: "TV-003", title: "BOI Filing Guide — FinCEN Submission Steps", category: "Compliance", duration: "15:20", instructor: "Lakshay", views: 11, date: "2026-03-01" },
+    { id: "TV-004", title: "EIN Application — IRS Fax vs Online Methods", category: "Formation", duration: "12:10", instructor: "Lakshay", views: 8, date: "2026-03-05" },
+    { id: "TV-005", title: "Sales Scripts — Discovery Call Framework", category: "Sales", duration: "21:55", instructor: "Lakshay", views: 14, date: "2026-03-10" },
+    { id: "TV-006", title: "Mercury Bank Setup SOP — Step-by-Step", category: "Banking", duration: "16:40", instructor: "Lakshay", views: 7, date: "2026-03-15" },
+  ];
+
+  const CATEGORY_COLORS: Record<string, string> = {
+    "Formation": "bg-sky-100 text-sky-700",
+    "KYC": "bg-amber-100 text-amber-700",
+    "Compliance": "bg-emerald-100 text-emerald-700",
+    "Sales": "bg-pink-100 text-pink-700",
+    "Banking": "bg-violet-100 text-violet-700",
+  };
+
+  return (
+    <div className="px-16 lg:px-24 py-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold">Training Videos</h1>
+          <p className="text-sm text-muted-foreground">SOPs and training content for the LegalNations team</p>
+        </div>
+        <Button className="bg-violet-600 hover:bg-violet-700 text-white gap-1" data-testid="button-add-training-video">
+          <Video className="w-4 h-4" /> Add Video
+        </Button>
+      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        {TRAINING_VIDEOS.map((video) => (
+          <Card key={video.id} className="border-0 shadow-sm" data-testid={`admin-training-video-${video.id}`}>
+            <CardContent className="p-5">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
+                  <Video className="w-6 h-6 text-violet-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm leading-snug">{video.title}</p>
+                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                    <Badge className={`text-[10px] ${CATEGORY_COLORS[video.category] || "bg-gray-100 text-gray-600"}`} variant="outline">
+                      {video.category}
+                    </Badge>
+                    <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                      <Clock className="w-3 h-3" />{video.duration}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">{video.views} views</span>
+                    <span className="text-[10px] text-muted-foreground">{video.date}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <Button size="sm" className="bg-violet-600 hover:bg-violet-700 text-white gap-1 h-8 text-xs" data-testid={`play-training-video-${video.id}`}>
+                  <Play className="w-3.5 h-3.5" /> Play
+                </Button>
+                <Button size="sm" variant="outline" className="h-8 text-xs" data-testid={`edit-training-video-${video.id}`}>Edit</Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

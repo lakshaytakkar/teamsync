@@ -276,12 +276,14 @@ export const EIN_TRACKER = [
 ];
 
 export const SALES_LEADS = [
-  { id: "LN-L001", name: "Rohit Agarwal", company: "Proposed LLC", state: "Delaware", stage: "Qualified", source: "Website", followUp: "Today", hot: true, value: 1499 },
-  { id: "LN-L002", name: "Kavita Nair", company: "KN Imports Corp", state: "Wyoming", stage: "New Lead", source: "Referral", followUp: "Tomorrow", hot: false, value: 799 },
-  { id: "LN-L003", name: "Suresh Kapoor", company: "AquaFlow Systems LLC", state: "Delaware", stage: "Proposal Sent", source: "LinkedIn", followUp: "Today", hot: true, value: 1499 },
-  { id: "LN-L004", name: "Meera Reddy", company: "BrightStar Consulting Corp", state: "Nevada", stage: "Qualified", source: "Website", followUp: "In 2 days", hot: false, value: 399 },
-  { id: "LN-L005", name: "Arjun Desai", company: "FinEdge Solutions LLC", state: "Wyoming", stage: "Proposal Sent", source: "Referral", followUp: "Today", hot: true, value: 799 },
-  { id: "LN-L006", name: "Pooja Bhatia", company: "PB Wellness Inc", state: "Texas", stage: "New Lead", source: "Instagram", followUp: "In 3 days", hot: false, value: 399 },
+  { id: "LN-L001", name: "Rohit Agarwal", company: "Proposed LLC", state: "Delaware", stage: "Qualified", source: "Website", followUp: "Today", hot: true, value: 1499, assignedTo: "sales" },
+  { id: "LN-L002", name: "Kavita Nair", company: "KN Imports Corp", state: "Wyoming", stage: "New Lead", source: "Referral", followUp: "Tomorrow", hot: false, value: 799, assignedTo: "sales" },
+  { id: "LN-L003", name: "Suresh Kapoor", company: "AquaFlow Systems LLC", state: "Delaware", stage: "Proposal Sent", source: "LinkedIn", followUp: "Today", hot: true, value: 1499, assignedTo: "sales" },
+  { id: "LN-L004", name: "Meera Reddy", company: "BrightStar Consulting Corp", state: "Nevada", stage: "Qualified", source: "Website", followUp: "In 2 days", hot: false, value: 399, assignedTo: "sales" },
+  { id: "LN-L005", name: "Arjun Desai", company: "FinEdge Solutions LLC", state: "Wyoming", stage: "Proposal Sent", source: "Referral", followUp: "Today", hot: true, value: 799, assignedTo: "sales" },
+  { id: "LN-L006", name: "Pooja Bhatia", company: "PB Wellness Inc", state: "Texas", stage: "New Lead", source: "Instagram", followUp: "In 3 days", hot: false, value: 399, assignedTo: "sales" },
+  { id: "LN-L007", name: "Vikram Mehta", company: "VentureFirst Inc", state: "Delaware", stage: "Converted", source: "Website", followUp: "Done", hot: false, value: 799, assignedTo: "manager" },
+  { id: "LN-L008", name: "Priya Sharma", company: "Sharma Holdings LLC", state: "Wyoming", stage: "Converted", source: "Referral", followUp: "Done", hot: false, value: 1499, assignedTo: "manager" },
 ];
 
 export const SALES_PROPOSALS = [

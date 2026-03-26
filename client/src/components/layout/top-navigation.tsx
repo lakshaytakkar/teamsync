@@ -26,7 +26,7 @@ import { ETS_ROLES, type EtsRoleId } from "@/lib/ets-role-config";
 import { useEtsCart } from "@/lib/ets-cart-context";
 import { ETS_PORTAL_COLOR } from "@/lib/mock-data-portal-ets";
 import { useLnRole } from "@/lib/use-ln-role";
-import { LN_ROLES, type LnRoleId } from "@/lib/ln-role-config";
+import { LN_ROLES, LN_SWITCHER_ROLES, type LnRoleId } from "@/lib/ln-role-config";
 
 const PINNED_TITLES = new Set(["Chat", "Team", "Resources", "Reports", "Contacts", "Important Contacts", "Tickets", "Tasks", "Apps"]);
 
@@ -234,7 +234,7 @@ function LnRoleSwitcher() {
             Switch Role (Dev Mode)
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {LN_ROLES.map((r) => {
+          {LN_ROLES.filter(r => LN_SWITCHER_ROLES.includes(r.id)).map((r) => {
             const isSelected = r.id === roleId;
             return (
               <DropdownMenuItem
