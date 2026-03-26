@@ -147,6 +147,7 @@ export const ETS_ROLES: EtsRoleDefinition[] = [
     navItems: [
       { title: "Dashboard", url: "/portal-ets", icon: LayoutDashboard },
       { title: "POS Billing", url: "/portal-ets/pos", icon: Receipt },
+      { title: "Stock Receive", url: "/portal-ets/stock-receive", icon: ClipboardList },
       { title: "Inventory", url: "/portal-ets/inventory", icon: Package },
       { title: "Orders", url: "/portal-ets/orders", icon: ShoppingCart },
       { title: "Payments", url: "/portal-ets/payments", icon: CreditCard },
