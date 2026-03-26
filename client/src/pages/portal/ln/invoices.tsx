@@ -117,7 +117,7 @@ export default function LnInvoices() {
                   <p className="text-xl font-bold">${inv.amount}</p>
                   <p className="text-xs text-muted-foreground">USD</p>
                   <div className="flex gap-2 mt-2">
-                    {status !== "paid" && (
+                    {status === "pending" && (
                       <Button
                         size="sm"
                         className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
