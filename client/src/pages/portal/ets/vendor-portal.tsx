@@ -40,7 +40,7 @@ const kycDone = KYC_STEPS.filter(k => k.done).length;
 
 export default function EtsVendorPortal() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6" data-testid="vendor-portal-dashboard">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="vendor-portal-dashboard">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 p-6 text-white shadow-lg">
         <div className="relative z-10">
           <p className="text-sm text-indigo-200 mb-1">Vendor Portal</p>

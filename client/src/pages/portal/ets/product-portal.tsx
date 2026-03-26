@@ -31,7 +31,7 @@ export default function EtsProductPortal() {
   );
 
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6" data-testid="product-portal-dashboard">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="product-portal-dashboard">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 p-6 text-white shadow-lg">
         <div className="relative z-10">
           <p className="text-sm text-pink-200 mb-1">Product Management</p>

@@ -44,7 +44,7 @@ export default function EtsPortalCart() {
 
   if (items.length === 0) {
     return (
-      <div className="px-4 md:px-8 lg:px-16 py-8" data-testid="ets-cart-empty">
+      <div className="px-16 lg:px-24 py-8" data-testid="ets-cart-empty">
         <div className="flex items-center gap-3 mb-8">
           <Button
             variant="ghost"
@@ -76,7 +76,7 @@ export default function EtsPortalCart() {
   }
 
   return (
-    <div className="px-4 md:px-8 lg:px-16 py-6 max-w-6xl mx-auto" data-testid="ets-portal-cart">
+    <div className="px-16 lg:px-24 py-6" data-testid="ets-portal-cart">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Button

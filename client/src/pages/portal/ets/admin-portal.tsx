@@ -38,7 +38,7 @@ export default function EtsAdminPortal() {
   const liveStores = STORES.filter(s => s.stage === "Live").length;
 
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6" data-testid="admin-portal-dashboard">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="admin-portal-dashboard">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/3" />
         <div className="relative z-10">

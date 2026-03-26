@@ -484,7 +484,7 @@ export default function EtsPortalCatalog() {
 
   return (
     <div className="min-h-full" data-testid="ets-portal-catalog">
-      <div className="sticky top-0 z-20 bg-background border-b px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+      <div className="sticky top-0 z-20 bg-background border-b px-16 lg:px-24 py-3 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-bold font-heading" data-testid="text-catalog-title">Product Catalog</h1>
           <p className="text-xs text-muted-foreground hidden sm:block">Browse and order products for your store</p>

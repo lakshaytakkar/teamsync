@@ -125,7 +125,7 @@ export default function EtsTeamSettings() {
   };
 
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6" data-testid="team-settings-page">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="team-settings-page">
       <div>
         <h1 className="text-xl font-bold">Team Settings</h1>
         <p className="text-sm text-muted-foreground">Manage your store staff and access roles</p>
