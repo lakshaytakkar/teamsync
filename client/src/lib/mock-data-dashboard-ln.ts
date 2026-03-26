@@ -221,14 +221,14 @@ export const LN_FAQS = [
 ];
 
 export const ADMIN_COMPANIES_ALL = [
-  { name: "TechVentures LLC", client: "Rajesh Kumar", state: "Delaware", stage: "EIN Application", stageNum: 4, package: "Premium", revenue: 1499, health: 78 },
-  { name: "CloudBase Corp", client: "Rajesh Kumar", state: "Wyoming", stage: "Completed", stageNum: 7, package: "Standard", revenue: 799, health: 100 },
-  { name: "GreenLeaf Organics LLC", client: "Amit Patel", state: "Delaware", stage: "Articles Filing", stageNum: 3, package: "Premium", revenue: 1499, health: 55 },
-  { name: "SwiftPay Solutions Inc", client: "Neha Joshi", state: "Nevada", stage: "KYC", stageNum: 2, package: "Basic", revenue: 399, health: 30 },
-  { name: "DataBridge Analytics LLC", client: "Vikram Rao", state: "Wyoming", stage: "BOI Filing", stageNum: 5, package: "Standard", revenue: 799, health: 88 },
-  { name: "UrbanNest Realty Corp", client: "Priya Singh", state: "Texas", stage: "Payment", stageNum: 1, package: "Premium", revenue: 1499, health: 12 },
-  { name: "NovaTech AI Inc", client: "Deepak Verma", state: "Delaware", stage: "Banking Setup", stageNum: 6, package: "Standard", revenue: 799, health: 92 },
-  { name: "MediCare Solutions LLC", client: "Sunita Agarwal", state: "Florida", stage: "Completed", stageNum: 7, package: "Premium", revenue: 1499, health: 100 },
+  { id: "FC-001", name: "TechVentures LLC", client: "Rajesh Kumar", state: "Delaware", stage: "EIN Application", stageNum: 4, package: "Premium", revenue: 1499, health: 78 },
+  { id: "FC-007", name: "CloudBase Corp", client: "Rajesh Kumar", state: "Wyoming", stage: "Completed", stageNum: 7, package: "Standard", revenue: 799, health: 100 },
+  { id: "FC-002", name: "GreenLeaf Organics LLC", client: "Amit Patel", state: "Delaware", stage: "Articles Filing", stageNum: 3, package: "Premium", revenue: 1499, health: 55 },
+  { id: "FC-003", name: "SwiftPay Solutions Inc", client: "Neha Joshi", state: "Nevada", stage: "KYC", stageNum: 2, package: "Basic", revenue: 399, health: 30 },
+  { id: "FC-004", name: "DataBridge Analytics LLC", client: "Vikram Rao", state: "Wyoming", stage: "BOI Filing", stageNum: 5, package: "Standard", revenue: 799, health: 88 },
+  { id: "FC-005", name: "UrbanNest Realty Corp", client: "Priya Singh", state: "Texas", stage: "Payment", stageNum: 1, package: "Premium", revenue: 1499, health: 12 },
+  { id: "FC-006", name: "NovaTech AI Inc", client: "Deepak Verma", state: "Delaware", stage: "Banking Setup", stageNum: 6, package: "Standard", revenue: 799, health: 92 },
+  { id: "FC-008", name: "MediCare Solutions LLC", client: "Sunita Agarwal", state: "Florida", stage: "Completed", stageNum: 7, package: "Premium", revenue: 1499, health: 100 },
 ];
 
 export const ADMIN_PIPELINE_COUNTS: Record<string, number> = {
@@ -259,6 +259,8 @@ export const FORMATION_CLIENTS = [
   { id: "FC-004", name: "DataBridge Analytics LLC", client: "Vikram Rao", state: "WY", stage: 5, stageName: "BOI Filing", package: "Standard", daysInStage: 5, kycStatus: "approved" as const, einStatus: "received" as const },
   { id: "FC-005", name: "UrbanNest Realty Corp", client: "Priya Singh", state: "TX", stage: 1, stageName: "Payment", package: "Premium", daysInStage: 1, kycStatus: "not-started" as const, einStatus: "not-started" as const },
   { id: "FC-006", name: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", stage: 6, stageName: "Banking Setup", package: "Standard", daysInStage: 4, kycStatus: "approved" as const, einStatus: "received" as const },
+  { id: "FC-007", name: "CloudBase Corp", client: "Rajesh Kumar", state: "WY", stage: 7, stageName: "Completed", package: "Standard", daysInStage: 0, kycStatus: "approved" as const, einStatus: "received" as const },
+  { id: "FC-008", name: "MediCare Solutions LLC", client: "Sunita Agarwal", state: "FL", stage: 7, stageName: "Completed", package: "Premium", daysInStage: 0, kycStatus: "approved" as const, einStatus: "received" as const },
 ];
 
 export const KYC_QUEUE = [

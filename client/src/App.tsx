@@ -205,7 +205,7 @@ import LnRolePlaceholder from "@/pages/portal/ln/role-placeholder";
 import LnClientPlaceholder from "@/pages/portal/ln/client-placeholder";
 import LnCompanies from "@/pages/portal/ln/companies";
 import LnAdminPortal, { LnAdminPipeline, LnAdminTeam, LnAdminRevenue, LnAdminSettings, LnAdminTraining } from "@/pages/portal/ln/admin-portal";
-import LnFormationPortal, { LnFormationPipeline, LnFormationKYC, LnFormationEIN, LnFormationActions } from "@/pages/portal/ln/formation-portal";
+import LnFormationPortal, { LnFormationPipeline, LnFormationKYC, LnFormationEIN, LnFormationActions, LnFormationClientDetail } from "@/pages/portal/ln/formation-portal";
 import LnManagerPortal, { LnManagerPipeline, LnManagerKYC, LnManagerEIN, LnManagerActions, LnManagerDocs, LnManagerTickets, LnManagerTasks } from "@/pages/portal/ln/manager-portal";
 import LnOpsPortal, { LnOpsClients, LnOpsTickets, LnOpsDocs } from "@/pages/portal/ln/ops-portal";
 import LnSalesPortal, { LnSalesPipeline, LnSalesBookings, LnSalesScripts, LnSalesAssets, LnSalesPaymentLinks } from "@/pages/portal/ln/sales-portal";
@@ -572,6 +572,7 @@ function Router() {
       <Route path="/portal-ln/admin/training" component={LnAdminTraining} />
       <Route path="/portal-ln/admin" component={LnAdminPortal} />
       <Route path="/portal-ln/formation/pipeline" component={LnFormationPipeline} />
+      <Route path="/portal-ln/formation/client/:clientId" component={LnFormationClientDetail} />
       <Route path="/portal-ln/formation/kyc" component={LnFormationKYC} />
       <Route path="/portal-ln/formation/ein" component={LnFormationEIN} />
       <Route path="/portal-ln/formation/actions" component={LnFormationActions} />
@@ -593,10 +594,14 @@ function Router() {
       <Route path="/portal-ln/compliance/alerts" component={LnComplianceAlerts} />
       <Route path="/portal-ln/compliance/detail" component={LnComplianceDetail} />
       <Route path="/portal-ln/compliance" component={LnCompliancePortal} />
+      <Route path="/portal-ln/tax/filing-queue" component={LnTaxQueue} />
       <Route path="/portal-ln/tax/queue" component={LnTaxQueue} />
+      <Route path="/portal-ln/tax/preparation" component={LnTaxPrep} />
       <Route path="/portal-ln/tax/prep" component={LnTaxPrep} />
+      <Route path="/portal-ln/tax/filing/:filingId" component={LnTaxDetail} />
       <Route path="/portal-ln/tax/detail" component={LnTaxDetail} />
       <Route path="/portal-ln/tax/calendar" component={LnTaxCalendar} />
+      <Route path="/portal-ln/tax/dashboard" component={LnTaxPortal} />
       <Route path="/portal-ln/tax" component={LnTaxPortal} />
       <Route path="/portal-ln/sales/pipeline" component={LnSalesPipeline} />
       <Route path="/portal-ln/sales/bookings" component={LnSalesBookings} />

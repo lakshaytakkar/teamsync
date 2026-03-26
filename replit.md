@@ -1613,7 +1613,21 @@ New role-based LN portal using the admin panel layout (TopNavigation + role swit
 
 **Client Sidebar**: `client/src/components/layout/ln-subnav-sidebar.tsx` — mirrors ETS pattern, renders for client role when active category has multiple items.
 
-**Mock Data**: `client/src/lib/mock-data-dashboard-ln.ts` — CLIENT_PROFILE (with companies array), 7 FORMATION_STAGES, DASHBOARD_METRICS, 6 COMPLIANCE_DEADLINES, 8 RECENT_ACTIVITY, RM_CONTACT, 3 FORMATION_PACKAGES, 8 US_STATES_POPULAR, 13 LN_DOCUMENTS, 6 LN_INVOICES (with line items), 3 LN_CONVERSATIONS, 10 LN_MESSAGES, 15 LN_FAQS.
+**Mock Data**: `client/src/lib/mock-data-dashboard-ln.ts` — CLIENT_PROFILE (with companies array), 7 FORMATION_STAGES, DASHBOARD_METRICS, 6 COMPLIANCE_DEADLINES, 8 RECENT_ACTIVITY, RM_CONTACT, 3 FORMATION_PACKAGES, 8 US_STATES_POPULAR, 13 LN_DOCUMENTS, 6 LN_INVOICES (with line items), 3 LN_CONVERSATIONS, 10 LN_MESSAGES, 15 LN_FAQS, TAX_FILINGS (8 entries), TAX_STATUS_LABELS/COLORS, TAX_CALENDAR_DEADLINES (10 entries).
+
+**Task #3 Enhancements** (Mar 2026):
+- Tax Specialist Dashboard: tax season progress bar (Jan–Apr timeline with milestone markers), KPI stat grid (Active/Pending/Reviews/Filed), filing activity list with click-through to detail, circular completion rate donut, quick actions panel
+- Tax Filing Queue: filter pills by status, search bar, expandable filing cards with EIN/forms/revenue/due-date grid; mailing status section
+- Tax Preparation Workspace: 10-step IRS procedure checklist per client; client selector panel; step toggle (checkbox), current step badge, expandable note/attach section per step; progress bar
+- Tax Filing Detail: 3-level breadcrumb (Queue → Detail → Company), full entity info grid, required forms list, mailing/IRS response section, activity timeline (for filed entries)
+- Tax Calendar: month-grouped deadline list, type-color-coded badges (Filing/Extension/Est.Tax/State), urgency countdown (days left), completed section
+- Cross-role navigation polish:
+  - Admin company table rows and pipeline rows are now clickable → navigate to `/portal-ln/formation/client/:clientId` (deep-link per client)
+  - Formation Specialist pipeline cards are clickable → open `ClientDetailDialog` modal with stage history stepper
+  - Admin sub-pages (Pipeline, Team, Revenue, Settings, Training) all have `← Dashboard > PageName` breadcrumbs
+  - Formation sub-pages (Pipeline, KYC, EIN, Actions) all have `← Dashboard > PageName` breadcrumbs
+  - Tax sub-pages (Queue, Prep, Detail, Calendar) all have breadcrumb navigation
+  - Messages already had role badges (`roleBadgeColor` map) — confirmed working
 
 | Page | Route | File |
 |------|-------|------|

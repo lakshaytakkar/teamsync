@@ -2,14 +2,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useLocation } from "wouter";
 import {
   Users, Building2, DollarSign, Kanban, Shield, Video, Play, Clock,
+  ChevronRight, ArrowLeft,
 } from "lucide-react";
 import {
   ADMIN_COMPANIES_ALL, ADMIN_PIPELINE_COUNTS, ADMIN_TEAM, ADMIN_MONTHLY_REVENUE,
 } from "@/lib/mock-data-dashboard-ln";
 
 export default function LnAdminPortal() {
+  const [, setLocation] = useLocation();
   const totalRevenue = ADMIN_COMPANIES_ALL.reduce((sum, c) => sum + c.revenue, 0);
   const completed = ADMIN_COMPANIES_ALL.filter(c => c.stageNum === 7).length;
   const inPipeline = ADMIN_COMPANIES_ALL.length - completed;
@@ -63,7 +66,8 @@ export default function LnAdminPortal() {
             {ADMIN_COMPANIES_ALL.map((co, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors cursor-pointer"
+                onClick={() => setLocation(`/portal-ln/formation/client/${co.id}`)}
                 data-testid={`admin-company-row-${idx}`}
               >
                 <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600 shrink-0">
@@ -136,9 +140,17 @@ export default function LnAdminPortal() {
 }
 
 export function LnAdminPipeline() {
+  const [, setLocation] = useLocation();
   const stages = Object.entries(ADMIN_PIPELINE_COUNTS);
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground h-8 px-2" onClick={() => setLocation("/portal-ln/admin")} data-testid="breadcrumb-back-pipeline">
+          <ArrowLeft className="w-3.5 h-3.5" /> Dashboard
+        </Button>
+        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-sm font-semibold">Pipeline Overview</span>
+      </div>
       <div>
         <h1 className="text-xl font-bold">Pipeline Overview</h1>
         <p className="text-sm text-muted-foreground">All client formations across every stage</p>
@@ -158,13 +170,21 @@ export function LnAdminPipeline() {
         <CardContent>
           <div className="space-y-2">
             {ADMIN_COMPANIES_ALL.map((co, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-muted/40" data-testid={`admin-pipeline-co-${idx}`}>
+              <div
+                key={idx}
+                className="flex items-center justify-between p-3 rounded-xl bg-muted/40 hover:bg-muted/60 cursor-pointer transition-colors"
+                onClick={() => setLocation(`/portal-ln/formation/client/${co.id}`)}
+                data-testid={`admin-pipeline-co-${idx}`}
+              >
                 <div>
                   <p className="text-sm font-medium">{co.name}</p>
                   <p className="text-xs text-muted-foreground">{co.client} · {co.state}</p>
                   <Progress value={(co.stageNum / 7) * 100} className="h-1 w-32 mt-1" />
                 </div>
-                <Badge variant="outline">{co.stage}</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">{co.stage}</Badge>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
               </div>
             ))}
           </div>
@@ -175,8 +195,16 @@ export function LnAdminPipeline() {
 }
 
 export function LnAdminTeam() {
+  const [, setLocation] = useLocation();
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground h-8 px-2" onClick={() => setLocation("/portal-ln/admin")} data-testid="breadcrumb-back-team">
+          <ArrowLeft className="w-3.5 h-3.5" /> Dashboard
+        </Button>
+        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-sm font-semibold">Team Management</span>
+      </div>
       <h1 className="text-xl font-bold">Team Management</h1>
       <div className="grid md:grid-cols-2 gap-4">
         {ADMIN_TEAM.map((member, idx) => (
@@ -199,10 +227,18 @@ export function LnAdminTeam() {
 }
 
 export function LnAdminRevenue() {
+  const [, setLocation] = useLocation();
   const totalRevenue = ADMIN_MONTHLY_REVENUE.reduce((s, m) => s + m.amount, 0);
 
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground h-8 px-2" onClick={() => setLocation("/portal-ln/admin")} data-testid="breadcrumb-back-revenue">
+          <ArrowLeft className="w-3.5 h-3.5" /> Dashboard
+        </Button>
+        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-sm font-semibold">Revenue Analytics</span>
+      </div>
       <h1 className="text-xl font-bold">Revenue Analytics</h1>
       <div className="grid grid-cols-3 gap-3">
         <Card className="border-0 shadow-sm">
@@ -248,8 +284,16 @@ export function LnAdminRevenue() {
 }
 
 export function LnAdminSettings() {
+  const [, setLocation] = useLocation();
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground h-8 px-2" onClick={() => setLocation("/portal-ln/admin")} data-testid="breadcrumb-back-settings">
+          <ArrowLeft className="w-3.5 h-3.5" /> Dashboard
+        </Button>
+        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-sm font-semibold">System Settings</span>
+      </div>
       <h1 className="text-xl font-bold">System Settings</h1>
       <Card className="border-0 shadow-sm">
         <CardContent className="p-6 space-y-4">
@@ -266,6 +310,7 @@ export function LnAdminSettings() {
 }
 
 export function LnAdminTraining() {
+  const [, setLocation] = useLocation();
   const TRAINING_VIDEOS = [
     { id: "TV-001", title: "LLC Formation Process — End to End Walkthrough", category: "Formation", duration: "24:30", instructor: "Lakshay", views: 12, date: "2026-02-15" },
     { id: "TV-002", title: "KYC Review SOP — Document Verification Standards", category: "KYC", duration: "18:45", instructor: "Lakshay", views: 9, date: "2026-02-20" },
@@ -285,6 +330,13 @@ export function LnAdminTraining() {
 
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground h-8 px-2" onClick={() => setLocation("/portal-ln/admin")} data-testid="breadcrumb-back-training">
+          <ArrowLeft className="w-3.5 h-3.5" /> Dashboard
+        </Button>
+        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-sm font-semibold">Training Videos</span>
+      </div>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Training Videos</h1>
