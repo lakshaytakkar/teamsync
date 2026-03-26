@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
-import { MessageCircle, Users, BookOpen, BarChart2, Phone, Ticket, ClipboardList, Blocks, ChevronDown, Lock, PauseCircle } from "lucide-react";
+import { MessageCircle, Users, BookOpen, BarChart2, Phone, Ticket, ClipboardList, Blocks, ChevronDown, Lock, PauseCircle, ShoppingCart } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getStoreStatus } from "@/lib/mock-data-ets-store";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ import { cn } from "@/lib/utils";
 import type { NavCategory } from "@/lib/verticals-config";
 import { useEtsRole } from "@/lib/use-ets-role";
 import { ETS_ROLES, type EtsRoleId } from "@/lib/ets-role-config";
+import { useEtsCart } from "@/lib/ets-cart-context";
+import { ETS_PORTAL_COLOR } from "@/lib/mock-data-portal-ets";
 
 const PINNED_TITLES = new Set(["Chat", "Team", "Resources", "Reports", "Contacts", "Important Contacts", "Tickets", "Tasks", "Apps"]);
 
@@ -170,6 +172,32 @@ function EtsRoleSwitcher() {
   );
 }
 
+function EtsCartNavButton() {
+  const [, setLocation] = useLocation();
+  const { itemCount } = useEtsCart();
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="relative"
+      onClick={() => setLocation("/portal-ets/cart")}
+      title="Cart"
+      data-testid="button-nav-cart"
+    >
+      <ShoppingCart className="size-4" />
+      {itemCount > 0 && (
+        <span
+          className="absolute top-0.5 right-0.5 min-w-[16px] h-4 rounded-full text-[10px] font-bold text-white flex items-center justify-center px-0.5"
+          style={{ backgroundColor: ETS_PORTAL_COLOR }}
+          data-testid="badge-nav-cart-count"
+        >
+          {itemCount}
+        </span>
+      )}
+    </Button>
+  );
+}
+
 export function TopNavigation() {
   const [location, setLocation] = useLocation();
   const { currentVertical } = useVertical();
@@ -177,6 +205,7 @@ export function TopNavigation() {
   const activeCategory = getActiveCategory(location, navCategories);
   const isEtsPortal = currentVertical?.id === "ets-portal";
   const { roleId, role: etsRole, subRole } = useEtsRole();
+  const { clearCart } = useEtsCart();
   const isEtsNonPartner = isEtsPortal && roleId !== "partner";
   const isCashier = isEtsPortal && roleId === "partner" && subRole === "cashier";
   const isEtsPartner = isEtsPortal && roleId === "partner";
@@ -381,6 +410,8 @@ export function TopNavigation() {
           <PinnedBtn url={teamUrl} icon={Users} label="Team" testId="button-team" />
           <PinnedBtn url={appsUrl} icon={Blocks} label="Apps" testId="button-apps" />
 
+          {isEtsPortal && roleId === "partner" && <EtsCartNavButton />}
+
           {isEtsPortal && <EtsRoleSwitcher />}
 
           <Separator orientation="vertical" className="h-5" />
@@ -403,7 +434,7 @@ export function TopNavigation() {
               <DropdownMenuItem className="text-sm" data-testid="menu-item-profile">My Profile</DropdownMenuItem>
               <DropdownMenuItem className="text-sm" data-testid="menu-item-settings">Account Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-sm" data-testid="menu-item-logout">Log Out</DropdownMenuItem>
+              <DropdownMenuItem className="text-sm" data-testid="menu-item-logout" onClick={() => clearCart()}>Log Out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -8,6 +8,7 @@ import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { TopNavigation } from "@/components/layout/top-navigation";
 import { EtsSubNavSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { EtsRoleContext, useEtsRoleState } from "@/lib/use-ets-role";
+import { EtsCartProvider } from "@/lib/ets-cart-context";
 import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
 import { AIChatWidget } from "@/components/ai-chat/AIChatWidget";
 import { VerticalContext, getStoredVertical, setStoredVerticalId } from "@/lib/vertical-store";
@@ -223,6 +224,7 @@ import EtsFulfillmentPortal, { EtsFulfillmentQC, EtsFulfillmentDispatch, EtsFulf
 import EtsProductPortal, { EtsProductCategories, EtsProductPricing, EtsProductCompliance, EtsProductBulkUpload } from "@/pages/portal/ets/product-portal";
 import EtsVendorPortal, { EtsVendorListings, EtsVendorOrders, EtsVendorStock, EtsVendorKYC } from "@/pages/portal/ets/vendor-portal";
 import EtsTeamSettings from "@/pages/portal/ets/team-settings";
+import EtsPortalCart from "@/pages/portal/ets/cart";
 import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
@@ -453,6 +455,7 @@ function Router() {
       <Route path="/ets/templates" component={EtsTemplates} />
       <Route path="/ets/settings" component={EtsSettings} />
       <Route path="/portal-ets/catalog" component={EtsPortalCatalog} />
+      <Route path="/portal-ets/cart" component={EtsPortalCart} />
       <Route path="/portal-ets/store" component={EtsPortalStore} />
       <Route path="/portal-ets/launch-kit" component={EtsPortalLaunchKit} />
       <Route path="/portal-ets/orders" component={EtsPortalOrders} />
@@ -804,6 +807,7 @@ function App() {
   return (
     <VerticalContext.Provider value={{ currentVertical, setCurrentVertical }}>
       <EtsRoleContext.Provider value={etsRoleState}>
+        <EtsCartProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
             <VerticalSync setCurrentVertical={setCurrentVertical} />
@@ -831,6 +835,7 @@ function App() {
             {!isAnyPortal && <AIChatWidget />}
           </TooltipProvider>
         </QueryClientProvider>
+        </EtsCartProvider>
       </EtsRoleContext.Provider>
     </VerticalContext.Provider>
   );
