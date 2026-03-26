@@ -169,17 +169,39 @@ export default function EtsProductPortal() {
   );
 }
 
-type SortKey = keyof Pick<CatalogProduct, "name" | "landedCostInr" | "partnerPriceInr" | "suggestedMrp" | "marginPercent">;
+type SortKey = "name" | "zoneId" | "source" | "exwPriceYuan" | "landedCostInr" | "partnerPriceInr" | "suggestedMrp" | "marginPercent" | "complianceStatus" | "labelStatus";
+
+function sortProducts(list: CatalogProduct[], key: SortKey, dir: "asc" | "desc"): CatalogProduct[] {
+  return [...list].sort((a, b) => {
+    let av: string | number | undefined;
+    let bv: string | number | undefined;
+    if (key === "exwPriceYuan") {
+      av = a.exwPriceYuan ?? a.wholesalePriceInr ?? 0;
+      bv = b.exwPriceYuan ?? b.wholesalePriceInr ?? 0;
+    } else {
+      av = a[key] as string | number | undefined;
+      bv = b[key] as string | number | undefined;
+    }
+    av = av ?? (typeof av === "string" ? "" : 0);
+    bv = bv ?? (typeof bv === "string" ? "" : 0);
+    const cmp = typeof av === "string" ? (av as string).localeCompare(bv as string) : (av as number) - (bv as number);
+    return dir === "asc" ? cmp : -cmp;
+  });
+}
 
 export function EtsProductList() {
   const [search, setSearch] = useState("");
   const [filterSource, setFilterSource] = useState<string>("all");
+  const [filterZone, setFilterZone] = useState<string>("all");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterCompliance, setFilterCompliance] = useState<string>("all");
   const [filterMissing, setFilterMissing] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [editingProduct, setEditingProduct] = useState<CatalogProduct | null>(null);
   const [showForm, setShowForm] = useState(false);
+
+  const selectedZoneData = CATALOG_ZONE_TREE.find(z => z.id === filterZone);
 
   const filtered = useMemo(() => {
     let list = CATALOG_PRODUCTS;
@@ -189,11 +211,15 @@ export function EtsProductList() {
         (p) =>
           p.name.toLowerCase().includes(q) ||
           (p.barcode || "").includes(q) ||
+          (p.id || "").toLowerCase().includes(q) ||
           (p.zoneId || "").includes(q) ||
-          (p.categoryId || "").includes(q)
+          (p.categoryId || "").includes(q) ||
+          (p.subcategoryId || "").includes(q)
       );
     }
     if (filterSource !== "all") list = list.filter((p) => p.source === filterSource);
+    if (filterZone !== "all") list = list.filter((p) => p.zoneId === filterZone);
+    if (filterCategory !== "all") list = list.filter((p) => p.categoryId === filterCategory);
     if (filterCompliance !== "all") {
       if (filterCompliance === "unset") list = list.filter((p) => !p.complianceStatus);
       else list = list.filter((p) => p.complianceStatus === filterCompliance);
@@ -203,13 +229,8 @@ export function EtsProductList() {
     if (filterMissing === "no-category") list = list.filter((p) => !p.zoneId);
     if (filterMissing === "no-compliance") list = list.filter((p) => !p.complianceStatus);
 
-    return [...list].sort((a, b) => {
-      const av = a[sortKey] ?? 0;
-      const bv = b[sortKey] ?? 0;
-      const cmp = typeof av === "string" ? (av as string).localeCompare(bv as string) : (av as number) - (bv as number);
-      return sortDir === "asc" ? cmp : -cmp;
-    });
-  }, [search, filterSource, filterCompliance, filterMissing, sortKey, sortDir]);
+    return sortProducts(list, sortKey, sortDir);
+  }, [search, filterSource, filterZone, filterCategory, filterCompliance, filterMissing, sortKey, sortDir]);
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -224,6 +245,21 @@ export function EtsProductList() {
       />
     );
   }
+
+  const cols: { label: string; key: SortKey | null }[] = [
+    { label: "Product", key: "name" },
+    { label: "Zone / Category", key: "zoneId" },
+    { label: "Source", key: "source" },
+    { label: "EXW / Wholesale", key: "exwPriceYuan" },
+    { label: "Landed ₹", key: "landedCostInr" },
+    { label: "Partner ₹", key: "partnerPriceInr" },
+    { label: "MRP", key: "suggestedMrp" },
+    { label: "Margin", key: "marginPercent" },
+    { label: "Compliance", key: "complianceStatus" },
+    { label: "Label", key: "labelStatus" },
+    { label: "Barcode", key: null },
+    { label: "", key: null },
+  ];
 
   return (
     <div className="px-16 lg:px-24 py-6 space-y-5" data-testid="product-list-page">
@@ -245,7 +281,7 @@ export function EtsProductList() {
         <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name, barcode, or category..."
+            placeholder="Search by name, barcode, ID, category..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -263,6 +299,30 @@ export function EtsProductList() {
             ))}
           </SelectContent>
         </Select>
+        <Select value={filterZone} onValueChange={v => { setFilterZone(v); setFilterCategory("all"); }}>
+          <SelectTrigger className="w-44" data-testid="filter-zone">
+            <SelectValue placeholder="All Zones" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Zones</SelectItem>
+            {CATALOG_ZONE_TREE.map(z => (
+              <SelectItem key={z.id} value={z.id}>{z.icon} {z.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {filterZone !== "all" && selectedZoneData && (
+          <Select value={filterCategory} onValueChange={setFilterCategory}>
+            <SelectTrigger className="w-44" data-testid="filter-category">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {selectedZoneData.categories.map(c => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <Select value={filterCompliance} onValueChange={setFilterCompliance}>
           <SelectTrigger className="w-40" data-testid="filter-compliance">
             <SelectValue placeholder="All Compliance" />
@@ -293,28 +353,15 @@ export function EtsProductList() {
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50/80">
             <tr>
-              {[
-                { label: "Product", key: "name" as SortKey },
-                { label: "Zone / Category", key: null },
-                { label: "Source", key: null },
-                { label: "EXW", key: null },
-                { label: "Landed ₹", key: "landedCostInr" as SortKey },
-                { label: "Partner ₹", key: "partnerPriceInr" as SortKey },
-                { label: "MRP", key: "suggestedMrp" as SortKey },
-                { label: "Margin", key: "marginPercent" as SortKey },
-                { label: "Compliance", key: null },
-                { label: "Label", key: null },
-                { label: "Barcode", key: null },
-                { label: "", key: null },
-              ].map(({ label, key }) => (
+              {cols.map(({ label, key }) => (
                 <th
-                  key={label}
-                  className={`px-3 py-2.5 text-left font-semibold text-xs text-muted-foreground whitespace-nowrap ${key ? "cursor-pointer hover:text-foreground select-none" : ""}`}
+                  key={label || "actions"}
+                  className={`px-3 py-2.5 text-left font-semibold text-xs text-muted-foreground whitespace-nowrap ${key ? "cursor-pointer hover:text-foreground select-none" : ""} ${sortKey === key ? "text-foreground" : ""}`}
                   onClick={() => key && toggleSort(key)}
                 >
                   <div className="flex items-center gap-1">
                     {label}
-                    {key && <ArrowUpDown className="w-3 h-3 opacity-50" />}
+                    {key && <ArrowUpDown className={`w-3 h-3 ${sortKey === key ? "opacity-100 text-pink-500" : "opacity-40"}`} />}
                   </div>
                 </th>
               ))}
@@ -761,22 +808,115 @@ export function EtsProductCategories() {
   const [expanded, setExpanded] = useState<TreeNodeState>({});
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [selectedCatId, setSelectedCatId] = useState<string | null>(null);
-  const [showAddZone, setShowAddZone] = useState(false);
-  const [showAddCat, setShowAddCat] = useState<string | null>(null);
-  const [newNodeName, setNewNodeName] = useState("");
-
   const [zones, setZones] = useState<CatalogZone[]>(CATALOG_ZONE_TREE);
+
+  const [showAddZone, setShowAddZone] = useState(false);
+  const [showAddCatFor, setShowAddCatFor] = useState<string | null>(null);
+  const [showAddSubcatFor, setShowAddSubcatFor] = useState<string | null>(null);
+  const [addInput, setAddInput] = useState("");
+
+  const [editingZoneId, setEditingZoneId] = useState<string | null>(null);
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  const [editInput, setEditInput] = useState("");
 
   function toggleExpand(id: string) {
     setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
   }
 
-  const selectedZone = zones.find(z => z.id === selectedZoneId);
-  const selectedCat = selectedZone?.categories.find(c => c.id === selectedCatId);
+  const selectedZone = zones.find(z => z.id === selectedZoneId) ?? null;
+  const selectedCat = selectedZone?.categories.find(c => c.id === selectedCatId) ?? null;
 
   const totalProducts = CATALOG_PRODUCTS.length;
   function zoneCount(zoneId: string) { return CATALOG_PRODUCTS.filter(p => p.zoneId === zoneId).length; }
   function catCount(zoneId: string, catId: string) { return CATALOG_PRODUCTS.filter(p => p.zoneId === zoneId && p.categoryId === catId).length; }
+  function subcatCount(scId: string) { return CATALOG_PRODUCTS.filter(p => p.subcategoryId === scId).length; }
+
+  function handleAddZone() {
+    if (!addInput.trim()) return;
+    const id = `zone_${addInput.trim().toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+    setZones(prev => [...prev, { id, name: addInput.trim(), icon: "📦", description: "", categories: [] }]);
+    setShowAddZone(false);
+    setAddInput("");
+  }
+
+  function handleAddCategory() {
+    if (!addInput.trim() || !showAddCatFor) return;
+    const zoneId = showAddCatFor;
+    const id = `${zoneId}_${addInput.trim().toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+    setZones(prev => prev.map(z => z.id === zoneId
+      ? { ...z, categories: [...z.categories, { id, name: addInput.trim(), subcategories: [] }] }
+      : z
+    ));
+    setShowAddCatFor(null);
+    setAddInput("");
+  }
+
+  function handleAddSubcategory() {
+    if (!addInput.trim() || !showAddSubcatFor) return;
+    const catId = showAddSubcatFor;
+    const id = `${catId}_${addInput.trim().toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+    setZones(prev => prev.map(z => ({
+      ...z,
+      categories: z.categories.map(c => c.id === catId
+        ? { ...c, subcategories: [...c.subcategories, { id, name: addInput.trim() }] }
+        : c
+      ),
+    })));
+    setShowAddSubcatFor(null);
+    setAddInput("");
+  }
+
+  function handleSaveZoneEdit() {
+    if (!editInput.trim() || !editingZoneId) return;
+    setZones(prev => prev.map(z => z.id === editingZoneId ? { ...z, name: editInput.trim() } : z));
+    setEditingZoneId(null);
+    setEditInput("");
+  }
+
+  function handleSaveCatEdit() {
+    if (!editInput.trim() || !editingCatId || !selectedZone) return;
+    setZones(prev => prev.map(z => z.id === selectedZone.id
+      ? { ...z, categories: z.categories.map(c => c.id === editingCatId ? { ...c, name: editInput.trim() } : c) }
+      : z
+    ));
+    setEditingCatId(null);
+    setEditInput("");
+  }
+
+  function handleDeleteZone(zoneId: string) {
+    setZones(prev => prev.filter(z => z.id !== zoneId));
+    if (selectedZoneId === zoneId) { setSelectedZoneId(null); setSelectedCatId(null); }
+  }
+
+  function handleDeleteCategory(zoneId: string, catId: string) {
+    setZones(prev => prev.map(z => z.id === zoneId
+      ? { ...z, categories: z.categories.filter(c => c.id !== catId) }
+      : z
+    ));
+    if (selectedCatId === catId) setSelectedCatId(null);
+  }
+
+  function handleDeleteSubcategory(catId: string, scId: string) {
+    setZones(prev => prev.map(z => ({
+      ...z,
+      categories: z.categories.map(c => c.id === catId
+        ? { ...c, subcategories: c.subcategories.filter(sc => sc.id !== scId) }
+        : c
+      ),
+    })));
+  }
+
+  function startEditZone(zone: CatalogZone) {
+    setEditingZoneId(zone.id);
+    setEditingCatId(null);
+    setEditInput(zone.name);
+  }
+
+  function startEditCat(cat: { id: string; name: string }) {
+    setEditingCatId(cat.id);
+    setEditingZoneId(null);
+    setEditInput(cat.name);
+  }
 
   return (
     <div className="px-16 lg:px-24 py-6" data-testid="categories-page">
@@ -787,7 +927,7 @@ export function EtsProductCategories() {
         </div>
         <Button
           className="bg-pink-500 hover:bg-pink-600 text-white"
-          onClick={() => setShowAddZone(true)}
+          onClick={() => { setShowAddZone(true); setShowAddCatFor(null); setShowAddSubcatFor(null); setAddInput(""); }}
           data-testid="button-add-zone"
         >
           <Plus className="w-4 h-4 mr-1" /> Add Zone
@@ -827,55 +967,60 @@ export function EtsProductCategories() {
                         <div className="ml-5 space-y-0.5 mt-0.5">
                           {cat.subcategories.map(sc => (
                             <div key={sc.id} className="flex items-center gap-2 px-3 py-1 text-xs text-muted-foreground rounded-lg hover:bg-gray-50" data-testid={`subcat-${sc.id}`}>
-                              <span className="w-1 h-1 rounded-full bg-gray-300" />
+                              <span className="w-1 h-1 rounded-full bg-gray-300 shrink-0" />
                               <span className="flex-1">{sc.name}</span>
-                              <span className="text-[10px]">{CATALOG_PRODUCTS.filter(p => p.subcategoryId === sc.id).length}</span>
+                              <span className="text-[10px]">{subcatCount(sc.id)}</span>
                             </div>
                           ))}
-                          <button
-                            type="button"
-                            className="flex items-center gap-1.5 px-3 py-1 text-xs text-pink-600 hover:bg-pink-50 rounded-lg w-full"
-                            onClick={() => setShowAddCat(`subcat-${cat.id}`)}
-                            data-testid={`add-subcat-${cat.id}`}
-                          >
-                            <Plus className="w-3 h-3" /> Add subcategory
-                          </button>
+                          {showAddSubcatFor === cat.id ? (
+                            <div className="p-2 rounded-lg border border-pink-200 bg-pink-50/50 space-y-1.5" data-testid={`add-subcat-form-${cat.id}`}>
+                              <Input autoFocus value={addInput} onChange={e => setAddInput(e.target.value)} placeholder="Subcategory name..." className="h-7 text-xs" data-testid="input-subcat-name"
+                                onKeyDown={e => { if (e.key === "Enter") handleAddSubcategory(); if (e.key === "Escape") { setShowAddSubcatFor(null); setAddInput(""); } }} />
+                              <div className="flex gap-1">
+                                <Button size="sm" className="h-6 text-xs bg-pink-500 hover:bg-pink-600 text-white px-2" onClick={handleAddSubcategory} data-testid="button-save-subcat">Add</Button>
+                                <Button size="sm" variant="ghost" className="h-6 text-xs px-2" onClick={() => { setShowAddSubcatFor(null); setAddInput(""); }}>Cancel</Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button type="button" className="flex items-center gap-1.5 px-3 py-1 text-xs text-pink-600 hover:bg-pink-50 rounded-lg w-full"
+                              onClick={() => { setShowAddSubcatFor(cat.id); setShowAddCatFor(null); setShowAddZone(false); setAddInput(""); }}
+                              data-testid={`add-subcat-${cat.id}`}>
+                              <Plus className="w-3 h-3" /> Add subcategory
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-pink-600 hover:bg-pink-50 rounded-lg w-full"
-                    onClick={() => setShowAddCat(`cat-${zone.id}`)}
-                    data-testid={`add-cat-${zone.id}`}
-                  >
-                    <Plus className="w-3 h-3" /> Add category
-                  </button>
+                  {showAddCatFor === zone.id ? (
+                    <div className="p-2 rounded-lg border border-pink-200 bg-pink-50/50 space-y-1.5" data-testid={`add-cat-form-${zone.id}`}>
+                      <Input autoFocus value={addInput} onChange={e => setAddInput(e.target.value)} placeholder="Category name..." className="h-7 text-xs" data-testid="input-cat-name"
+                        onKeyDown={e => { if (e.key === "Enter") handleAddCategory(); if (e.key === "Escape") { setShowAddCatFor(null); setAddInput(""); } }} />
+                      <div className="flex gap-1">
+                        <Button size="sm" className="h-6 text-xs bg-pink-500 hover:bg-pink-600 text-white px-2" onClick={handleAddCategory} data-testid="button-save-cat">Add</Button>
+                        <Button size="sm" variant="ghost" className="h-6 text-xs px-2" onClick={() => { setShowAddCatFor(null); setAddInput(""); }}>Cancel</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button type="button" className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-pink-600 hover:bg-pink-50 rounded-lg w-full"
+                      onClick={() => { setShowAddCatFor(zone.id); setShowAddSubcatFor(null); setShowAddZone(false); setAddInput(""); }}
+                      data-testid={`add-cat-${zone.id}`}>
+                      <Plus className="w-3 h-3" /> Add category
+                    </button>
+                  )}
                 </div>
               )}
             </div>
           ))}
 
           {showAddZone && (
-            <div className="p-3 rounded-xl border border-pink-200 bg-pink-50/50 space-y-2" data-testid="add-zone-form">
+            <div className="p-3 rounded-xl border border-pink-200 bg-pink-50/50 space-y-2 mt-2" data-testid="add-zone-form">
               <Label className="text-xs font-medium">New Zone Name</Label>
-              <Input autoFocus value={newNodeName} onChange={e => setNewNodeName(e.target.value)} placeholder="e.g. Sports Zone" className="h-8 text-sm" data-testid="input-zone-name" />
+              <Input autoFocus value={addInput} onChange={e => setAddInput(e.target.value)} placeholder="e.g. Sports Zone" className="h-8 text-sm" data-testid="input-zone-name"
+                onKeyDown={e => { if (e.key === "Enter") handleAddZone(); if (e.key === "Escape") { setShowAddZone(false); setAddInput(""); } }} />
               <div className="flex gap-2">
-                <Button size="sm" className="h-7 bg-pink-500 hover:bg-pink-600 text-white text-xs" onClick={() => { setShowAddZone(false); setNewNodeName(""); }} data-testid="button-save-zone">Add</Button>
-                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setShowAddZone(false); setNewNodeName(""); }}>Cancel</Button>
-              </div>
-            </div>
-          )}
-          {showAddCat && (
-            <div className="p-3 rounded-xl border border-pink-200 bg-pink-50/50 space-y-2 mt-1" data-testid="add-cat-form">
-              <Label className="text-xs font-medium">
-                {showAddCat.startsWith("subcat") ? "New Subcategory Name" : "New Category Name"}
-              </Label>
-              <Input autoFocus value={newNodeName} onChange={e => setNewNodeName(e.target.value)} placeholder="Category name..." className="h-8 text-sm" data-testid="input-cat-name" />
-              <div className="flex gap-2">
-                <Button size="sm" className="h-7 bg-pink-500 hover:bg-pink-600 text-white text-xs" onClick={() => { setShowAddCat(null); setNewNodeName(""); }} data-testid="button-save-cat">Add</Button>
-                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setShowAddCat(null); setNewNodeName(""); }}>Cancel</Button>
+                <Button size="sm" className="h-7 bg-pink-500 hover:bg-pink-600 text-white text-xs" onClick={handleAddZone} data-testid="button-save-zone">Add Zone</Button>
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setShowAddZone(false); setAddInput(""); }}>Cancel</Button>
               </div>
             </div>
           )}
@@ -886,14 +1031,31 @@ export function EtsProductCategories() {
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <div>
+                  <div className="flex-1">
                     <p className="text-xs text-muted-foreground">{selectedZone.name}</p>
-                    <CardTitle className="text-lg">{selectedCat.name}</CardTitle>
+                    {editingCatId === selectedCat.id ? (
+                      <div className="flex gap-2 mt-1">
+                        <Input autoFocus value={editInput} onChange={e => setEditInput(e.target.value)} className="h-8 text-base font-bold" data-testid="input-edit-cat-name"
+                          onKeyDown={e => { if (e.key === "Enter") handleSaveCatEdit(); if (e.key === "Escape") { setEditingCatId(null); setEditInput(""); } }} />
+                        <Button size="sm" className="h-8 bg-pink-500 hover:bg-pink-600 text-white" onClick={handleSaveCatEdit} data-testid="button-save-cat-edit">Save</Button>
+                        <Button size="sm" variant="ghost" className="h-8" onClick={() => { setEditingCatId(null); setEditInput(""); }}>Cancel</Button>
+                      </div>
+                    ) : (
+                      <CardTitle className="text-lg">{selectedCat.name}</CardTitle>
+                    )}
                   </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="h-8 text-xs" data-testid="button-edit-category"><Edit2 className="w-3.5 h-3.5 mr-1" />Edit</Button>
-                    <Button size="sm" variant="outline" className="h-8 text-xs text-red-600 border-red-200" data-testid="button-delete-category"><Trash2 className="w-3.5 h-3.5 mr-1" />Delete</Button>
-                  </div>
+                  {editingCatId !== selectedCat.id && (
+                    <div className="flex gap-2 ml-3">
+                      <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => startEditCat(selectedCat)} data-testid="button-edit-category">
+                        <Edit2 className="w-3.5 h-3.5 mr-1" />Edit
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-8 text-xs text-red-600 border-red-200"
+                        onClick={() => handleDeleteCategory(selectedZone.id, selectedCat.id)}
+                        data-testid="button-delete-category">
+                        <Trash2 className="w-3.5 h-3.5 mr-1" />Delete
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="pt-0 space-y-4">
@@ -914,11 +1076,43 @@ export function EtsProductCategories() {
                       <div key={sc.id} className="flex items-center justify-between p-2.5 rounded-lg border" data-testid={`detail-subcat-${sc.id}`}>
                         <span className="text-sm">{sc.name}</span>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-[10px]">{CATALOG_PRODUCTS.filter(p => p.subcategoryId === sc.id).length} products</Badge>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0" data-testid={`delete-subcat-${sc.id}`}><Trash2 className="w-3 h-3 text-red-500" /></Button>
+                          <Badge variant="outline" className="text-[10px]">{subcatCount(sc.id)} products</Badge>
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
+                            onClick={() => handleDeleteSubcategory(selectedCat.id, sc.id)}
+                            data-testid={`delete-subcat-${sc.id}`}>
+                            <Trash2 className="w-3 h-3 text-red-500" />
+                          </Button>
                         </div>
                       </div>
                     ))}
+                    {showAddSubcatFor === `detail-${selectedCat.id}` ? (
+                      <div className="flex gap-2 p-2 rounded-lg border border-pink-200 bg-pink-50/50" data-testid="add-subcat-detail-form">
+                        <Input autoFocus value={addInput} onChange={e => setAddInput(e.target.value)} placeholder="New subcategory..." className="h-7 text-sm"
+                          onKeyDown={e => {
+                            if (e.key === "Enter") {
+                              const catId = selectedCat.id;
+                              const id = `${catId}_${addInput.trim().toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+                              setZones(prev => prev.map(z => ({ ...z, categories: z.categories.map(c => c.id === catId ? { ...c, subcategories: [...c.subcategories, { id, name: addInput.trim() }] } : c) })));
+                              setShowAddSubcatFor(null); setAddInput("");
+                            }
+                            if (e.key === "Escape") { setShowAddSubcatFor(null); setAddInput(""); }
+                          }} />
+                        <Button size="sm" className="h-7 bg-pink-500 hover:bg-pink-600 text-white text-xs" onClick={() => {
+                          const catId = selectedCat.id;
+                          if (!addInput.trim()) return;
+                          const id = `${catId}_${addInput.trim().toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+                          setZones(prev => prev.map(z => ({ ...z, categories: z.categories.map(c => c.id === catId ? { ...c, subcategories: [...c.subcategories, { id, name: addInput.trim() }] } : c) })));
+                          setShowAddSubcatFor(null); setAddInput("");
+                        }} data-testid="button-save-detail-subcat">Add</Button>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setShowAddSubcatFor(null); setAddInput(""); }}>Cancel</Button>
+                      </div>
+                    ) : (
+                      <button type="button" className="flex items-center gap-1.5 text-sm text-pink-600 hover:text-pink-700 py-1"
+                        onClick={() => { setShowAddSubcatFor(`detail-${selectedCat.id}`); setAddInput(""); }}
+                        data-testid="button-add-subcat-detail">
+                        <Plus className="w-4 h-4" /> Add Subcategory
+                      </button>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -927,14 +1121,33 @@ export function EtsProductCategories() {
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{selectedZone.icon} {selectedZone.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">{selectedZone.description}</p>
+                  <div className="flex-1">
+                    {editingZoneId === selectedZone.id ? (
+                      <div className="flex gap-2">
+                        <Input autoFocus value={editInput} onChange={e => setEditInput(e.target.value)} className="h-8 text-base font-bold" data-testid="input-edit-zone-name"
+                          onKeyDown={e => { if (e.key === "Enter") handleSaveZoneEdit(); if (e.key === "Escape") { setEditingZoneId(null); setEditInput(""); } }} />
+                        <Button size="sm" className="h-8 bg-pink-500 hover:bg-pink-600 text-white" onClick={handleSaveZoneEdit} data-testid="button-save-zone-edit">Save</Button>
+                        <Button size="sm" variant="ghost" className="h-8" onClick={() => { setEditingZoneId(null); setEditInput(""); }}>Cancel</Button>
+                      </div>
+                    ) : (
+                      <>
+                        <CardTitle className="text-lg">{selectedZone.icon} {selectedZone.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground mt-1">{selectedZone.description}</p>
+                      </>
+                    )}
                   </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="h-8 text-xs" data-testid="button-edit-zone"><Edit2 className="w-3.5 h-3.5 mr-1" />Edit</Button>
-                    <Button size="sm" variant="outline" className="h-8 text-xs text-red-600 border-red-200" data-testid="button-delete-zone"><Trash2 className="w-3.5 h-3.5 mr-1" />Delete</Button>
-                  </div>
+                  {editingZoneId !== selectedZone.id && (
+                    <div className="flex gap-2 ml-3">
+                      <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => startEditZone(selectedZone)} data-testid="button-edit-zone">
+                        <Edit2 className="w-3.5 h-3.5 mr-1" />Edit
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-8 text-xs text-red-600 border-red-200"
+                        onClick={() => handleDeleteZone(selectedZone.id)}
+                        data-testid="button-delete-zone">
+                        <Trash2 className="w-3.5 h-3.5 mr-1" />Delete
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
@@ -952,8 +1165,11 @@ export function EtsProductCategories() {
                   {selectedZone.categories.map(cat => (
                     <div key={cat.id} className="flex items-center justify-between p-2.5 rounded-lg border hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedCatId(cat.id)} data-testid={`zone-cat-${cat.id}`}>
                       <span className="text-sm font-medium">{cat.name}</span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                         <Badge variant="outline" className="text-[10px]">{catCount(selectedZone.id, cat.id)} products</Badge>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleDeleteCategory(selectedZone.id, cat.id)} data-testid={`delete-cat-${cat.id}`}>
+                          <Trash2 className="w-3 h-3 text-red-400" />
+                        </Button>
                         <ChevronRight className="w-4 h-4 text-muted-foreground" />
                       </div>
                     </div>
