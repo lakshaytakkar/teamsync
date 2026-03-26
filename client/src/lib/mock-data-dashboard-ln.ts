@@ -65,7 +65,7 @@ export interface FormationStageDefinition {
   description: string;
 }
 
-export const FORMATION_STAGE_DEFINITIONS: FormationStageDefinition[] = [
+export const FORMATION_STAGES: FormationStageDefinition[] = [
   { id: "s1", name: "Payment & Package Selection", shortName: "Package", description: "Select your formation package and complete payment" },
   { id: "s2", name: "KYC & Document Collection", shortName: "KYC", description: "Upload passport, address proof, and identity documents" },
   { id: "s3", name: "Articles of Organization", shortName: "Articles", description: "File formation documents with the Secretary of State" },

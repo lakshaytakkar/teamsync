@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   CLIENT_PROFILE,
-  FORMATION_STAGE_DEFINITIONS,
+  FORMATION_STAGES,
   DASHBOARD_METRICS,
   COMPLIANCE_DEADLINES,
   RECENT_ACTIVITY,
@@ -72,13 +72,13 @@ export default function LnDashboard() {
               <p className="text-xs text-muted-foreground mt-0.5">Delaware LLC • Premium Package • Started Dec 12, 2025</p>
             </div>
             <Badge variant="secondary" className="text-blue-700 bg-blue-50 text-xs">
-              Stage {CURRENT_STAGE_INDEX + 1} of {FORMATION_STAGE_DEFINITIONS.length}
+              Stage {CURRENT_STAGE_INDEX + 1} of {FORMATION_STAGES.length}
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="pb-5">
           <div className="flex items-start gap-0 overflow-x-auto py-3" data-testid="formation-stepper">
-            {FORMATION_STAGE_DEFINITIONS.map((stage, idx) => {
+            {FORMATION_STAGES.map((stage, idx) => {
               const isComplete = idx < CURRENT_STAGE_INDEX;
               const isCurrent = idx === CURRENT_STAGE_INDEX;
               const isFuture = idx > CURRENT_STAGE_INDEX;
@@ -96,7 +96,7 @@ export default function LnDashboard() {
                       >
                         {isComplete ? <Check className="w-4 h-4" /> : idx + 1}
                       </div>
-                      {idx < FORMATION_STAGE_DEFINITIONS.length - 1 && (
+                      {idx < FORMATION_STAGES.length - 1 && (
                         <div
                           className={cn(
                             "h-0.5 flex-1",
@@ -120,7 +120,7 @@ export default function LnDashboard() {
             <Shield className="w-4 h-4 text-blue-500" />
             <p className="text-sm">
               <span className="font-semibold text-blue-700">Current:</span>{" "}
-              {FORMATION_STAGE_DEFINITIONS[CURRENT_STAGE_INDEX].name} — {FORMATION_STAGE_DEFINITIONS[CURRENT_STAGE_INDEX].description}
+              {FORMATION_STAGES[CURRENT_STAGE_INDEX].name} — {FORMATION_STAGES[CURRENT_STAGE_INDEX].description}
             </p>
           </div>
         </CardContent>
