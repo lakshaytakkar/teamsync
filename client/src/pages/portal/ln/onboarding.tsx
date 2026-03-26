@@ -202,7 +202,7 @@ export default function LnOnboarding() {
               { label: "Passport (Color Scan)", desc: "Front page with photo & details", required: true },
               { label: "Address Proof", desc: "Utility bill or bank statement (< 3 months old)", required: true },
               { label: "Selfie with Passport", desc: "Hold passport next to your face", required: true },
-              { label: "Additional ID (Optional)", desc: "Driver's license or national ID", required: false },
+              { label: "SSN / ITIN (Optional)", desc: "Social Security Number or Individual Taxpayer ID, if available", required: false },
             ].map((doc, i) => (
               <div key={i} className="flex items-start gap-4 p-4 rounded-lg border border-dashed border-gray-300 hover:border-blue-300 transition-colors" data-testid={`kyc-doc-row-${i}`}>
                 <div className="size-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
@@ -295,6 +295,16 @@ export default function LnOnboarding() {
                   {US_STATES_POPULAR.find((s) => s.code === formationState)?.description}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="businessPurpose">Business Purpose</Label>
+              <Input
+                id="businessPurpose"
+                placeholder="e.g. E-commerce, SaaS, Consulting, Import/Export"
+                data-testid="input-business-purpose"
+              />
+              <p className="text-xs text-muted-foreground">Briefly describe the primary activity of your company</p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">

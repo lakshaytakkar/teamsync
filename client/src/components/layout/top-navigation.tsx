@@ -221,7 +221,10 @@ function LnRoleSwitcher() {
             >
               {role.userInitials}
             </div>
-            <span className="text-xs font-semibold">{role.label}</span>
+            <div className="flex flex-col items-start leading-tight">
+              <span className="text-xs font-semibold">{role.userName.split(" ")[0]}</span>
+              <span className="text-[10px] text-muted-foreground">{role.label}</span>
+            </div>
             <ChevronDown className="size-3 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>

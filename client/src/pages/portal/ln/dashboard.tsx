@@ -165,14 +165,14 @@ export default function LnDashboard() {
               </div>
             </CardHeader>
             <CardContent className="space-y-0">
-              {RECENT_ACTIVITY.slice(0, 6).map((act, idx) => {
+              {RECENT_ACTIVITY.map((act, idx) => {
                 const Icon = ICON_MAP[act.icon] || Check;
                 return (
                   <div
                     key={act.id}
                     className={cn(
                       "flex items-start gap-3 py-3",
-                      idx < 5 && "border-b border-gray-100"
+                      idx < RECENT_ACTIVITY.length - 1 && "border-b border-gray-100"
                     )}
                     data-testid={`activity-item-${act.id}`}
                   >
@@ -269,10 +269,10 @@ export default function LnDashboard() {
             </CardHeader>
             <CardContent className="space-y-1.5">
               {[
-                { label: "View Companies", url: "/portal-ln/companies", icon: Building2 },
-                { label: "View Documents", url: "/portal-ln/documents", icon: FileText },
-                { label: "Pay Invoices", url: "/portal-ln/invoices", icon: Receipt },
-                { label: "Contact Support", url: "/portal-ln/support", icon: Phone },
+                { label: "Upload Document", url: "/portal-ln/documents", icon: FileText },
+                { label: "View Invoice", url: "/portal-ln/invoices", icon: Receipt },
+                { label: "Message Specialist", url: "/portal-ln/messages", icon: MessageSquare },
+                { label: "Track Formation", url: "/portal-ln/companies", icon: Building2 },
               ].map((link) => (
                 <Button
                   key={link.url}
