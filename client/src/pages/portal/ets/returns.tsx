@@ -98,14 +98,9 @@ export default function EtsReturns() {
   return (
     <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center">
-            <RotateCcw className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold" data-testid="text-returns-title">Returns</h1>
-            <p className="text-xs text-muted-foreground">Process product returns and refunds</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold font-heading" data-testid="text-returns-title">Returns</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">Process product returns and refunds</p>
         </div>
         <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
           <Button

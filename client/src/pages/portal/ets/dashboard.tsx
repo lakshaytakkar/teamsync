@@ -215,7 +215,7 @@ export default function EtsPortalDashboard() {
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-medium text-orange-100">Welcome back</span>
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight" data-testid="text-dashboard-title">
+              <h1 className="text-2xl md:text-3xl font-bold font-heading" data-testid="text-dashboard-title">
                 {client.name || portalEtsClient.name}'s Store
               </h1>
               <div className="flex items-center gap-3 mt-2 text-sm text-orange-100">

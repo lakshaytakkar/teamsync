@@ -111,7 +111,7 @@ export default function EtsPortalCatalog() {
     <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ets-portal-catalog">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" data-testid="text-catalog-title">Product Catalog</h1>
+          <h1 className="text-2xl font-bold font-heading" data-testid="text-catalog-title">Product Catalog</h1>
           <p className="text-muted-foreground">Browse products available for your store inventory.</p>
         </div>
         <Badge variant="outline" className="text-sm self-start md:self-auto" data-testid="badge-product-count">

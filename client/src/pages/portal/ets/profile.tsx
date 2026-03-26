@@ -64,7 +64,7 @@ export default function EtsPortalProfile() {
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ets-portal-profile">
       <div>
-        <h1 className="text-3xl font-bold" data-testid="text-profile-title">My Profile</h1>
+        <h1 className="text-2xl font-bold font-heading" data-testid="text-profile-title">My Profile</h1>
         <p className="text-muted-foreground">Your account information and store details.</p>
       </div>
 

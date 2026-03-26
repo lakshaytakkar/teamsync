@@ -41,7 +41,7 @@ export default function EtsPortalPayments() {
   return (
     <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"} data-testid="ets-portal-payments">
       <div>
-        <h1 className="text-3xl font-bold" data-testid="text-payments-title">Payments</h1>
+        <h1 className="text-2xl font-bold font-heading" data-testid="text-payments-title">Payments</h1>
         <p className="text-muted-foreground">Track your investment and download invoices.</p>
       </div>
 

@@ -77,7 +77,7 @@ export default function EtsPortalChecklist() {
   return (
     <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"} data-testid="ets-portal-checklist">
       <div>
-        <h1 className="text-3xl font-bold" data-testid="text-checklist-title">Readiness Checklist</h1>
+        <h1 className="text-2xl font-bold font-heading" data-testid="text-checklist-title">Readiness Checklist</h1>
         <p className="text-muted-foreground">Complete all items before your store launch.</p>
       </div>
 

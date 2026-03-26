@@ -62,14 +62,9 @@ export default function EtsStoreSettings() {
   return (
     <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center">
-            <Settings className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold" data-testid="text-settings-title">Store Settings</h1>
-            <p className="text-xs text-muted-foreground">Configure your store preferences</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold font-heading" data-testid="text-settings-title">Store Settings</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">Configure your store preferences</p>
         </div>
         {hasChanges && (
           <Button

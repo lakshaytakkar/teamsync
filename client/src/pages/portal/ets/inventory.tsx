@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
-  Package, Search, Filter, ArrowUpDown, ScrollText,
+  Search, Filter, ArrowUpDown, ScrollText,
   ArrowDownRight, ArrowUpRight, Minus, RotateCcw, ClipboardList,
 } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
@@ -77,14 +77,9 @@ export default function EtsInventory() {
 
   return (
     <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"}>
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-          <Package className="w-5 h-5 text-white" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold" data-testid="text-inventory-title">Inventory</h1>
-          <p className="text-xs text-muted-foreground">Stock control center</p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold font-heading" data-testid="text-inventory-title">Inventory</h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">Stock control center</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">

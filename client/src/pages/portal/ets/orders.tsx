@@ -153,7 +153,7 @@ export default function EtsPortalOrders() {
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ets-portal-orders">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight" data-testid="text-page-title">Order Tracking</h1>
+        <h1 className="text-2xl font-bold font-heading" data-testid="text-page-title">Order Tracking</h1>
         <p className="text-muted-foreground">Track the status of your inventory shipments and deliveries</p>
       </div>
 

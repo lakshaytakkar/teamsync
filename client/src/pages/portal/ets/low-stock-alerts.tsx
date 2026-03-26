@@ -3,7 +3,7 @@ import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  AlertTriangle, TrendingDown, Clock, ShoppingCart, Package,
+  TrendingDown, Clock, ShoppingCart, Package,
 } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
 import {
@@ -43,16 +43,13 @@ export default function EtsLowStockAlerts() {
 
   return (
     <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"}>
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
-          <AlertTriangle className="w-5 h-5 text-white" />
-        </div>
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold" data-testid="text-alerts-title">Low Stock Alerts</h1>
-          <p className="text-xs text-muted-foreground">Products below reorder threshold</p>
+          <h1 className="text-2xl font-bold font-heading" data-testid="text-alerts-title">Low Stock Alerts</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">Products below reorder threshold</p>
         </div>
         {alerts.length > 0 && (
-          <Badge className="ml-auto bg-red-100 text-red-700 border-0 text-xs">
+          <Badge className="bg-red-100 text-red-700 border-0 text-xs">
             {alerts.length} alert{alerts.length !== 1 ? "s" : ""}
           </Badge>
         )}

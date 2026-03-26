@@ -268,14 +268,13 @@ export default function PosBilling() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] w-full bg-gray-50 overflow-hidden print:hidden">
+    <div className="px-16 lg:px-24 py-6">
+      <div className="flex h-[calc(100vh-3.5rem-3rem)] w-full bg-gray-50 overflow-hidden print:hidden rounded-lg border">
       <div className="flex-1 flex flex-col min-w-0">
         <div className="bg-white border-b px-4 py-2 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-              <Receipt className="w-3.5 h-3.5 text-white" />
-            </div>
-            <h1 className="text-sm font-bold" data-testid="text-store-name">POS Billing</h1>
+            <Receipt className="w-4 h-4 text-orange-500" />
+            <h1 className="text-sm font-bold font-heading" data-testid="text-store-name">POS Billing</h1>
             <Badge variant="outline" className="text-[9px] border-green-300 text-green-700 bg-green-50 ml-1">Live</Badge>
           </div>
           <div className="flex items-center gap-2">
@@ -548,6 +547,7 @@ export default function PosBilling() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

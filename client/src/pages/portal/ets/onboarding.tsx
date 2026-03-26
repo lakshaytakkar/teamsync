@@ -88,7 +88,7 @@ export default function EtsPortalOnboarding() {
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ets-portal-onboarding">
       <div>
-        <h1 className="text-3xl font-bold" data-testid="text-onboarding-title">Store Onboarding</h1>
+        <h1 className="text-2xl font-bold font-heading" data-testid="text-onboarding-title">Store Onboarding</h1>
         <p className="text-muted-foreground">Complete your profile to get started with EazyToSell.</p>
       </div>
 

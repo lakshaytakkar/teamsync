@@ -3,7 +3,7 @@ import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  BarChart3, TrendingUp, ShoppingCart, Receipt, Banknote, Smartphone,
+  TrendingUp, ShoppingCart, Receipt, Banknote, Smartphone,
   CreditCard, RotateCcw,
 } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
@@ -105,14 +105,9 @@ export default function EtsDailyReport() {
   return (
     <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"}>
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
-            <BarChart3 className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold" data-testid="text-report-title">Daily Sales Report</h1>
-            <p className="text-xs text-muted-foreground">{getDateLabel(range)}</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold font-heading" data-testid="text-report-title">Daily Sales Report</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">{getDateLabel(range)}</p>
         </div>
         <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
           {(["today", "yesterday", "week", "month"] as DateRange[]).map(r => (

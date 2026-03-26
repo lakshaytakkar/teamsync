@@ -42,7 +42,7 @@ export default function EtsPortalInvoices() {
     <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"} data-testid="ets-portal-invoices">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold" data-testid="text-invoices-title">Invoices</h1>
+          <h1 className="text-2xl font-bold font-heading" data-testid="text-invoices-title">Invoices</h1>
           <p className="text-muted-foreground">View and download your invoices.</p>
         </div>
         <div className="relative w-full max-w-xs">
