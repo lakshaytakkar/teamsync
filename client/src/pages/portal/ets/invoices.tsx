@@ -1,40 +1,23 @@
-import { useQuery } from "@tanstack/react-query";
 import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
+import { Link } from "wouter";
 import { FileText, Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import {
-  portalEtsClient,
   ETS_PORTAL_COLOR,
 } from "@/lib/mock-data-portal-ets";
-
-function InvoicesSkeleton() {
-  return (
-    <div className="p-5 space-y-5">
-      <Skeleton className="h-10 w-48" />
-      <Skeleton className="h-64 rounded-xl" />
-    </div>
-  );
-}
+import { useEtsOrders } from "@/lib/ets-order-store";
 
 export default function EtsPortalInvoices() {
   const inSidebar = useEtsSidebar();
-  const clientId = portalEtsClient.id;
   const [searchTerm, setSearchTerm] = useState("");
+  const { invoices } = useEtsOrders();
 
-  const { data: invoicesData, isLoading } = useQuery<{ invoices: any[] }>({
-    queryKey: ['/api/ets-portal/client', clientId, 'invoices'],
-  });
-
-  if (isLoading) return <InvoicesSkeleton />;
-
-  const invoices = invoicesData?.invoices || [];
-  const filtered = invoices.filter((inv: any) =>
+  const filtered = invoices.filter((inv) =>
     !searchTerm || (inv.number || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -85,25 +68,27 @@ export default function EtsPortalInvoices() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((inv: any) => (
+                {filtered.map((inv) => (
                   <TableRow key={inv.id} data-testid={`row-invoice-${inv.id}`}>
-                    <TableCell className="font-medium">{inv.number || `INV-${inv.id}`}</TableCell>
+                    <TableCell className="font-medium">{inv.number}</TableCell>
                     <TableCell>{inv.date || "—"}</TableCell>
                     <TableCell>{inv.description || "Invoice"}</TableCell>
-                    <TableCell>{"\u20B9"}{(inv.amount || 0).toLocaleString("en-IN")}</TableCell>
+                    <TableCell>₹{(inv.amount || 0).toLocaleString("en-IN")}</TableCell>
                     <TableCell>
                       <Badge
                         variant={inv.status === "paid" ? "outline" : "destructive"}
                         className={inv.status === "paid" ? "bg-green-50 text-green-700 border-green-200" : ""}
                         data-testid={`status-invoice-${inv.id}`}
                       >
-                        {inv.status === "paid" ? "Paid" : inv.status || "Pending"}
+                        {inv.status === "paid" ? "Paid" : "Pending"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" data-testid={`button-download-${inv.id}`}>
-                        <Download className="h-4 w-4" />
-                      </Button>
+                      <Link href={`/portal-ets/invoices/${inv.id}`}>
+                        <Button variant="ghost" size="sm" data-testid={`button-download-${inv.id}`}>
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}

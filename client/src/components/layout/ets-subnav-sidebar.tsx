@@ -12,6 +12,7 @@ import {
   CreditCard, FileText, Users,
   Receipt, Lock, Phone, UserRound,
   Hammer, ListChecks, LayoutDashboard, Palette,
+  ShoppingCart, ListOrdered, Milestone,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -44,6 +45,9 @@ const SUB_ITEM_ICONS: Record<string, LucideIcon> = {
   "/portal-ets/orders": Package,
   "/portal-ets/profile": UserRound,
   "/portal-ets/support": Phone,
+  "/portal-ets/checkout": ShoppingCart,
+  "/portal-ets/my-orders": ListOrdered,
+  "/portal-ets/payment-milestones": Milestone,
 };
 
 const PHASE_SUBTITLES: Record<string, string> = {

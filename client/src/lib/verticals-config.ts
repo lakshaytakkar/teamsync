@@ -1449,9 +1449,11 @@ export const verticals: Vertical[] = [
         phase: "products",
         items: [
           { title: "Product Catalog", url: "/portal-ets/catalog" },
-          { title: "Orders", url: "/portal-ets/orders" },
-          { title: "Payments", url: "/portal-ets/payments" },
+          { title: "Checkout", url: "/portal-ets/checkout" },
+          { title: "My Orders", url: "/portal-ets/my-orders" },
           { title: "Invoices", url: "/portal-ets/invoices" },
+          { title: "Payments", url: "/portal-ets/payments" },
+          { title: "Pay Milestones", url: "/portal-ets/payment-milestones" },
         ],
       },
       {

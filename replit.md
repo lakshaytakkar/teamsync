@@ -1511,7 +1511,12 @@ The ETS client portal uses the same admin panel layout (TopNavigation, vertical 
 | Launch Kit | `/portal-ets/launch-kit` | `client/src/pages/portal/ets/launch-kit.tsx` |
 | Orders | `/portal-ets/orders` | `client/src/pages/portal/ets/orders.tsx` |
 | Payments | `/portal-ets/payments` | `client/src/pages/portal/ets/payments.tsx` |
+| **Checkout** | `/portal-ets/checkout` | `client/src/pages/portal/ets/checkout.tsx` |
+| **My Orders** | `/portal-ets/my-orders` | `client/src/pages/portal/ets/my-orders.tsx` |
+| **Order Detail** | `/portal-ets/my-orders/:orderId` | `client/src/pages/portal/ets/order-detail.tsx` |
 | Invoices | `/portal-ets/invoices` | `client/src/pages/portal/ets/invoices.tsx` |
+| **Invoice Detail** | `/portal-ets/invoices/:invoiceId` | `client/src/pages/portal/ets/invoice-detail.tsx` |
+| **Payment Milestones** | `/portal-ets/payment-milestones` | `client/src/pages/portal/ets/payment-milestones.tsx` |
 | Profile | `/portal-ets/profile` | `client/src/pages/portal/ets/profile.tsx` |
 | Support | `/portal-ets/support` | `client/src/pages/portal/ets/support.tsx` |
 | Checklist | `/portal-ets/checklist` | `client/src/pages/portal/ets/checklist.tsx` |
@@ -1531,6 +1536,15 @@ Point-of-sale billing screen for store cashiers. Renders within the standard por
 - **Store lock**: POS only visible when store status is "active"
 - **Haptics**: `navigator.vibrate()` on scan, add, remove, payment actions
 - **Mock data**: `client/src/lib/mock-data-pos-ets.ts` — 20 products, quick-add tiles, sale history, inventory items, stock movements, stock receives, adjustment reasons, shared state mutation functions
+
+#### Checkout, Orders & Invoices (Phase B Part 2)
+- **Shared State**: `client/src/lib/ets-order-store.tsx` — React Context (`EtsOrderProvider`) wrapping all ETS portal routes. Provides: cart (add/remove/update/clear), orders, invoices, payment milestones. Seeded with 4 sample orders in various fulfillment stages (Delivered, Shipped, Processing, Pending).
+- **Checkout** (`checkout.tsx`): Cart review table with qty controls, editable delivery address, "Pay ₹[total]" button with 2-second mock Razorpay loading, confetti success screen with order number, "Download Invoice" and "View Order Status" actions. Creates order + invoice on success, clears cart.
+- **My Orders** (`my-orders.tsx`): Table listing all orders newest-first with order#, date, item count, total, payment badge (green Paid / yellow Pending), fulfillment badge (Processing/Shipped/Delivered/etc). Navigates to order detail.
+- **Order Detail** (`order-detail.tsx`): Line items table, order summary (subtotal/delivery/total), payment details block, vertical fulfillment timeline (Order Placed → Payment Confirmed → Processing → Shipped → Out for Delivery → Delivered) with completed timestamps.
+- **Invoice Detail** (`invoice-detail.tsx`): Printable invoice with EazyToSell company header, partner billing details, items table, subtotal + GST 18% + grand total, payment reference. Print/download via `window.print()`.
+- **Payment Milestones** (`payment-milestones.tsx`): Vertical timeline of 4 milestones (Token ₹25K, Inventory Advance 40%, Pre-Shipping 50%, Final Settlement 10%) with Paid/Due/Upcoming status badges, dates, and "Pay Now" button on next due milestone using same mock Razorpay flow.
+- **Nav**: Phase B sidebar updated to include Checkout, My Orders, Pay Milestones. Invoice list shows auto-generated invoices from order store.
 
 #### Inventory Management System (`/portal-ets/inventory`, `/portal-ets/stock-receive`, `/portal-ets/stock-adjustment`, `/portal-ets/low-stock-alerts`)
 Full stock control center with 4 sub-pages under the "Inventory" nav section:

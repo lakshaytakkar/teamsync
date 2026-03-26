@@ -229,6 +229,12 @@ import EtsSetupKit from "@/pages/portal/ets/setup-kit";
 import EtsBOQBuilder from "@/pages/portal/ets/boq-builder";
 import EtsLayoutGuide from "@/pages/portal/ets/layout-guide";
 import EtsBrandKit from "@/pages/portal/ets/brand-kit";
+import EtsPortalCheckout from "@/pages/portal/ets/checkout";
+import EtsMyOrders from "@/pages/portal/ets/my-orders";
+import EtsOrderDetail from "@/pages/portal/ets/order-detail";
+import EtsInvoiceDetail from "@/pages/portal/ets/invoice-detail";
+import EtsPaymentMilestones from "@/pages/portal/ets/payment-milestones";
+import { EtsOrderProvider } from "@/lib/ets-order-store";
 import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
@@ -464,7 +470,12 @@ function Router() {
       <Route path="/portal-ets/launch-kit" component={EtsPortalLaunchKit} />
       <Route path="/portal-ets/orders" component={EtsPortalOrders} />
       <Route path="/portal-ets/payments" component={EtsPortalPayments} />
+      <Route path="/portal-ets/invoices/:invoiceId" component={EtsInvoiceDetail} />
       <Route path="/portal-ets/invoices" component={EtsPortalInvoices} />
+      <Route path="/portal-ets/checkout" component={EtsPortalCheckout} />
+      <Route path="/portal-ets/my-orders/:orderId" component={EtsOrderDetail} />
+      <Route path="/portal-ets/my-orders" component={EtsMyOrders} />
+      <Route path="/portal-ets/payment-milestones" component={EtsPaymentMilestones} />
 
       <Route path="/portal-ets/profile" component={EtsPortalProfile} />
       <Route path="/portal-ets/support" component={EtsPortalSupport} />
@@ -829,9 +840,11 @@ function App() {
                 <TopNavigation />
                 <main className="flex-1 overflow-auto">
                   {isEtsPortal ? (
-                    <EtsSubNavSidebar>
-                      <Router />
-                    </EtsSubNavSidebar>
+                    <EtsOrderProvider>
+                      <EtsSubNavSidebar>
+                        <Router />
+                      </EtsSubNavSidebar>
+                    </EtsOrderProvider>
                   ) : (
                     <Router />
                   )}
