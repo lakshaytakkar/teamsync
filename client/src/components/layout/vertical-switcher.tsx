@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { LegalNationsLogo } from "@/components/brand/legalnations-logo";
 import { EazyToSellLogo } from "@/components/brand/eazytosell-logo";
 import { Separator } from "@/components/ui/separator";
-import etsLogoLargeUrl from "@assets/eazytosell-logo-large.png";
+import etsLogoLargeUrl from "@assets/eazytosell-logo-transparent.png";
 
 const businessProducts = verticals.filter((v) => !v.isDepartment && !v.isPortal);
 const departments = verticals.filter((v) => v.isDepartment);
@@ -42,7 +42,7 @@ export function VerticalSwitcher() {
             <img
               src={etsLogoLargeUrl}
               alt="EazyToSell"
-              className="h-[76px] w-auto object-contain mix-blend-multiply -my-2"
+              className="h-[76px] w-auto object-contain -my-2"
               loading="eager"
               data-testid="img-ets-logo-large"
             />
