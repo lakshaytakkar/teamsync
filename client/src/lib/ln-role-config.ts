@@ -88,13 +88,10 @@ export const LN_ROLES: LnRoleDefinition[] = [
     defaultUrl: "/portal-ln/manager",
     navItems: [
       { title: "Dashboard", url: "/portal-ln/manager", icon: LayoutDashboard },
-      { title: "Pipeline", url: "/portal-ln/manager/pipeline", icon: Kanban },
-      { title: "KYC Review", url: "/portal-ln/manager/kyc", icon: UserPlus },
-      { title: "EIN Tracker", url: "/portal-ln/manager/ein", icon: ClipboardList },
-      { title: "Stage Actions", url: "/portal-ln/manager/actions", icon: Briefcase },
-      { title: "Client Docs", url: "/portal-ln/manager/docs", icon: FileText },
-      { title: "Tickets", url: "/portal-ln/manager/tickets", icon: Ticket },
+      { title: "Lead Inbox", url: "/portal-ln/manager/leads", icon: UserPlus },
+      { title: "All Clients", url: "/portal-ln/manager/clients", icon: Building2 },
       { title: "Tasks", url: "/portal-ln/manager/tasks", icon: CheckSquare },
+      { title: "Tickets", url: "/portal-ln/manager/tickets", icon: Ticket },
     ],
   },
   {
