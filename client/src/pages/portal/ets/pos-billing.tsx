@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ProductImage } from "@/components/product-image";
+import { QRCodeSVG } from "qrcode.react";
 import {
   POS_PRODUCTS, QUICK_ADD_PRODUCTS, POS_STORE,
   getNextReceiptNumber,
@@ -684,11 +685,20 @@ function PaymentScreen({
 
             {paymentMethod === "upi" && (
               <div className="text-center py-4 space-y-3 animate-in slide-in-from-bottom-2 duration-200">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-blue-100 flex items-center justify-center">
-                  <Smartphone className="w-8 h-8 text-blue-600" />
+                <div className="mx-auto bg-white border-2 border-blue-200 rounded-2xl p-4 w-fit shadow-sm">
+                  <QRCodeSVG
+                    value={`upi://pay?pa=${POS_STORE.upiId}&pn=${encodeURIComponent(POS_STORE.name)}&am=${total}&cu=INR`}
+                    size={160}
+                    level="M"
+                    data-testid="qr-upi-payment"
+                  />
                 </div>
-                <p className="text-sm text-gray-600">Customer pays via GPay / PhonePe / Paytm to your store QR code</p>
-                <p className="text-xs text-muted-foreground">Tap confirm once payment is received</p>
+                <p className="text-sm font-semibold text-gray-700">Scan to pay {formatINR(total)}</p>
+                <p className="text-xs text-muted-foreground">GPay / PhonePe / Paytm / any UPI app</p>
+                <div className="flex items-center justify-center gap-1.5 text-xs text-blue-600 bg-blue-50 rounded-lg py-1.5 px-3 mx-auto w-fit" data-testid="text-upi-id">
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span className="font-medium">{POS_STORE.upiId}</span>
+                </div>
               </div>
             )}
 
