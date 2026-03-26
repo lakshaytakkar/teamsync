@@ -13,7 +13,7 @@ import {
   FileText, CheckCircle2, XCircle, Circle, Search,
   ArrowRight, Activity, Star, Banknote, Gavel, ShieldCheck,
   Package, ClipboardList, Plus, Eye, X, Send,
-  CalendarDays, StickyNote, RefreshCcw, AlertCircle,
+  StickyNote, RefreshCcw, AlertCircle, MessageSquare, User,
 } from "lucide-react";
 import {
   MANAGER_CLIENTS, MANAGER_ALL_LEADS, MANAGER_TEAM,
@@ -47,15 +47,17 @@ const TICKET_STATUS_COLORS: Record<string, string> = {
   "resolved": "border-green-300 text-green-700 bg-green-50",
 };
 
-function StageTracker({ client, onTabChange }: { client: ManagerClient; onTabChange: (tab: ClientTabId) => void }) {
+const TODAY = "2026-03-26";
+
+function StageTracker({ stage, onTabChange }: { stage: number; onTabChange: (tab: ClientTabId) => void }) {
   const tabForStage: Record<number, ClientTabId> = { 2: "documents", 3: "llc", 4: "ein", 5: "boi", 6: "banking", 7: "tasks" };
   return (
     <div className="space-y-1">
       {FORMATION_STAGES.map((s, idx) => {
         const stageNum = idx + 1;
         const Icon = STAGE_ICONS[idx];
-        const isDone = client.stage > stageNum;
-        const isCurrent = client.stage === stageNum;
+        const isDone = stage > stageNum;
+        const isCurrent = stage === stageNum;
         const tab = tabForStage[stageNum];
         return (
           <div
@@ -89,18 +91,18 @@ export default function LnManagerPortal() {
   const [quickAssign, setQuickAssign] = useState<Record<string, string>>({});
 
   const activeFormations = MANAGER_CLIENTS.filter(c => c.stage < 7).length;
-  const unassignedLeads = MANAGER_ALL_LEADS.filter(l => l.stage !== "Converted").length;
-  const today = "2026-03-26";
-  const tasksDueToday = MANAGER_CLIENTS.flatMap(c => c.tasks).filter(t => !t.done && t.due <= today).length;
+  // truly unassigned = no assignedTo team member set (sales role), stage not Converted
+  const unassignedLeads = MANAGER_ALL_LEADS.filter(l => l.stage !== "Converted" && l.assignedTo === "sales").length;
+  const tasksDueToday = MANAGER_CLIENTS.flatMap(c => c.tasks).filter(t => !t.done && t.due <= TODAY).length;
   const openTickets = MANAGER_CLIENTS.flatMap(c => c.tickets).filter(t => t.status !== "resolved").length;
 
   const actionNeeded = MANAGER_CLIENTS.filter(c => {
     const stalled = c.daysInStage > 7 && c.stage < 7;
-    const overdueTasks = c.tasks.some(t => !t.done && t.due <= today);
+    const overdueTasks = c.tasks.some(t => !t.done && t.due <= TODAY);
     return stalled || overdueTasks;
   });
 
-  const leadsNeedingAssign = MANAGER_ALL_LEADS.filter(l => l.stage !== "Converted").slice(0, 5);
+  const leadsNeedingAssign = MANAGER_ALL_LEADS.filter(l => l.stage !== "Converted" && l.assignedTo === "sales").slice(0, 5);
 
   const recentActivity = MANAGER_CLIENTS
     .flatMap(c => c.activityLog.map(a => ({ ...a, company: c.companyName, clientId: c.id })))
@@ -156,7 +158,7 @@ export default function LnManagerPortal() {
               </p>
             ) : actionNeeded.map((c) => {
               const stalled = c.daysInStage > 7 && c.stage < 7;
-              const overdueTasks = c.tasks.filter(t => !t.done && t.due <= today);
+              const overdueTasks = c.tasks.filter(t => !t.done && t.due <= TODAY);
               return (
                 <div
                   key={c.id}
@@ -177,7 +179,7 @@ export default function LnManagerPortal() {
                       )}
                       {overdueTasks.length > 0 && (
                         <Badge variant="outline" className="text-[10px] border-red-300 text-red-700 bg-red-50">
-                          <AlertCircle className="w-3 h-3 mr-1" />{overdueTasks.length} overdue task{overdueTasks.length > 1 ? "s" : ""}
+                          <AlertCircle className="w-3 h-3 mr-1" />{overdueTasks.length} overdue
                         </Badge>
                       )}
                     </div>
@@ -200,7 +202,9 @@ export default function LnManagerPortal() {
             </div>
           </CardHeader>
           <CardContent className="pt-0 space-y-2">
-            {leadsNeedingAssign.map((lead) => (
+            {leadsNeedingAssign.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-2">No unassigned leads.</p>
+            ) : leadsNeedingAssign.map((lead) => (
               <div key={lead.id} className="p-2.5 rounded-xl bg-muted/30 flex items-center gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">{lead.name}</p>
@@ -266,11 +270,15 @@ export function LnManagerLeads() {
   const [packageFilter, setPackageFilter] = useState("all");
 
   const sources = [...new Set(MANAGER_ALL_LEADS.map(l => l.source))];
+  const packages = ["Basic", "Standard", "Premium"];
+
+  // Derive package from value
+  const getPackage = (value: number) => value <= 399 ? "Basic" : value <= 799 ? "Standard" : "Premium";
 
   const getAssignStatus = (lead: typeof MANAGER_ALL_LEADS[number]): "unassigned" | "assigned" | "converted" => {
     if (lead.stage === "Converted" || converted.has(lead.id)) return "converted";
-    if (assignedTo[lead.id]) return "assigned";
-    return lead.assignedTo === "manager" ? "assigned" : "unassigned";
+    if (assignedTo[lead.id] || lead.assignedTo === "manager") return "assigned";
+    return "unassigned";
   };
 
   const filtered = MANAGER_ALL_LEADS.filter(lead => {
@@ -279,7 +287,8 @@ export function LnManagerLeads() {
     const assignStatus = getAssignStatus(lead);
     const matchStatus = statusFilter === "all" || assignStatus === statusFilter;
     const matchSource = sourceFilter === "all" || lead.source === sourceFilter;
-    return matchSearch && matchStatus && matchSource;
+    const matchPackage = packageFilter === "all" || getPackage(lead.value) === packageFilter;
+    return matchSearch && matchStatus && matchSource && matchPackage;
   });
 
   const counts = {
@@ -308,7 +317,16 @@ export function LnManagerLeads() {
             {s.charAt(0).toUpperCase() + s.slice(1)} <span className="text-xs ml-1 opacity-70">({counts[s]})</span>
           </button>
         ))}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <Select value={packageFilter} onValueChange={setPackageFilter}>
+            <SelectTrigger className="h-8 text-xs w-32" data-testid="select-package-filter">
+              <SelectValue placeholder="Package" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Packages</SelectItem>
+              {packages.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+            </SelectContent>
+          </Select>
           <Select value={sourceFilter} onValueChange={setSourceFilter}>
             <SelectTrigger className="h-8 text-xs w-32" data-testid="select-source-filter">
               <SelectValue placeholder="Source" />
@@ -334,7 +352,7 @@ export function LnManagerLeads() {
                   <th className="text-left px-4 py-3 font-medium">Lead</th>
                   <th className="text-left px-4 py-3 font-medium">Company & State</th>
                   <th className="text-left px-4 py-3 font-medium">Source</th>
-                  <th className="text-left px-4 py-3 font-medium">Value</th>
+                  <th className="text-left px-4 py-3 font-medium">Package</th>
                   <th className="text-left px-4 py-3 font-medium">Follow Up</th>
                   <th className="text-left px-4 py-3 font-medium">Status</th>
                   <th className="text-left px-4 py-3 font-medium">Assigned To</th>
@@ -344,6 +362,7 @@ export function LnManagerLeads() {
               <tbody>
                 {filtered.map(lead => {
                   const assignStatus = getAssignStatus(lead);
+                  const pkg = getPackage(lead.value);
                   return (
                     <tr key={lead.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors" data-testid={`lead-row-${lead.id}`}>
                       <td className="px-4 py-3">
@@ -360,7 +379,11 @@ export function LnManagerLeads() {
                         <p className="text-xs">{lead.state}</p>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">{lead.source}</td>
-                      <td className="px-4 py-3 font-medium">${lead.value.toLocaleString()}</td>
+                      <td className="px-4 py-3">
+                        <Badge variant="outline" className={`text-[10px] ${pkg === "Premium" ? "border-purple-300 text-purple-700 bg-purple-50" : pkg === "Standard" ? "border-sky-300 text-sky-700 bg-sky-50" : "border-gray-200 text-gray-500"}`}>
+                          {pkg} · ${lead.value.toLocaleString()}
+                        </Badge>
+                      </td>
                       <td className="px-4 py-3">
                         <span className={`text-xs ${lead.followUp === "Today" ? "text-red-600 font-medium" : lead.followUp === "Tomorrow" ? "text-amber-600" : "text-muted-foreground"}`}>
                           {lead.followUp}
@@ -372,7 +395,7 @@ export function LnManagerLeads() {
                           assignStatus === "assigned" ? "border-sky-300 text-sky-700 bg-sky-50" :
                           "border-gray-200 text-gray-500"
                         }`}>
-                          {assignStatus === "converted" ? "Converted" : assignStatus === "assigned" ? `Assigned` : "Unassigned"}
+                          {assignStatus === "converted" ? "Converted" : assignStatus === "assigned" ? "Assigned" : "Unassigned"}
                         </Badge>
                       </td>
                       <td className="px-4 py-3">
@@ -526,24 +549,34 @@ const CLIENT_TABS = [
 ] as const;
 type ClientTabId = typeof CLIENT_TABS[number]["id"];
 
+interface TicketReply { id: string; from: string; content: string; time: string; isManager: boolean; }
+
 export function LnManagerClientDetail() {
   const [, params] = useRoute("/portal-ln/manager/client/:id");
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<ClientTabId>("overview");
+  const [clientStage, setClientStage] = useState<number | null>(null);
 
   const clientId = params?.id;
-  const [clients, setClients] = useState(MANAGER_CLIENTS);
-  const client = clients.find(c => c.id === clientId);
+  const clientBase = MANAGER_CLIENTS.find(c => c.id === clientId);
 
   const [docStates, setDocStates] = useState<Record<string, ManagerClientDoc["status"]>>({});
+  const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
+  const [rejectInputs, setRejectInputs] = useState<Record<string, string>>({});
+  const [showRejectInput, setShowRejectInput] = useState<Record<string, boolean>>({});
   const [taskStates, setTaskStates] = useState<Record<string, boolean>>({});
   const [ticketStatuses, setTicketStatuses] = useState<Record<string, ManagerTicket["status"]>>({});
+  const [ticketAssignees, setTicketAssignees] = useState<Record<string, string>>({});
+  const [ticketReplies, setTicketReplies] = useState<Record<string, TicketReply[]>>({});
+  const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
+  const [openTicketId, setOpenTicketId] = useState<string | null>(null);
   const [extraDocs, setExtraDocs] = useState<ManagerClientDoc[]>([]);
   const [reqDocName, setReqDocName] = useState("");
   const [showReqDoc, setShowReqDoc] = useState(false);
 
   const [articleState, setArticleState] = useState<string | undefined>(undefined);
   const [oaState, setOaState] = useState<string | undefined>(undefined);
+  const [articlesConfirmed, setArticlesConfirmed] = useState(false);
 
   const [einMethodSel, setEinMethodSel] = useState("");
   const [einDateSel, setEinDateSel] = useState("");
@@ -553,6 +586,7 @@ export function LnManagerClientDetail() {
 
   const [boiStatus, setBoiStatus] = useState<string | undefined>(undefined);
   const [boiFiledDate, setBoiFiledDate] = useState("");
+  const [boiConfirmNum, setBoiConfirmNum] = useState("");
   const [showAddOwner, setShowAddOwner] = useState(false);
   const [ownerDraft, setOwnerDraft] = useState({ name: "", ownership: "", dob: "", address: "", passportNum: "" });
   const [extraOwners, setExtraOwners] = useState<ManagerBOIOwner[]>([]);
@@ -574,10 +608,11 @@ export function LnManagerClientDetail() {
   const [newTicketSubject, setNewTicketSubject] = useState("");
   const [newTicketPriority, setNewTicketPriority] = useState<"high" | "medium" | "low">("medium");
   const [newTicketNotes, setNewTicketNotes] = useState("");
+  const [newTicketAssignee, setNewTicketAssignee] = useState("");
   const [showNewTicket, setShowNewTicket] = useState(false);
   const [extraTickets, setExtraTickets] = useState<ManagerTicket[]>([]);
 
-  if (!client) {
+  if (!clientBase) {
     return (
       <div className="px-16 lg:px-24 py-12 text-center">
         <p className="text-muted-foreground">Client not found.</p>
@@ -585,6 +620,9 @@ export function LnManagerClientDetail() {
       </div>
     );
   }
+
+  const client = clientBase;
+  const currentStage = clientStage ?? client.stage;
 
   const getDocStatus = (doc: ManagerClientDoc) => docStates[doc.id] ?? doc.status;
   const getTaskDone = (task: ManagerTask) => taskStates[task.id] ?? task.done;
@@ -602,13 +640,48 @@ export function LnManagerClientDetail() {
   const effectiveStripeStatus = stripeStatus ?? client.stripeStatus;
   const allOwners = [...client.boiOwners, ...extraOwners];
 
+  const advanceStage = () => {
+    if (currentStage < 7) setClientStage(currentStage + 1);
+  };
+
+  const STAGE_COMPLETE_LABELS: Record<number, string> = {
+    1: "Mark Package Received & Payment Confirmed",
+    2: "Mark KYC Complete",
+    3: "Mark Articles Filed & Approved",
+    4: "Mark EIN Received",
+    5: "Mark BOI Filed with FinCEN",
+    6: "Mark Banking Setup Complete",
+    7: "Mark Handover Complete",
+  };
+
+  function StageCompleteBar({ stageNum, requiredTab }: { stageNum: number; requiredTab: ClientTabId }) {
+    if (currentStage !== stageNum) return null;
+    return (
+      <div className="p-3 rounded-xl border border-sky-200 bg-sky-50/60 flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2 text-sm text-sky-700">
+          <CheckCircle2 className="w-4 h-4 text-sky-500 flex-shrink-0" />
+          <span>Complete all required actions, then mark this stage done to advance the tracker.</span>
+        </div>
+        <Button
+          size="sm"
+          className="bg-sky-500 hover:bg-sky-600 text-white h-8 flex-shrink-0 gap-1.5"
+          onClick={advanceStage}
+          data-testid={`btn-mark-stage-complete-${stageNum}`}
+        >
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          {STAGE_COMPLETE_LABELS[stageNum] ?? "Mark Stage Complete"}
+        </Button>
+      </div>
+    );
+  }
+
   function renderOverview() {
     return (
       <div className="space-y-4">
         <div className="grid sm:grid-cols-2 gap-4">
           <Card className="border shadow-none">
-            <CardContent className="p-4 space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client Info</p>
+            <CardContent className="p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Client Info</p>
               {[["Company", client.companyName], ["Entity", client.entityType], ["Client", client.clientName], ["Email", client.email], ["Phone", client.phone], ["State", client.state], ["Package", client.package], ["Started", client.startedAt]].map(([label, value]) => (
                 <div key={label} className="flex items-center justify-between text-sm border-b border-border/20 pb-1.5 last:border-0 last:pb-0">
                   <span className="text-muted-foreground">{label}</span>
@@ -618,16 +691,15 @@ export function LnManagerClientDetail() {
             </CardContent>
           </Card>
           <Card className="border shadow-none">
-            <CardContent className="p-4 space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Formation Status</p>
+            <CardContent className="p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Formation Status</p>
               {[
-                ["Stage", `${client.stage}/7 — ${client.stageName}`],
+                ["Stage", `${currentStage}/7 — ${FORMATION_STAGES[currentStage - 1]?.shortName ?? client.stageName}`],
                 ["Health Score", `${client.healthScore}%`],
-                ["Days in Stage", client.daysInStage === 0 ? "Complete" : `${client.daysInStage} days`],
                 ["Assigned To", client.assignedTo],
                 ["Payment", client.paymentStatus === "paid" ? `Paid — $${client.packageAmount.toLocaleString()}` : "Pending"],
                 ["KYC", client.kycStatus],
-                ["EIN", client.einNumber ?? effectiveEinStatus],
+                ["EIN", effectiveEinStatus],
                 ["BOI", effectiveBoiStatus],
                 ["Mercury", effectiveMercuryStatus],
                 ["Stripe", effectiveStripeStatus],
@@ -661,6 +733,7 @@ export function LnManagerClientDetail() {
   function renderDocuments() {
     return (
       <div className="space-y-4">
+        <StageCompleteBar stageNum={2} requiredTab="documents" />
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">{allDocs.length} document(s) on file</p>
           <Button size="sm" variant="outline" className="h-8 gap-1.5" onClick={() => setShowReqDoc(v => !v)} data-testid="btn-request-doc">
@@ -681,37 +754,58 @@ export function LnManagerClientDetail() {
         <div className="space-y-2">
           {allDocs.map(doc => {
             const status = getDocStatus(doc);
+            const showingRejectInput = showRejectInput[doc.id];
             return (
-              <div key={doc.id} className="p-3 rounded-xl border bg-card flex items-center gap-3" data-testid={`doc-${doc.id}`}>
-                <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{doc.name}</p>
-                  {doc.uploadedAt && <p className="text-xs text-muted-foreground">Uploaded {doc.uploadedAt}</p>}
-                  {doc.notes && <p className="text-xs text-amber-600 mt-0.5">{doc.notes}</p>}
+              <div key={doc.id} className="rounded-xl border bg-card" data-testid={`doc-${doc.id}`}>
+                <div className="p-3 flex items-center gap-3">
+                  <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{doc.name}</p>
+                    {doc.uploadedAt && <p className="text-xs text-muted-foreground">Uploaded {doc.uploadedAt}</p>}
+                    {rejectReasons[doc.id] && <p className="text-xs text-red-600 mt-0.5">Rejected: {rejectReasons[doc.id]}</p>}
+                    {doc.notes && !rejectReasons[doc.id] && <p className="text-xs text-amber-600 mt-0.5">{doc.notes}</p>}
+                  </div>
+                  <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${DOC_STATUS_COLORS[status]}`}>
+                    {status.replace(/-/g, " ")}
+                  </Badge>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {status !== "approved" && (
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => {
+                        setDocStates(p => ({ ...p, [doc.id]: "approved" }));
+                        setShowRejectInput(p => ({ ...p, [doc.id]: false }));
+                      }} data-testid={`btn-approve-doc-${doc.id}`} title="Approve">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {status !== "rejected" && (
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => setShowRejectInput(p => ({ ...p, [doc.id]: true }))} data-testid={`btn-reject-doc-${doc.id}`} title="Reject">
+                        <XCircle className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {status === "rejected" && (
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-amber-600 hover:bg-amber-50" onClick={() => {
+                        setDocStates(p => ({ ...p, [doc.id]: "pending-upload" }));
+                        setRejectReasons(p => { const n = { ...p }; delete n[doc.id]; return n; });
+                      }} title="Re-request">
+                        <RefreshCcw className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" title="View" data-testid={`btn-view-doc-${doc.id}`}>
+                      <Eye className="w-4 h-4 text-muted-foreground" />
+                    </Button>
+                  </div>
                 </div>
-                <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${DOC_STATUS_COLORS[status]}`}>
-                  {status.replace(/-/g, " ")}
-                </Badge>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  {status !== "approved" && (
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => setDocStates(p => ({ ...p, [doc.id]: "approved" }))} data-testid={`btn-approve-doc-${doc.id}`} title="Approve">
-                      <CheckCircle2 className="w-4 h-4" />
-                    </Button>
-                  )}
-                  {status !== "rejected" && (
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => setDocStates(p => ({ ...p, [doc.id]: "rejected" }))} data-testid={`btn-reject-doc-${doc.id}`} title="Reject">
-                      <XCircle className="w-4 h-4" />
-                    </Button>
-                  )}
-                  {status === "rejected" && (
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-amber-600 hover:bg-amber-50" onClick={() => setDocStates(p => ({ ...p, [doc.id]: "pending-upload" }))} title="Re-request">
-                      <RefreshCcw className="w-3.5 h-3.5" />
-                    </Button>
-                  )}
-                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0" title="View" data-testid={`btn-view-doc-${doc.id}`}>
-                    <Eye className="w-4 h-4 text-muted-foreground" />
-                  </Button>
-                </div>
+                {showingRejectInput && (
+                  <div className="px-3 pb-3 flex items-center gap-2">
+                    <Input value={rejectInputs[doc.id] ?? ""} onChange={e => setRejectInputs(p => ({ ...p, [doc.id]: e.target.value }))} placeholder="Reason for rejection…" className="flex-1 h-7 text-xs" data-testid={`input-reject-reason-${doc.id}`} />
+                    <Button size="sm" className="h-7 text-xs bg-red-500 hover:bg-red-600 text-white" onClick={() => {
+                      setDocStates(p => ({ ...p, [doc.id]: "rejected" }));
+                      setRejectReasons(p => ({ ...p, [doc.id]: rejectInputs[doc.id] || "Document rejected" }));
+                      setShowRejectInput(p => ({ ...p, [doc.id]: false }));
+                    }} data-testid={`btn-confirm-reject-${doc.id}`}>Reject</Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowRejectInput(p => ({ ...p, [doc.id]: false }))}>Cancel</Button>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -726,8 +820,10 @@ export function LnManagerClientDetail() {
   function renderLLC() {
     const articlesStages: Array<ManagerClient["articlesState"]> = ["not-started", "in-progress", "submitted", "approved"];
     const oaStages: Array<ManagerClient["operatingAgreement"]> = ["pending", "generated", "signed"];
+    const isComplete = effectiveArticleState === "approved" && effectiveOaState === "signed";
     return (
       <div className="space-y-4">
+        <StageCompleteBar stageNum={3} requiredTab="llc" />
         <div className="grid sm:grid-cols-2 gap-4">
           <Card className="border shadow-none">
             <CardContent className="p-4 space-y-3">
@@ -739,9 +835,15 @@ export function LnManagerClientDetail() {
                   </button>
                 ))}
               </div>
-              {client.articlesFiledDate && <p className="text-sm text-muted-foreground">Filed on {client.articlesFiledDate}</p>}
+              {client.articlesFiledDate && <p className="text-xs text-muted-foreground">Filed: {client.articlesFiledDate}</p>}
+              {effectiveArticleState === "submitted" && !articlesConfirmed && (
+                <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-between gap-2">
+                  <p className="text-xs text-amber-700">Awaiting state acceptance — stamped copy pending</p>
+                  <Button size="sm" className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white" onClick={() => { setArticleState("approved"); setArticlesConfirmed(true); }} data-testid="btn-confirm-articles">Mark Accepted</Button>
+                </div>
+              )}
               {effectiveArticleState === "approved" && (
-                <div className="flex items-center gap-2 text-sm text-green-600"><CheckCircle2 className="w-4 h-4" /> Articles approved — state accepted</div>
+                <div className="flex items-center gap-2 text-xs text-green-600"><CheckCircle2 className="w-4 h-4" /> Articles accepted — stamped copy in vault</div>
               )}
             </CardContent>
           </Card>
@@ -755,12 +857,20 @@ export function LnManagerClientDetail() {
                   </button>
                 ))}
               </div>
+              {effectiveOaState === "generated" && (
+                <div className="text-xs text-amber-600">Sent to client for review and signature</div>
+              )}
               {effectiveOaState === "signed" && (
-                <div className="flex items-center gap-2 text-sm text-green-600"><CheckCircle2 className="w-4 h-4" /> Operating Agreement signed</div>
+                <div className="flex items-center gap-2 text-xs text-green-600"><CheckCircle2 className="w-4 h-4" /> Operating Agreement signed & delivered</div>
               )}
             </CardContent>
           </Card>
         </div>
+        {isComplete && (
+          <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-sm text-green-700 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" /> LLC stage complete — Articles approved, Operating Agreement signed.
+          </div>
+        )}
         {client.llcNotes && (
           <div className="p-3 rounded-xl bg-muted/30 text-sm"><span className="font-medium">Notes: </span><span className="text-muted-foreground">{client.llcNotes}</span></div>
         )}
@@ -771,6 +881,7 @@ export function LnManagerClientDetail() {
   function renderEIN() {
     return (
       <div className="space-y-4">
+        <StageCompleteBar stageNum={4} requiredTab="ein" />
         <Card className="border shadow-none">
           <CardContent className="p-4 space-y-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">EIN Application Status</p>
@@ -782,17 +893,21 @@ export function LnManagerClientDetail() {
               ))}
             </div>
 
-            {(effectiveEinStatus === "not-started") && (
+            {effectiveEinStatus === "not-started" && (
               <div className="space-y-3 border-t pt-3">
                 <p className="text-sm font-medium">Submit SS-4 Form</p>
+                <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-700 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>IRS fax line for international applicants: <strong>(267) 941-1099</strong>. Allow 4–6 weeks for EIN assignment.</span>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-muted-foreground block mb-1">Method</label>
                     <Select value={einMethodSel} onValueChange={setEinMethodSel}>
                       <SelectTrigger className="h-8 text-xs" data-testid="select-ein-method"><SelectValue placeholder="Select method" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Fax">Fax (international)</SelectItem>
-                        <SelectItem value="Online">Online (SS-4 direct)</SelectItem>
+                        <SelectItem value="Fax">Fax — International (+1 267-941-1099)</SelectItem>
+                        <SelectItem value="Online">Online SS-4 Direct</SelectItem>
                         <SelectItem value="Mail">Mail</SelectItem>
                       </SelectContent>
                     </Select>
@@ -812,7 +927,13 @@ export function LnManagerClientDetail() {
 
             {(effectiveEinStatus === "submitted-fax" || effectiveEinStatus === "submitted-online") && (
               <div className="space-y-3 border-t pt-3">
-                <p className="text-sm font-medium">Record EIN Received</p>
+                <div className="flex items-center gap-2 text-xs">
+                  <Badge variant="outline" className="border-amber-300 text-amber-700 bg-amber-50">
+                    {effectiveEinStatus === "submitted-fax" ? "Fax" : "Online"} — Submitted {einDateSel || client.einSubmittedDate || "—"}
+                  </Badge>
+                  <span className="text-muted-foreground">Awaiting IRS response (4–6 weeks via fax)</span>
+                </div>
+                <p className="text-sm font-medium">Record EIN When Received</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-muted-foreground block mb-1">EIN Number</label>
@@ -857,6 +978,7 @@ export function LnManagerClientDetail() {
   function renderBOI() {
     return (
       <div className="space-y-4">
+        <StageCompleteBar stageNum={5} requiredTab="boi" />
         <div className="flex items-center gap-2 flex-wrap">
           {(["not-started", "pending-kyc", "in-progress", "draft-ready", "filed"] as const).map(s => (
             <button key={s} onClick={() => setBoiStatus(s)} className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${effectiveBoiStatus === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground hover:border-gray-300"}`} data-testid={`boi-state-${s}`}>
@@ -910,23 +1032,29 @@ export function LnManagerClientDetail() {
         </Card>
 
         {effectiveBoiStatus === "draft-ready" && (
-          <div className="flex items-center gap-3 p-3 rounded-xl border bg-sky-50/50">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sky-700">Ready to file with FinCEN</p>
-              <div className="flex items-center gap-2 mt-1">
-                <label className="text-xs text-muted-foreground">Filing Date:</label>
-                <Input type="date" value={boiFiledDate} onChange={e => setBoiFiledDate(e.target.value)} className="h-7 text-xs w-36" data-testid="input-boi-filed-date" />
+          <div className="p-3 rounded-xl border bg-sky-50/50 space-y-3">
+            <p className="text-sm font-medium text-sky-700">Ready to file with FinCEN BOIR system</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground">FinCEN Filing Date</label>
+                <Input type="date" value={boiFiledDate} onChange={e => setBoiFiledDate(e.target.value)} className="h-7 text-xs mt-0.5" data-testid="input-boi-filed-date" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Confirmation Number</label>
+                <Input value={boiConfirmNum} onChange={e => setBoiConfirmNum(e.target.value)} placeholder="BOIR-XXXXXXX" className="h-7 text-xs mt-0.5" data-testid="input-boi-confirm-num" />
               </div>
             </div>
-            <Button size="sm" className="bg-sky-500 hover:bg-sky-600 text-white h-8 flex-shrink-0" onClick={() => { setBoiStatus("filed"); }} data-testid="btn-file-boi">
-              <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Mark as Filed
+            <Button size="sm" className="bg-sky-500 hover:bg-sky-600 text-white h-8" onClick={() => { setBoiStatus("filed"); }} data-testid="btn-file-boi">
+              <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Mark as Filed with FinCEN
             </Button>
           </div>
         )}
 
         {effectiveBoiStatus === "filed" && (
-          <div className="flex items-center gap-2 text-sm text-green-600 p-3 rounded-xl bg-green-50">
-            <CheckCircle2 className="w-4 h-4" /> BOI filed {boiFiledDate || client.boiFiledDate || ""} · Compliant with FinCEN requirements
+          <div className="p-3 rounded-xl bg-green-50 border border-green-200 space-y-1">
+            <div className="flex items-center gap-2 text-sm text-green-700"><CheckCircle2 className="w-4 h-4" /> BOI filed with FinCEN — Compliant</div>
+            {boiFiledDate && <p className="text-xs text-muted-foreground ml-6">Filed: {boiFiledDate}</p>}
+            {boiConfirmNum && <p className="text-xs text-muted-foreground ml-6">Confirmation: {boiConfirmNum}</p>}
           </div>
         )}
 
@@ -938,25 +1066,29 @@ export function LnManagerClientDetail() {
   }
 
   function renderBanking() {
+    const allDone = effectiveMercuryStatus === "approved" && effectiveStripeStatus === "approved";
     const mercurySteps = [
-      { label: "Gather application documents (passport, EIN, articles)", done: (effectiveMercuryStatus !== "not-started") },
+      { label: "Gather docs: passport, EIN letter, articles", done: currentStage >= 4 },
       { label: "Submit Mercury online application", done: effectiveMercuryStatus === "applied" || effectiveMercuryStatus === "approved" },
-      { label: "Account approved & live", done: effectiveMercuryStatus === "approved" },
+      { label: "Account approved & account number received", done: effectiveMercuryStatus === "approved" },
+      { label: "Record account details", done: effectiveMercuryStatus === "approved" && !!mercuryAccountNum },
     ];
     const stripeSteps = [
-      { label: "EIN & business documents ready", done: effectiveEinStatus === "received" },
-      { label: "Submit Stripe business account", done: effectiveStripeStatus === "applied" || effectiveStripeStatus === "approved" },
-      { label: "Stripe account active", done: effectiveStripeStatus === "approved" },
+      { label: "EIN received & business documents ready", done: effectiveEinStatus === "received" },
+      { label: "Submit Stripe business account application", done: effectiveStripeStatus === "applied" || effectiveStripeStatus === "approved" },
+      { label: "Stripe account verified & active", done: effectiveStripeStatus === "approved" },
+      { label: "Record Stripe Account ID", done: effectiveStripeStatus === "approved" && !!stripeAccountId },
     ];
 
     return (
       <div className="space-y-4">
+        <StageCompleteBar stageNum={6} requiredTab="banking" />
         <div className="grid sm:grid-cols-2 gap-4">
           <Card className="border shadow-none">
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">Mercury Bank</p>
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-wrap">
                   {(["not-started", "applied", "approved", "rejected"] as const).map(s => (
                     <button key={s} onClick={() => setMercuryStatus(s)} className={`px-2 py-0.5 rounded text-[10px] border transition-colors ${effectiveMercuryStatus === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground"}`} data-testid={`mercury-state-${s}`}>{s.replace(/-/g, " ")}</button>
                   ))}
@@ -966,7 +1098,7 @@ export function LnManagerClientDetail() {
                 {mercurySteps.map((step, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm">
                     {step.done ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" /> : <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />}
-                    <span className={step.done ? "text-foreground" : "text-muted-foreground"}>{step.label}</span>
+                    <span className={step.done ? "text-foreground" : "text-muted-foreground text-xs"}>{step.label}</span>
                   </div>
                 ))}
               </div>
@@ -989,7 +1121,7 @@ export function LnManagerClientDetail() {
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">Stripe Payments</p>
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-wrap">
                   {(["not-started", "applied", "approved", "rejected"] as const).map(s => (
                     <button key={s} onClick={() => setStripeStatus(s)} className={`px-2 py-0.5 rounded text-[10px] border transition-colors ${effectiveStripeStatus === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground"}`} data-testid={`stripe-state-${s}`}>{s.replace(/-/g, " ")}</button>
                   ))}
@@ -999,7 +1131,7 @@ export function LnManagerClientDetail() {
                 {stripeSteps.map((step, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm">
                     {step.done ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" /> : <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />}
-                    <span className={step.done ? "text-foreground" : "text-muted-foreground"}>{step.label}</span>
+                    <span className={step.done ? "text-foreground" : "text-muted-foreground text-xs"}>{step.label}</span>
                   </div>
                 ))}
               </div>
@@ -1018,6 +1150,11 @@ export function LnManagerClientDetail() {
             </CardContent>
           </Card>
         </div>
+        {allDone && (
+          <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-sm text-green-700 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" /> Banking stage complete — Mercury {mercuryAccountNum ? `(${mercuryAccountNum})` : "approved"}, Stripe {stripeAccountId ? `(${stripeAccountId})` : "active"}
+          </div>
+        )}
         {client.bankingNotes && (
           <div className="p-3 rounded-xl bg-muted/30 text-sm"><span className="font-medium">Notes: </span><span className="text-muted-foreground">{client.bankingNotes}</span></div>
         )}
@@ -1026,9 +1163,12 @@ export function LnManagerClientDetail() {
   }
 
   function renderTasks() {
+    const openTasks = allTasks.filter(t => !getTaskDone(t));
+    const doneTasks = allTasks.filter(t => getTaskDone(t));
     return (
       <div className="space-y-4">
-        <div className="space-y-3">
+        <StageCompleteBar stageNum={7} requiredTab="tasks" />
+        <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Add Task</p>
           <div className="p-3 rounded-xl border bg-muted/20 space-y-2">
             <Input value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} placeholder="Task title…" className="h-8 text-sm" data-testid="input-task-title" />
@@ -1060,34 +1200,38 @@ export function LnManagerClientDetail() {
         </div>
 
         <div className="space-y-2">
-          {allTasks.map(task => {
-            const done = getTaskDone(task);
-            return (
-              <div key={task.id} className={`p-3 rounded-xl border flex items-start gap-3 ${done ? "bg-muted/20 border-transparent opacity-60" : "bg-card border-border/50"}`} data-testid={`task-${task.id}`}>
-                <button
-                  className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${done ? "bg-green-500 border-green-500" : "border-gray-300 hover:border-sky-400"}`}
-                  onClick={() => setTaskStates(p => ({ ...p, [task.id]: !done }))}
-                  data-testid={`btn-toggle-task-${task.id}`}
-                >
-                  {done && <CheckCircle2 className="w-3 h-3 text-white" />}
-                </button>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${done ? "line-through text-muted-foreground" : "font-medium"}`}>{task.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{task.assignedTo} · Due {task.due}</p>
-                </div>
-                <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${PRIORITY_COLORS[task.priority]}`}>{task.priority}</Badge>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Open Tasks ({openTasks.length})</p>
+          {openTasks.map(task => (
+            <div key={task.id} className="p-3 rounded-xl border bg-card flex items-start gap-3" data-testid={`task-${task.id}`}>
+              <button className="w-5 h-5 rounded border border-gray-300 hover:border-sky-400 flex items-center justify-center flex-shrink-0 mt-0.5" onClick={() => setTaskStates(p => ({ ...p, [task.id]: true }))} data-testid={`btn-toggle-task-${task.id}`} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">{task.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{task.assignedTo} · Due {task.due}</p>
               </div>
-            );
-          })}
-          {allTasks.length === 0 && <p className="text-sm text-muted-foreground py-4 text-center">No tasks yet.</p>}
+              <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${PRIORITY_COLORS[task.priority]}`}>{task.priority}</Badge>
+            </div>
+          ))}
+          {openTasks.length === 0 && <p className="text-sm text-muted-foreground py-2 text-center">No open tasks.</p>}
         </div>
+
+        {doneTasks.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Done ({doneTasks.length})</p>
+            {doneTasks.map(task => (
+              <div key={task.id} className="p-3 rounded-xl bg-muted/20 flex items-center gap-3 opacity-60" data-testid={`done-task-${task.id}`}>
+                <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm line-through text-muted-foreground">{task.title}</p>
+                </div>
+                <Button size="sm" variant="ghost" className="h-6 text-xs text-muted-foreground hover:text-foreground" onClick={() => setTaskStates(p => ({ ...p, [task.id]: false }))} data-testid={`btn-reopen-task-${task.id}`}>Reopen</Button>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5"><StickyNote className="w-3.5 h-3.5" /> Internal Notes</p>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Add internal notes about this client…" className="text-sm min-h-[100px]" data-testid="textarea-notes" />
-          {notes && (
-            <div className="p-3 rounded-xl bg-muted/30 text-sm text-muted-foreground whitespace-pre-wrap">{notes}</div>
-          )}
         </div>
       </div>
     );
@@ -1104,23 +1248,31 @@ export function LnManagerClientDetail() {
         {showNewTicket && (
           <div className="p-4 rounded-xl border bg-muted/20 space-y-3">
             <p className="text-sm font-medium">New Ticket</p>
-            <Input value={newTicketSubject} onChange={e => setNewTicketSubject(e.target.value)} placeholder="Subject…" className="h-8 text-sm" data-testid="input-ticket-subject" />
-            <div className="flex items-center gap-2">
+            <Input value={newTicketSubject} onChange={e => setNewTicketSubject(e.target.value)} placeholder="Subject *…" className="h-8 text-sm" data-testid="input-ticket-subject" />
+            <div className="grid grid-cols-2 gap-2">
               <Select value={newTicketPriority} onValueChange={v => setNewTicketPriority(v as "high" | "medium" | "low")}>
-                <SelectTrigger className="h-8 text-xs w-32" data-testid="select-new-ticket-priority"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 text-xs" data-testid="select-new-ticket-priority"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="high">High</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="low">Low</SelectItem>
                 </SelectContent>
               </Select>
+              <Select value={newTicketAssignee} onValueChange={setNewTicketAssignee}>
+                <SelectTrigger className="h-8 text-xs" data-testid="select-ticket-assignee"><SelectValue placeholder="Assign to…" /></SelectTrigger>
+                <SelectContent>
+                  {MANAGER_TEAM.map(m => <SelectItem key={m.name} value={m.name}>{m.name.split(" ")[0]}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
-            <Textarea value={newTicketNotes} onChange={e => setNewTicketNotes(e.target.value)} placeholder="Description / notes…" className="text-sm min-h-[80px]" data-testid="textarea-ticket-notes" />
+            <Textarea value={newTicketNotes} onChange={e => setNewTicketNotes(e.target.value)} placeholder="Description…" className="text-sm min-h-[60px]" data-testid="textarea-ticket-notes" />
             <div className="flex gap-2">
               <Button size="sm" className="h-8 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => {
                 if (!newTicketSubject.trim()) return;
-                setExtraTickets(prev => [...prev, { id: `et-${Date.now()}`, subject: newTicketSubject.trim(), priority: newTicketPriority, status: "open", created: "2026-03-26", lastUpdate: "2026-03-26", notes: newTicketNotes }]);
-                setNewTicketSubject(""); setNewTicketNotes(""); setShowNewTicket(false);
+                const id = `nt-${Date.now()}`;
+                setExtraTickets(prev => [...prev, { id, subject: newTicketSubject.trim(), priority: newTicketPriority, status: "open", created: TODAY, lastUpdate: TODAY, notes: newTicketNotes }]);
+                if (newTicketAssignee) setTicketAssignees(p => ({ ...p, [id]: newTicketAssignee }));
+                setNewTicketSubject(""); setNewTicketNotes(""); setNewTicketAssignee(""); setShowNewTicket(false);
               }} data-testid="btn-submit-ticket">Submit Ticket</Button>
               <Button size="sm" variant="ghost" className="h-8" onClick={() => setShowNewTicket(false)}>Cancel</Button>
             </div>
@@ -1130,27 +1282,82 @@ export function LnManagerClientDetail() {
           <p className="text-sm text-muted-foreground py-4 text-center">No tickets for this client.</p>
         ) : allTickets.map(ticket => {
           const status = getTicketStatus(ticket);
+          const assignee = ticketAssignees[ticket.id];
+          const replies = ticketReplies[ticket.id] ?? [];
+          const isOpen = openTicketId === ticket.id;
+          const replyText = replyInputs[ticket.id] ?? "";
           return (
-            <div key={ticket.id} className="p-3 rounded-xl border bg-card" data-testid={`ticket-${ticket.id}`}>
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-medium">{ticket.subject}</p>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <Badge variant="outline" className={`text-[10px] ${PRIORITY_COLORS[ticket.priority]}`}>{ticket.priority}</Badge>
-                  <Badge variant="outline" className={`text-[10px] ${TICKET_STATUS_COLORS[status]}`}>{status.replace("-", " ")}</Badge>
+            <div key={ticket.id} className="rounded-xl border bg-card" data-testid={`ticket-${ticket.id}`}>
+              <div className="p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <button className="text-sm font-medium hover:text-sky-600 transition-colors text-left" onClick={() => setOpenTicketId(isOpen ? null : ticket.id)} data-testid={`btn-expand-ticket-${ticket.id}`}>
+                      {ticket.subject}
+                    </button>
+                    {ticket.notes && <p className="text-xs text-muted-foreground mt-0.5">{ticket.notes}</p>}
+                    <div className="flex items-center gap-3 mt-1">
+                      <p className="text-xs text-muted-foreground">Created {ticket.created}</p>
+                      {assignee && <span className="text-xs text-sky-600 flex items-center gap-1"><User className="w-3 h-3" />{assignee.split(" ")[0]}</span>}
+                      <span className="text-xs text-muted-foreground flex items-center gap-1"><MessageSquare className="w-3 h-3" />{replies.length} replies</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <Badge variant="outline" className={`text-[10px] ${PRIORITY_COLORS[ticket.priority]}`}>{ticket.priority}</Badge>
+                    <Badge variant="outline" className={`text-[10px] ${TICKET_STATUS_COLORS[status]}`}>{status.replace("-", " ")}</Badge>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <Select value={status} onValueChange={v => setTicketStatuses(p => ({ ...p, [ticket.id]: v as ManagerTicket["status"] }))}>
+                    <SelectTrigger className="h-6 text-xs w-32" data-testid={`select-ticket-status-${ticket.id}`}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="open">Open</SelectItem>
+                      <SelectItem value="in-progress">In Progress</SelectItem>
+                      <SelectItem value="resolved">Resolved</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={assignee ?? ""} onValueChange={v => setTicketAssignees(p => ({ ...p, [ticket.id]: v }))}>
+                    <SelectTrigger className="h-6 text-xs w-36" data-testid={`select-ticket-assignee-${ticket.id}`}><SelectValue placeholder="Assign to…" /></SelectTrigger>
+                    <SelectContent>
+                      {MANAGER_TEAM.map(m => <SelectItem key={m.name} value={m.name}>{m.name.split(" ")[0]}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Button size="sm" variant="ghost" className="h-6 text-xs gap-1" onClick={() => setOpenTicketId(isOpen ? null : ticket.id)} data-testid={`btn-thread-${ticket.id}`}>
+                    <MessageSquare className="w-3.5 h-3.5" /> {isOpen ? "Hide" : "View"} Thread
+                  </Button>
                 </div>
               </div>
-              {ticket.notes && <p className="text-xs text-muted-foreground mt-1.5">{ticket.notes}</p>}
-              <div className="flex items-center gap-3 mt-2">
-                <p className="text-xs text-muted-foreground">Created {ticket.created} · Last update {ticket.lastUpdate}</p>
-                <Select value={status} onValueChange={v => setTicketStatuses(p => ({ ...p, [ticket.id]: v as ManagerTicket["status"] }))}>
-                  <SelectTrigger className="h-6 text-xs w-32" data-testid={`select-ticket-status-${ticket.id}`}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="resolved">Resolved</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {isOpen && (
+                <div className="border-t px-3 pb-3 space-y-3 pt-3">
+                  {replies.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No replies yet.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {replies.map(reply => (
+                        <div key={reply.id} className={`flex gap-2 ${reply.isManager ? "flex-row-reverse" : ""}`}>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${reply.isManager ? "bg-sky-100 text-sky-700" : "bg-gray-100 text-gray-600"}`}>
+                            {reply.from.split(" ").map(w => w[0]).join("").slice(0, 2)}
+                          </div>
+                          <div className={`max-w-[80%] ${reply.isManager ? "items-end" : "items-start"} flex flex-col gap-0.5`}>
+                            <p className="text-[10px] text-muted-foreground">{reply.from} · {reply.time}</p>
+                            <div className={`px-3 py-2 rounded-xl text-sm ${reply.isManager ? "bg-sky-500 text-white" : "bg-muted/50"}`}>{reply.content}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Input value={replyText} onChange={e => setReplyInputs(p => ({ ...p, [ticket.id]: e.target.value }))} placeholder="Type a reply…" className="flex-1 h-8 text-xs" data-testid={`input-ticket-reply-${ticket.id}`} />
+                    <Button size="sm" className="h-8 bg-sky-500 hover:bg-sky-600 text-white px-3" onClick={() => {
+                      if (!replyText.trim()) return;
+                      const newReply: TicketReply = { id: `r-${Date.now()}`, from: "Vikas (Manager)", content: replyText.trim(), time: "Just now", isManager: true };
+                      setTicketReplies(p => ({ ...p, [ticket.id]: [...(p[ticket.id] ?? []), newReply] }));
+                      setReplyInputs(p => ({ ...p, [ticket.id]: "" }));
+                    }} data-testid={`btn-send-reply-${ticket.id}`}>
+                      <Send className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
@@ -1176,12 +1383,12 @@ export function LnManagerClientDetail() {
             <p className="font-semibold text-sm">{client.companyName}</p>
             <p className="text-xs text-muted-foreground mt-0.5">{client.clientName} · {client.package}</p>
             <div className="flex items-center gap-2 mt-2">
-              <Progress value={(client.stage / 7) * 100} className="flex-1 h-1.5" />
-              <span className="text-xs text-muted-foreground">{client.stage}/7</span>
+              <Progress value={(currentStage / 7) * 100} className="flex-1 h-1.5" />
+              <span className="text-xs text-muted-foreground">{currentStage}/7</span>
             </div>
             <div className={`mt-1.5 text-xs font-bold ${HEALTH_COLOR(client.healthScore)}`}>Health: {client.healthScore}%</div>
           </div>
-          <StageTracker client={client} onTabChange={setActiveTab} />
+          <StageTracker stage={currentStage} onTabChange={setActiveTab} />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -1210,26 +1417,78 @@ export function LnManagerTasks() {
   const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
 
-  const allTasks = MANAGER_CLIENTS.flatMap(c => c.tasks.map(t => ({ ...t, company: c.companyName, clientId: c.id })));
+  const [showCreate, setShowCreate] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newClientId, setNewClientId] = useState("");
+  const [newAssignee, setNewAssignee] = useState("");
+  const [newDue, setNewDue] = useState("");
+  const [newPriority, setNewPriority] = useState<"high" | "medium" | "low">("medium");
+  const [extraTasks, setExtraTasks] = useState<Array<ManagerTask & { company: string; clientId: string }>>([]);
+
+  const baseTasks = MANAGER_CLIENTS.flatMap(c => c.tasks.map(t => ({ ...t, company: c.companyName, clientId: c.id })));
+  const allTasks = [...baseTasks, ...extraTasks];
 
   const filtered = allTasks.filter(t => {
-    const done = taskStates[t.id] ?? t.done;
-    if (done) return false;
     if (priorityFilter !== "all" && t.priority !== priorityFilter) return false;
     if (assigneeFilter !== "all" && t.assignedTo !== assigneeFilter) return false;
     if (clientFilter !== "all" && t.clientId !== clientFilter) return false;
     return true;
   });
 
-  const done = allTasks.filter(t => taskStates[t.id] ?? t.done);
+  const open = filtered.filter(t => !(taskStates[t.id] ?? t.done));
+  const done = filtered.filter(t => taskStates[t.id] ?? t.done);
   const assignees = [...new Set(allTasks.map(t => t.assignedTo))];
 
   return (
     <div className="px-16 lg:px-24 py-6 space-y-5" data-testid="ln-manager-tasks">
-      <div>
-        <h1 className="text-xl font-bold">Tasks</h1>
-        <p className="text-sm text-muted-foreground mt-1">{filtered.length} open · {done.length} completed</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold">Tasks</h1>
+          <p className="text-sm text-muted-foreground mt-1">{open.length} open · {done.length} done</p>
+        </div>
+        <Button size="sm" className="bg-sky-500 hover:bg-sky-600 text-white h-8 gap-1.5" onClick={() => setShowCreate(v => !v)} data-testid="btn-create-task">
+          <Plus className="w-3.5 h-3.5" /> New Task
+        </Button>
       </div>
+
+      {showCreate && (
+        <div className="p-4 rounded-xl border bg-muted/20 space-y-3">
+          <p className="text-sm font-semibold">Create Task</p>
+          <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Task title *" className="h-8 text-sm" data-testid="input-new-task-title" />
+          <div className="grid sm:grid-cols-4 gap-2">
+            <Select value={newClientId} onValueChange={setNewClientId}>
+              <SelectTrigger className="h-8 text-xs" data-testid="select-task-client"><SelectValue placeholder="Client *" /></SelectTrigger>
+              <SelectContent>
+                {MANAGER_CLIENTS.map(c => <SelectItem key={c.id} value={c.id}>{c.companyName}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={newAssignee} onValueChange={setNewAssignee}>
+              <SelectTrigger className="h-8 text-xs" data-testid="select-new-task-assignee"><SelectValue placeholder="Assignee" /></SelectTrigger>
+              <SelectContent>
+                {MANAGER_TEAM.map(m => <SelectItem key={m.name} value={m.name}>{m.name.split(" ")[0]}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Input type="date" value={newDue} onChange={e => setNewDue(e.target.value)} className="h-8 text-xs" data-testid="input-new-task-due" />
+            <Select value={newPriority} onValueChange={v => setNewPriority(v as "high" | "medium" | "low")}>
+              <SelectTrigger className="h-8 text-xs" data-testid="select-new-task-priority"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" className="h-8 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => {
+              if (!newTitle.trim() || !newClientId) return;
+              const co = MANAGER_CLIENTS.find(c => c.id === newClientId);
+              setExtraTasks(prev => [...prev, { id: `nt-${Date.now()}`, title: newTitle.trim(), assignedTo: newAssignee || "Priya Sharma", due: newDue || "2026-04-30", done: false, priority: newPriority, company: co?.companyName ?? "", clientId: newClientId }]);
+              setNewTitle(""); setNewClientId(""); setNewAssignee(""); setNewDue(""); setShowCreate(false);
+            }} data-testid="btn-save-new-task">Create Task</Button>
+            <Button size="sm" variant="ghost" className="h-8" onClick={() => setShowCreate(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-2 flex-wrap">
         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
@@ -1258,7 +1517,7 @@ export function LnManagerTasks() {
       </div>
 
       <div className="space-y-2">
-        {filtered.map(task => (
+        {open.map(task => (
           <div key={task.id} className="p-3 rounded-xl border bg-card flex items-start gap-3" data-testid={`task-row-${task.id}`}>
             <button className="w-5 h-5 rounded border border-gray-300 hover:border-sky-400 flex items-center justify-center flex-shrink-0 mt-0.5" onClick={() => setTaskStates(p => ({ ...p, [task.id]: true }))} data-testid={`btn-complete-task-${task.id}`} />
             <div className="flex-1 min-w-0">
@@ -1271,7 +1530,7 @@ export function LnManagerTasks() {
             <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${PRIORITY_COLORS[task.priority]}`}>{task.priority}</Badge>
           </div>
         ))}
-        {filtered.length === 0 && <p className="text-sm text-muted-foreground py-8 text-center">No open tasks match the filters.</p>}
+        {open.length === 0 && <p className="text-sm text-muted-foreground py-8 text-center">No open tasks match the filters.</p>}
       </div>
 
       {done.length > 0 && (
@@ -1279,12 +1538,13 @@ export function LnManagerTasks() {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Completed ({done.length})</p>
           <div className="space-y-1.5">
             {done.map(task => (
-              <div key={task.id} className="p-3 rounded-xl bg-muted/20 flex items-center gap-3 opacity-60">
+              <div key={task.id} className="p-3 rounded-xl bg-muted/20 flex items-center gap-3" data-testid={`done-task-row-${task.id}`}>
                 <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm line-through text-muted-foreground">{task.title}</p>
                   <p className="text-xs text-muted-foreground">{task.company}</p>
                 </div>
+                <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setTaskStates(p => ({ ...p, [task.id]: false }))} data-testid={`btn-reopen-task-${task.id}`}>Reopen</Button>
               </div>
             ))}
           </div>
@@ -1297,6 +1557,10 @@ export function LnManagerTasks() {
 export function LnManagerTickets() {
   const [, navigate] = useLocation();
   const [ticketStates, setTicketStates] = useState<Record<string, ManagerTicket["status"]>>({});
+  const [ticketAssignees, setTicketAssignees] = useState<Record<string, string>>({});
+  const [ticketReplies, setTicketReplies] = useState<Record<string, TicketReply[]>>({});
+  const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
+  const [openTicketId, setOpenTicketId] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
@@ -1305,6 +1569,7 @@ export function LnManagerTickets() {
   const [newPriority, setNewPriority] = useState<"high" | "medium" | "low">("medium");
   const [newNotes, setNewNotes] = useState("");
   const [newClientId, setNewClientId] = useState("");
+  const [newAssignee, setNewAssignee] = useState("");
   const [extraTickets, setExtraTickets] = useState<Array<ManagerTicket & { company: string; clientId: string }>>([]);
 
   const allTickets = [
@@ -1341,11 +1606,17 @@ export function LnManagerTickets() {
         <div className="p-4 rounded-xl border bg-muted/20 space-y-3">
           <p className="text-sm font-semibold">Create Ticket</p>
           <div className="grid sm:grid-cols-2 gap-3">
-            <Input value={newSubject} onChange={e => setNewSubject(e.target.value)} placeholder="Subject *" className="h-8 text-sm" data-testid="input-new-ticket-subject" />
+            <Input value={newSubject} onChange={e => setNewSubject(e.target.value)} placeholder="Subject *" className="h-8 text-sm col-span-2" data-testid="input-new-ticket-subject" />
             <Select value={newClientId} onValueChange={setNewClientId}>
               <SelectTrigger className="h-8 text-xs" data-testid="select-ticket-client"><SelectValue placeholder="Client *" /></SelectTrigger>
               <SelectContent>
                 {MANAGER_CLIENTS.map(c => <SelectItem key={c.id} value={c.id}>{c.companyName}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={newAssignee} onValueChange={setNewAssignee}>
+              <SelectTrigger className="h-8 text-xs" data-testid="select-ticket-assignee-new"><SelectValue placeholder="Assign to…" /></SelectTrigger>
+              <SelectContent>
+                {MANAGER_TEAM.map(m => <SelectItem key={m.name} value={m.name}>{m.name.split(" ")[0]}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={newPriority} onValueChange={v => setNewPriority(v as "high" | "medium" | "low")}>
@@ -1357,13 +1628,15 @@ export function LnManagerTickets() {
               </SelectContent>
             </Select>
           </div>
-          <Textarea value={newNotes} onChange={e => setNewNotes(e.target.value)} placeholder="Notes / description…" className="text-sm min-h-[70px]" data-testid="textarea-new-ticket-notes" />
+          <Textarea value={newNotes} onChange={e => setNewNotes(e.target.value)} placeholder="Notes / description…" className="text-sm min-h-[60px]" data-testid="textarea-new-ticket-notes" />
           <div className="flex gap-2">
             <Button size="sm" className="h-8 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => {
               if (!newSubject.trim() || !newClientId) return;
               const co = MANAGER_CLIENTS.find(c => c.id === newClientId);
-              setExtraTickets(prev => [...prev, { id: `nt-${Date.now()}`, subject: newSubject.trim(), priority: newPriority, status: "open", created: "2026-03-26", lastUpdate: "2026-03-26", notes: newNotes, company: co?.companyName ?? "", clientId: newClientId }]);
-              setNewSubject(""); setNewNotes(""); setNewClientId(""); setShowNewTicket(false);
+              const id = `nt-${Date.now()}`;
+              setExtraTickets(prev => [...prev, { id, subject: newSubject.trim(), priority: newPriority, status: "open", created: TODAY, lastUpdate: TODAY, notes: newNotes, company: co?.companyName ?? "", clientId: newClientId }]);
+              if (newAssignee) setTicketAssignees(p => ({ ...p, [id]: newAssignee }));
+              setNewSubject(""); setNewNotes(""); setNewClientId(""); setNewAssignee(""); setShowNewTicket(false);
             }} data-testid="btn-submit-new-ticket">Create Ticket</Button>
             <Button size="sm" variant="ghost" className="h-8" onClick={() => setShowNewTicket(false)}>Cancel</Button>
           </div>
@@ -1398,42 +1671,94 @@ export function LnManagerTickets() {
         </Select>
       </div>
 
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-0">
-          {filtered.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">No tickets match the current filters.</p>
-          ) : (
-            <div className="divide-y">
-              {filtered.map(ticket => {
-                const status = getStatus(ticket);
-                return (
-                  <div key={ticket.id} className="p-4 flex items-start gap-4" data-testid={`ticket-row-${ticket.id}`}>
+      <div className="space-y-3">
+        {filtered.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-8 text-center">No tickets match the current filters.</p>
+        ) : filtered.map(ticket => {
+          const status = getStatus(ticket);
+          const assignee = ticketAssignees[ticket.id];
+          const replies = ticketReplies[ticket.id] ?? [];
+          const isOpen = openTicketId === ticket.id;
+          const replyText = replyInputs[ticket.id] ?? "";
+          return (
+            <Card key={ticket.id} className="border-0 shadow-sm" data-testid={`ticket-row-${ticket.id}`}>
+              <CardContent className="p-0">
+                <div className="p-4">
+                  <div className="flex items-start gap-4">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{ticket.subject}</p>
+                      <button className="text-sm font-medium text-left hover:text-sky-600 transition-colors" onClick={() => setOpenTicketId(isOpen ? null : ticket.id)} data-testid={`btn-expand-ticket-${ticket.id}`}>
+                        {ticket.subject}
+                      </button>
                       <div className="flex items-center gap-3 mt-1">
                         <button className="text-xs text-sky-600 hover:underline" onClick={() => navigate(`/portal-ln/manager/client/${ticket.clientId}`)} data-testid={`link-ticket-client-${ticket.clientId}`}>{ticket.company}</button>
                         <span className="text-xs text-muted-foreground">Created {ticket.created}</span>
+                        {assignee && <span className="text-xs text-sky-600 flex items-center gap-1"><User className="w-3 h-3" />{assignee.split(" ")[0]}</span>}
+                        <span className="text-xs text-muted-foreground flex items-center gap-1"><MessageSquare className="w-3 h-3" />{replies.length}</span>
                       </div>
                       {ticket.notes && <p className="text-xs text-muted-foreground mt-1">{ticket.notes}</p>}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <Badge variant="outline" className={`text-[10px] ${PRIORITY_COLORS[ticket.priority]}`}>{ticket.priority}</Badge>
-                      <Select value={status} onValueChange={v => setTicketStates(p => ({ ...p, [ticket.id]: v as ManagerTicket["status"] }))}>
-                        <SelectTrigger className="h-7 text-xs w-32" data-testid={`select-ticket-${ticket.id}`}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="open">Open</SelectItem>
-                          <SelectItem value="in-progress">In Progress</SelectItem>
-                          <SelectItem value="resolved">Resolved</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Badge variant="outline" className={`text-[10px] ${TICKET_STATUS_COLORS[status]}`}>{status.replace("-", " ")}</Badge>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Select value={status} onValueChange={v => setTicketStates(p => ({ ...p, [ticket.id]: v as ManagerTicket["status"] }))}>
+                      <SelectTrigger className="h-7 text-xs w-32" data-testid={`select-ticket-${ticket.id}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="open">Open</SelectItem>
+                        <SelectItem value="in-progress">In Progress</SelectItem>
+                        <SelectItem value="resolved">Resolved</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={assignee ?? ""} onValueChange={v => setTicketAssignees(p => ({ ...p, [ticket.id]: v }))}>
+                      <SelectTrigger className="h-7 text-xs w-36" data-testid={`select-ticket-assign-${ticket.id}`}><SelectValue placeholder="Assign to…" /></SelectTrigger>
+                      <SelectContent>
+                        {MANAGER_TEAM.map(m => <SelectItem key={m.name} value={m.name}>{m.name.split(" ")[0]}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => setOpenTicketId(isOpen ? null : ticket.id)}>
+                      <MessageSquare className="w-3.5 h-3.5" /> {isOpen ? "Hide" : "Thread"} ({replies.length})
+                    </Button>
+                  </div>
+                </div>
+                {isOpen && (
+                  <div className="border-t px-4 pb-4 space-y-3 pt-3">
+                    {replies.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">No replies yet.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {replies.map(reply => (
+                          <div key={reply.id} className={`flex gap-2 ${reply.isManager ? "flex-row-reverse" : ""}`}>
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${reply.isManager ? "bg-sky-100 text-sky-700" : "bg-gray-100 text-gray-600"}`}>
+                              {reply.from.split(" ").map((w: string) => w[0]).join("").slice(0, 2)}
+                            </div>
+                            <div className={`max-w-[80%] flex flex-col gap-0.5 ${reply.isManager ? "items-end" : "items-start"}`}>
+                              <p className="text-[10px] text-muted-foreground">{reply.from} · {reply.time}</p>
+                              <div className={`px-3 py-2 rounded-xl text-sm ${reply.isManager ? "bg-sky-500 text-white" : "bg-muted/50"}`}>{reply.content}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Input value={replyText} onChange={e => setReplyInputs(p => ({ ...p, [ticket.id]: e.target.value }))} placeholder="Type a reply…" className="flex-1 h-8 text-xs" data-testid={`input-ticket-reply-${ticket.id}`} />
+                      <Button size="sm" className="h-8 bg-sky-500 hover:bg-sky-600 text-white px-3" onClick={() => {
+                        if (!replyText.trim()) return;
+                        const newReply: TicketReply = { id: `r-${Date.now()}`, from: "Vikas (Manager)", content: replyText.trim(), time: "Just now", isManager: true };
+                        setTicketReplies(p => ({ ...p, [ticket.id]: [...(p[ticket.id] ?? []), newReply] }));
+                        setReplyInputs(p => ({ ...p, [ticket.id]: "" }));
+                      }} data-testid={`btn-send-reply-${ticket.id}`}>
+                        <Send className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }
