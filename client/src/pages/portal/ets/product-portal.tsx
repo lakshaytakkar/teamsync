@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Package, Tag, CreditCard, CheckSquare, Upload, AlertTriangle, Search,
-  Edit2, ChevronRight, ChevronDown, Plus, Trash2, LayoutDashboard,
+  Tag, CreditCard, CheckSquare, Upload, AlertTriangle, Search,
+  Edit2, ChevronRight, ChevronDown, Plus, Trash2,
   ArrowUpDown, ArrowLeft, ShieldAlert, ShieldCheck, ShieldX, XCircle,
 } from "lucide-react";
 import {
@@ -19,12 +19,24 @@ import {
   type CatalogProduct, type ProductSource, type ProductComplianceStatus,
   type ProductLabelStatus, type ProductTag, type CatalogZone,
 } from "@/lib/mock-data-product-catalog";
-import { calculateEtsPrices } from "@/lib/mock-data-ets";
-import { ETS_CATEGORY_DUTY_RATES } from "@/lib/mock-data-ets";
+import { calculateEtsPrices, ETS_CATEGORY_DUTY_RATES } from "@/lib/mock-data-ets";
+
+const ZONE_NAME: Record<string, string> = {};
+const CAT_NAME: Record<string, string> = {};
+const SUBCAT_NAME: Record<string, string> = {};
+for (const z of CATALOG_ZONE_TREE) {
+  ZONE_NAME[z.id] = z.name;
+  for (const c of z.categories) {
+    CAT_NAME[c.id] = c.name;
+    for (const sc of c.subcategories) {
+      SUBCAT_NAME[sc.id] = sc.name;
+    }
+  }
+}
 
 function ComplianceBadge({ status }: { status?: ProductComplianceStatus }) {
   if (!status) return <Badge variant="outline" className="text-xs border-gray-300 text-gray-500">Unset</Badge>;
-  if (status === "safe") return <Badge className="text-xs bg-green-100 text-green-700 border-green-200">{status === "safe" ? "Safe" : status}</Badge>;
+  if (status === "safe") return <Badge className="text-xs bg-green-100 text-green-700 border-green-200">Safe</Badge>;
   if (status === "restricted") return <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-200">Restricted</Badge>;
   return <Badge className="text-xs bg-red-100 text-red-700 border-red-200">Banned</Badge>;
 }
@@ -212,9 +224,9 @@ export function EtsProductList() {
           p.name.toLowerCase().includes(q) ||
           (p.barcode || "").includes(q) ||
           (p.id || "").toLowerCase().includes(q) ||
-          (p.zoneId || "").includes(q) ||
-          (p.categoryId || "").includes(q) ||
-          (p.subcategoryId || "").includes(q)
+          (p.zoneId ? ZONE_NAME[p.zoneId] ?? "" : "").toLowerCase().includes(q) ||
+          (p.categoryId ? CAT_NAME[p.categoryId] ?? "" : "").toLowerCase().includes(q) ||
+          (p.subcategoryId ? SUBCAT_NAME[p.subcategoryId] ?? "" : "").toLowerCase().includes(q)
       );
     }
     if (filterSource !== "all") list = list.filter((p) => p.source === filterSource);
@@ -378,9 +390,13 @@ export function EtsProductList() {
                   <p className="font-medium text-sm truncate" title={p.name}>{p.name}</p>
                   <p className="text-[10px] text-muted-foreground">{p.id}</p>
                 </td>
-                <td className="px-3 py-2.5 text-xs text-muted-foreground whitespace-nowrap">
+                <td className="px-3 py-2.5 text-xs whitespace-nowrap">
                   {p.zoneId ? (
-                    <span>{CATALOG_ZONE_TREE.find(z => z.id === p.zoneId)?.name ?? p.zoneId}</span>
+                    <div>
+                      <p className="text-muted-foreground">{ZONE_NAME[p.zoneId] ?? p.zoneId}</p>
+                      {p.categoryId && <p className="font-medium text-foreground">{CAT_NAME[p.categoryId]}</p>}
+                      {p.subcategoryId && <p className="text-[10px] text-muted-foreground/70">{SUBCAT_NAME[p.subcategoryId]}</p>}
+                    </div>
                   ) : <span className="text-amber-500">—</span>}
                 </td>
                 <td className="px-3 py-2.5"><SourceBadge source={p.source} /></td>
@@ -457,9 +473,6 @@ function EtsProductFormPage({ product, onBack }: { product: CatalogProduct | nul
 
   const pricing = useMemo(() => {
     if (!isChina || !formData.exwPriceYuan) return null;
-    const zoneCategory = CATALOG_ZONE_TREE
-      .flatMap(z => z.categories.map(c => ({ ...c, zoneId: z.id })))
-      .find(c => c.id === formData.categoryId);
     const dutyKey = Object.keys(ETS_CATEGORY_DUTY_RATES).find(k =>
       formData.categoryId?.includes(k) || formData.zoneId?.includes(k)
     );
@@ -817,6 +830,7 @@ export function EtsProductCategories() {
 
   const [editingZoneId, setEditingZoneId] = useState<string | null>(null);
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  const [editingSubcatId, setEditingSubcatId] = useState<string | null>(null);
   const [editInput, setEditInput] = useState("");
 
   function toggleExpand(id: string) {
@@ -864,6 +878,19 @@ export function EtsProductCategories() {
     })));
     setShowAddSubcatFor(null);
     setAddInput("");
+  }
+
+  function handleSaveSubcatEdit(catId: string) {
+    if (!editInput.trim() || !editingSubcatId) return;
+    setZones(prev => prev.map(z => ({
+      ...z,
+      categories: z.categories.map(c => c.id === catId
+        ? { ...c, subcategories: c.subcategories.map(sc => sc.id === editingSubcatId ? { ...sc, name: editInput.trim() } : sc) }
+        : c
+      ),
+    })));
+    setEditingSubcatId(null);
+    setEditInput("");
   }
 
   function handleSaveZoneEdit() {
@@ -1073,16 +1100,33 @@ export function EtsProductCategories() {
                   <p className="text-sm font-semibold mb-2">Subcategories</p>
                   <div className="space-y-1.5">
                     {selectedCat.subcategories.map(sc => (
-                      <div key={sc.id} className="flex items-center justify-between p-2.5 rounded-lg border" data-testid={`detail-subcat-${sc.id}`}>
-                        <span className="text-sm">{sc.name}</span>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-[10px]">{subcatCount(sc.id)} products</Badge>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                            onClick={() => handleDeleteSubcategory(selectedCat.id, sc.id)}
-                            data-testid={`delete-subcat-${sc.id}`}>
-                            <Trash2 className="w-3 h-3 text-red-500" />
-                          </Button>
-                        </div>
+                      <div key={sc.id} className="p-2.5 rounded-lg border" data-testid={`detail-subcat-${sc.id}`}>
+                        {editingSubcatId === sc.id ? (
+                          <div className="flex gap-2">
+                            <Input autoFocus value={editInput} onChange={e => setEditInput(e.target.value)} className="h-7 text-sm flex-1"
+                              data-testid={`input-edit-subcat-${sc.id}`}
+                              onKeyDown={e => { if (e.key === "Enter") handleSaveSubcatEdit(selectedCat.id); if (e.key === "Escape") { setEditingSubcatId(null); setEditInput(""); } }} />
+                            <Button size="sm" className="h-7 bg-pink-500 hover:bg-pink-600 text-white text-xs" onClick={() => handleSaveSubcatEdit(selectedCat.id)} data-testid={`save-subcat-edit-${sc.id}`}>Save</Button>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setEditingSubcatId(null); setEditInput(""); }}>Cancel</Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm">{sc.name}</span>
+                            <div className="flex items-center gap-1">
+                              <Badge variant="outline" className="text-[10px]">{subcatCount(sc.id)} products</Badge>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
+                                onClick={() => { setEditingSubcatId(sc.id); setEditInput(sc.name); setEditingZoneId(null); setEditingCatId(null); }}
+                                data-testid={`edit-subcat-${sc.id}`}>
+                                <Edit2 className="w-3 h-3 text-muted-foreground" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
+                                onClick={() => handleDeleteSubcategory(selectedCat.id, sc.id)}
+                                data-testid={`delete-subcat-${sc.id}`}>
+                                <Trash2 className="w-3 h-3 text-red-500" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                     {showAddSubcatFor === `detail-${selectedCat.id}` ? (
