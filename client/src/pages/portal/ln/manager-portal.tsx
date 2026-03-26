@@ -88,6 +88,7 @@ function StageTracker({ stage, onTabChange }: { stage: number; onTabChange: (tab
 export default function LnManagerPortal() {
   const [, navigate] = useLocation();
   const [quickAssign, setQuickAssign] = useState<Record<string, string>>({});
+  const [quickAssignDone, setQuickAssignDone] = useState<Set<string>>(new Set());
 
   const activeFormations = MANAGER_CLIENTS.filter(c => c.stage < 7).length;
   // truly unassigned = no assignedTo team member set (sales role), stage not Converted
@@ -203,27 +204,47 @@ export default function LnManagerPortal() {
           <CardContent className="pt-0 space-y-2">
             {leadsNeedingAssign.length === 0 ? (
               <p className="text-sm text-muted-foreground py-2">No unassigned leads.</p>
-            ) : leadsNeedingAssign.map((lead) => (
-              <div key={lead.id} className="p-2.5 rounded-xl bg-muted/30 flex items-center gap-2">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{lead.name}</p>
-                  <p className="text-xs text-muted-foreground">{lead.company} · ${lead.value.toLocaleString()}</p>
+            ) : leadsNeedingAssign.map((lead) => {
+              const isAssigned = !!quickAssign[lead.id];
+              return (
+                <div key={lead.id} className={`p-2.5 rounded-xl bg-muted/30 flex items-center gap-2 transition-opacity ${quickAssignDone.has(lead.id) ? "opacity-40" : ""}`}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{lead.name}</p>
+                    <p className="text-xs text-muted-foreground">{lead.company} · ${lead.value.toLocaleString()}</p>
+                  </div>
+                  {quickAssignDone.has(lead.id) ? (
+                    <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> {quickAssign[lead.id]?.split(" ")[0]}</span>
+                  ) : (
+                    <>
+                      <Select
+                        value={quickAssign[lead.id] ?? ""}
+                        onValueChange={v => setQuickAssign(prev => ({ ...prev, [lead.id]: v }))}
+                      >
+                        <SelectTrigger className="h-7 text-xs w-28" data-testid={`quick-assign-${lead.id}`}>
+                          <SelectValue placeholder="Assign…" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {MANAGER_TEAM.map(m => (
+                            <SelectItem key={m.name} value={m.name}>{m.name.split(" ")[0]}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        className="h-7 text-xs bg-sky-500 hover:bg-sky-600 text-white flex-shrink-0"
+                        disabled={!isAssigned}
+                        onClick={() => {
+                          if (quickAssign[lead.id]) setQuickAssignDone(prev => new Set([...prev, lead.id]));
+                        }}
+                        data-testid={`btn-assign-${lead.id}`}
+                      >
+                        Assign
+                      </Button>
+                    </>
+                  )}
                 </div>
-                <Select
-                  value={quickAssign[lead.id] ?? ""}
-                  onValueChange={v => setQuickAssign(prev => ({ ...prev, [lead.id]: v }))}
-                >
-                  <SelectTrigger className="h-7 text-xs w-32" data-testid={`quick-assign-${lead.id}`}>
-                    <SelectValue placeholder="Assign…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MANAGER_TEAM.map(m => (
-                      <SelectItem key={m.name} value={m.name}>{m.name.split(" ")[0]}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
       </div>
@@ -263,6 +284,7 @@ export default function LnManagerPortal() {
 export function LnManagerLeads() {
   const [assignedTo, setAssignedTo] = useState<Record<string, string>>({});
   const [converted, setConverted] = useState<Set<string>>(new Set());
+  const [clientCreated, setClientCreated] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "unassigned" | "assigned" | "converted">("all");
   const [sourceFilter, setSourceFilter] = useState("all");
@@ -350,11 +372,11 @@ export function LnManagerLeads() {
                 <tr className="border-b text-xs text-muted-foreground">
                   <th className="text-left px-4 py-3 font-medium">Lead</th>
                   <th className="text-left px-4 py-3 font-medium">Company & State</th>
-                  <th className="text-left px-4 py-3 font-medium">Source</th>
+                  <th className="text-left px-4 py-3 font-medium">Current Stage</th>
                   <th className="text-left px-4 py-3 font-medium">Package</th>
                   <th className="text-left px-4 py-3 font-medium">Follow Up</th>
-                  <th className="text-left px-4 py-3 font-medium">Status</th>
-                  <th className="text-left px-4 py-3 font-medium">Assigned To</th>
+                  <th className="text-left px-4 py-3 font-medium">Assign Status</th>
+                  <th className="text-left px-4 py-3 font-medium">Assign To</th>
                   <th className="text-left px-4 py-3 font-medium"></th>
                 </tr>
               </thead>
@@ -362,8 +384,17 @@ export function LnManagerLeads() {
                 {filtered.map(lead => {
                   const assignStatus = getAssignStatus(lead);
                   const pkg = getPackage(lead.value);
+                  const isConverted = lead.stage === "Converted" || converted.has(lead.id);
+                  const isClientCreated = clientCreated.has(lead.id);
+                  const STAGE_COLORS: Record<string, string> = {
+                    "New Lead": "border-gray-200 text-gray-500",
+                    "Qualified": "border-sky-300 text-sky-700 bg-sky-50",
+                    "Proposal Sent": "border-amber-300 text-amber-700 bg-amber-50",
+                    "Converted": "border-green-300 text-green-700 bg-green-50",
+                  };
+                  const stageColor = STAGE_COLORS[lead.stage] ?? "border-gray-200 text-gray-500";
                   return (
-                    <tr key={lead.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors" data-testid={`lead-row-${lead.id}`}>
+                    <tr key={lead.id} className={`border-b last:border-0 hover:bg-muted/20 transition-colors ${isClientCreated ? "opacity-60" : ""}`} data-testid={`lead-row-${lead.id}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           {lead.hot && <Star className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />}
@@ -377,7 +408,11 @@ export function LnManagerLeads() {
                         <p>{lead.company}</p>
                         <p className="text-xs">{lead.state}</p>
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{lead.source}</td>
+                      <td className="px-4 py-3">
+                        <Badge variant="outline" className={`text-[10px] ${stageColor}`} data-testid={`badge-stage-${lead.id}`}>
+                          {lead.stage}
+                        </Badge>
+                      </td>
                       <td className="px-4 py-3">
                         <Badge variant="outline" className={`text-[10px] ${pkg === "Premium" ? "border-purple-300 text-purple-700 bg-purple-50" : pkg === "Standard" ? "border-sky-300 text-sky-700 bg-sky-50" : "border-gray-200 text-gray-500"}`}>
                           {pkg} · ${lead.value.toLocaleString()}
@@ -398,34 +433,56 @@ export function LnManagerLeads() {
                         </Badge>
                       </td>
                       <td className="px-4 py-3">
-                        {assignStatus !== "converted" ? (
-                          <Select
-                            value={assignedTo[lead.id] ?? (lead.assignedTo === "manager" ? "Neha Gupta" : "")}
-                            onValueChange={v => setAssignedTo(prev => ({ ...prev, [lead.id]: v }))}
-                          >
-                            <SelectTrigger className="h-7 text-xs w-36" data-testid={`select-assign-${lead.id}`}>
-                              <SelectValue placeholder="Assign to…" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {MANAGER_TEAM.map(m => (
-                                <SelectItem key={m.name} value={m.name}>{m.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                        {!isClientCreated ? (
+                          <div className="flex items-center gap-1.5">
+                            <Select
+                              value={assignedTo[lead.id] ?? (lead.assignedTo === "manager" ? "Neha Gupta" : "")}
+                              onValueChange={v => setAssignedTo(prev => ({ ...prev, [lead.id]: v }))}
+                            >
+                              <SelectTrigger className="h-7 text-xs w-32" data-testid={`select-assign-${lead.id}`}>
+                                <SelectValue placeholder="Assign to…" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {MANAGER_TEAM.map(m => (
+                                  <SelectItem key={m.name} value={m.name}>{m.name.split(" ")[0]}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {(assignedTo[lead.id] || lead.assignedTo === "manager") && assignStatus !== "converted" && (
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-sky-600 hover:bg-sky-50 flex-shrink-0" title="Confirm assignment" onClick={() => setAssignedTo(prev => ({ ...prev, [lead.id]: assignedTo[lead.id] ?? "Neha Gupta" }))} data-testid={`btn-confirm-assign-${lead.id}`}>
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                              </Button>
+                            )}
+                          </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
+                          <span className="text-xs text-muted-foreground">Client created</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        {assignStatus !== "converted" && (
+                        {isConverted && !isClientCreated && (
+                          <Button
+                            size="sm"
+                            className="h-7 text-xs bg-sky-500 hover:bg-sky-600 text-white gap-1"
+                            onClick={() => setClientCreated(prev => new Set([...prev, lead.id]))}
+                            data-testid={`btn-create-client-${lead.id}`}
+                          >
+                            <UserPlus className="w-3 h-3" /> Convert to Client
+                          </Button>
+                        )}
+                        {!isConverted && (
                           <Button
                             size="sm" variant="outline"
-                            className="h-7 text-xs border-green-300 text-green-700 hover:bg-green-50"
+                            className="h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-50 gap-1"
                             onClick={() => setConverted(prev => new Set([...prev, lead.id]))}
-                            data-testid={`btn-convert-${lead.id}`}
+                            data-testid={`btn-mark-converted-${lead.id}`}
                           >
-                            Convert
+                            Mark Converted
                           </Button>
+                        )}
+                        {isClientCreated && (
+                          <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" /> Client Created
+                          </span>
                         )}
                       </td>
                     </tr>
