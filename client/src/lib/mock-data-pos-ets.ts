@@ -46,6 +46,7 @@ export const POS_STORE = {
   phone: "+91 98110 45678",
   status: "active" as "active" | "setup" | "inactive",
   ownerName: "Rajesh Kumar",
+  upiId: "eazytosell@upi",
 };
 
 export const PRODUCT_IMAGES: Record<string, string> = {
