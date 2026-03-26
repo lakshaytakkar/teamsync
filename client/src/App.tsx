@@ -206,7 +206,7 @@ import LnClientPlaceholder from "@/pages/portal/ln/client-placeholder";
 import LnCompanies from "@/pages/portal/ln/companies";
 import LnAdminPortal, { LnAdminPipeline, LnAdminTeam, LnAdminRevenue, LnAdminSettings, LnAdminTraining } from "@/pages/portal/ln/admin-portal";
 import LnFormationPortal, { LnFormationPipeline, LnFormationKYC, LnFormationEIN, LnFormationActions, LnFormationClientDetail } from "@/pages/portal/ln/formation-portal";
-import LnManagerPortal, { LnManagerPipeline, LnManagerKYC, LnManagerEIN, LnManagerActions, LnManagerDocs, LnManagerTickets, LnManagerTasks, LnManagerLeads, LnManagerClients, LnManagerClientDetail } from "@/pages/portal/ln/manager-portal";
+import LnManagerPortal, { LnManagerTickets, LnManagerTasks, LnManagerLeads, LnManagerClients, LnManagerClientDetail } from "@/pages/portal/ln/manager-portal";
 import LnOpsPortal, { LnOpsClients, LnOpsTickets, LnOpsDocs } from "@/pages/portal/ln/ops-portal";
 import LnSalesPortal, { LnSalesPipeline, LnSalesBookings, LnSalesScripts, LnSalesAssets, LnSalesPaymentLinks } from "@/pages/portal/ln/sales-portal";
 import LnCompliancePortal, { LnComplianceBOI, LnComplianceAnnual, LnComplianceAlerts, LnComplianceDetail } from "@/pages/portal/ln/compliance-portal";
@@ -581,11 +581,6 @@ function Router() {
       <Route path="/portal-ln/manager/client/:id" component={LnManagerClientDetail} />
       <Route path="/portal-ln/manager/leads" component={LnManagerLeads} />
       <Route path="/portal-ln/manager/clients" component={LnManagerClients} />
-      <Route path="/portal-ln/manager/pipeline" component={LnManagerPipeline} />
-      <Route path="/portal-ln/manager/kyc" component={LnManagerKYC} />
-      <Route path="/portal-ln/manager/ein" component={LnManagerEIN} />
-      <Route path="/portal-ln/manager/actions" component={LnManagerActions} />
-      <Route path="/portal-ln/manager/docs" component={LnManagerDocs} />
       <Route path="/portal-ln/manager/tickets" component={LnManagerTickets} />
       <Route path="/portal-ln/manager/tasks" component={LnManagerTasks} />
       <Route path="/portal-ln/manager" component={LnManagerPortal} />
