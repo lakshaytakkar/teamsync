@@ -597,6 +597,7 @@ export function LnManagerClientDetail() {
   const [mercuryApprovedDate, setMercuryApprovedDate] = useState("");
   const [stripeAccountId, setStripeAccountId] = useState("");
   const [stripeApprovedDate, setStripeApprovedDate] = useState("");
+  const [stageGuardError, setStageGuardError] = useState<string | null>(null);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskAssignee, setNewTaskAssignee] = useState("");
@@ -640,8 +641,40 @@ export function LnManagerClientDetail() {
   const effectiveStripeStatus = stripeStatus ?? client.stripeStatus;
   const allOwners = [...client.boiOwners, ...extraOwners];
 
-  const advanceStage = () => {
-    if (currentStage < 7) setClientStage(currentStage + 1);
+  const effectiveMercuryAccountNum = mercuryAccountNum || client.mercuryAccountNum || "";
+  const effectiveStripeAccountId = stripeAccountId || client.stripeAccountId || "";
+  const effectiveBoiConfirmNum = boiConfirmNum || client.boiConfirmationNum || "";
+  const effectiveBoiFiledDate = boiFiledDate || client.boiFiledDate || "";
+  const effectiveEinNumber = einNumberInput || client.einNumber || "";
+
+  const stageRequirements: Record<number, Array<{ label: string; met: boolean }>> = {
+    1: [
+      { label: "Payment confirmed", met: client.paymentStatus === "paid" },
+    ],
+    2: [
+      { label: "All KYC documents approved", met: allDocs.length > 0 && allDocs.every(d => (docStates[d.id] ?? d.status) === "approved") },
+    ],
+    3: [
+      { label: "Articles approved by state", met: effectiveArticleState === "approved" },
+      { label: "Operating Agreement signed", met: effectiveOaState === "signed" },
+    ],
+    4: [
+      { label: "EIN received from IRS", met: effectiveEinStatus === "received" },
+      { label: "EIN number on record", met: !!effectiveEinNumber },
+    ],
+    5: [
+      { label: "BOI filed with FinCEN", met: effectiveBoiStatus === "filed" },
+      { label: "FinCEN confirmation number recorded", met: !!effectiveBoiConfirmNum },
+    ],
+    6: [
+      { label: "Mercury account approved", met: effectiveMercuryStatus === "approved" },
+      { label: "Mercury account number recorded", met: !!effectiveMercuryAccountNum },
+      { label: "Stripe account approved", met: effectiveStripeStatus === "approved" },
+      { label: "Stripe Account ID recorded", met: !!effectiveStripeAccountId },
+    ],
+    7: [
+      { label: "Mercury & Stripe banking active", met: effectiveMercuryStatus === "approved" && effectiveStripeStatus === "approved" },
+    ],
   };
 
   const STAGE_COMPLETE_LABELS: Record<number, string> = {
@@ -654,23 +687,46 @@ export function LnManagerClientDetail() {
     7: "Mark Handover Complete",
   };
 
-  function StageCompleteBar({ stageNum, requiredTab }: { stageNum: number; requiredTab: ClientTabId }) {
+  const advanceStage = () => {
+    const reqs = stageRequirements[currentStage] ?? [];
+    const unmet = reqs.filter(r => !r.met);
+    if (unmet.length > 0) {
+      setStageGuardError(`Complete before advancing: ${unmet.map(r => r.label).join(", ")}`);
+      setTimeout(() => setStageGuardError(null), 4000);
+      return;
+    }
+    setStageGuardError(null);
+    if (currentStage < 7) setClientStage(currentStage + 1);
+  };
+
+  function StageCompleteBar({ stageNum }: { stageNum: number }) {
     if (currentStage !== stageNum) return null;
+    const reqs = stageRequirements[stageNum] ?? [];
+    const allMet = reqs.every(r => r.met);
     return (
-      <div className="p-3 rounded-xl border border-sky-200 bg-sky-50/60 flex items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2 text-sm text-sky-700">
-          <CheckCircle2 className="w-4 h-4 text-sky-500 flex-shrink-0" />
-          <span>Complete all required actions, then mark this stage done to advance the tracker.</span>
+      <div className={`p-3 rounded-xl border mb-4 space-y-2 ${allMet ? "border-green-200 bg-green-50/60" : "border-amber-200 bg-amber-50/60"}`}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="space-y-1">
+            {reqs.map(r => (
+              <div key={r.label} className="flex items-center gap-1.5 text-xs">
+                {r.met ? <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" /> : <Circle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />}
+                <span className={r.met ? "text-green-700" : "text-amber-700"}>{r.label}</span>
+              </div>
+            ))}
+          </div>
+          <Button
+            size="sm"
+            className={`h-8 flex-shrink-0 gap-1.5 text-white ${allMet ? "bg-green-600 hover:bg-green-700" : "bg-amber-500 hover:bg-amber-600"}`}
+            onClick={advanceStage}
+            data-testid={`btn-mark-stage-complete-${stageNum}`}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            {STAGE_COMPLETE_LABELS[stageNum] ?? "Mark Stage Complete"}
+          </Button>
         </div>
-        <Button
-          size="sm"
-          className="bg-sky-500 hover:bg-sky-600 text-white h-8 flex-shrink-0 gap-1.5"
-          onClick={advanceStage}
-          data-testid={`btn-mark-stage-complete-${stageNum}`}
-        >
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          {STAGE_COMPLETE_LABELS[stageNum] ?? "Mark Stage Complete"}
-        </Button>
+        {stageGuardError && (
+          <p className="text-xs text-red-600 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{stageGuardError}</p>
+        )}
       </div>
     );
   }
@@ -733,7 +789,7 @@ export function LnManagerClientDetail() {
   function renderDocuments() {
     return (
       <div className="space-y-4">
-        <StageCompleteBar stageNum={2} requiredTab="documents" />
+        <StageCompleteBar stageNum={2} />
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">{allDocs.length} document(s) on file</p>
           <Button size="sm" variant="outline" className="h-8 gap-1.5" onClick={() => setShowReqDoc(v => !v)} data-testid="btn-request-doc">
@@ -823,7 +879,7 @@ export function LnManagerClientDetail() {
     const isComplete = effectiveArticleState === "approved" && effectiveOaState === "signed";
     return (
       <div className="space-y-4">
-        <StageCompleteBar stageNum={3} requiredTab="llc" />
+        <StageCompleteBar stageNum={3} />
         <div className="grid sm:grid-cols-2 gap-4">
           <Card className="border shadow-none">
             <CardContent className="p-4 space-y-3">
@@ -881,7 +937,7 @@ export function LnManagerClientDetail() {
   function renderEIN() {
     return (
       <div className="space-y-4">
-        <StageCompleteBar stageNum={4} requiredTab="ein" />
+        <StageCompleteBar stageNum={4} />
         <Card className="border shadow-none">
           <CardContent className="p-4 space-y-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">EIN Application Status</p>
@@ -978,7 +1034,7 @@ export function LnManagerClientDetail() {
   function renderBOI() {
     return (
       <div className="space-y-4">
-        <StageCompleteBar stageNum={5} requiredTab="boi" />
+        <StageCompleteBar stageNum={5} />
         <div className="flex items-center gap-2 flex-wrap">
           {(["not-started", "pending-kyc", "in-progress", "draft-ready", "filed"] as const).map(s => (
             <button key={s} onClick={() => setBoiStatus(s)} className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${effectiveBoiStatus === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground hover:border-gray-300"}`} data-testid={`boi-state-${s}`}>
@@ -1053,8 +1109,8 @@ export function LnManagerClientDetail() {
         {effectiveBoiStatus === "filed" && (
           <div className="p-3 rounded-xl bg-green-50 border border-green-200 space-y-1">
             <div className="flex items-center gap-2 text-sm text-green-700"><CheckCircle2 className="w-4 h-4" /> BOI filed with FinCEN — Compliant</div>
-            {boiFiledDate && <p className="text-xs text-muted-foreground ml-6">Filed: {boiFiledDate}</p>}
-            {boiConfirmNum && <p className="text-xs text-muted-foreground ml-6">Confirmation: {boiConfirmNum}</p>}
+            {effectiveBoiFiledDate && <p className="text-xs text-muted-foreground ml-6">Filed: {effectiveBoiFiledDate}</p>}
+            {effectiveBoiConfirmNum && <p className="text-xs text-green-700 font-medium ml-6">FinCEN Confirmation: {effectiveBoiConfirmNum}</p>}
           </div>
         )}
 
@@ -1071,18 +1127,18 @@ export function LnManagerClientDetail() {
       { label: "Gather docs: passport, EIN letter, articles", done: currentStage >= 4 },
       { label: "Submit Mercury online application", done: effectiveMercuryStatus === "applied" || effectiveMercuryStatus === "approved" },
       { label: "Account approved & account number received", done: effectiveMercuryStatus === "approved" },
-      { label: "Record account details", done: effectiveMercuryStatus === "approved" && !!mercuryAccountNum },
+      { label: "Record account details", done: effectiveMercuryStatus === "approved" && !!effectiveMercuryAccountNum },
     ];
     const stripeSteps = [
       { label: "EIN received & business documents ready", done: effectiveEinStatus === "received" },
       { label: "Submit Stripe business account application", done: effectiveStripeStatus === "applied" || effectiveStripeStatus === "approved" },
       { label: "Stripe account verified & active", done: effectiveStripeStatus === "approved" },
-      { label: "Record Stripe Account ID", done: effectiveStripeStatus === "approved" && !!stripeAccountId },
+      { label: "Record Stripe Account ID", done: effectiveStripeStatus === "approved" && !!effectiveStripeAccountId },
     ];
 
     return (
       <div className="space-y-4">
-        <StageCompleteBar stageNum={6} requiredTab="banking" />
+        <StageCompleteBar stageNum={6} />
         <div className="grid sm:grid-cols-2 gap-4">
           <Card className="border shadow-none">
             <CardContent className="p-4 space-y-3">
@@ -1106,11 +1162,11 @@ export function LnManagerClientDetail() {
                 <div className="space-y-2 border-t pt-2">
                   <div>
                     <label className="text-xs text-muted-foreground">Account Number</label>
-                    <Input value={mercuryAccountNum} onChange={e => setMercuryAccountNum(e.target.value)} placeholder="e.g. 1234567890" className="h-7 text-xs mt-0.5" data-testid="input-mercury-account" />
+                    <Input value={mercuryAccountNum || client.mercuryAccountNum || ""} onChange={e => setMercuryAccountNum(e.target.value)} placeholder="e.g. 1234567890" className="h-7 text-xs mt-0.5" data-testid="input-mercury-account" />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground">Approved Date</label>
-                    <Input type="date" value={mercuryApprovedDate} onChange={e => setMercuryApprovedDate(e.target.value)} className="h-7 text-xs mt-0.5" data-testid="input-mercury-date" />
+                    <Input type="date" value={mercuryApprovedDate || client.mercuryApprovedDate || ""} onChange={e => setMercuryApprovedDate(e.target.value)} className="h-7 text-xs mt-0.5" data-testid="input-mercury-date" />
                   </div>
                 </div>
               )}
@@ -1139,11 +1195,11 @@ export function LnManagerClientDetail() {
                 <div className="space-y-2 border-t pt-2">
                   <div>
                     <label className="text-xs text-muted-foreground">Stripe Account ID</label>
-                    <Input value={stripeAccountId} onChange={e => setStripeAccountId(e.target.value)} placeholder="acct_XXXXXXXX" className="h-7 text-xs mt-0.5" data-testid="input-stripe-account" />
+                    <Input value={stripeAccountId || client.stripeAccountId || ""} onChange={e => setStripeAccountId(e.target.value)} placeholder="acct_XXXXXXXX" className="h-7 text-xs mt-0.5" data-testid="input-stripe-account" />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground">Approved Date</label>
-                    <Input type="date" value={stripeApprovedDate} onChange={e => setStripeApprovedDate(e.target.value)} className="h-7 text-xs mt-0.5" data-testid="input-stripe-date" />
+                    <Input type="date" value={stripeApprovedDate || client.stripeApprovedDate || ""} onChange={e => setStripeApprovedDate(e.target.value)} className="h-7 text-xs mt-0.5" data-testid="input-stripe-date" />
                   </div>
                 </div>
               )}
@@ -1152,7 +1208,7 @@ export function LnManagerClientDetail() {
         </div>
         {allDone && (
           <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-sm text-green-700 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" /> Banking stage complete — Mercury {mercuryAccountNum ? `(${mercuryAccountNum})` : "approved"}, Stripe {stripeAccountId ? `(${stripeAccountId})` : "active"}
+            <CheckCircle2 className="w-4 h-4" /> Banking stage complete — Mercury {effectiveMercuryAccountNum ? `(${effectiveMercuryAccountNum})` : "approved"}, Stripe {effectiveStripeAccountId ? `(${effectiveStripeAccountId})` : "active"}
           </div>
         )}
         {client.bankingNotes && (
@@ -1167,7 +1223,7 @@ export function LnManagerClientDetail() {
     const doneTasks = allTasks.filter(t => getTaskDone(t));
     return (
       <div className="space-y-4">
-        <StageCompleteBar stageNum={7} requiredTab="tasks" />
+        <StageCompleteBar stageNum={7} />
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Add Task</p>
           <div className="p-3 rounded-xl border bg-muted/20 space-y-2">
@@ -1416,6 +1472,8 @@ export function LnManagerTasks() {
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("open");
+  const [dueDateFilter, setDueDateFilter] = useState("");
 
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -1428,23 +1486,31 @@ export function LnManagerTasks() {
   const baseTasks = MANAGER_CLIENTS.flatMap(c => c.tasks.map(t => ({ ...t, company: c.companyName, clientId: c.id })));
   const allTasks = [...baseTasks, ...extraTasks];
 
+  const isTaskDone = (t: typeof allTasks[number]) => taskStates[t.id] ?? t.done;
+
   const filtered = allTasks.filter(t => {
     if (priorityFilter !== "all" && t.priority !== priorityFilter) return false;
     if (assigneeFilter !== "all" && t.assignedTo !== assigneeFilter) return false;
     if (clientFilter !== "all" && t.clientId !== clientFilter) return false;
+    if (statusFilter === "open" && isTaskDone(t)) return false;
+    if (statusFilter === "done" && !isTaskDone(t)) return false;
+    if (dueDateFilter && t.due > dueDateFilter) return false;
     return true;
   });
 
-  const open = filtered.filter(t => !(taskStates[t.id] ?? t.done));
-  const done = filtered.filter(t => taskStates[t.id] ?? t.done);
+  const open = filtered.filter(t => !isTaskDone(t));
+  const done = filtered.filter(t => isTaskDone(t));
   const assignees = [...new Set(allTasks.map(t => t.assignedTo))];
+
+  const totalOpen = allTasks.filter(t => !isTaskDone(t)).length;
+  const totalDone = allTasks.filter(t => isTaskDone(t)).length;
 
   return (
     <div className="px-16 lg:px-24 py-6 space-y-5" data-testid="ln-manager-tasks">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Tasks</h1>
-          <p className="text-sm text-muted-foreground mt-1">{open.length} open · {done.length} done</p>
+          <p className="text-sm text-muted-foreground mt-1">{totalOpen} open · {totalDone} done</p>
         </div>
         <Button size="sm" className="bg-sky-500 hover:bg-sky-600 text-white h-8 gap-1.5" onClick={() => setShowCreate(v => !v)} data-testid="btn-create-task">
           <Plus className="w-3.5 h-3.5" /> New Task
@@ -1491,6 +1557,14 @@ export function LnManagerTasks() {
       )}
 
       <div className="flex items-center gap-2 flex-wrap">
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="h-8 text-xs w-32" data-testid="select-status-filter"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="open">To Do / Open</SelectItem>
+            <SelectItem value="done">Done</SelectItem>
+          </SelectContent>
+        </Select>
         <Select value={priorityFilter} onValueChange={setPriorityFilter}>
           <SelectTrigger className="h-8 text-xs w-32" data-testid="select-priority-filter"><SelectValue placeholder="Priority" /></SelectTrigger>
           <SelectContent>
@@ -1514,6 +1588,11 @@ export function LnManagerTasks() {
             {MANAGER_CLIENTS.map(c => <SelectItem key={c.id} value={c.id}>{c.companyName}</SelectItem>)}
           </SelectContent>
         </Select>
+        <div className="flex items-center gap-1.5">
+          <label className="text-xs text-muted-foreground whitespace-nowrap">Due by</label>
+          <Input type="date" value={dueDateFilter} onChange={e => setDueDateFilter(e.target.value)} className="h-8 text-xs w-36" data-testid="input-due-date-filter" />
+          {dueDateFilter && <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setDueDateFilter("")}><X className="w-3.5 h-3.5" /></Button>}
+        </div>
       </div>
 
       <div className="space-y-2">
