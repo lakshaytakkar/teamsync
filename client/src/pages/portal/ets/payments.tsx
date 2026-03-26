@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import {
 
 function PaymentsSkeleton() {
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
+    <div className="p-5 space-y-5">
       <Skeleton className="h-10 w-48" />
       <div className="grid md:grid-cols-3 gap-6">
         {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-xl" />)}
@@ -23,6 +24,7 @@ function PaymentsSkeleton() {
 }
 
 export default function EtsPortalPayments() {
+  const inSidebar = useEtsSidebar();
   const clientId = portalEtsClient.id;
 
   const { data: paymentsData, isLoading } = useQuery<{ payments: any[] }>({
@@ -37,7 +39,7 @@ export default function EtsPortalPayments() {
   const nextDue = payments.find((p: any) => p.status === "pending" || p.status === "overdue");
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-payments">
+    <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"} data-testid="ets-portal-payments">
       <div>
         <h1 className="text-3xl font-bold" data-testid="text-payments-title">Payments</h1>
         <p className="text-muted-foreground">Track your investment and download invoices.</p>

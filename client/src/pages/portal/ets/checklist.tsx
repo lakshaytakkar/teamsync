@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { apiRequest } from "@/lib/queryClient";
 import {
   CheckCircle2, Circle, Store, Package,
@@ -38,7 +39,7 @@ const categoryIcons: Record<string, typeof Store> = {
 
 function ChecklistSkeleton() {
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
+    <div className="p-5 space-y-5">
       <Skeleton className="h-10 w-48" />
       <Skeleton className="h-20 rounded-xl" />
       {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 rounded-xl" />)}
@@ -47,6 +48,7 @@ function ChecklistSkeleton() {
 }
 
 export default function EtsPortalChecklist() {
+  const inSidebar = useEtsSidebar();
   const clientId = portalEtsClient.id;
   const queryClient = useQueryClient();
 
@@ -73,7 +75,7 @@ export default function EtsPortalChecklist() {
   const categories = [...new Set(checklist.map((c: any) => c.category || "General"))];
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-checklist">
+    <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"} data-testid="ets-portal-checklist">
       <div>
         <h1 className="text-3xl font-bold" data-testid="text-checklist-title">Readiness Checklist</h1>
         <p className="text-muted-foreground">Complete all items before your store launch.</p>

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { MapPin, Phone, Building, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +18,7 @@ const PIPELINE_STAGES = [
 
 function StoreSkeleton() {
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
+    <div className="p-5 space-y-5">
       <Skeleton className="h-10 w-48" />
       <div className="grid md:grid-cols-3 gap-8">
         <Skeleton className="h-80 rounded-xl" />
@@ -28,6 +29,7 @@ function StoreSkeleton() {
 }
 
 export default function EtsPortalStore() {
+  const inSidebar = useEtsSidebar();
   const clientId = portalEtsClient.id;
 
   const { data: clientData, isLoading } = useQuery<{ client: any }>({
@@ -83,7 +85,7 @@ export default function EtsPortalStore() {
   ];
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-store">
+    <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"} data-testid="ets-portal-store">
       <div>
         <h1 className="text-3xl font-bold" data-testid="text-store-title">My Store</h1>
         <p className="text-muted-foreground">Manage your location and track launch milestones.</p>

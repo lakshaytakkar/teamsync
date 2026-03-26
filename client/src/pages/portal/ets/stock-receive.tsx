@@ -103,7 +103,7 @@ export default function EtsStockReceive() {
   const totalUnits = receiveItems.reduce((s, i) => s + i.quantity, 0);
 
   return (
-    <div className={inSidebar ? "p-5 space-y-5" : "p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto"}>
+    <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">

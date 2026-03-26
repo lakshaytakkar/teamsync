@@ -25,7 +25,7 @@ const STEPS = [
 
 function OnboardingSkeleton() {
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-3xl mx-auto">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <Skeleton className="h-10 w-48" />
       <Skeleton className="h-6 w-full" />
       <Skeleton className="h-64 rounded-xl" />
@@ -86,7 +86,7 @@ export default function EtsPortalOnboarding() {
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-3xl mx-auto" data-testid="ets-portal-onboarding">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ets-portal-onboarding">
       <div>
         <h1 className="text-3xl font-bold" data-testid="text-onboarding-title">Store Onboarding</h1>
         <p className="text-muted-foreground">Complete your profile to get started with EazyToSell.</p>

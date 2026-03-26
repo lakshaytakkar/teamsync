@@ -55,7 +55,7 @@ const SAMPLE_PRODUCTS: Product[] = [
 
 function CatalogSkeleton() {
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <Skeleton className="h-10 w-48" />
       <div className="flex gap-4">
         <Skeleton className="h-10 flex-1 max-w-xs" />
@@ -108,7 +108,7 @@ export default function EtsPortalCatalog() {
   if (isLoading) return <CatalogSkeleton />;
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-catalog">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ets-portal-catalog">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" data-testid="text-catalog-title">Product Catalog</h1>

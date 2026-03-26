@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PageTransition, Fade, Stagger, StaggerItem } from "@/components/ui/animated";
+import { Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 import { FormDialog } from "@/components/hr/form-dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -114,7 +114,7 @@ export default function EtsTemplates() {
   }
 
   return (
-    <PageTransition className="px-16 py-6 lg:px-24 space-y-6">
+    <PageShell>
 <Fade direction="up" distance={8} duration={0.3}>
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
@@ -259,6 +259,6 @@ export default function EtsTemplates() {
           </p>
         </div>
       </FormDialog>
-    </PageTransition>
+    </PageShell>
   );
 }

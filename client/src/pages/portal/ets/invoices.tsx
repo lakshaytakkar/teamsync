@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { FileText, Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +15,7 @@ import {
 
 function InvoicesSkeleton() {
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
+    <div className="p-5 space-y-5">
       <Skeleton className="h-10 w-48" />
       <Skeleton className="h-64 rounded-xl" />
     </div>
@@ -22,6 +23,7 @@ function InvoicesSkeleton() {
 }
 
 export default function EtsPortalInvoices() {
+  const inSidebar = useEtsSidebar();
   const clientId = portalEtsClient.id;
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -37,7 +39,7 @@ export default function EtsPortalInvoices() {
   );
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-invoices">
+    <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"} data-testid="ets-portal-invoices">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold" data-testid="text-invoices-title">Invoices</h1>

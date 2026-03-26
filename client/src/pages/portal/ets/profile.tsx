@@ -12,7 +12,7 @@ import {
 
 function ProfileSkeleton() {
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <Skeleton className="h-10 w-48" />
       <div className="grid md:grid-cols-3 gap-8">
         <Skeleton className="h-80 rounded-xl" />
@@ -62,7 +62,7 @@ export default function EtsPortalProfile() {
   ];
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-profile">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ets-portal-profile">
       <div>
         <h1 className="text-3xl font-bold" data-testid="text-profile-title">My Profile</h1>
         <p className="text-muted-foreground">Your account information and store details.</p>

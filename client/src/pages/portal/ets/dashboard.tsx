@@ -80,7 +80,7 @@ function getNextSteps(client: any, kitItemCount: number): { title: string; descr
 
 function DashboardSkeleton() {
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1400px] mx-auto">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <Skeleton className="h-32 rounded-2xl" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}
@@ -204,7 +204,7 @@ export default function EtsPortalDashboard() {
   ];
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1400px] mx-auto" data-testid="ets-portal-dashboard">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ets-portal-dashboard">
 
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 p-5 md:p-8 text-white shadow-lg">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/3" />

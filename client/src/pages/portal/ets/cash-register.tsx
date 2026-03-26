@@ -89,7 +89,7 @@ export default function EtsCashRegister() {
   const closedSessions = sessions.filter(s => s.status === "closed");
 
   return (
-    <div className={inSidebar ? "p-5 space-y-5" : "p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto"}>
+    <div className={inSidebar ? "p-5 space-y-5" : "px-16 lg:px-24 py-6 space-y-6"}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">

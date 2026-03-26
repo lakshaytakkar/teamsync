@@ -70,18 +70,18 @@ export function EtsSubNavSidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <EtsSidebarContext.Provider value={true}>
-      <div className="p-4 md:p-6 space-y-4 max-w-[1400px] mx-auto" data-testid="ets-sidebar-layout">
+      <div className="px-16 lg:px-24 py-6 space-y-4" data-testid="ets-sidebar-layout">
         <div className="flex items-center gap-3">
           {CategoryIcon && <CategoryIcon className="w-6 h-6 text-orange-500" />}
           <div>
             <h1 className="text-xl font-bold text-gray-900 tracking-tight" data-testid="text-sidebar-category-title">{activeCategory.title}</h1>
-            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+            {subtitle && <p className="text-sm text-muted-foreground" data-testid="text-sidebar-category-subtitle">{subtitle}</p>}
           </div>
         </div>
 
-        <div className="flex rounded-2xl bg-gray-50/80 border border-gray-100 min-h-[calc(100vh-200px)] overflow-hidden" data-testid="ets-sidebar-card">
-          <nav className="w-[200px] shrink-0 py-5 px-3 space-y-0.5" data-testid="ets-subnav-sidebar">
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-4">Sub menu</p>
+        <div className="flex flex-col md:flex-row rounded-2xl bg-gray-50/60 min-h-[calc(100vh-200px)] overflow-hidden" data-testid="ets-sidebar-card">
+          <nav className="w-full md:w-[200px] shrink-0 py-4 md:py-5 px-3 flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible" data-testid="ets-subnav-sidebar">
+            <p className="hidden md:block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-4" data-testid="text-submenu-label">Sub menu</p>
             {activeCategory.items.map((item: any) => {
               const isActive = isItemActive(location, item.url);
               const Icon = SUB_ITEM_ICONS[item.url];
@@ -93,7 +93,7 @@ export function EtsSubNavSidebar({ children }: { children: React.ReactNode }) {
                 >
                   <div
                     className={cn(
-                      "flex items-center gap-3 px-4 py-2.5 rounded-[10px] text-[14px] transition-colors cursor-pointer",
+                      "flex items-center gap-3 px-4 py-2.5 rounded-[10px] text-[14px] transition-colors cursor-pointer whitespace-nowrap",
                       isActive
                         ? "bg-orange-100 text-orange-600 font-bold"
                         : "text-[#6c7278] font-semibold hover:bg-gray-100"
@@ -113,7 +113,7 @@ export function EtsSubNavSidebar({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
-          <div className="flex-1 bg-white rounded-r-2xl overflow-auto">
+          <div className="flex-1 bg-white md:rounded-r-2xl rounded-b-2xl md:rounded-bl-none overflow-auto">
             {children}
           </div>
         </div>

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PageTransition, Fade, Stagger, StaggerItem } from "@/components/ui/animated";
+import { Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
@@ -189,7 +189,7 @@ export default function EtsProposals() {
   }
 
   return (
-    <PageTransition className="px-16 py-6 lg:px-24 space-y-6">
+    <PageShell>
 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Fade direction="left" distance={10} duration={0.3}>
           <Card data-testid="card-proposal-inputs">
@@ -417,6 +417,6 @@ export default function EtsProposals() {
           </Stagger>
         </div>
       </div>
-    </PageTransition>
+    </PageShell>
   );
 }

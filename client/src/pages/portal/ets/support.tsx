@@ -48,7 +48,7 @@ export default function EtsPortalSupport() {
   const faqs = faqData?.faqs || DEFAULT_FAQS;
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto" data-testid="ets-portal-support">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ets-portal-support">
       <div>
         <h1 className="text-3xl font-bold" data-testid="text-support-title">Support</h1>
         <p className="text-muted-foreground">Get help from the EazyToSell team or find answers in our FAQ.</p>
