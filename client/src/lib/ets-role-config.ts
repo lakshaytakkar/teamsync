@@ -127,7 +127,8 @@ export const ETS_ROLES: EtsRoleDefinition[] = [
     userInitials: "PT",
     defaultUrl: "/portal-ets/product",
     navItems: [
-      { title: "Catalog", url: "/portal-ets/product", icon: Package },
+      { title: "Dashboard", url: "/portal-ets/product", icon: Package },
+      { title: "Products", url: "/portal-ets/product/list", icon: Package },
       { title: "Categories", url: "/portal-ets/product/categories", icon: Tag },
       { title: "Pricing Rules", url: "/portal-ets/product/pricing", icon: CreditCard },
       { title: "Compliance", url: "/portal-ets/product/compliance", icon: CheckSquare },

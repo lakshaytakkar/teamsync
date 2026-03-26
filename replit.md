@@ -400,6 +400,37 @@ cost_price, mrp, status, fob_price_yuan, fob_price_inr, cbm_per_unit, freight_pe
 ### IDs
 All entity IDs are numeric (bigint from DB), not string prefixed (e.g., `5` not `"ETC-005"`).
 
+## ETS Role-Based Portals (`/portal-ets/*`) — Pink #ec4899
+
+Role-gated portals for EazyToSell's internal team. Accessible via the ETS sidebar role switcher. All data is mock/frontend-only (no backend writes for portal pages).
+
+### Product Team Portal (`/portal-ets/product`)
+
+**Mock Data**: `client/src/lib/mock-data-product-catalog.ts` — 65 products across 7 zones, 6 supplier sources
+- Types: `CatalogProduct`, `CatalogZone`, `CatalogCategory`, `CatalogSubcategory`, `ProductSource`, `ProductComplianceStatus`, `ProductLabelStatus`, `ProductTag`
+- 6 sources: `china_haoduobao` (24), `china_allen` (14), `india_deodap` (9), `india_wholesaledock` (7), `india_basketo` (7), `india_other` (4)
+- 3 compliance statuses: `safe` (57), `restricted` (5 — BIS/WPC), `banned` (3 — RC toys/drones/walkie-talkies)
+- Fields: EXW yuan (China) or wholesale INR (India), landed cost, partner price, MRP, margin%, barcode, label status, BIS flag, compliance notes
+- 7 zones → 3 categories each → 2-3 subcategories: Kitchen, Personal Care, Stationery, Home Decor, Bags & Storage, Toys & Games, Gifts & Novelty
+- Helper functions: `getCatalogStats()`, `getProductsByZone()`, `SOURCE_LABELS`, `SOURCE_COLORS`, `CATALOG_ZONE_TREE`
+
+**Pages** (file: `client/src/pages/portal/ets/product-portal.tsx`):
+| Route | Export | Description |
+|-------|--------|-------------|
+| `/portal-ets/product` | `EtsProductPortal` (default) | Dashboard — catalog health KPIs, source bar chart, margin by origin, missing data panel |
+| `/portal-ets/product/list` | `EtsProductList` | Sortable/filterable product table (65 rows), inline search, source/compliance/missing-field filters, sort by price/margin, edit button opens form |
+| `/portal-ets/product/categories` | `EtsProductCategories` | 3-level expandable tree (Zone → Category → Subcategory), product counts, detail panel with edit/delete, add zone/category/subcategory forms |
+| `/portal-ets/product/compliance` | `EtsProductCompliance` | Flags all non-safe products with notes, searchable, displays BIS/WPC requirements |
+| `/portal-ets/product/pricing` | `EtsProductPricing` | Stub — price engine settings (Task #8) |
+| `/portal-ets/product/bulk-upload` | `EtsProductBulkUpload` | CSV drag-and-drop with column template |
+
+**Product Form** (embedded in `EtsProductList` via state — no separate route):
+- 4 tabs: Basic Info (name, description, zone/category/subcategory picker, barcode, tags), Sourcing (source select, supplier, EXW or wholesale price, MOQ, carton dims), Pricing (auto-calculated for China via `calculateEtsPrices()`, manual MRP override), Compliance (status, BIS checkbox, notes, label status)
+- Pricing tab wires live to sourcing inputs using `calculateEtsPrices()` from `mock-data-ets.ts`
+
+**Nav Items** (`ets-role-config.ts` product role):
+Dashboard, Products, Categories, Pricing Rules, Compliance, Bulk Upload
+
 ## Trip HQ — Travel Operations Portal (`/triphq/*`) — cyan #0891B2
 
 Internal travel operations portal for managing sourcing trips (China/Thailand B2B, Mar 21–31 2026). 12 pages, full CRUD + file uploads, dedicated `triphq` schema in Supabase.

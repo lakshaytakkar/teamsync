@@ -240,7 +240,7 @@ import EtsAdminPortal, { EtsAdminPipeline, EtsAdminTeam, EtsAdminRevenue, EtsAdm
 import EtsSalesPortal, { EtsSalesPipeline, EtsSalesProposals, EtsSalesScripts, EtsSalesFollowups } from "@/pages/portal/ets/sales-portal";
 import EtsOpsPortal, { EtsOpsStages, EtsOpsMilestones, EtsOpsTickets, EtsOpsReadiness } from "@/pages/portal/ets/ops-portal";
 import EtsFulfillmentPortal, { EtsFulfillmentQC, EtsFulfillmentDispatch, EtsFulfillmentStickers, EtsFulfillmentBatches } from "@/pages/portal/ets/fulfillment-portal";
-import EtsProductPortal, { EtsProductCategories, EtsProductPricing, EtsProductCompliance, EtsProductBulkUpload } from "@/pages/portal/ets/product-portal";
+import EtsProductPortal, { EtsProductCategories, EtsProductPricing, EtsProductCompliance, EtsProductBulkUpload, EtsProductList } from "@/pages/portal/ets/product-portal";
 import EtsVendorPortal, { EtsVendorListings, EtsVendorOrders, EtsVendorStock, EtsVendorKYC } from "@/pages/portal/ets/vendor-portal";
 import EtsTeamSettings from "@/pages/portal/ets/team-settings";
 import EtsPortalCart from "@/pages/portal/ets/cart";
@@ -538,6 +538,7 @@ function Router() {
       <Route path="/portal-ets/product/pricing" component={EtsProductPricing} />
       <Route path="/portal-ets/product/compliance" component={EtsProductCompliance} />
       <Route path="/portal-ets/product/bulk-upload" component={EtsProductBulkUpload} />
+      <Route path="/portal-ets/product/list" component={EtsProductList} />
       <Route path="/portal-ets/product" component={EtsProductPortal} />
       <Route path="/portal-ets/vendor/listings" component={EtsVendorListings} />
       <Route path="/portal-ets/vendor/orders" component={EtsVendorOrders} />
