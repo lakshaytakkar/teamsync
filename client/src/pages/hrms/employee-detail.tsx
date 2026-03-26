@@ -10,7 +10,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { getPersonAvatar } from "@/lib/avatars";
 import { PersonCell } from "@/components/ui/avatar-cells";
 import { employees, attendanceRecords, leaveRequests, payrollEntries, performanceReviews, goals } from "@/lib/mock-data-hrms";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PageShell } from "@/components/layout";
 import { DetailBanner, InfoPropertyGrid } from "@/components/blocks";
 

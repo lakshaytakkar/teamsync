@@ -9,10 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatsCard } from "@/components/hr/stats-card";
+import { StatsCard } from "@/components/ds/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
-import { StatusBadge } from "@/components/hr/status-badge";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { StatusBadge } from "@/components/ds/status-badge";
+import { FormDialog } from "@/components/ds/form-dialog";
 import {
   Select,
   SelectContent,

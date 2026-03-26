@@ -17,7 +17,7 @@ import {
   StatGrid,
   StatCard,
 } from "@/components/layout";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
 
 const EVENT_TYPES = [

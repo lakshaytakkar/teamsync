@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { leads, tourPackages, type Lead, type LeadStatus } from "@/lib/mock-data-goyo";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";

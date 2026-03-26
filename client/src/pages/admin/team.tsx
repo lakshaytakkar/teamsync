@@ -1,7 +1,7 @@
 import { UserPlus } from "lucide-react";
 
-import { DataTable, type Column } from "@/components/hr/data-table";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { DataTable, type Column } from "@/components/ds/data-table";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Button } from "@/components/ui/button";
 import { teamMembers, type TeamMember } from "@/lib/mock-data-admin";

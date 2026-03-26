@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Download, RefreshCw } from "lucide-react";
 
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {

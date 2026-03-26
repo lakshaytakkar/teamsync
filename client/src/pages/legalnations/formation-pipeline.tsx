@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { DataTable, type Column } from "@/components/hr/data-table";
+import { DataTable, type Column } from "@/components/ds/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";

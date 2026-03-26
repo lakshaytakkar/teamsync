@@ -1,7 +1,7 @@
 import { DollarSign, CheckCircle2, Clock, AlertTriangle, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { cn } from "@/lib/utils";
 import { PageTransition } from "@/components/ui/animated";
 import { portalInvoices } from "@/lib/mock-data-portal-legalnations";

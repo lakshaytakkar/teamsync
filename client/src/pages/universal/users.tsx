@@ -19,9 +19,9 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { DataTable, type Column } from "@/components/hr/data-table";
-import { StatusBadge } from "@/components/hr/status-badge";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { DataTable, type Column } from "@/components/ds/data-table";
+import { StatusBadge } from "@/components/ds/status-badge";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { PageShell, PageHeader, IndexToolbar } from "@/components/layout";
 import {

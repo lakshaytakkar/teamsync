@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { DataTable, type Column } from "@/components/hr/data-table";
+import { DataTable, type Column } from "@/components/ds/data-table";
 import {
   PageShell,
   PageHeader,

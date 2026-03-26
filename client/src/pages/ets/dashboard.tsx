@@ -24,7 +24,7 @@ import {
 } from "@/components/layout";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {

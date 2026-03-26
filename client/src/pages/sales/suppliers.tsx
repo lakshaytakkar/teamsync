@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { DataTable, type Column } from "@/components/hr/data-table";
+import { DataTable, type Column } from "@/components/ds/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { suppliers as initialSuppliers, type Supplier } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition } from "@/components/ui/animated";

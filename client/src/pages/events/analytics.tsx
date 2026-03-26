@@ -1,6 +1,6 @@
 import { IndianRupee, Users, Package, TrendingUp, Target, UserPlus } from "lucide-react";
 
-import { StatsCard } from "@/components/hr/stats-card";
+import { StatsCard } from "@/components/ds/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { tourPackages, leads, bookings } from "@/lib/mock-data-goyo";

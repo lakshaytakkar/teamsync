@@ -1,11 +1,11 @@
 import { TrendingUp, Users, CalendarCheck, IndianRupee, Star } from "lucide-react";
 
-import { StatsCard } from "@/components/hr/stats-card";
+import { StatsCard } from "@/components/ds/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { hubEvents, hubAttendees, hubVendors, hubBudgetItems } from "@/lib/mock-data-eventhub";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";

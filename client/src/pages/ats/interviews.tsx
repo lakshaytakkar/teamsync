@@ -24,7 +24,7 @@ import {
   DetailModal,
   DetailSection,
 } from "@/components/layout";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
 
 const today = "2026-02-28";

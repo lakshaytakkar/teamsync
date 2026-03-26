@@ -3,7 +3,7 @@ import { Link } from "wouter";
 
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {

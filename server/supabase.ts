@@ -3,6 +3,56 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.SUPABASE_URL ?? "";
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
+// ── Vertical ID compatibility layer ───────────────────────────────────────────
+// The Supabase database stores the legacy vertical IDs that were in use before
+// the app-level rename (hr/sales/events/admin). This layer translates between
+// the new app IDs (legalnations/usdrop/goyotours/lbm) and the DB-stored IDs
+// without requiring a DB migration.
+//
+// toDbVerticalId(appId)  → use when querying or writing to Supabase
+// fromDbVerticalId(dbId) → use when returning rows to the frontend
+// normalizeIncomingVerticalId(id) → accepts either old or new IDs from callers
+
+const APP_TO_DB_VERTICAL_ID: Record<string, string> = {
+  legalnations: "hr",
+  usdrop: "sales",
+  goyotours: "events",
+  lbm: "admin",
+};
+
+const DB_TO_APP_VERTICAL_ID: Record<string, string> = {
+  hr: "legalnations",
+  sales: "usdrop",
+  events: "goyotours",
+  admin: "lbm",
+};
+
+export function toDbVerticalId(appVerticalId: string): string {
+  return APP_TO_DB_VERTICAL_ID[appVerticalId] ?? appVerticalId;
+}
+
+export function fromDbVerticalId(dbVerticalId: string): string {
+  return DB_TO_APP_VERTICAL_ID[dbVerticalId] ?? dbVerticalId;
+}
+
+export function normalizeIncomingVerticalId(id: string | undefined): string | undefined {
+  if (!id) return id;
+  // If caller passes an old DB ID directly, map it to the new app ID first,
+  // then convert back to DB ID via toDbVerticalId.
+  const appId = DB_TO_APP_VERTICAL_ID[id] ?? id;
+  return toDbVerticalId(appId);
+}
+
+function translateVerticalId<T extends { vertical_id?: string | null }>(row: T): T {
+  if (!row.vertical_id) return row;
+  return { ...row, vertical_id: fromDbVerticalId(row.vertical_id) };
+}
+
+function translateVerticalIds<T extends { vertical_ids?: string[] | null }>(row: T): T {
+  if (!row.vertical_ids) return row;
+  return { ...row, vertical_ids: row.vertical_ids.map(fromDbVerticalId) };
+}
+
 if (!supabaseUrl || !supabaseServiceRoleKey) {
   console.warn("[supabase] SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — store lookups will fail");
 }
@@ -1104,11 +1154,12 @@ export interface CoreUser {
 }
 
 export async function getUsers(verticalId?: string): Promise<CoreUser[]> {
-  if (verticalId) {
+  const vid = normalizeIncomingVerticalId(verticalId);
+  if (vid) {
     const { data, error } = await supabase
       .from("user_verticals")
       .select("users(*)")
-      .eq("vertical_id", verticalId);
+      .eq("vertical_id", vid);
     if (error) { console.error("[supabase] getUsers error:", error.message); return []; }
     return ((data ?? []) as { users: CoreUser }[]).map((r) => r.users);
   }
@@ -1158,11 +1209,12 @@ export interface CoreTaskInput {
 }
 
 export async function getCoreTasksByVertical(verticalId?: string): Promise<CoreTask[]> {
+  const vid = normalizeIncomingVerticalId(verticalId);
   let q = supabase.from("tasks").select("*").order("created_at", { ascending: false });
-  if (verticalId) q = q.eq("vertical_id", verticalId);
+  if (vid) q = q.eq("vertical_id", vid);
   const { data, error } = await q;
   if (error) { console.error("[supabase] getCoreTasksByVertical error:", error.message); return []; }
-  return (data as CoreTask[]) ?? [];
+  return ((data as CoreTask[]) ?? []).map(translateVerticalId);
 }
 
 export async function getCoreTask(id: string): Promise<CoreTask | null> {
@@ -1172,9 +1224,12 @@ export async function getCoreTask(id: string): Promise<CoreTask | null> {
 }
 
 export async function createCoreTask(input: CoreTaskInput): Promise<CoreTask | null> {
-  const { data, error } = await supabase.from("tasks").insert([input]).select().single();
+  const dbInput = input.vertical_id
+    ? { ...input, vertical_id: toDbVerticalId(input.vertical_id) }
+    : input;
+  const { data, error } = await supabase.from("tasks").insert([dbInput]).select().single();
   if (error) { console.error("[supabase] createCoreTask error:", error.message); return null; }
-  return data as CoreTask;
+  return data ? translateVerticalId(data as CoreTask) : null;
 }
 
 export async function updateCoreTask(id: string, patch: Partial<CoreTaskInput>): Promise<CoreTask | null> {
@@ -1269,15 +1324,16 @@ export interface CoreChannel {
 }
 
 export async function getChannelsByVertical(verticalId: string): Promise<CoreChannel[]> {
+  const vid = normalizeIncomingVerticalId(verticalId) ?? verticalId;
   const { data, error } = await supabase
     .from("channels")
     .select("*")
-    .eq("vertical_id", verticalId)
+    .eq("vertical_id", vid)
     .eq("is_archived", false)
     .order("is_pinned", { ascending: false })
     .order("last_message_at", { ascending: false, nullsFirst: false });
   if (error) { console.error("[supabase] getChannelsByVertical error:", error.message); return []; }
-  return (data as CoreChannel[]) ?? [];
+  return ((data as CoreChannel[]) ?? []).map(translateVerticalId);
 }
 
 export async function createChannel(input: {
@@ -1291,13 +1347,14 @@ export async function createChannel(input: {
   is_private?: boolean;
   created_by?: string;
 }): Promise<CoreChannel | null> {
+  const dbInput = { ...input, vertical_id: toDbVerticalId(input.vertical_id) };
   const { data, error } = await supabase
     .from("channels")
-    .insert([{ type: "channel", is_pinned: false, is_private: false, is_archived: false, ...input }])
+    .insert([{ type: "channel", is_pinned: false, is_private: false, is_archived: false, ...dbInput }])
     .select()
     .single();
   if (error) { console.error("[supabase] createChannel error:", error.message); return null; }
-  return data as CoreChannel;
+  return data ? translateVerticalId(data as CoreChannel) : null;
 }
 
 export async function updateChannel(id: string, patch: Partial<CoreChannel>): Promise<CoreChannel | null> {
@@ -1318,17 +1375,18 @@ export async function archiveChannel(id: string): Promise<boolean> {
 }
 
 export async function findOrCreateDM(verticalId: string, memberNames: string[]): Promise<CoreChannel | null> {
+  const vid = normalizeIncomingVerticalId(verticalId) ?? verticalId;
   const sorted = [...memberNames].sort();
   const { data: existing } = await supabase
     .from("channels")
     .select("*")
-    .eq("vertical_id", verticalId)
+    .eq("vertical_id", vid)
     .eq("type", "dm")
     .contains("member_names", sorted)
     .limit(1);
   if (existing && existing.length > 0) return existing[0] as CoreChannel;
   const dmName = sorted[0];
-  return createChannel({ vertical_id: verticalId, name: dmName, type: "dm", member_names: sorted, description: "" });
+  return createChannel({ vertical_id: vid, name: dmName, type: "dm", member_names: sorted, description: "" });
 }
 
 // ── CORE: Channel Messages ─────────────────────────────────────────────────────
@@ -1531,11 +1589,12 @@ export interface CoreResource {
 }
 
 export async function getCoreResources(verticalId?: string): Promise<CoreResource[]> {
+  const vid = normalizeIncomingVerticalId(verticalId);
   let q = supabase.from("resources").select("*").order("is_pinned", { ascending: false }).order("created_at", { ascending: false });
-  if (verticalId) q = q.eq("vertical_id", verticalId);
+  if (vid) q = q.eq("vertical_id", vid);
   const { data, error } = await q;
   if (error) { console.error("[supabase] getCoreResources error:", error.message); return []; }
-  return (data as CoreResource[]) ?? [];
+  return ((data as CoreResource[]) ?? []).map(translateVerticalId);
 }
 
 export async function createCoreResource(input: {
@@ -1550,9 +1609,12 @@ export async function createCoreResource(input: {
   file_size?: string;
   is_pinned?: boolean;
 }): Promise<CoreResource | null> {
-  const { data, error } = await supabase.from("resources").insert([input]).select().single();
+  const dbInput = input.vertical_id
+    ? { ...input, vertical_id: toDbVerticalId(input.vertical_id) }
+    : input;
+  const { data, error } = await supabase.from("resources").insert([dbInput]).select().single();
   if (error) { console.error("[supabase] createCoreResource error:", error.message); return null; }
-  return data as CoreResource;
+  return data ? translateVerticalId(data as CoreResource) : null;
 }
 
 export async function deleteCoreResource(id: string): Promise<boolean> {
@@ -1586,24 +1648,28 @@ export interface CoreContact {
 }
 
 export async function getCoreContacts(verticalId?: string): Promise<CoreContact[]> {
-  if (verticalId) {
+  const vid = normalizeIncomingVerticalId(verticalId);
+  if (vid) {
     const { data, error } = await supabase
       .from("contacts")
       .select("*")
-      .contains("vertical_ids", [verticalId])
+      .contains("vertical_ids", [vid])
       .order("name");
     if (error) { console.error("[supabase] getCoreContacts error:", error.message); return []; }
-    return (data as CoreContact[]) ?? [];
+    return ((data as CoreContact[]) ?? []).map(translateVerticalIds);
   }
   const { data, error } = await supabase.from("contacts").select("*").order("name");
   if (error) { console.error("[supabase] getCoreContacts error:", error.message); return []; }
-  return (data as CoreContact[]) ?? [];
+  return ((data as CoreContact[]) ?? []).map(translateVerticalIds);
 }
 
 export async function createCoreContact(input: Partial<CoreContact>): Promise<CoreContact | null> {
-  const { data, error } = await supabase.from("contacts").insert([input]).select().single();
+  const dbInput = input.vertical_ids
+    ? { ...input, vertical_ids: input.vertical_ids.map(toDbVerticalId) }
+    : input;
+  const { data, error } = await supabase.from("contacts").insert([dbInput]).select().single();
   if (error) { console.error("[supabase] createCoreContact error:", error.message); return null; }
-  return data as CoreContact;
+  return data ? translateVerticalIds(data as CoreContact) : null;
 }
 
 export async function updateCoreContact(id: string, patch: Partial<CoreContact>): Promise<CoreContact | null> {
@@ -1638,12 +1704,13 @@ export interface CoreNotification {
 }
 
 export async function getCoreNotifications(verticalId?: string, userId?: string): Promise<CoreNotification[]> {
+  const vid = normalizeIncomingVerticalId(verticalId);
   let q = supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(100);
-  if (verticalId) q = q.eq("vertical_id", verticalId);
+  if (vid) q = q.eq("vertical_id", vid);
   if (userId) q = q.or(`user_id.eq.${userId},user_id.is.null`);
   const { data, error } = await q;
   if (error) { console.error("[supabase] getCoreNotifications error:", error.message); return []; }
-  return (data as CoreNotification[]) ?? [];
+  return ((data as CoreNotification[]) ?? []).map(translateVerticalId);
 }
 
 export async function markNotificationRead(id: string): Promise<boolean> {
@@ -1653,10 +1720,11 @@ export async function markNotificationRead(id: string): Promise<boolean> {
 }
 
 export async function markAllNotificationsRead(verticalId: string): Promise<boolean> {
+  const vid = normalizeIncomingVerticalId(verticalId) ?? verticalId;
   const { error } = await supabase
     .from("notifications")
     .update({ is_read: true })
-    .eq("vertical_id", verticalId)
+    .eq("vertical_id", vid)
     .eq("is_read", false);
   if (error) { console.error("[supabase] markAllNotificationsRead error:", error.message); return false; }
   return true;
@@ -1896,8 +1964,9 @@ export async function getCoreTickets(filters: {
   const limit = filters.limit ?? 50;
   const offset = (page - 1) * limit;
 
+  const vid = normalizeIncomingVerticalId(filters.verticalId);
   let q = supabase.from("tickets").select("*", { count: "exact" });
-  if (filters.verticalId) q = q.eq("vertical_id", filters.verticalId);
+  if (vid) q = q.eq("vertical_id", vid);
   if (filters.status) q = q.eq("status", filters.status);
   if (filters.priority) q = q.eq("priority", filters.priority);
   if (filters.assignedTo) q = q.eq("assigned_to", filters.assignedTo);
@@ -1909,7 +1978,7 @@ export async function getCoreTickets(filters: {
     console.error("[supabase] getCoreTickets error:", error.message);
     return { tickets: [], total: 0 };
   }
-  return { tickets: (data ?? []) as CoreTicket[], total: count ?? 0 };
+  return { tickets: ((data ?? []) as CoreTicket[]).map(translateVerticalId), total: count ?? 0 };
 }
 
 export async function getCoreTicket(id: string): Promise<CoreTicket | null> {
@@ -1919,9 +1988,12 @@ export async function getCoreTicket(id: string): Promise<CoreTicket | null> {
 }
 
 export async function createCoreTicket(input: CoreTicketInput): Promise<CoreTicket | null> {
-  const { data, error } = await supabase.from("tickets").insert([input]).select().single();
+  const dbInput = input.vertical_id
+    ? { ...input, vertical_id: toDbVerticalId(input.vertical_id) }
+    : input;
+  const { data, error } = await supabase.from("tickets").insert([dbInput]).select().single();
   if (error) { console.error("[supabase] createCoreTicket error:", error.message); return null; }
-  return data as CoreTicket;
+  return data ? translateVerticalId(data as CoreTicket) : null;
 }
 
 export async function updateCoreTicket(id: string, patch: Partial<CoreTicketInput>): Promise<CoreTicket | null> {

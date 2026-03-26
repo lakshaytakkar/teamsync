@@ -12,7 +12,7 @@ import {
   SectionCard,
   SectionGrid,
 } from "@/components/layout";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { ATS_COLOR } from "@/lib/ats-config";
 
 

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { socialPosts, campaigns, socialAccounts, type PostStage } from "@/lib/mock-data-social";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { SOCIAL_COLOR } from "@/lib/social-config";
 import { PageShell } from "@/components/layout";
 import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";

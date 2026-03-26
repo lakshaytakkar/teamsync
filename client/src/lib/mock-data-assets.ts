@@ -1,36 +1,8 @@
 import { employees } from "./mock-data-hrms";
 
-export type AssetCategory = "Laptop" | "Monitor" | "Mouse" | "Keyboard" | "Phone" | "Tablet" | "Headphones" | "Printer" | "Other";
-export type AssetCondition = "new" | "good" | "fair" | "poor";
-export type AssetStatus = "available" | "assigned" | "in-repair" | "retired";
+import type { AssetCategory, AssetCondition, AssetStatus, Asset, AssetAssignment } from "@/types/assets";
+export type { AssetCategory, AssetCondition, AssetStatus, Asset, AssetAssignment };
 
-export interface Asset {
-  id: string;
-  assetCode: string;
-  name: string;
-  category: AssetCategory;
-  serialNumber: string;
-  model: string;
-  manufacturer: string;
-  purchaseDate: string;
-  purchasePrice: number;
-  condition: AssetCondition;
-  status: AssetStatus;
-  imageUrl: string;
-  warrantyExpiry: string;
-  location: string;
-  notes: string;
-}
-
-export interface AssetAssignment {
-  id: string;
-  assetId: string;
-  employeeId: string;
-  employeeName: string;
-  assignedDate: string;
-  returnDate: string | null;
-  notes: string;
-}
 
 const ASSET_IMAGES: Record<AssetCategory, string> = {
   Laptop: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=120&h=120&fit=crop",

@@ -24,7 +24,7 @@ import {
   DetailModal,
   DetailSection,
 } from "@/components/layout";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Input } from "@/components/ui/input";
 import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks/kanban-blocks";
 import { useToast } from "@/hooks/use-toast";

@@ -13,7 +13,7 @@ import {
   DataTD,
   DataTR,
 } from "@/components/layout";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { verticals } from "@/lib/verticals-config";
 import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
 import { SOP_REGISTRY } from "@/lib/sop-data";

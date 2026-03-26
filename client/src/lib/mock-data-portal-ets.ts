@@ -1,13 +1,8 @@
 import { PARTNER_PROFILE } from "./mock-data-dashboard-ets";
 
-export interface EtsPortalClient {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  avatar: string;
-  city: string;
-}
+import type { EtsPortalClient, SetupItemGroup, SetupItem, StoreSizeSqFt } from "@/types/portal-ets";
+export type { EtsPortalClient, SetupItemGroup, SetupItem, StoreSizeSqFt };
+
 
 export const portalEtsClient: EtsPortalClient = {
   id: PARTNER_PROFILE.id,
@@ -52,27 +47,6 @@ export const ETS_ORDER_STAGE_LABELS: Record<string, string> = {
 };
 
 export const ETS_ORDER_STAGES = ["ordered", "factory-ready", "shipped", "customs", "warehouse", "dispatched"] as const;
-
-export type SetupItemGroup =
-  | "Shelving & Display"
-  | "Technology & Hardware"
-  | "Counters & Furniture"
-  | "Branding & Signage"
-  | "Lighting"
-  | "Security";
-
-export interface SetupItem {
-  id: string;
-  name: string;
-  description: string;
-  group: SetupItemGroup;
-  priceRangeMin: number;
-  priceRangeMax: number;
-  recommendedQtyFor1000sqft: number;
-  isEssential: boolean;
-  buyLink?: string;
-  imageUrl?: string;
-}
 
 export const SETUP_ITEMS: SetupItem[] = [
   {
@@ -328,8 +302,6 @@ export const SETUP_ITEM_GROUPS: SetupItemGroup[] = [
   "Lighting",
   "Security",
 ];
-
-export type StoreSizeSqFt = 500 | 800 | 1000;
 
 export const STORE_SIZES: StoreSizeSqFt[] = [500, 800, 1000];
 

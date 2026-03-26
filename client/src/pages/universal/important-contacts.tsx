@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { 
   PageHeader, 

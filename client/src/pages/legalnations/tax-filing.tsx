@@ -9,9 +9,9 @@ import {
   Printer, Truck, MessageSquare, LinkIcon,
 } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
-import { DataTable, type Column } from "@/components/hr/data-table";
+import { DataTable, type Column } from "@/components/ds/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

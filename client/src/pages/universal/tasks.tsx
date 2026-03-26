@@ -94,7 +94,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ExternalLink, Star, StarHalf } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PageShell, PageHeader } from "@/components/layout";
-import { DataTable, type Column } from "@/components/hr/data-table";
+import { DataTable, type Column } from "@/components/ds/data-table";
 
 const RND_COLOR = "#6366F1";
 

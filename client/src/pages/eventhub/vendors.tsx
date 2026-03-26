@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Star, Plus, Mail } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Button } from "@/components/ui/button";
 import { hubVendors, type EventVendor } from "@/lib/mock-data-eventhub";

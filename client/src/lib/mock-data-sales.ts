@@ -1,205 +1,6 @@
-export interface Product {
-  id: string;
-  name: string;
-  category: string;
-  supplier: string;
-  price: number;
-  comparePrice: number;
-  costPrice: number;
-  margin: number;
-  status: "active" | "draft" | "archived";
-  image: string;
-  additionalImages: string[];
-  orders: number;
-  revenue: number;
-  rating: number;
-  source: "aliexpress" | "cjdropshipping" | "spocket";
-  isTrending: boolean;
-  isWinning: boolean;
-  isLocked: boolean;
-  description: string;
-  sku: string;
-  weight: string;
-  tags: string[];
-}
+import type { Product, Subcategory, Category, Supplier, ExternalUser, Lead, PipelineStage, PipelineLead, Subscription, ShopifyStore, CompetitorStore, FulfillmentOrder, SupportTicket, CourseChapter, CourseModule, Course, RevenueMetric, PlanTier, PipelineFunnelStage, LLCStatusEntry, StalledClient, ActivityFeedItem, ClientStatus, LLCStatus, Client, Batch, LLCStage, LLCApplication, MentorshipSession, OnboardingVideo, OnboardingModule, FeatureAccessKey, FeatureAccess, UserActivityLog, AdminNote, PaymentLinkHistory, UserCourseProgress, DetailedUser } from "@/types/sales";
+export type { Product, Subcategory, Category, Supplier, ExternalUser, Lead, PipelineStage, PipelineLead, Subscription, ShopifyStore, CompetitorStore, FulfillmentOrder, SupportTicket, CourseChapter, CourseModule, Course, RevenueMetric, PlanTier, PipelineFunnelStage, LLCStatusEntry, StalledClient, ActivityFeedItem, ClientStatus, LLCStatus, Client, Batch, LLCStage, LLCApplication, MentorshipSession, OnboardingVideo, OnboardingModule, FeatureAccessKey, FeatureAccess, UserActivityLog, AdminNote, PaymentLinkHistory, UserCourseProgress, DetailedUser };
 
-export interface Subcategory {
-  id: string;
-  name: string;
-  categoryId: string;
-  keywords: string[];
-  productCount: number;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  productCount: number;
-  status: "active" | "inactive";
-  icon: string;
-  trending?: boolean;
-}
-
-export interface Supplier {
-  id: string;
-  name: string;
-  country: string;
-  rating: number;
-  products: number;
-  avgShipping: number;
-  status: "verified" | "pending" | "suspended";
-}
-
-export interface ExternalUser {
-  id: string;
-  name: string;
-  email: string;
-  plan: "free" | "starter" | "pro" | "enterprise";
-  status: "active" | "churned" | "trial";
-  signupDate: string;
-  lastLogin: string;
-  storesConnected: number;
-  productsImported: number;
-  revenue: number;
-}
-
-export interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  source: "website" | "referral" | "ad" | "organic";
-  status: "new" | "contacted" | "qualified" | "converted" | "lost";
-  assignedTo: string;
-  createdDate: string;
-  notes: string;
-}
-
-export type PipelineStage = "new" | "contacted" | "engaged" | "qualified" | "demo_done" | "negotiation" | "converted";
-
-export interface PipelineLead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  source: "website" | "referral" | "ad" | "organic" | "youtube" | "instagram";
-  pipelineStage: PipelineStage;
-  engagementLevel: "cold" | "warm" | "hot";
-  engagementScore: number;
-  chaptersCompleted: number;
-  totalChapters: number;
-  daysInStage: number;
-  assignedTo: string;
-  createdDate: string;
-  lastActivity: string;
-  notes: string;
-  callLog: { date: string; summary: string; duration: string }[];
-  activitySummary: string;
-  plan: "free" | "starter" | "pro" | "enterprise" | "none";
-  city: string;
-  country: string;
-}
-
-export interface Subscription {
-  id: string;
-  userId: string;
-  userName: string;
-  plan: "free" | "starter" | "pro" | "enterprise";
-  status: "active" | "canceled" | "past_due" | "trialing";
-  startDate: string;
-  endDate: string;
-  mrr: number;
-}
-
-export interface ShopifyStore {
-  id: string;
-  name: string;
-  owner: string;
-  domain: string;
-  status: "active" | "paused" | "disconnected";
-  products: number;
-  orders: number;
-  revenue: number;
-  connectedDate: string;
-}
-
-export interface CompetitorStore {
-  id: string;
-  name: string;
-  domain: string;
-  niche: string;
-  estimatedRevenue: number;
-  productCount: number;
-  trafficRank: number;
-}
-
-export interface FulfillmentOrder {
-  id: string;
-  orderId: string;
-  store: string;
-  product: string;
-  status: "pending" | "processing" | "shipped" | "delivered";
-  trackingNumber: string;
-  supplier: string;
-  createdDate: string;
-}
-
-export interface SupportTicket {
-  id: string;
-  subject: string;
-  user: string;
-  priority: "low" | "medium" | "high" | "urgent";
-  status: "open" | "in-progress" | "resolved" | "closed";
-  category: "billing" | "technical" | "product" | "account";
-  createdDate: string;
-  assignedTo: string;
-}
-
-export interface CourseChapter {
-  id: string;
-  title: string;
-  contentType: "video" | "text" | "quiz";
-  videoUrl?: string;
-  duration: string;
-  isPreview: boolean;
-}
-
-export interface CourseModule {
-  id: string;
-  title: string;
-  description: string;
-  isPreview: boolean;
-  chapters: CourseChapter[];
-}
-
-export interface Course {
-  id: string;
-  title: string;
-  category: string;
-  lessons: number;
-  enrolled: number;
-  completionRate: number;
-  status: "published" | "draft";
-  instructor: string;
-  modules: CourseModule[];
-}
-
-export interface RevenueMetric {
-  month: string;
-  mrr: number;
-  newSubscriptions: number;
-  churn: number;
-  revenue: number;
-}
-
-export interface PlanTier {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
-  userCount: number;
-  revenue: number;
-}
 
 export const products: Product[] = [
   { id: "PRD-001", name: "Wireless Bluetooth Earbuds Pro", category: "Electronics", supplier: "ShenZhen Audio Co.", price: 29.99, comparePrice: 79.99, costPrice: 11.40, margin: 62, status: "active", image: "/3d-icons/headphones.webp", additionalImages: [], orders: 1842, revenue: 55231, rating: 4.6, source: "aliexpress", isTrending: true, isWinning: true, isLocked: false, description: "Premium wireless earbuds with noise cancellation and 24hr battery life.", sku: "WBE-PRO-001", weight: "45g", tags: ["wireless", "audio", "bestseller"] },
@@ -644,40 +445,6 @@ export const planTiers: PlanTier[] = [
   { id: "PLN-004", name: "Enterprise", price: 199, features: ["Everything in Pro", "Unlimited stores", "Dedicated account manager", "Custom integrations", "API access", "White-label options"], userCount: 156, revenue: 31044 },
 ];
 
-export interface PipelineFunnelStage {
-  stage: string;
-  label: string;
-  count: number;
-  color: string;
-}
-
-export interface LLCStatusEntry {
-  stage: string;
-  label: string;
-  count: number;
-  color: string;
-}
-
-export interface StalledClient {
-  id: string;
-  name: string;
-  email: string;
-  batch: string;
-  lastActive: string;
-  daysSinceActivity: number;
-  llcStage: string;
-  progress: number;
-}
-
-export interface ActivityFeedItem {
-  id: string;
-  type: "signup" | "payment" | "llc_update" | "course_complete" | "ticket" | "login" | "store_connect";
-  user: string;
-  description: string;
-  timestamp: string;
-  meta?: string;
-}
-
 export const pipelineFunnel: PipelineFunnelStage[] = [
   { stage: "signup", label: "Signed Up", count: 1248, color: "#6366f1" },
   { stage: "engaged", label: "Engaged", count: 843, color: "#8b5cf6" },
@@ -722,33 +489,6 @@ export const recentActivityFeed: ActivityFeedItem[] = [
   { id: "ACT-015", type: "llc_update", user: "Sarah Chen", description: "LLC marked Complete", timestamp: "2025-02-26T17:20:00Z", meta: "Complete" },
 ];
 
-export type ClientStatus = "active" | "stalled" | "graduated" | "paused";
-export type LLCStatus = "pending" | "filed" | "ein_applied" | "boi_filed" | "bank_setup" | "stripe_setup" | "complete";
-
-export interface Client {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  batchId: string;
-  batchName: string;
-  weekNumber: number;
-  progress: number;
-  llcStatus: LLCStatus;
-  status: ClientStatus;
-  lastActive: string;
-  plan: "free" | "starter" | "pro" | "enterprise";
-  joinDate: string;
-}
-
-export interface Batch {
-  id: string;
-  name: string;
-  startDate: string;
-  memberCount: number;
-  status: "active" | "completed";
-}
-
 export const batches: Batch[] = [
   { id: "BAT-001", name: "Alpha Cohort", startDate: "2024-09-01", memberCount: 8, status: "completed" },
   { id: "BAT-002", name: "Beta Cohort", startDate: "2024-11-15", memberCount: 6, status: "completed" },
@@ -777,32 +517,6 @@ export const clients: Client[] = [
   { id: "CLI-017", name: "Peter Schmidt", email: "peter@eurodrop.de", phone: "+49 170 1234567", batchId: "BAT-005", batchName: "Epsilon Cohort", weekNumber: 1, progress: 8, llcStatus: "pending", status: "active", lastActive: "2025-02-26", plan: "starter", joinDate: "2025-03-01" },
   { id: "CLI-018", name: "Maria Garcia", email: "maria@tiendaonline.es", phone: "+34 612 345 678", batchId: "BAT-005", batchName: "Epsilon Cohort", weekNumber: 1, progress: 10, llcStatus: "pending", status: "active", lastActive: "2025-02-27", plan: "pro", joinDate: "2025-03-01" },
 ];
-
-export type LLCStage = "pending" | "filed" | "ein_applied" | "boi_filed" | "bank_setup" | "stripe_setup" | "complete";
-
-export interface LLCApplication {
-  id: string;
-  clientName: string;
-  clientEmail: string;
-  phone: string;
-  stage: LLCStage;
-  llcName: string;
-  state: string;
-  appliedDate: string;
-  lastUpdated: string;
-  daysInStage: number;
-  milestones: {
-    pending?: string;
-    filed?: string;
-    ein_applied?: string;
-    boi_filed?: string;
-    bank_setup?: string;
-    stripe_setup?: string;
-    complete?: string;
-  };
-  notes: string;
-  assignedTo: string;
-}
 
 export const LLC_STAGES: { key: LLCStage; label: string; color: string; bg: string }[] = [
   { key: "pending", label: "Pending", color: "#64748b", bg: "#f1f5f9" },
@@ -841,17 +555,6 @@ export const llcApplications: LLCApplication[] = [
   { id: "LLC-014", clientName: "Diego Costa", clientEmail: "diego@shopbrasil.com.br", phone: "+55-11-9876-5432", stage: "bank_setup", llcName: "ShopBrasil USA LLC", state: "Wyoming", appliedDate: "2024-12-15", lastUpdated: "2025-02-01", daysInStage: 26, milestones: { pending: "2024-12-15", filed: "2024-12-22", ein_applied: "2025-01-05", boi_filed: "2025-01-15", bank_setup: "2025-02-01" }, notes: "Stuck at bank - needs US address verification, client unresponsive", assignedTo: "Sneha Patel" },
 ];
 
-export interface MentorshipSession {
-  id: string;
-  title: string;
-  url: string;
-  category: string;
-  duration: string;
-  sessionDate: string;
-  published: boolean;
-  order: number;
-}
-
 export const mentorshipSessions: MentorshipSession[] = [
   { id: "MS-001", title: "Building Your First Shopify Store", url: "https://zoom.us/rec/share/abc123", category: "Store Setup", duration: "45 min", sessionDate: "2025-02-20", published: true, order: 1 },
   { id: "MS-002", title: "Product Research Masterclass", url: "https://zoom.us/rec/share/def456", category: "Product Research", duration: "60 min", sessionDate: "2025-02-18", published: true, order: 2 },
@@ -869,25 +572,6 @@ export const mentorshipSessions: MentorshipSession[] = [
   { id: "MS-014", title: "Monthly Q&A - January 2025", url: "https://zoom.us/rec/share/nop012", category: "Q&A", duration: "85 min", sessionDate: "2025-01-01", published: true, order: 14 },
   { id: "MS-015", title: "Competitor Analysis Workshop", url: "https://zoom.us/rec/share/qrs345", category: "Product Research", duration: "50 min", sessionDate: "2024-12-20", published: false, order: 15 },
 ];
-
-export interface OnboardingVideo {
-  id: string;
-  title: string;
-  description: string;
-  videoUrl: string;
-  thumbnailUrl: string;
-  duration: string;
-  order: number;
-}
-
-export interface OnboardingModule {
-  id: string;
-  title: string;
-  description: string;
-  status: "published" | "draft";
-  order: number;
-  videos: OnboardingVideo[];
-}
 
 export const onboardingModules: OnboardingModule[] = [
   {
@@ -966,94 +650,6 @@ export const onboardingModules: OnboardingModule[] = [
     ],
   },
 ];
-
-export type FeatureAccessKey = "product_research" | "ai_ad_studio" | "competitor_spy" | "advanced_analytics" | "bulk_import" | "api_access" | "white_label" | "priority_support" | "mentorship" | "custom_integrations";
-
-export interface FeatureAccess {
-  key: FeatureAccessKey;
-  label: string;
-  enabled: boolean;
-  plan: "free" | "starter" | "pro" | "enterprise";
-}
-
-export interface UserActivityLog {
-  id: string;
-  type: "login" | "purchase" | "course" | "llc" | "support" | "store" | "product" | "profile";
-  description: string;
-  timestamp: string;
-}
-
-export interface AdminNote {
-  id: string;
-  author: string;
-  content: string;
-  createdAt: string;
-}
-
-export interface PaymentLinkHistory {
-  id: string;
-  amount: number;
-  description: string;
-  status: "sent" | "paid" | "expired";
-  sentAt: string;
-  paidAt?: string;
-}
-
-export interface UserCourseProgress {
-  courseId: string;
-  courseTitle: string;
-  totalModules: number;
-  completedModules: number;
-  progress: number;
-  lastAccessed: string;
-  enrolled: string;
-}
-
-export interface DetailedUser {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  avatar?: string;
-  plan: "free" | "starter" | "pro" | "enterprise";
-  status: "active" | "churned" | "trial" | "paused";
-  role: "user" | "mentor" | "admin";
-  signupDate: string;
-  lastLogin: string;
-  batchName: string;
-  weekNumber: number;
-  llcStatus: LLCStatus;
-  llcName: string;
-  llcState: string;
-  shopifyConnected: boolean;
-  shopifyDomain: string;
-  pipelineStage: PipelineStage;
-  progress: number;
-  storesConnected: number;
-  productsImported: number;
-  revenue: number;
-  city: string;
-  country: string;
-  ein: string;
-  website: string;
-  instagram: string;
-  tiktok: string;
-  llcMilestones: {
-    pending?: string;
-    filed?: string;
-    ein_applied?: string;
-    boi_filed?: string;
-    bank_setup?: string;
-    stripe_setup?: string;
-    complete?: string;
-  };
-  courses: UserCourseProgress[];
-  featureAccess: FeatureAccess[];
-  activityLog: UserActivityLog[];
-  adminNotes: AdminNote[];
-  paymentLinks: PaymentLinkHistory[];
-  supportTickets: { id: string; subject: string; status: string; createdDate: string }[];
-}
 
 export const detailedUsers: DetailedUser[] = [
   {

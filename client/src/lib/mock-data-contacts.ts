@@ -1,39 +1,5 @@
-export type ContactCategory =
-  | "visa_agent"
-  | "embassy"
-  | "hotel"
-  | "supplier"
-  | "guide"
-  | "legal"
-  | "finance"
-  | "logistics"
-  | "media"
-  | "partner"
-  | "government"
-  | "other";
-
-export type ContactPriority = "high" | "medium" | "low";
-
-export interface ImportantContact {
-  id: string;
-  name: string;
-  title: string;
-  organization: string;
-  category: ContactCategory;
-  verticalIds: string[];
-  phone: string;
-  whatsapp: string;
-  email: string;
-  website: string;
-  city: string;
-  country: string;
-  priority: ContactPriority;
-  notes: string;
-  tags: string[];
-  added_by: string;
-  created_at: string;
-  is_shared: boolean;
-}
+import type { ContactCategory, ContactPriority, ImportantContact } from "@/types/contacts";
+export type { ContactCategory, ContactPriority, ImportantContact };
 
 export const importantContacts: ImportantContact[] = [
   {
@@ -42,7 +8,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Director",
     organization: "Guangzhou Connect Tours",
     category: "partner",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+86 136 0020 8888",
     whatsapp: "8613600208888",
     email: "jason@gzconnecttours.com",
@@ -62,7 +28,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Senior Bilingual Guide",
     organization: "Silk Route Guides",
     category: "guide",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+86 135 0021 9999",
     whatsapp: "8613500219999",
     email: "jenny@silkrouteguides.cn",
@@ -82,7 +48,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Senior Visa Consultant",
     organization: "Global Visa Services India",
     category: "visa_agent",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+91 98200 12345",
     whatsapp: "919820012345",
     email: "anita@globalvisaindia.com",
@@ -102,7 +68,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Visa Section Head",
     organization: "Chinese Embassy New Delhi",
     category: "embassy",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+91 11 2611 2345",
     whatsapp: "",
     email: "chinaembassy.visa@delhi.gov.cn",
@@ -122,7 +88,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Consular Services",
     organization: "Chinese Consulate Mumbai",
     category: "embassy",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+91 22 2264 1328",
     whatsapp: "",
     email: "consul_mumbai@china.gov.cn",
@@ -142,7 +108,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Sales Manager",
     organization: "Marriott Hotel Guangzhou",
     category: "hotel",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+86 20 8666 6888",
     whatsapp: "8602086666888",
     email: "sales.guangzhou@marriott.com",
@@ -162,7 +128,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Group Sales Manager",
     organization: "Air India",
     category: "logistics",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+91 11 2462 2220",
     whatsapp: "911124622220",
     email: "groupsales@airindia.in",
@@ -182,7 +148,7 @@ export const importantContacts: ImportantContact[] = [
     title: "International Exhibitor Services",
     organization: "Canton Fair (China Import and Export Fair)",
     category: "government",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+86 20 2606 2828",
     whatsapp: "",
     email: "service@cantonfair.org.cn",
@@ -202,7 +168,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Operations Manager",
     organization: "HK Star Hospitality Services",
     category: "partner",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+852 9123 4567",
     whatsapp: "85291234567",
     email: "cathy@hkstarhospitality.com",
@@ -222,7 +188,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Group Business Head",
     organization: "Royal Star Travel Insurance",
     category: "finance",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+91 98330 56789",
     whatsapp: "919833056789",
     email: "sunil@royalstarinsurance.com",
@@ -242,7 +208,7 @@ export const importantContacts: ImportantContact[] = [
     title: "State Formation Specialist",
     organization: "Delaware Division of Corporations",
     category: "government",
-    verticalIds: ["hr"],
+    verticalIds: ["legalnations"],
     phone: "+1 302 739 3073",
     whatsapp: "",
     email: "dosd@delaware.gov",
@@ -262,7 +228,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Business Filings Division",
     organization: "Wyoming Secretary of State",
     category: "government",
-    verticalIds: ["hr"],
+    verticalIds: ["legalnations"],
     phone: "+1 307 777 7311",
     whatsapp: "",
     email: "filing@wyo.gov",
@@ -282,7 +248,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Account Manager",
     organization: "Northwest Registered Agent",
     category: "legal",
-    verticalIds: ["hr"],
+    verticalIds: ["legalnations"],
     phone: "+1 509 768 2249",
     whatsapp: "",
     email: "kevin@northwestregisteredagent.com",
@@ -302,7 +268,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Immigration Affairs Manager",
     organization: "USCIS Customer Service",
     category: "government",
-    verticalIds: ["hr"],
+    verticalIds: ["legalnations"],
     phone: "+1 800 375 5283",
     whatsapp: "",
     email: "uscis.contact@dhs.gov",
@@ -322,7 +288,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Partner — Business Law",
     organization: "Channing & Associates LLP",
     category: "legal",
-    verticalIds: ["hr"],
+    verticalIds: ["legalnations"],
     phone: "+1 302 555 0192",
     whatsapp: "",
     email: "rchanning@channinglaw.com",
@@ -342,7 +308,7 @@ export const importantContacts: ImportantContact[] = [
     title: "B2B Trade Support",
     organization: "Alibaba International",
     category: "supplier",
-    verticalIds: ["sales"],
+    verticalIds: ["usdrop"],
     phone: "+86 571 8502 2088",
     whatsapp: "",
     email: "trade@alibaba-inc.com",
@@ -362,7 +328,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Seller & Buyer Relations",
     organization: "AliExpress",
     category: "supplier",
-    verticalIds: ["sales"],
+    verticalIds: ["usdrop"],
     phone: "+86 571 8837 6688",
     whatsapp: "",
     email: "support@aliexpress.com",
@@ -382,7 +348,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Senior Account Manager",
     organization: "Customs Connect India",
     category: "logistics",
-    verticalIds: ["sales"],
+    verticalIds: ["usdrop"],
     phone: "+91 98700 87654",
     whatsapp: "919870087654",
     email: "amit@customsconnect.in",
@@ -402,7 +368,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Partner Program",
     organization: "Shopify Inc.",
     category: "partner",
-    verticalIds: ["sales"],
+    verticalIds: ["usdrop"],
     phone: "+1 888 746 7439",
     whatsapp: "",
     email: "partners@shopify.com",
@@ -702,7 +668,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Group Bookings Coordinator",
     organization: "IndiGo Airlines",
     category: "logistics",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+91 124 617 3838",
     whatsapp: "911246173838",
     email: "groups@goindigo.in",
@@ -762,7 +728,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Admin & Compliance Head",
     organization: "Suprans Admin Division",
     category: "government",
-    verticalIds: ["admin"],
+    verticalIds: ["lbm"],
     phone: "+91 98100 11111",
     whatsapp: "919810011111",
     email: "ajay.admin@suprans.in",
@@ -822,7 +788,7 @@ export const importantContacts: ImportantContact[] = [
     title: "Group Sales Manager",
     organization: "Guangzhou International Hotel",
     category: "hotel",
-    verticalIds: ["events"],
+    verticalIds: ["goyotours"],
     phone: "+86 20 8331 1888",
     whatsapp: "862083311888",
     email: "groups@gzintlhotel.com",

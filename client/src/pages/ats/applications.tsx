@@ -15,7 +15,7 @@ import {
   DataTD,
   DataTR,
 } from "@/components/layout";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
 
 const interviewers = Array.from(new Set(applications.map(a => a.currentInterviewer).filter(Boolean)))

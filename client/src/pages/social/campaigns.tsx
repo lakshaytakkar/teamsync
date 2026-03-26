@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import { campaigns, type Campaign } from "@/lib/mock-data-social";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PageShell } from "@/components/layout";
 import { SOCIAL_COLOR } from "@/lib/social-config";
 import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";

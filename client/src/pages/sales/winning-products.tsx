@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { products } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { Stagger, StaggerItem, PageTransition } from "@/components/ui/animated";

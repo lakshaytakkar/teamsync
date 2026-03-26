@@ -12,7 +12,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import { assignments as initialAssignments, socialPosts, campaigns, type Assignment, type AssignmentType } from "@/lib/mock-data-social";
 import { PersonCell } from "@/components/ui/avatar-cells";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { SOCIAL_COLOR } from "@/lib/social-config";
 import { PageShell } from "@/components/layout";
 

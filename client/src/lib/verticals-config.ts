@@ -201,7 +201,7 @@ export const verticals: Vertical[] = [
     ],
   },
   {
-    id: "hr",
+    id: "legalnations",
     routePrefix: "legalnations",
     name: "LegalNations",
     shortName: "LegalNations",
@@ -331,7 +331,7 @@ export const verticals: Vertical[] = [
     ],
   },
   {
-    id: "sales",
+    id: "usdrop",
     routePrefix: "usdrop",
     name: "USDrop AI",
     shortName: "USDrop AI",
@@ -476,7 +476,7 @@ export const verticals: Vertical[] = [
     ],
   },
   {
-    id: "events",
+    id: "goyotours",
     routePrefix: "goyotours",
     name: "GoyoTours",
     shortName: "GoyoTours",
@@ -716,7 +716,7 @@ export const verticals: Vertical[] = [
     ],
   },
   {
-    id: "admin",
+    id: "lbm",
     routePrefix: "lbm",
     name: "LBM Lifestyle",
     shortName: "LBM Lifestyle",
@@ -2390,8 +2390,20 @@ export const verticals: Vertical[] = [
   },
 ];
 
+const LEGACY_VERTICAL_ID_MAP: Record<string, string> = {
+  hr: "legalnations",
+  sales: "usdrop",
+  events: "goyotours",
+  admin: "lbm",
+};
+
+export function normalizeVerticalId(id: string): string {
+  return LEGACY_VERTICAL_ID_MAP[id] ?? id;
+}
+
 export function getVerticalById(id: string): Vertical | undefined {
-  return verticals.find((v) => v.id === id);
+  const normalized = normalizeVerticalId(id);
+  return verticals.find((v) => v.id === normalized);
 }
 
 export function getDefaultVertical(): Vertical {
@@ -2419,11 +2431,11 @@ export function detectVerticalFromUrl(location: string): Vertical | undefined {
   if (location.startsWith("/finance")) return getVerticalById("finance");
   if (location.startsWith("/oms")) return getVerticalById("oms");
   if (location.startsWith("/social")) return getVerticalById("social");
-  if (location.startsWith("/legalnations")) return getVerticalById("hr");
-  if (location.startsWith("/usdrop")) return getVerticalById("sales");
-  if (location.startsWith("/goyotours")) return getVerticalById("events");
+  if (location.startsWith("/legalnations")) return getVerticalById("legalnations");
+  if (location.startsWith("/usdrop")) return getVerticalById("usdrop");
+  if (location.startsWith("/goyotours")) return getVerticalById("goyotours");
   if (location.startsWith("/eventhub")) return getVerticalById("eventhub");
-  if (location.startsWith("/lbm")) return getVerticalById("admin");
+  if (location.startsWith("/lbm")) return getVerticalById("lbm");
   if (location.startsWith("/dev")) return getVerticalById("dev");
   if (location.startsWith("/portal-ln")) return getVerticalById("ln-portal");
   if (location.startsWith("/portal-ets")) return getVerticalById("ets-portal");

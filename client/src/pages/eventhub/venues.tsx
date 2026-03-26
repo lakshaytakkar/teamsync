@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { MapPin, Users, Star, Phone, Plus, Building2 } from "lucide-react";
 
-import { StatusBadge } from "@/components/hr/status-badge";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { StatusBadge } from "@/components/ds/status-badge";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

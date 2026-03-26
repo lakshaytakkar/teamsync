@@ -1,77 +1,28 @@
-export type SupransService =
-  | "company-formation"
-  | "tour-booking"
-  | "ecommerce-setup"
-  | "event-management"
-  | "hr-consulting"
-  | "franchise";
-
-export type SupransLeadStatus =
-  | "new"
-  | "validated"
-  | "enriched"
-  | "assigned"
-  | "converted"
-  | "dropped";
-
-export type LeadSource =
-  | "website"
-  | "referral"
-  | "instagram"
-  | "linkedin"
-  | "google-ads"
-  | "walk-in"
-  | "whatsapp";
-
-export type LeadPriority = "high" | "medium" | "low";
-
-export interface SupransLead {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  service: SupransService;
-  source: LeadSource;
-  status: SupransLeadStatus;
-  notes: string;
-  assignedVertical?: string;
-  assignedRep?: string;
-  enrichedAt?: string;
-  assignedAt?: string;
-  createdAt: string;
-  priority: LeadPriority;
-}
-
-export interface SupransService_ {
-  id: SupransService;
-  label: string;
-  vertical: string;
-  verticalLabel: string;
-  color: string;
-}
+import type { SupransService, SupransLeadStatus, LeadSource, LeadPriority, SupransLead, SupransService_ } from "@/types/suprans";
+export type { SupransService, SupransLeadStatus, LeadSource, LeadPriority, SupransLead, SupransService_ };
 
 export const VERTICAL_SERVICE_MAP: Record<SupransService, string> = {
-  "company-formation": "hr",
-  "tour-booking": "events",
-  "ecommerce-setup": "sales",
+  "company-formation": "legalnations",
+  "tour-booking": "goyotours",
+  "ecommerce-setup": "usdrop",
   "event-management": "eventhub",
   "hr-consulting": "hrms",
   "franchise": "ets",
 };
 
 export const VERTICAL_REP_MAP: Record<string, string[]> = {
-  hr: ["Priya Sharma", "Rahul Mehta", "Ananya Singh"],
-  events: ["Vikram Patel", "Kavitha Nair", "Arjun Das"],
-  sales: ["Ritu Agarwal", "Mohit Kapoor", "Sneha Iyer"],
+  legalnations: ["Priya Sharma", "Rahul Mehta", "Ananya Singh"],
+  goyotours: ["Vikram Patel", "Kavitha Nair", "Arjun Das"],
+  usdrop: ["Ritu Agarwal", "Mohit Kapoor", "Sneha Iyer"],
   eventhub: ["Deepak Rao", "Sunita Joshi", "Kiran Kumar"],
   hrms: ["Lakshmi Reddy", "Arun Pillai", "Meena Thomas"],
   ets: ["Sanjay Malhotra", "Neha Gupta", "Vivek Sharma"],
 };
 
 export const supransServices: SupransService_[] = [
-  { id: "company-formation", label: "Company Formation", vertical: "hr", verticalLabel: "LegalNations", color: "#225AEA" },
-  { id: "tour-booking", label: "Tour Booking", vertical: "events", verticalLabel: "GoyoTours", color: "#E91E63" },
-  { id: "ecommerce-setup", label: "E-Commerce Setup", vertical: "sales", verticalLabel: "USDrop AI", color: "#F34147" },
+  { id: "company-formation", label: "Company Formation", vertical: "legalnations", verticalLabel: "LegalNations", color: "#225AEA" },
+  { id: "tour-booking", label: "Tour Booking", vertical: "goyotours", verticalLabel: "GoyoTours", color: "#E91E63" },
+  { id: "ecommerce-setup", label: "E-Commerce Setup", vertical: "usdrop", verticalLabel: "USDrop AI", color: "#F34147" },
   { id: "event-management", label: "Event Management", vertical: "eventhub", verticalLabel: "EventHub", color: "#7C3AED" },
   { id: "hr-consulting", label: "HR Consulting", vertical: "hrms", verticalLabel: "HRMS", color: "#0EA5E9" },
   { id: "franchise", label: "Franchise", vertical: "ets", verticalLabel: "EazyToSell", color: "#F97316" },
@@ -255,7 +206,7 @@ export const supransLeads: SupransLead[] = [
     source: "referral",
     status: "enriched",
     notes: "Interested in Shopify + warehousing. Recommended: USDrop AI (Sales).",
-    assignedVertical: "sales",
+    assignedVertical: "usdrop",
     enrichedAt: "2026-02-22T12:00:00Z",
     createdAt: "2026-02-20T10:00:00Z",
     priority: "high",
@@ -283,7 +234,7 @@ export const supransLeads: SupransLead[] = [
     source: "linkedin",
     status: "enriched",
     notes: "SaaS startup — needs Wyoming LLC. Recommended: LegalNations.",
-    assignedVertical: "hr",
+    assignedVertical: "legalnations",
     enrichedAt: "2026-02-21T14:00:00Z",
     createdAt: "2026-02-18T11:00:00Z",
     priority: "high",
@@ -297,7 +248,7 @@ export const supransLeads: SupransLead[] = [
     source: "whatsapp",
     status: "enriched",
     notes: "Luxury China itinerary for 6 people. Recommended: GoyoTours.",
-    assignedVertical: "events",
+    assignedVertical: "goyotours",
     enrichedAt: "2026-02-20T16:00:00Z",
     createdAt: "2026-02-17T08:00:00Z",
     priority: "medium",
@@ -341,7 +292,7 @@ export const supransLeads: SupransLead[] = [
     source: "referral",
     status: "assigned",
     notes: "Dropshipping startup. Assigned to USDrop AI sales team.",
-    assignedVertical: "sales",
+    assignedVertical: "usdrop",
     assignedRep: "Ritu Agarwal",
     enrichedAt: "2026-02-17T11:00:00Z",
     assignedAt: "2026-02-18T09:00:00Z",
@@ -373,7 +324,7 @@ export const supransLeads: SupransLead[] = [
     source: "website",
     status: "assigned",
     notes: "B2B travel agent partnership. Assigned to GoyoTours BD.",
-    assignedVertical: "events",
+    assignedVertical: "goyotours",
     assignedRep: "Vikram Patel",
     enrichedAt: "2026-02-15T10:00:00Z",
     assignedAt: "2026-02-16T09:00:00Z",
@@ -389,7 +340,7 @@ export const supransLeads: SupransLead[] = [
     source: "linkedin",
     status: "converted",
     notes: "LLC formed. Client signed — conversion successful.",
-    assignedVertical: "hr",
+    assignedVertical: "legalnations",
     assignedRep: "Priya Sharma",
     enrichedAt: "2026-02-10T10:00:00Z",
     assignedAt: "2026-02-11T09:00:00Z",

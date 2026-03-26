@@ -43,18 +43,18 @@ const SERVICE_LABELS: Record<string, string> = {
 };
 
 const VERTICAL_OPTIONS = [
-  { value: "hr", label: "LegalNations" },
-  { value: "events", label: "GoyoTours" },
-  { value: "sales", label: "USDrop AI" },
+  { value: "legalnations", label: "LegalNations" },
+  { value: "goyotours", label: "GoyoTours" },
+  { value: "usdrop", label: "USDrop AI" },
   { value: "eventhub", label: "EventHub" },
   { value: "hrms", label: "HRMS" },
   { value: "ets", label: "EazyToSell" },
 ];
 
 const VERTICAL_LABELS: Record<string, string> = {
-  hr: "LegalNations",
-  events: "GoyoTours",
-  sales: "USDrop AI",
+  legalnations: "LegalNations",
+  goyotours: "GoyoTours",
+  usdrop: "USDrop AI",
   eventhub: "EventHub",
   hrms: "HRMS",
   ets: "EazyToSell",

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+import { DataTable, type Column, type RowAction } from "@/components/ds/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { StatsCard } from "@/components/hr/stats-card";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatsCard } from "@/components/ds/stats-card";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PageTransition, Stagger, StaggerItem, Fade } from "@/components/ui/animated";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";

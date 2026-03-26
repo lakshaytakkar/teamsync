@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
-import { StatsCard } from "@/components/hr/stats-card";
+import { StatsCard } from "@/components/ds/stats-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { documentTemplates } from "@/lib/mock-data";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DataTable, type Column } from "@/components/hr/data-table";
+import { DataTable, type Column } from "@/components/ds/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { competitorStores, type CompetitorStore } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";

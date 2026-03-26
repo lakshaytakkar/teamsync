@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { campaigns, socialPosts, type PostStage } from "@/lib/mock-data-social";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { SOCIAL_COLOR } from "@/lib/social-config";
 import { PageShell } from "@/components/layout";
 

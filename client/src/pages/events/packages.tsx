@@ -5,7 +5,7 @@ import { Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 import { Button } from "@/components/ui/button";
 import { tourPackages, type PackageStatus } from "@/lib/mock-data-goyo";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { EVENTS_COLOR } from "@/lib/events-config";
 import {
   PageShell,

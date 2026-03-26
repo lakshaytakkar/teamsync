@@ -1635,3 +1635,24 @@ New role-based LN portal using the admin panel layout (TopNavigation + role swit
 ### Icon Compatibility
 - `client/src/lib/icon-compat.tsx` — Provides `SiLinkedin` as Lucide `Linkedin` fallback (removed from react-icons v5)
 - `SiAmazonwebservices` — removed from imports, falls back to `Globe` via `getIcon()` function
+
+## Architecture Refactor (Mar 2026)
+
+### Vertical ID Rename
+Application-level vertical `id` constants renamed (DB/stored `assignedVertical` values unchanged):
+- `hr` → `legalnations`
+- `sales` → `usdrop`
+- `events` → `goyotours`
+- `admin` → `lbm`
+
+### File Structure Changes
+- **LegalNations pages**: Moved from flat `client/src/pages/ln-*.tsx` to `client/src/pages/legalnations/` (15 files)
+- **Design System components**: `client/src/components/hr/` → `client/src/components/ds/` (all import paths updated)
+- **TypeScript types**: Extracted from 28 mock-data files into `client/src/types/*.ts` (re-exported from mock-data for backward compat)
+
+### Server Routes Split
+`server/routes.ts` monolith split into focused modules under `server/routes/`:
+- `faire.routes.ts` — Faire API, bank transactions, ledger parties, task activity
+- `wise.routes.ts` — Wise API (summary, transfers, sync)
+- `core.routes.ts` — Core API (verticals, users, tasks, channels, resources, contacts, notifications, tickets)
+`server/routes.ts` is now a thin registry that imports and calls the three register functions.

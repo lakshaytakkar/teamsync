@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PersonCell } from "@/components/ui/avatar-cells";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PageShell, DetailSection, DetailModal } from "@/components/layout";
 import { DetailBanner, InfoPropertyGrid } from "@/components/blocks";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

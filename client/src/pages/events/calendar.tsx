@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { PageTransition, Fade } from "@/components/ui/animated";
 import { bookings, tourPackages, type Booking } from "@/lib/mock-data-goyo";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { cn } from "@/lib/utils";
 import { PageShell } from "@/components/layout";
 

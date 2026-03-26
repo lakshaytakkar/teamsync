@@ -3,9 +3,9 @@ import { Plus, Copy, Mail } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { useLocation } from "wouter";
 
-import { DataTable, type Column } from "@/components/hr/data-table";
-import { StatusBadge } from "@/components/hr/status-badge";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { DataTable, type Column } from "@/components/ds/data-table";
+import { StatusBadge } from "@/components/ds/status-badge";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

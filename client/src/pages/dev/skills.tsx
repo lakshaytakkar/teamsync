@@ -18,7 +18,7 @@ import {
   Circle,
   Filter,
 } from "lucide-react";
-import { StatsCard } from "@/components/hr/stats-card";
+import { StatsCard } from "@/components/ds/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

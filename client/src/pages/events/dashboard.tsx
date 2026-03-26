@@ -3,7 +3,7 @@ import { Package, Users, IndianRupee, TrendingUp, AlertTriangle, ChevronRight } 
 import { SiWhatsapp } from "react-icons/si";
 
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {

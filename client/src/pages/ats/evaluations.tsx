@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { evaluations, interviews, type Evaluation } from "@/lib/mock-data-ats";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
 import { PageShell, DetailModal } from "@/components/layout";
 

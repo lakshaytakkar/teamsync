@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { cn } from "@/lib/utils";
 import { PageTransition } from "@/components/ui/animated";
 import { portalDocuments, portalCompanies } from "@/lib/mock-data-portal-legalnations";

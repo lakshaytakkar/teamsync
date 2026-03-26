@@ -15,9 +15,9 @@ import {
   FilterPill,
   PrimaryAction,
 } from "@/components/layout";
-import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
-import { StatusBadge } from "@/components/hr/status-badge";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { DataTable, type Column, type RowAction } from "@/components/ds/data-table";
+import { StatusBadge } from "@/components/ds/status-badge";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";

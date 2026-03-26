@@ -1,4 +1,4 @@
-import { EmptyState } from "@/components/hr/empty-state";
+import { EmptyState } from "@/components/ds/empty-state";
 import notFoundIllustration from "@/assets/illustrations/not-found.webp";
 import { PageTransition } from "@/components/ui/animated";
 

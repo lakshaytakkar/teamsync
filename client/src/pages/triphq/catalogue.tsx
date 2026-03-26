@@ -9,7 +9,7 @@ import { TRIPHQ_COLOR, CATALOGUE_STATUS_CONFIG } from "@/lib/triphq-config";
 import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
 import { SOP_REGISTRY } from "@/lib/sop-data";
 import { PageShell, PageHeader, StatGrid, StatCard, FilterPill } from "@/components/layout";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 

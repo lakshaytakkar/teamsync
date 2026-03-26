@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Building2, Bell, Shield, Puzzle } from "lucide-react";
 
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";

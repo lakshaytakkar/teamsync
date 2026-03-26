@@ -31,7 +31,7 @@ import {
 } from "@/components/layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Textarea } from "@/components/ui/textarea";
 import QRCode from "qrcode";
 

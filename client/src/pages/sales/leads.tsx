@@ -66,7 +66,7 @@ import {
   DataTD,
   DataTR,
 } from "@/components/layout";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { KanbanBoard, type KanbanColumnData, type KanbanCardItem } from "@/components/blocks";
 import { verticals } from "@/lib/verticals-config";
 import { DS } from "@/lib/design-tokens";
@@ -116,7 +116,7 @@ export default function LeadsPage() {
   const [dateFilter, setDateFilter] = useState("all");
   const { toast } = useToast();
 
-  const vertical = verticals.find((v) => v.id === "sales")!;
+  const vertical = verticals.find((v) => v.id === "usdrop")!;
 
   const filtered = useMemo(() => {
     return data.filter((item) => {

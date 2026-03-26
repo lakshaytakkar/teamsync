@@ -1,30 +1,8 @@
 export const LN_PORTAL_COLOR = "#225AEA";
 
-export interface LnCompany {
-  id: string;
-  name: string;
-  entityType: "LLC" | "C-Corp" | "S-Corp";
-  state: string;
-  status: "active" | "forming" | "completed" | "dissolved";
-  currentStage: number;
-  ein?: string;
-  packageTier: string;
-  startedAt: string;
-  registeredAgent?: string;
-  stageCompletionDates?: Record<string, string>;
-}
+import type { LnCompany, LnClientProfile, FormationStageDefinition, DashboardMetrics, ComplianceDeadline, RecentActivity, RmContact, PackageTier, LnDocument, LnInvoiceLineItem, LnInvoice, LnConversation, LnMessage, TaxFilingStatus, TaxFiling, TaxCalendarDeadline, LnClientMode } from "@/types/dashboard-ln";
+export type { LnCompany, LnClientProfile, FormationStageDefinition, DashboardMetrics, ComplianceDeadline, RecentActivity, RmContact, PackageTier, LnDocument, LnInvoiceLineItem, LnInvoice, LnConversation, LnMessage, TaxFilingStatus, TaxFiling, TaxCalendarDeadline, LnClientMode };
 
-export interface LnClientProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  avatar: string;
-  joinedAt: string;
-  specialistName: string;
-  specialistRole: string;
-  companies: LnCompany[];
-}
 
 export const CLIENT_PROFILE: LnClientProfile = {
   id: "LN-C-0042",
@@ -64,13 +42,6 @@ export const CLIENT_PROFILE: LnClientProfile = {
   ],
 };
 
-export interface FormationStageDefinition {
-  id: string;
-  name: string;
-  shortName: string;
-  description: string;
-}
-
 export const FORMATION_STAGES: FormationStageDefinition[] = [
   { id: "s1", name: "Payment & Package Selection", shortName: "Package", description: "Select your formation package and complete payment" },
   { id: "s2", name: "KYC & Document Collection", shortName: "KYC", description: "Upload passport, address proof, and identity documents" },
@@ -80,18 +51,6 @@ export const FORMATION_STAGES: FormationStageDefinition[] = [
   { id: "s6", name: "Banking & Stripe Setup", shortName: "Banking", description: "Open US business bank account and payment processing" },
   { id: "s7", name: "Compliance Calendar & Handover", shortName: "Handover", description: "Deliver compliance calendar and complete document package" },
 ];
-
-export interface DashboardMetrics {
-  activeEntities: number;
-  completedEntities: number;
-  verifiedDocuments: number;
-  pendingDocuments: number;
-  pendingInvoices: number;
-  outstandingAmount: number;
-  unreadMessages: number;
-  nextDeadline: string;
-  nextDeadlineTitle: string;
-}
 
 export const DASHBOARD_METRICS: DashboardMetrics = {
   activeEntities: 1,
@@ -105,15 +64,6 @@ export const DASHBOARD_METRICS: DashboardMetrics = {
   nextDeadlineTitle: "Review BOI Filing Draft",
 };
 
-export interface ComplianceDeadline {
-  id: string;
-  title: string;
-  dueDate: string;
-  company: string;
-  priority: "high" | "medium" | "low";
-  type: "boi" | "annual-report" | "franchise-tax" | "registered-agent" | "tax-filing";
-}
-
 export const COMPLIANCE_DEADLINES: ComplianceDeadline[] = [
   { id: "dl-001", title: "Review BOI Filing Draft", dueDate: "2026-03-05", company: "TechVentures LLC", priority: "high", type: "boi" },
   { id: "dl-002", title: "Pay BOI Filing Invoice", dueDate: "2026-03-10", company: "TechVentures LLC", priority: "medium", type: "boi" },
@@ -122,15 +72,6 @@ export const COMPLIANCE_DEADLINES: ComplianceDeadline[] = [
   { id: "dl-005", title: "Delaware Franchise Tax", dueDate: "2026-06-01", company: "TechVentures LLC", priority: "low", type: "franchise-tax" },
   { id: "dl-006", title: "Registered Agent Renewal", dueDate: "2026-08-20", company: "CloudBase Corp", priority: "low", type: "registered-agent" },
 ];
-
-export interface RecentActivity {
-  id: string;
-  type: "document" | "stage" | "payment" | "message" | "compliance";
-  title: string;
-  description: string;
-  timestamp: string;
-  icon: "check" | "file" | "dollar" | "shield" | "message";
-}
 
 export const RECENT_ACTIVITY: RecentActivity[] = [
   { id: "act-001", type: "compliance", title: "BOI Filing Draft Ready", description: "Review your Beneficial Ownership Information draft in Documents", timestamp: "2026-02-28T09:15:00Z", icon: "shield" },
@@ -143,15 +84,6 @@ export const RECENT_ACTIVITY: RecentActivity[] = [
   { id: "act-008", type: "payment", title: "Premium Package Payment", description: "TechVentures LLC formation package — $1,499", timestamp: "2025-12-12T10:00:00Z", icon: "dollar" },
 ];
 
-export interface RmContact {
-  name: string;
-  role: string;
-  phone: string;
-  whatsApp: string;
-  email: string;
-  avatar: string;
-}
-
 export const RM_CONTACT: RmContact = {
   name: "Priya Sharma",
   role: "Formation Specialist",
@@ -160,15 +92,6 @@ export const RM_CONTACT: RmContact = {
   email: "priya@legalnations.com",
   avatar: "PS",
 };
-
-export interface PackageTier {
-  id: string;
-  name: string;
-  price: number;
-  currency: string;
-  popular?: boolean;
-  features: string[];
-}
 
 export const FORMATION_PACKAGES: PackageTier[] = [
   {
@@ -219,17 +142,6 @@ export const FORMATION_PACKAGES: PackageTier[] = [
   },
 ];
 
-export interface LnDocument {
-  id: string;
-  companyId: string;
-  companyName: string;
-  name: string;
-  category: "formation" | "tax" | "compliance" | "identity" | "banking";
-  uploadedAt: string;
-  size: string;
-  status: "verified" | "pending-review" | "action-required";
-}
-
 export const LN_DOCUMENTS: LnDocument[] = [
   { id: "doc-001", companyId: "co-001", companyName: "TechVentures LLC", name: "Passport - Rajesh Kumar", category: "identity", uploadedAt: "2025-12-15", size: "2.4 MB", status: "verified" },
   { id: "doc-002", companyId: "co-001", companyName: "TechVentures LLC", name: "Address Proof - Utility Bill", category: "identity", uploadedAt: "2025-12-16", size: "1.1 MB", status: "verified" },
@@ -245,26 +157,6 @@ export const LN_DOCUMENTS: LnDocument[] = [
   { id: "doc-012", companyId: "co-002", companyName: "CloudBase Corp", name: "Relay Bank Account Details", category: "banking", uploadedAt: "2025-10-15", size: "95 KB", status: "verified" },
   { id: "doc-013", companyId: "co-002", companyName: "CloudBase Corp", name: "Compliance Calendar 2026", category: "compliance", uploadedAt: "2025-10-28", size: "150 KB", status: "verified" },
 ];
-
-export interface LnInvoiceLineItem {
-  id: string;
-  description: string;
-  amount: number;
-}
-
-export interface LnInvoice {
-  id: string;
-  number: string;
-  description: string;
-  companyId: string;
-  companyName: string;
-  amount: number;
-  status: "paid" | "pending" | "overdue";
-  issuedAt: string;
-  dueDate: string;
-  paidAt?: string;
-  lineItems: LnInvoiceLineItem[];
-}
 
 export const LN_INVOICES: LnInvoice[] = [
   { id: "inv-001", number: "LN-2025-0042", description: "Premium Formation Package — TechVentures LLC", companyId: "co-001", companyName: "TechVentures LLC", amount: 1499, status: "paid", issuedAt: "2025-12-10", dueDate: "2025-12-20", paidAt: "2025-12-12", lineItems: [
@@ -290,27 +182,6 @@ export const LN_INVOICES: LnInvoice[] = [
     { id: "li-010", description: "State Filing Fee (Wyoming)", amount: 50 },
   ]},
 ];
-
-export interface LnConversation {
-  id: string;
-  specialistName: string;
-  specialistRole: string;
-  specialistInitials: string;
-  companyName: string;
-  lastMessage: string;
-  lastTimestamp: string;
-  unread: number;
-}
-
-export interface LnMessage {
-  id: string;
-  conversationId: string;
-  from: string;
-  fromRole: string;
-  isClient: boolean;
-  content: string;
-  timestamp: string;
-}
 
 export const LN_CONVERSATIONS: LnConversation[] = [
   { id: "conv-001", specialistName: "Priya Sharma", specialistRole: "Formation Specialist", specialistInitials: "PS", companyName: "TechVentures LLC", lastMessage: "Once the BOI filing is done, we'll start the Mercury bank account application and Stripe setup.", lastTimestamp: "2026-02-28T09:30:00Z", unread: 1 },
@@ -442,26 +313,6 @@ export const COMPLIANCE_CLIENTS = [
   { id: "CC-004", company: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", boiStatus: "pending-kyc", annualReportDue: "2026-06-01", raExpiry: "2027-02-01", overallHealth: 45 },
 ];
 
-export type TaxFilingStatus = "not-started" | "docs-pending" | "in-prep" | "review" | "client-review" | "ready-to-file" | "mailed" | "filed";
-
-export interface TaxFiling {
-  id: string;
-  company: string;
-  client: string;
-  state: string;
-  ein: string;
-  entityType: "LLC" | "C-Corp" | "S-Corp";
-  taxYear: number;
-  status: TaxFilingStatus;
-  forms: string[];
-  revenue: number;
-  assignedTo: string;
-  dueDate: string;
-  filedDate?: string;
-  trackingNumber?: string;
-  notes: string;
-}
-
 export const TAX_FILINGS: TaxFiling[] = [
   { id: "TF-001", company: "CloudBase Corp", client: "Rajesh Kumar", state: "WY", ein: "92-7654321", entityType: "C-Corp", taxYear: 2025, status: "in-prep", forms: ["Form 1120", "Form 5472"], revenue: 0, assignedTo: "Deepak Verma", dueDate: "2026-04-15", notes: "Zero-activity return, single foreign owner" },
   { id: "TF-002", company: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", ein: "88-1234567", entityType: "LLC", taxYear: 2025, status: "docs-pending", forms: ["Form 1120", "Form 5472"], revenue: 0, assignedTo: "Deepak Verma", dueDate: "2026-04-15", notes: "Awaiting bank statements from client" },
@@ -506,16 +357,6 @@ export const TAX_PREP_STEPS = [
   { n: 8, key: "mail", title: "Mail to IRS", description: "Ship via certified mail through LetterStream" },
 ];
 
-export interface TaxCalendarDeadline {
-  id: string;
-  title: string;
-  date: string;
-  type: "filing" | "extension" | "estimated-tax" | "state" | "reminder";
-  company?: string;
-  priority: "critical" | "high" | "medium" | "low";
-  done: boolean;
-}
-
 export const TAX_CALENDAR_DEADLINES: TaxCalendarDeadline[] = [
   { id: "TC-001", title: "Form 1120 Filing Deadline", date: "2026-04-15", type: "filing", priority: "critical", done: false },
   { id: "TC-002", title: "Form 5472 Filing Deadline", date: "2026-04-15", type: "filing", priority: "critical", done: false },
@@ -528,8 +369,6 @@ export const TAX_CALENDAR_DEADLINES: TaxCalendarDeadline[] = [
   { id: "TC-009", title: "Q4 Estimated Tax Payment", date: "2027-01-15", type: "estimated-tax", priority: "low", done: false },
   { id: "TC-010", title: "MediCare Solutions — Filed", date: "2026-03-10", type: "filing", company: "MediCare Solutions LLC", priority: "critical", done: true },
 ];
-
-export type LnClientMode = "setup" | "active";
 
 const LN_CLIENT_MODE_KEY = "ln-client-dashboard-mode";
 

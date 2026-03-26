@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PersonCell } from "@/components/ui/avatar-cells";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { goals, employees } from "@/lib/mock-data-hrms";
 import { HRMS_GOAL_CONFIG } from "@/lib/hrms-config";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PageShell } from "@/components/layout";
 
 export default function HrmsGoals() {

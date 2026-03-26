@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Search, CheckCircle2, Clock, Users, UserCheck, ChevronDown } from "lucide-react";
 
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

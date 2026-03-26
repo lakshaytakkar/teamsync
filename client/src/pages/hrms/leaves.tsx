@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { leaveRequests } from "@/lib/mock-data-hrms";
 import {
   PageShell,
@@ -20,7 +20,7 @@ import {
   IndexToolbar,
   PrimaryAction,
 } from "@/components/layout";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
 import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
 import { SOP_REGISTRY } from "@/lib/sop-data";

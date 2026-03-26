@@ -17,7 +17,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PersonCell } from "@/components/ui/avatar-cells";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
@@ -62,7 +62,7 @@ function getDaysStuckVariant(days: number): "error" | "warning" | "success" {
 export default function LLCTrackerPage() {
   const loading = useSimulatedLoading();
   const { toast } = useToast();
-  const vertical = verticals.find((v) => v.id === "sales")!;
+  const vertical = verticals.find((v) => v.id === "usdrop")!;
 
   const [data, setData] = useState<LLCApplication[]>(llcApplications);
   const [search, setSearch] = useState("");

@@ -1,7 +1,7 @@
 import { Package, ShoppingCart, TrendingUp, BarChart3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { StatsCard } from "@/components/hr/stats-card";
+import { StatsCard } from "@/components/ds/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { products, categories } from "@/lib/mock-data-sales";

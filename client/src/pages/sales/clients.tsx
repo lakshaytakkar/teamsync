@@ -11,8 +11,8 @@ import {
 import { PageShell } from "@/components/layout";
 import { PageTransition } from "@/components/ui/animated";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { DataTable, type Column, type RowAction } from "@/components/ds/data-table";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

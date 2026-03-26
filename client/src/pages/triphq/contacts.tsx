@@ -10,8 +10,8 @@ import { TRIPHQ_COLOR, CONTACT_STATUS_CONFIG } from "@/lib/triphq-config";
 import { SopModal, TutorialModal, SopTutorialButtons } from "@/components/sop/sop-modal";
 import { SOP_REGISTRY } from "@/lib/sop-data";
 import { PageShell, PageHeader, StatGrid, StatCard, FilterPill } from "@/components/layout";
-import { FormDialog } from "@/components/hr/form-dialog";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { FormDialog } from "@/components/ds/form-dialog";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 

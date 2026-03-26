@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormDialog } from "@/components/hr/form-dialog";
+import { FormDialog } from "@/components/ds/form-dialog";
 import { Label } from "@/components/ui/label";
 import { PageHeader, PageShell } from "@/components/layout";
 import { Skeleton } from "@/components/ui/skeleton";

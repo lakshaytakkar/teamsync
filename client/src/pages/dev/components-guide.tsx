@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { getPersonAvatar, getThingAvatar } from "@/lib/avatars";
 import { TeamSyncLogo } from "@/components/brand/teamsync-logo";
 import { TeamSyncMascot } from "@/components/brand/teamsync-mascot";

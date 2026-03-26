@@ -7,7 +7,7 @@ import { PageShell, PageHeader, HeroBanner, StatCard, StatGrid, SectionCard,
   SectionGrid, FilterPill, PrimaryAction, IndexToolbar, DataTableContainer,
   DataTH, DataTD, DataTR, DetailModal, DetailSection, InfoRow
 } from "@/components/layout";
-import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+import { DataTable, type Column, type RowAction } from "@/components/ds/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { cn } from "@/lib/utils";
 
 const BRAND = "#225AEA";
@@ -99,7 +99,7 @@ function DataTableFullExample() {
     <div className="space-y-4">
       <SectionTitle
         title="DataTable (Full-Featured)"
-        description="Shared DataTable from @/components/hr/data-table — search, sort, filters, pagination, row actions, bulk select, empty states."
+        description="Shared DataTable from @/components/ds/data-table — search, sort, filters, pagination, row actions, bulk select, empty states."
         usedIn={["Tickets", "Clients", "Pipeline", "Employees", "Orders", "Budget", "Attendees"]}
       />
       <DataTable
@@ -363,7 +363,7 @@ function BadgesExample() {
     <div className="space-y-4">
       <SectionTitle
         title="Badges & Status"
-        description="StatusBadge from @/components/hr/, Badge variants from @/components/ui/. Consistent status indicators."
+        description="StatusBadge from @/components/ds/, Badge variants from @/components/ui/. Consistent status indicators."
         usedIn={["All Tables", "Kanban Cards", "Detail Pages", "Dashboards"]}
       />
       <div className="space-y-4">

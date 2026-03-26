@@ -22,7 +22,7 @@ import {
 } from "@/components/layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 
 export default function HrmsEmployees() {
   const [, setLocation] = useLocation();

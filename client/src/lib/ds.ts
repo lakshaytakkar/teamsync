@@ -21,13 +21,13 @@ export {
   InfoRow,
 } from "@/components/layout";
 
-export { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+export { DataTable, type Column, type RowAction } from "@/components/ds/data-table";
 export { PersonCell, CompanyCell } from "@/components/ui/avatar-cells";
-export { StatusBadge } from "@/components/hr/status-badge";
-export { FormDialog } from "@/components/hr/form-dialog";
-export { StatsCard } from "@/components/hr/stats-card";
-export { EmptyState } from "@/components/hr/empty-state";
-export { StageStepper, MiniStageStepper } from "@/components/hr/stage-stepper";
+export { StatusBadge } from "@/components/ds/status-badge";
+export { FormDialog } from "@/components/ds/form-dialog";
+export { StatsCard } from "@/components/ds/stats-card";
+export { EmptyState } from "@/components/ds/empty-state";
+export { StageStepper, MiniStageStepper } from "@/components/ds/stage-stepper";
 
 export {
   TwoColumn, ThreeColumn, FourColumn, AsymmetricColumns,

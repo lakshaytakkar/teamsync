@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { DataTable, type Column, type RowAction } from "@/components/hr/data-table";
+import { DataTable, type Column, type RowAction } from "@/components/ds/data-table";
 import { mentorshipSessions as initialSessions, type MentorshipSession } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import {

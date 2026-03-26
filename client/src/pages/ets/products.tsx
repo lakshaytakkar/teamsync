@@ -5,8 +5,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { StatsCard } from "@/components/hr/stats-card";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatsCard } from "@/components/ds/stats-card";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PageTransition, Fade, Stagger, StaggerItem } from "@/components/ui/animated";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
 import {

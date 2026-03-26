@@ -1,5 +1,5 @@
 import { BarChart3, Clock, TrendingUp, AlertTriangle } from "lucide-react";
-import { StatsCard } from "@/components/hr/stats-card";
+import { StatsCard } from "@/components/ds/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formationMetrics, formationClients, stageDefinitions } from "@/lib/mock-data";

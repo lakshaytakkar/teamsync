@@ -6,7 +6,7 @@ import { PageTransition, Fade } from "@/components/ui/animated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PersonCell } from "@/components/ui/avatar-cells";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { jobOpenings, applications, candidates } from "@/lib/mock-data-ats";

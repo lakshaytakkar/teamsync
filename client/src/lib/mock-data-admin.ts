@@ -1,39 +1,6 @@
-export interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  department: string;
-  status: "active" | "inactive" | "invited";
-  joinedDate: string;
-  lastActive: string;
-}
+import type { TeamMember, SystemStat, ActivityLog, Report } from "@/types/admin";
+export type { TeamMember, SystemStat, ActivityLog, Report };
 
-export interface SystemStat {
-  label: string;
-  value: number;
-  change: number;
-  unit?: string;
-}
-
-export interface ActivityLog {
-  id: string;
-  user: string;
-  action: string;
-  target: string;
-  timestamp: string;
-  type: "create" | "update" | "delete" | "login" | "export";
-}
-
-export interface Report {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  lastGenerated: string;
-  frequency: string;
-  status: "ready" | "generating" | "scheduled";
-}
 
 export const teamMembers: TeamMember[] = [
   { id: "TM-001", name: "Arjun Mehta", email: "arjun.mehta@lumin.com", role: "Tech Lead", department: "Engineering", status: "active", joinedDate: "2023-01-15", lastActive: "2025-02-27" },

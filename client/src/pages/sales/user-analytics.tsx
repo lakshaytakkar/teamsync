@@ -1,6 +1,6 @@
 import { Users, UserPlus, UserMinus, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { StatsCard } from "@/components/hr/stats-card";
+import { StatsCard } from "@/components/ds/stats-card";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { externalUsers, leads, subscriptions, revenueMetrics } from "@/lib/mock-data-sales";

@@ -10,7 +10,7 @@ import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { useToast } from "@/hooks/use-toast";
 import { socialPosts, campaigns } from "@/lib/mock-data-social";
 import { SOCIAL_COLOR } from "@/lib/social-config";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { PageShell } from "@/components/layout";
 
 

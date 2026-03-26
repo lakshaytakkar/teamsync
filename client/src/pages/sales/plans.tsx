@@ -1,7 +1,7 @@
 import { Users, Check, DollarSign, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { StatsCard } from "@/components/hr/stats-card";
+import { StatsCard } from "@/components/ds/stats-card";
 import { planTiers, type PlanTier } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { StatsCardSkeleton } from "@/components/ui/card-skeleton";

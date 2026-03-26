@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Button } from "@/components/ui/button";
 import {
   PageShell,

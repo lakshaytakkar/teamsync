@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { ArrowLeft, MapPin, Users, Calendar, IndianRupee, CheckCircle2, Clock, Tag } from "lucide-react";
 
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

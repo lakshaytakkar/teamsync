@@ -44,9 +44,9 @@ const SERVICE_LABELS: Record<string, string> = {
 };
 
 const VERTICAL_OPTIONS = [
-  { value: "hr", label: "LegalNations", color: "#225AEA" },
-  { value: "events", label: "GoyoTours", color: "#E91E63" },
-  { value: "sales", label: "USDrop AI", color: "#F34147" },
+  { value: "legalnations", label: "LegalNations", color: "#225AEA" },
+  { value: "goyotours", label: "GoyoTours", color: "#E91E63" },
+  { value: "usdrop", label: "USDrop AI", color: "#F34147" },
   { value: "eventhub", label: "EventHub", color: "#7C3AED" },
   { value: "hrms", label: "HRMS", color: "#0EA5E9" },
   { value: "ets", label: "EazyToSell", color: "#F97316" },

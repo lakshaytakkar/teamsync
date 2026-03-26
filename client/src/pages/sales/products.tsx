@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { DataTable, type Column } from "@/components/hr/data-table";
+import { DataTable, type Column } from "@/components/ds/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import { products as initialProducts, type Product } from "@/lib/mock-data-sales";
 import { useSimulatedLoading } from "@/hooks/use-simulated-loading";
 import { PageShell, PageHeader } from "@/components/layout";
@@ -57,7 +57,7 @@ export default function ProductsPage() {
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
   const [editForm, setEditForm] = useState<Product | null>(null);
 
-  const vertical = verticals.find((v) => v.id === "sales")!;
+  const vertical = verticals.find((v) => v.id === "usdrop")!;
 
   const toggleField = (id: string, field: "isTrending" | "isWinning" | "isLocked") => {
     setData((prev) =>

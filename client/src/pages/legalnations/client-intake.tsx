@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { CheckCircle, ArrowRight } from "lucide-react";
-import { DataTable, type Column } from "@/components/hr/data-table";
+import { DataTable, type Column } from "@/components/ds/data-table";
 import { TableSkeleton } from "@/components/ui/table-skeleton";
-import { StatusBadge } from "@/components/hr/status-badge";
-import { StatsCard } from "@/components/hr/stats-card";
-import { MiniStageStepper } from "@/components/hr/stage-stepper";
+import { StatusBadge } from "@/components/ds/status-badge";
+import { StatsCard } from "@/components/ds/stats-card";
+import { MiniStageStepper } from "@/components/ds/stage-stepper";
 import { Button } from "@/components/ui/button";
 import { formationClients, stageChecklists, clientDocuments } from "@/lib/mock-data";
 import { stageDefinitions } from "@shared/schema";

@@ -30,7 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PersonCell } from "@/components/ui/avatar-cells";
 import { cn } from "@/lib/utils";
-import { StatusBadge } from "@/components/hr/status-badge";
+import { StatusBadge } from "@/components/ds/status-badge";
 import {
   Select,
   SelectContent,
