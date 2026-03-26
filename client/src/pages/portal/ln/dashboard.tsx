@@ -209,11 +209,17 @@ export default function LnDashboard() {
             <CardContent className="space-y-3">
               {COMPLIANCE_DEADLINES.slice(0, 4).map((dl) => (
                 <div key={dl.id} className="flex items-start gap-3" data-testid={`deadline-${dl.id}`}>
-                  <div className={cn(
-                    "size-2 rounded-full mt-2 shrink-0",
-                    dl.priority === "high" ? "bg-red-500" :
-                    dl.priority === "medium" ? "bg-amber-500" : "bg-green-500"
-                  )} />
+                  <Badge
+                    variant="secondary"
+                    className={cn(
+                      "text-[9px] mt-1 shrink-0 px-1.5 py-0",
+                      dl.priority === "high" ? "bg-red-100 text-red-700" :
+                      dl.priority === "medium" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
+                    )}
+                    data-testid={`badge-priority-${dl.id}`}
+                  >
+                    {dl.priority === "high" ? "High" : dl.priority === "medium" ? "Medium" : "Low"}
+                  </Badge>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">{dl.title}</p>
                     <div className="flex items-center gap-2 mt-0.5">

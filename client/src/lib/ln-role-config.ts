@@ -62,7 +62,7 @@ export const LN_ROLES: LnRoleDefinition[] = [
   },
   {
     id: "formation",
-    label: "Formation",
+    label: "Formation Specialist",
     description: "Pipeline execution & client stages",
     color: "#0ea5e9",
     bgColor: "bg-sky-100",
@@ -80,7 +80,7 @@ export const LN_ROLES: LnRoleDefinition[] = [
   },
   {
     id: "compliance",
-    label: "Compliance",
+    label: "Compliance Officer",
     description: "BOI filings, annual reports & deadlines",
     color: "#10b981",
     bgColor: "bg-emerald-100",
@@ -98,7 +98,7 @@ export const LN_ROLES: LnRoleDefinition[] = [
   },
   {
     id: "tax",
-    label: "Tax",
+    label: "Tax Specialist",
     description: "IRS filings & tax season tracking",
     color: "#f59e0b",
     bgColor: "bg-amber-100",
