@@ -19,8 +19,7 @@ interface EtsRoleContextValue {
   isCashier: boolean;
 }
 
-import { createContext as _createContext } from "react";
-export const EtsRoleContext = _createContext<EtsRoleContextValue>({
+export const EtsRoleContext = createContext<EtsRoleContextValue>({
   roleId: "partner",
   subRole: "owner",
   role: getEtsRole("partner"),
