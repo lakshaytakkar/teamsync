@@ -1,261 +1,279 @@
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CheckSquare, AlertTriangle, Phone, Clock, ChevronRight } from "lucide-react";
+import {
+  Users,
+  AlertTriangle,
+  CheckSquare,
+  Ticket,
+  ChevronRight,
+  Calendar,
+  Clock,
+} from "lucide-react";
+import {
+  mockOpsClients,
+  mockMilestonePayments,
+  mockChecklist,
+  mockClientChecklistStates,
+  mockTickets,
+  mockBatches,
+  OPS_STAGE_LABELS,
+  type OpsClient,
+} from "@/lib/mock-data-ops-ets";
 
-const CLIENTS = [
-  { id: "C001", name: "Meena Singh", city: "Lucknow", stage: "In Transit", milestone: "Delivery Confirmed", progress: 70, manager: "Aditya", daysInStage: 4 },
-  { id: "C002", name: "Prashant Yadav", city: "Kanpur", stage: "Token Paid", milestone: "Store Design Sent", progress: 35, manager: "Aditya", daysInStage: 9 },
-  { id: "C003", name: "Anita Sharma", city: "Agra", stage: "Store Design", milestone: "3D Layout Approved", progress: 52, manager: "Aditya", daysInStage: 6 },
-  { id: "C004", name: "Sonal Gupta", city: "Ahmedabad", stage: "Qualified", milestone: "Profile Completed", progress: 20, manager: "Aditya", daysInStage: 2 },
-  { id: "C005", name: "Kiran Patel", city: "Vadodara", stage: "Inventory Ordered", milestone: "PO Raised", progress: 60, manager: "Aditya", daysInStage: 7 },
-];
+function daysSince(dateStr: string): number {
+  const d = new Date(dateStr);
+  const now = new Date("2026-03-26");
+  return Math.max(0, Math.floor((now.getTime() - d.getTime()) / 86400000));
+}
 
-const OPEN_TICKETS = [
-  { id: "T001", client: "Meena Singh", issue: "Shipment tracking link not working", priority: "High", opened: "2 days ago" },
-  { id: "T002", client: "Prashant Yadav", issue: "Store design revision requested", priority: "Medium", opened: "4 days ago" },
-  { id: "T003", client: "Kiran Patel", issue: "Product pricing query on imported items", priority: "Low", opened: "1 day ago" },
-];
+function fmtDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
 
-const STAGE_COLORS: Record<string, string> = {
-  "In Transit": "bg-blue-100 text-blue-700",
-  "Token Paid": "bg-green-100 text-green-700",
-  "Store Design": "bg-purple-100 text-purple-700",
-  "Qualified": "bg-gray-100 text-gray-600",
-  "Inventory Ordered": "bg-amber-100 text-amber-700",
-};
+function daysUntil(dateStr: string): number {
+  const d = new Date(dateStr);
+  const now = new Date("2026-03-26");
+  return Math.ceil((d.getTime() - now.getTime()) / 86400000);
+}
+
+const activeClients = mockOpsClients.filter((c) => c.currentStage !== "launched");
+
+const overdueMilestones = mockMilestonePayments.filter(
+  (m) => !m.isPaid && new Date(m.dueDate) < new Date("2026-03-26")
+).length;
+
+const overdueChecklistClients = mockClientChecklistStates.filter((cs) => {
+  const client = mockOpsClients.find((c) => c.id === cs.clientId);
+  if (!client || client.currentStage === "launched") return false;
+  const stageIdx = ["token-paid","space-confirmed","design-phase","interior-construction","inventory-ordered","goods-at-warehouse","mrp-tagging","dispatched","store-ready","launched"].indexOf(client.currentStage);
+  const expectedPct = Math.round((stageIdx / 9) * 100);
+  const actualPct = Math.round((cs.completedItems.length / mockChecklist.length) * 100);
+  return actualPct < expectedPct - 20;
+}).length;
+
+const openTickets = mockTickets.filter((t) => t.status === "open" || t.status === "in-progress").length;
+
+function urgencyScore(client: OpsClient): number {
+  const dtu = daysUntil(client.estimatedLaunchDate);
+  const dtsPenalty = dtu < 30 ? (30 - dtu) * 2 : 0;
+  const overdueMilestoneCount = mockMilestonePayments.filter(
+    (m) => m.clientId === client.id && !m.isPaid && new Date(m.dueDate) < new Date("2026-03-26")
+  ).length;
+  return dtsPenalty + overdueMilestoneCount * 5;
+}
+
+const sortedClients = [...activeClients].sort((a, b) => urgencyScore(b) - urgencyScore(a));
 
 export default function EtsOpsPortal() {
+  const [, navigate] = useLocation();
+
   return (
-    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ops-portal-dashboard">
+    <div className="px-6 lg:px-10 py-6 space-y-6" data-testid="ops-portal-dashboard">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-lg">
         <div className="relative z-10">
           <p className="text-sm text-emerald-200 mb-1">Operations Center</p>
           <h1 className="text-2xl font-bold" data-testid="text-ops-title">Client Stage Management</h1>
-          <div className="flex items-center gap-6 mt-3 text-sm text-emerald-200">
-            <span><strong className="text-white">{CLIENTS.length}</strong> Active Clients</span>
-            <span><strong className="text-white">{OPEN_TICKETS.length}</strong> Open Tickets</span>
-            <span><strong className="text-white">{CLIENTS.filter(c => c.daysInStage > 5).length}</strong> Overdue</span>
-          </div>
+          <p className="text-sm text-emerald-200 mt-1">Aditya · March 26, 2026</p>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold">Client Stages</CardTitle>
-              <Badge variant="outline" className="text-xs">{CLIENTS.length} clients</Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3">
-            {CLIENTS.map((client) => (
-              <div
-                key={client.id}
-                className={`p-3 rounded-xl border ${client.daysInStage > 7 ? "border-amber-200 bg-amber-50/40" : "bg-muted/30 border-transparent"}`}
-                data-testid={`client-stage-${client.id}`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-600">{client.name[0]}</div>
-                    <div>
-                      <p className="text-sm font-medium">{client.name}</p>
-                      <p className="text-xs text-muted-foreground">{client.city}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <Badge className={`text-[10px] ${STAGE_COLORS[client.stage] || ""}`} variant="outline">{client.stage}</Badge>
-                    {client.daysInStage > 7 && (
-                      <p className="text-[10px] text-amber-600 mt-0.5">⚠ {client.daysInStage}d in stage</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Progress value={client.progress} className="flex-1 h-1.5" />
-                  <span className="text-xs text-muted-foreground w-8 text-right">{client.progress}%</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Milestone: {client.milestone}</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="ops-kpi-cards">
+        <Card className="border-0 shadow-sm" data-testid="kpi-active-clients">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <Users className="w-4 h-4 text-emerald-600" />
               </div>
-            ))}
+              <span className="text-xs text-muted-foreground">Active Clients</span>
+            </div>
+            <p className="text-2xl font-bold">{activeClients.length}</p>
+            <p className="text-xs text-muted-foreground">Not yet launched</p>
           </CardContent>
         </Card>
+        <Card className="border-0 shadow-sm" data-testid="kpi-overdue-milestones">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-red-600" />
+              </div>
+              <span className="text-xs text-muted-foreground">Overdue Milestones</span>
+            </div>
+            <p className={`text-2xl font-bold ${overdueMilestones > 0 ? "text-red-600" : ""}`}>{overdueMilestones}</p>
+            <p className="text-xs text-muted-foreground">Payments past due</p>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-sm" data-testid="kpi-overdue-checklist">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                <CheckSquare className="w-4 h-4 text-amber-600" />
+              </div>
+              <span className="text-xs text-muted-foreground">Behind on Checklist</span>
+            </div>
+            <p className={`text-2xl font-bold ${overdueChecklistClients > 0 ? "text-amber-600" : ""}`}>{overdueChecklistClients}</p>
+            <p className="text-xs text-muted-foreground">Clients behind schedule</p>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-sm" data-testid="kpi-open-tickets">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                <Ticket className="w-4 h-4 text-orange-600" />
+              </div>
+              <span className="text-xs text-muted-foreground">Open Tickets</span>
+            </div>
+            <p className={`text-2xl font-bold ${openTickets > 0 ? "text-orange-600" : ""}`}>{openTickets}</p>
+            <p className="text-xs text-muted-foreground">Open or in-progress</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 space-y-3" data-testid="active-client-list">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-sm">Active Clients — Urgency Sorted</h2>
+            <span className="text-xs text-muted-foreground">{sortedClients.length} clients</span>
+          </div>
+          {sortedClients.map((client) => {
+            const checklistState = mockClientChecklistStates.find((cs) => cs.clientId === client.id);
+            const checklistPct = checklistState
+              ? Math.round((checklistState.completedItems.length / mockChecklist.length) * 100)
+              : 0;
+            const overdueMs = mockMilestonePayments.filter(
+              (m) => m.clientId === client.id && !m.isPaid && new Date(m.dueDate) < new Date("2026-03-26")
+            ).length;
+            const dtu = daysUntil(client.estimatedLaunchDate);
+            const isUrgent = dtu < 14 || overdueMs > 0;
+
+            return (
+              <Card
+                key={client.id}
+                className={`border shadow-sm cursor-pointer hover:shadow-md transition-shadow ${isUrgent ? "border-amber-200 bg-amber-50/30" : "border-transparent"}`}
+                onClick={() => navigate(`/portal-ets/ops/client/${client.id}`)}
+                data-testid={`client-card-${client.id}`}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-sm font-bold text-emerald-700 shrink-0">
+                        {client.name[0]}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-sm" data-testid={`client-name-${client.id}`}>{client.name}</p>
+                          <span className="text-xs text-muted-foreground">{client.city}</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <Badge variant="outline" className="text-[10px] border-emerald-200 text-emerald-700">
+                            {OPS_STAGE_LABELS[client.currentStage]}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                            <Clock className="w-3 h-3" /> {daysSince(client.tokenPaidDate)}d since token
+                          </span>
+                          {overdueMs > 0 && (
+                            <span className="text-[10px] text-red-600 flex items-center gap-0.5">
+                              <AlertTriangle className="w-3 h-3" /> {overdueMs} overdue payment
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-xs text-muted-foreground">Launch in</p>
+                      <p className={`text-sm font-semibold ${dtu < 14 ? "text-red-600" : dtu < 30 ? "text-amber-600" : "text-foreground"}`}>
+                        {dtu < 0 ? `${Math.abs(dtu)}d overdue` : `${dtu}d`}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">{fmtDate(client.estimatedLaunchDate)}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] text-muted-foreground">Readiness checklist</span>
+                      <span className="text-[10px] text-muted-foreground">{checklistPct}%</span>
+                    </div>
+                    <Progress value={checklistPct} className="h-1.5" />
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
         <div className="space-y-4">
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-500" /> Open Tickets
-              </CardTitle>
+          <h2 className="font-semibold text-sm">Current Batches</h2>
+          {mockBatches.map((batch) => {
+            const batchClients = mockOpsClients.filter((c) => batch.clientIds.includes(c.id));
+            return (
+              <Card key={batch.id} className="border-0 shadow-sm" data-testid={`batch-card-${batch.id}`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold">{batch.name}</CardTitle>
+                  <p className="text-xs text-muted-foreground">Target: {fmtDate(batch.targetLaunchDate)}</p>
+                </CardHeader>
+                <CardContent className="pt-0 space-y-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Progress value={batch.overallProgress} className="flex-1 h-2" />
+                    <span className="text-xs font-medium">{batch.overallProgress}%</span>
+                  </div>
+                  {batchClients.map((c) => (
+                    <div key={c.id} className="flex items-center justify-between text-xs" data-testid={`batch-client-${c.id}`}>
+                      <span className="font-medium truncate">{c.name}</span>
+                      <Badge variant="outline" className="text-[9px] ml-2 border-emerald-200 text-emerald-700 shrink-0">
+                        {OPS_STAGE_LABELS[c.currentStage]}
+                      </Badge>
+                    </div>
+                  ))}
+                  {batch.blockers.length > 0 && (
+                    <div className="mt-3 pt-2 border-t space-y-1">
+                      <p className="text-[10px] font-semibold text-red-600 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" /> Blockers
+                      </p>
+                      {batch.blockers.map((b, i) => (
+                        <p key={i} className="text-[10px] text-muted-foreground leading-snug">{b}</p>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+
+          <Card className="border-0 shadow-sm" data-testid="card-quick-tickets">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Open Tickets
+                </CardTitle>
+                <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => navigate("/portal-ets/ops/tickets")} data-testid="button-view-all-tickets">
+                  View all <ChevronRight className="w-3 h-3 ml-0.5" />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="pt-0 space-y-2">
-              {OPEN_TICKETS.map((ticket) => (
+              {mockTickets.filter((t) => t.status === "open" || t.status === "in-progress").slice(0, 3).map((ticket) => (
                 <div
                   key={ticket.id}
-                  className="p-3 rounded-xl bg-muted/40 space-y-1"
-                  data-testid={`ticket-${ticket.id}`}
+                  className="p-2.5 rounded-lg bg-muted/40 cursor-pointer hover:bg-muted/60 transition-colors"
+                  onClick={() => navigate("/portal-ets/ops/tickets")}
+                  data-testid={`quick-ticket-${ticket.id}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold">{ticket.client}</span>
+                  <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <span className="text-xs font-medium truncate">{ticket.clientName}</span>
                     <Badge
                       variant="outline"
-                      className={`text-[10px] ${ticket.priority === "High" ? "border-red-300 text-red-700 bg-red-50" : ticket.priority === "Medium" ? "border-amber-300 text-amber-700 bg-amber-50" : "border-gray-200 text-gray-500"}`}
+                      className={`text-[9px] shrink-0 ${ticket.priority === "urgent" ? "border-red-200 text-red-700 bg-red-50" : ticket.priority === "high" ? "border-orange-200 text-orange-700 bg-orange-50" : "border-yellow-200 text-yellow-700 bg-yellow-50"}`}
                     >
                       {ticket.priority}
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">{ticket.issue}</p>
-                  <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" /> {ticket.opened}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <CheckSquare className="w-4 h-4 text-emerald-500" /> Readiness Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-2">
-              {CLIENTS.slice(0, 3).map((client) => (
-                <div key={client.id} className="flex items-center justify-between" data-testid={`readiness-${client.id}`}>
-                  <div>
-                    <p className="text-xs font-medium">{client.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{client.stage}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Progress value={client.progress} className="w-20 h-1.5" />
-                    <span className="text-xs text-muted-foreground">{client.progress}%</span>
-                  </div>
+                  <p className="text-[10px] text-muted-foreground leading-snug">{ticket.title}</p>
                 </div>
               ))}
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
-  );
-}
-
-export function EtsOpsStages() {
-  return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
-      <h1 className="text-xl font-bold">Client Stage Tracker</h1>
-      <div className="space-y-3">
-        {CLIENTS.map((client) => (
-          <Card key={client.id} className="border-0 shadow-sm" data-testid={`stage-card-${client.id}`}>
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center font-bold text-emerald-600">{client.name[0]}</div>
-                  <div>
-                    <p className="font-semibold">{client.name}</p>
-                    <p className="text-sm text-muted-foreground">{client.city}</p>
-                  </div>
-                </div>
-                <Badge className={STAGE_COLORS[client.stage] || ""} variant="outline">{client.stage}</Badge>
-              </div>
-              <Progress value={client.progress} className="h-2 mb-2" />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Milestone: {client.milestone}</span>
-                <span>{client.progress}% complete</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function EtsOpsMilestones() {
-  return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
-      <h1 className="text-xl font-bold">Milestone Tracker</h1>
-      <div className="space-y-4">
-        {CLIENTS.map((client) => (
-          <Card key={client.id} className="border-0 shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <p className="font-semibold">{client.name} — {client.city}</p>
-                  <Badge className={STAGE_COLORS[client.stage] || ""} variant="outline">{client.stage}</Badge>
-                </div>
-                <span className="text-sm font-bold text-emerald-600">{client.progress}%</span>
-              </div>
-              <div className="space-y-1.5">
-                {["Profile Setup", "Token Payment", "Store Design", "Inventory Order", "Launch Readiness"].map((ms, i) => (
-                  <div key={ms} className="flex items-center gap-2 text-sm">
-                    <CheckSquare className={`w-4 h-4 ${client.progress > (i * 20) ? "text-emerald-500" : "text-gray-200"}`} />
-                    <span className={client.progress > (i * 20) ? "text-foreground" : "text-muted-foreground"}>{ms}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function EtsOpsTickets() {
-  return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
-      <h1 className="text-xl font-bold">Support Tickets</h1>
-      <div className="space-y-3">
-        {OPEN_TICKETS.map((ticket) => (
-          <Card key={ticket.id} className="border-0 shadow-sm" data-testid={`ops-ticket-${ticket.id}`}>
-            <CardContent className="p-5 flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-mono text-muted-foreground">{ticket.id}</span>
-                  <Badge
-                    variant="outline"
-                    className={`text-[10px] ${ticket.priority === "High" ? "border-red-300 text-red-700" : ticket.priority === "Medium" ? "border-amber-300 text-amber-700" : "border-gray-200 text-gray-500"}`}
-                  >
-                    {ticket.priority}
-                  </Badge>
-                </div>
-                <p className="font-medium">{ticket.issue}</p>
-                <p className="text-sm text-muted-foreground">Client: {ticket.client} · {ticket.opened}</p>
-              </div>
-              <Button size="sm" variant="outline">Resolve</Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function EtsOpsReadiness() {
-  return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
-      <h1 className="text-xl font-bold">Store Readiness Checklist</h1>
-      <div className="space-y-4">
-        {CLIENTS.map((client) => (
-          <Card key={client.id} className="border-0 shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex justify-between items-center mb-4">
-                <div>
-                  <p className="font-semibold">{client.name}</p>
-                  <p className="text-sm text-muted-foreground">{client.city} · {client.stage}</p>
-                </div>
-                <Progress value={client.progress} className="w-24 h-2" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {["Store Profile Complete", "3D Design Approved", "Inventory Ordered", "Staff Hired", "POS Installed", "Ready to Launch"].map((item, i) => (
-                  <div key={item} className="flex items-center gap-2 text-xs">
-                    <div className={`w-3 h-3 rounded-full border-2 ${client.progress > (i * 16.66) ? "bg-emerald-500 border-emerald-500" : "border-gray-300"}`} />
-                    <span className={client.progress > (i * 16.66) ? "text-foreground" : "text-muted-foreground"}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
       </div>
     </div>
   );

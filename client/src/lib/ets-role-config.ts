@@ -93,10 +93,9 @@ export const ETS_ROLES: EtsRoleDefinition[] = [
     defaultUrl: "/portal-ets/ops",
     navItems: [
       { title: "Dashboard", url: "/portal-ets/ops", icon: LayoutDashboard },
-      { title: "Client Stages", url: "/portal-ets/ops/stages", icon: Kanban },
-      { title: "Milestones", url: "/portal-ets/ops/milestones", icon: CheckSquare },
+      { title: "Client Journey", url: "/portal-ets/ops/clients", icon: Kanban },
       { title: "Tickets", url: "/portal-ets/ops/tickets", icon: AlertTriangle },
-      { title: "Readiness", url: "/portal-ets/ops/readiness", icon: ClipboardList },
+      { title: "Team Assignments", url: "/portal-ets/ops/team", icon: Users },
     ],
   },
   {

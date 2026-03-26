@@ -240,7 +240,11 @@ import EtsPortalDailyReport from "@/pages/portal/ets/daily-report";
 import EtsPortalStoreSettings from "@/pages/portal/ets/store-settings";
 import EtsAdminPortal, { EtsAdminPipeline, EtsAdminTeam, EtsAdminRevenue, EtsAdminSettings } from "@/pages/portal/ets/admin-portal";
 import EtsSalesPortal, { EtsSalesPipeline, EtsSalesProposals, EtsSalesScripts, EtsSalesFollowups, EtsSalesCalendar } from "@/pages/portal/ets/sales-portal";
-import EtsOpsPortal, { EtsOpsStages, EtsOpsMilestones, EtsOpsTickets, EtsOpsReadiness } from "@/pages/portal/ets/ops-portal";
+import EtsOpsPortal from "@/pages/portal/ets/ops-portal";
+import EtsOpsClientsPage from "@/pages/portal/ets/ops-clients";
+import EtsOpsClientJourney from "@/pages/portal/ets/ops-client-journey";
+import EtsOpsTicketsPage from "@/pages/portal/ets/ops-tickets";
+import EtsOpsTeamPage from "@/pages/portal/ets/ops-team";
 import EtsFulfillmentPortal, { EtsFulfillmentOrders, EtsFulfillmentOrderDetail, EtsFulfillmentQC, EtsFulfillmentDispatch, EtsFulfillmentStickers, EtsFulfillmentBatches } from "@/pages/portal/ets/fulfillment-portal";
 import EtsProductPortal, { EtsProductCategories, EtsProductPricing, EtsProductCompliance, EtsProductBulkUpload, EtsProductList } from "@/pages/portal/ets/product-portal";
 import EtsVendorPortal, { EtsVendorListings, EtsVendorOrders, EtsVendorStock, EtsVendorKYC } from "@/pages/portal/ets/vendor-portal";
@@ -528,10 +532,10 @@ function Router() {
       <Route path="/portal-ets/sales/calendar" component={EtsSalesCalendar} />
       <Route path="/portal-ets/sales/dashboard" component={EtsSalesPortal} />
       <Route path="/portal-ets/sales" component={EtsSalesPortal} />
-      <Route path="/portal-ets/ops/stages" component={EtsOpsStages} />
-      <Route path="/portal-ets/ops/milestones" component={EtsOpsMilestones} />
-      <Route path="/portal-ets/ops/tickets" component={EtsOpsTickets} />
-      <Route path="/portal-ets/ops/readiness" component={EtsOpsReadiness} />
+      <Route path="/portal-ets/ops/clients" component={EtsOpsClientsPage} />
+      <Route path="/portal-ets/ops/client/:id" component={EtsOpsClientJourney} />
+      <Route path="/portal-ets/ops/tickets" component={EtsOpsTicketsPage} />
+      <Route path="/portal-ets/ops/team" component={EtsOpsTeamPage} />
       <Route path="/portal-ets/ops" component={EtsOpsPortal} />
       <Route path="/portal-ets/fulfillment/orders/:id" component={EtsFulfillmentOrderDetail} />
       <Route path="/portal-ets/fulfillment/orders" component={EtsFulfillmentOrders} />
