@@ -7,6 +7,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { TopNavigation } from "@/components/layout/top-navigation";
 import { EtsSubNavSidebar } from "@/components/layout/ets-subnav-sidebar";
+import { EtsPortalLayout } from "@/components/portal/ets/ets-portal-layout";
+import { EtsRoleContext } from "@/lib/use-ets-role";
+import { useEtsRoleState } from "@/lib/use-ets-role";
 import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
 import { AIChatWidget } from "@/components/ai-chat/AIChatWidget";
 import { VerticalContext, getStoredVertical, setStoredVerticalId } from "@/lib/vertical-store";
@@ -215,6 +218,13 @@ import EtsPortalCashRegister from "@/pages/portal/ets/cash-register";
 import EtsPortalReturns from "@/pages/portal/ets/returns";
 import EtsPortalDailyReport from "@/pages/portal/ets/daily-report";
 import EtsPortalStoreSettings from "@/pages/portal/ets/store-settings";
+import EtsAdminPortal, { EtsAdminPipeline, EtsAdminTeam, EtsAdminRevenue, EtsAdminSettings } from "@/pages/portal/ets/admin-portal";
+import EtsSalesPortal, { EtsSalesPipeline, EtsSalesProposals, EtsSalesScripts, EtsSalesFollowups } from "@/pages/portal/ets/sales-portal";
+import EtsOpsPortal, { EtsOpsStages, EtsOpsMilestones, EtsOpsTickets, EtsOpsReadiness } from "@/pages/portal/ets/ops-portal";
+import EtsFulfillmentPortal, { EtsFulfillmentQC, EtsFulfillmentDispatch, EtsFulfillmentStickers, EtsFulfillmentBatches } from "@/pages/portal/ets/fulfillment-portal";
+import EtsProductPortal, { EtsProductCategories, EtsProductPricing, EtsProductCompliance, EtsProductBulkUpload } from "@/pages/portal/ets/product-portal";
+import EtsVendorPortal, { EtsVendorListings, EtsVendorOrders, EtsVendorStock, EtsVendorKYC } from "@/pages/portal/ets/vendor-portal";
+import EtsTeamSettings from "@/pages/portal/ets/team-settings";
 import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
@@ -464,6 +474,37 @@ function Router() {
       <Route path="/portal-ets/returns" component={EtsPortalReturns} />
       <Route path="/portal-ets/daily-report" component={EtsPortalDailyReport} />
       <Route path="/portal-ets/store-settings" component={EtsPortalStoreSettings} />
+      <Route path="/portal-ets/team-settings" component={EtsTeamSettings} />
+      <Route path="/portal-ets/admin/pipeline" component={EtsAdminPipeline} />
+      <Route path="/portal-ets/admin/team" component={EtsAdminTeam} />
+      <Route path="/portal-ets/admin/revenue" component={EtsAdminRevenue} />
+      <Route path="/portal-ets/admin/settings" component={EtsAdminSettings} />
+      <Route path="/portal-ets/admin" component={EtsAdminPortal} />
+      <Route path="/portal-ets/sales/pipeline" component={EtsSalesPipeline} />
+      <Route path="/portal-ets/sales/proposals" component={EtsSalesProposals} />
+      <Route path="/portal-ets/sales/scripts" component={EtsSalesScripts} />
+      <Route path="/portal-ets/sales/followups" component={EtsSalesFollowups} />
+      <Route path="/portal-ets/sales" component={EtsSalesPortal} />
+      <Route path="/portal-ets/ops/stages" component={EtsOpsStages} />
+      <Route path="/portal-ets/ops/milestones" component={EtsOpsMilestones} />
+      <Route path="/portal-ets/ops/tickets" component={EtsOpsTickets} />
+      <Route path="/portal-ets/ops/readiness" component={EtsOpsReadiness} />
+      <Route path="/portal-ets/ops" component={EtsOpsPortal} />
+      <Route path="/portal-ets/fulfillment/qc" component={EtsFulfillmentQC} />
+      <Route path="/portal-ets/fulfillment/dispatch" component={EtsFulfillmentDispatch} />
+      <Route path="/portal-ets/fulfillment/stickers" component={EtsFulfillmentStickers} />
+      <Route path="/portal-ets/fulfillment/batches" component={EtsFulfillmentBatches} />
+      <Route path="/portal-ets/fulfillment" component={EtsFulfillmentPortal} />
+      <Route path="/portal-ets/product/categories" component={EtsProductCategories} />
+      <Route path="/portal-ets/product/pricing" component={EtsProductPricing} />
+      <Route path="/portal-ets/product/compliance" component={EtsProductCompliance} />
+      <Route path="/portal-ets/product/bulk-upload" component={EtsProductBulkUpload} />
+      <Route path="/portal-ets/product" component={EtsProductPortal} />
+      <Route path="/portal-ets/vendor/listings" component={EtsVendorListings} />
+      <Route path="/portal-ets/vendor/orders" component={EtsVendorOrders} />
+      <Route path="/portal-ets/vendor/stock" component={EtsVendorStock} />
+      <Route path="/portal-ets/vendor/kyc" component={EtsVendorKYC} />
+      <Route path="/portal-ets/vendor" component={EtsVendorPortal} />
       <Route path="/portal-ets" component={EtsPortalDashboard} />
       <Route path="/hrms" component={HrmsDashboard} />
       <Route path="/hrms/notifications" component={UniversalNotifications} />
@@ -743,6 +784,15 @@ function VerticalSync({ setCurrentVertical }: { setCurrentVertical: (id: string)
   return null;
 }
 
+function EtsPortalApp({ children }: { children: import("react").ReactNode }) {
+  const etsRoleState = useEtsRoleState();
+  return (
+    <EtsRoleContext.Provider value={etsRoleState}>
+      <EtsPortalLayout>{children}</EtsPortalLayout>
+    </EtsRoleContext.Provider>
+  );
+}
+
 function App() {
   const [currentVertical, setVerticalState] = useState<Vertical>(getStoredVertical);
 
@@ -770,18 +820,16 @@ function App() {
             <PortalLayout>
               <PortalLNRouter />
             </PortalLayout>
+          ) : isEtsPortal ? (
+            <EtsPortalApp>
+              <Router />
+            </EtsPortalApp>
           ) : (
             <div className="flex h-screen w-full flex-col">
-              {!isEtsPortal && <AnnouncementBanner />}
+              <AnnouncementBanner />
               <TopNavigation />
               <main className="flex-1 overflow-auto">
-                {isEtsPortal ? (
-                  <EtsSubNavSidebar>
-                    <Router />
-                  </EtsSubNavSidebar>
-                ) : (
-                  <Router />
-                )}
+                <Router />
               </main>
             </div>
           )}
