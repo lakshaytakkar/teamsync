@@ -110,11 +110,12 @@ export const ETS_ROLES: EtsRoleDefinition[] = [
     userInitials: "FU",
     defaultUrl: "/portal-ets/fulfillment",
     navItems: [
-      { title: "Order Queue", url: "/portal-ets/fulfillment", icon: ShoppingCart },
-      { title: "QC Checklist", url: "/portal-ets/fulfillment/qc", icon: CheckSquare },
-      { title: "Dispatch Log", url: "/portal-ets/fulfillment/dispatch", icon: Truck },
-      { title: "MRP Stickers", url: "/portal-ets/fulfillment/stickers", icon: Tag },
+      { title: "Dashboard", url: "/portal-ets/fulfillment", icon: LayoutDashboard },
+      { title: "Order Queue", url: "/portal-ets/fulfillment/orders", icon: ShoppingCart },
       { title: "China Batches", url: "/portal-ets/fulfillment/batches", icon: Package },
+      { title: "QC", url: "/portal-ets/fulfillment/qc", icon: CheckSquare },
+      { title: "MRP Tagging", url: "/portal-ets/fulfillment/stickers", icon: Tag },
+      { title: "Dispatch", url: "/portal-ets/fulfillment/dispatch", icon: Truck },
     ],
   },
   {
