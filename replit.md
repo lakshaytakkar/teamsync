@@ -1567,14 +1567,42 @@ Store daily operations system with 4 sub-pages under the "Operations" nav sectio
 - Data: `client/src/lib/mock-data-portal-ets.ts` — portal client config, stage labels/descriptions, order stages. Catalog uses `normalizeProduct()` to map API fields (suggestedMrp/storeLandingPrice/categoryName) to display fields.
 - Features: Product catalog with grid/list view + search + category filter + Add-to-Kit, launch kit builder with investment summary, order tracking with visual stage timeline, payment history with download, invoice search, multi-step onboarding wizard, categorized readiness checklist with toggle, profile with account details, support page with WhatsApp/Phone/Email + FAQ accordion.
 
+### LegalNations Multi-Role Portal (`/portal-ln/*`) — #225AEA
+New role-based LN portal using the admin panel layout (TopNavigation + role switcher). Registered as vertical `id: "ln-portal"`, `routePrefix: "portal-ln"`, `isPortal: true`. Original `/portal/legalnations/` and `/legalnations/` routes remain untouched.
+
+**6 Roles** (`client/src/lib/ln-role-config.ts`):
+- Admin (violet #7c3aed) — CEO command center
+- Formation Specialist (sky #0ea5e9) — Pipeline execution
+- Compliance Officer (emerald #10b981) — BOI filings & deadlines
+- Tax Specialist (amber #f59e0b) — IRS filings
+- Sales/BD (pink #ec4899) — Lead pipeline
+- Client (blue #225AEA, default) — Self-service formation portal
+
+**Role System**: `ln-role-config.ts` (role definitions + nav items), `use-ln-role.ts` (context + hook + localStorage persistence). Role switcher dropdown in TopNavigation. Non-client roles show role-specific nav items in TopNavigation L1 bar; client role uses navCategories from verticals-config.
+
+**Client Sidebar**: `client/src/components/layout/ln-subnav-sidebar.tsx` — mirrors ETS pattern, renders for client role when active category has multiple items.
+
+**Mock Data**: `client/src/lib/mock-data-dashboard-ln.ts` — CLIENT_PROFILE, 7 FORMATION_STAGE_DEFINITIONS, DASHBOARD_METRICS, 6 COMPLIANCE_DEADLINES, 8 RECENT_ACTIVITY items, RM_CONTACT, 3 FORMATION_PACKAGES, 8 US_STATES_POPULAR.
+
+| Page | Route | File |
+|------|-------|------|
+| Dashboard | `/portal-ln` | `client/src/pages/portal/ln/dashboard.tsx` |
+| Onboarding | `/portal-ln/onboarding` | `client/src/pages/portal/ln/onboarding.tsx` |
+| Admin (placeholder) | `/portal-ln/admin/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
+| Formation (placeholder) | `/portal-ln/formation/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
+| Compliance (placeholder) | `/portal-ln/compliance/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
+| Tax (placeholder) | `/portal-ln/tax/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
+| Sales (placeholder) | `/portal-ln/sales/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
+
 ### Navigation Entry
 - Vertical switcher (`vertical-switcher.tsx`) has two portal categories:
-  - **Client Portals**: LegalNations entry (navigates to `/portal/legalnations`), EazyToSell entry (navigates to `/portal-ets`)
+  - **Client Portals**: LegalNations entry (navigates to `/portal/legalnations`), LegalNations New Portal (navigates to `/portal-ln`), EazyToSell entry (navigates to `/portal-ets`)
   - **Vendor Portals**: Vendor Portal entry (navigates to `/vendor/quotations`, uses main app layout)
 - Portals are flagged with `isPortal: true` in verticals-config and filtered out of "Business Products"
-- LegalNations portal uses its own `PortalLayout` component
+- LegalNations old portal uses its own `PortalLayout` component at `/portal/legalnations/`
+- LegalNations new portal uses the main admin layout (TopNavigation) with role switcher at `/portal-ln/`
 - EazyToSell portal uses the main admin layout (TopNavigation) with its own vertical config
-- "Preview Mode" badge shown at top of portal pages
+- "Preview Mode" badge shown at top of old portal pages
 
 ### Icon Compatibility
 - `client/src/lib/icon-compat.tsx` — Provides `SiLinkedin` as Lucide `Linkedin` fallback (removed from react-icons v5)

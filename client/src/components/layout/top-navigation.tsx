@@ -25,6 +25,8 @@ import { useEtsRole } from "@/lib/use-ets-role";
 import { ETS_ROLES, type EtsRoleId } from "@/lib/ets-role-config";
 import { useEtsCart } from "@/lib/ets-cart-context";
 import { ETS_PORTAL_COLOR } from "@/lib/mock-data-portal-ets";
+import { useLnRole } from "@/lib/use-ln-role";
+import { LN_ROLES, type LnRoleId } from "@/lib/ln-role-config";
 
 const PINNED_TITLES = new Set(["Chat", "Team", "Resources", "Reports", "Contacts", "Important Contacts", "Tickets", "Tasks", "Apps"]);
 
@@ -198,24 +200,103 @@ function EtsCartNavButton() {
   );
 }
 
+function LnRoleSwitcher() {
+  const { role, roleId, setRole } = useLnRole();
+  const [, setLocation] = useLocation();
+
+  return (
+    <>
+      <Separator orientation="vertical" className="h-5" />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-2 h-8 px-2.5 rounded-lg"
+            data-testid="button-ln-role-switcher"
+          >
+            <div
+              className="size-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
+              style={{ backgroundColor: role.color }}
+            >
+              {role.userInitials}
+            </div>
+            <span className="text-xs font-semibold">{role.label}</span>
+            <ChevronDown className="size-3 text-muted-foreground" />
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-64 p-1" data-testid="ln-role-menu">
+          <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold px-2 py-1.5">
+            Switch Role (Dev Mode)
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {LN_ROLES.map((r) => {
+            const isSelected = r.id === roleId;
+            return (
+              <DropdownMenuItem
+                key={r.id}
+                className={cn(
+                  "flex items-center gap-3 px-2 py-2 rounded-md cursor-pointer",
+                  isSelected && "bg-muted"
+                )}
+                onClick={() => {
+                  setRole(r.id as LnRoleId);
+                  setLocation(r.defaultUrl);
+                }}
+                data-testid={`ln-role-option-${r.id}`}
+              >
+                <div
+                  className="size-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
+                  style={{ backgroundColor: r.color }}
+                >
+                  {r.userInitials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-semibold">{r.label}</span>
+                    {isSelected && (
+                      <span
+                        className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full text-white"
+                        style={{ backgroundColor: r.color }}
+                      >
+                        Active
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate">{r.userName}</p>
+                </div>
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+}
+
 export function TopNavigation() {
   const [location, setLocation] = useLocation();
   const { currentVertical } = useVertical();
   const navCategories = currentVertical.navCategories;
   const activeCategory = getActiveCategory(location, navCategories);
   const isEtsPortal = currentVertical?.id === "ets-portal";
+  const isLnPortal = currentVertical?.id === "ln-portal";
   const { roleId, role: etsRole, subRole } = useEtsRole();
+  const { roleId: lnRoleId, role: lnRole } = useLnRole();
   const { clearCart } = useEtsCart();
   const isEtsNonPartner = isEtsPortal && roleId !== "partner";
   const isCashier = isEtsPortal && roleId === "partner" && subRole === "cashier";
   const isEtsPartner = isEtsPortal && roleId === "partner";
   const cashierAllowed = ["/portal-ets/pos", "/portal-ets/stock-receive"];
-  const showSubNav = !isEtsPortal && activeCategory && activeCategory.items.length > 1;
+  const isLnNonClient = isLnPortal && lnRoleId !== "client";
+  const showSubNav = !isEtsPortal && !isLnPortal && activeCategory && activeCategory.items.length > 1;
 
   const storeStatus = isEtsPartner ? getStoreStatus().status : "active";
   const isStoreSetup = storeStatus === "setup";
 
   const etsNavItems = isEtsNonPartner ? etsRole.navItems : isCashier ? etsRole.navItems.filter(n => cashierAllowed.includes(n.url)) : null;
+  const lnNavItems = isLnNonClient ? lnRole.navItems : null;
 
   useEffect(() => {
     if (isCashier && !cashierAllowed.some(u => location === u || location.startsWith(u + "/"))) {
@@ -367,6 +448,32 @@ export function TopNavigation() {
                   );
                 })}
               </TooltipProvider>
+            ) : lnNavItems ? (
+              lnNavItems.map((item) => {
+                const isActive = location === item.url || location.startsWith(item.url + "/");
+                return (
+                  <Link
+                    key={item.url}
+                    href={item.url}
+                    data-testid={`nav-l1-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
+                    className={cn(
+                      "relative whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors",
+                      isActive
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {item.title}
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-l1-indicator"
+                        className="absolute bottom-0 left-1 right-1 h-[2px] rounded-full bg-primary"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })
             ) : (
               navCategories.filter(cat => !PINNED_TITLES.has(cat.title)).map((cat) => {
                 const isActive = activeCategory?.title === cat.title;
@@ -413,6 +520,7 @@ export function TopNavigation() {
           {isEtsPortal && roleId === "partner" && <EtsCartNavButton />}
 
           {isEtsPortal && <EtsRoleSwitcher />}
+          {isLnPortal && <LnRoleSwitcher />}
 
           <Separator orientation="vertical" className="h-5" />
 

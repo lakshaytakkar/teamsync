@@ -7,7 +7,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { TopNavigation } from "@/components/layout/top-navigation";
 import { EtsSubNavSidebar } from "@/components/layout/ets-subnav-sidebar";
+import { LnSubNavSidebar } from "@/components/layout/ln-subnav-sidebar";
 import { EtsRoleContext, useEtsRoleState } from "@/lib/use-ets-role";
+import { LnRoleContext, useLnRoleState } from "@/lib/use-ln-role";
 import { EtsCartProvider } from "@/lib/ets-cart-context";
 import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
 import { AIChatWidget } from "@/components/ai-chat/AIChatWidget";
@@ -197,6 +199,9 @@ import PortalLNCompanies from "@/pages/portal/legalnations/companies";
 import PortalLNDocuments from "@/pages/portal/legalnations/documents";
 import PortalLNInvoices from "@/pages/portal/legalnations/invoices";
 import PortalLNMessages from "@/pages/portal/legalnations/messages";
+import LnDashboard from "@/pages/portal/ln/dashboard";
+import LnOnboarding from "@/pages/portal/ln/onboarding";
+import LnRolePlaceholder from "@/pages/portal/ln/role-placeholder";
 import EtsPortalDashboard from "@/pages/portal/ets/dashboard";
 import EtsPortalStore from "@/pages/portal/ets/store";
 import EtsPortalOrders from "@/pages/portal/ets/orders";
@@ -526,6 +531,18 @@ function Router() {
       <Route path="/portal-ets/vendor/kyc" component={EtsVendorKYC} />
       <Route path="/portal-ets/vendor" component={EtsVendorPortal} />
       <Route path="/portal-ets" component={EtsPortalDashboard} />
+      <Route path="/portal-ln/onboarding" component={LnOnboarding} />
+      <Route path="/portal-ln/admin/:rest*" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/admin" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/formation/:rest*" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/formation" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/compliance/:rest*" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/compliance" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/tax/:rest*" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/tax" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/sales/:rest*" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/sales" component={LnRolePlaceholder} />
+      <Route path="/portal-ln" component={LnDashboard} />
       <Route path="/hrms" component={HrmsDashboard} />
       <Route path="/hrms/notifications" component={UniversalNotifications} />
       <Route path="/hrms/chat" component={UniversalChat} />
@@ -807,6 +824,7 @@ function VerticalSync({ setCurrentVertical }: { setCurrentVertical: (id: string)
 function App() {
   const [currentVertical, setVerticalState] = useState<Vertical>(getStoredVertical);
   const etsRoleState = useEtsRoleState();
+  const lnRoleState = useLnRoleState();
 
   const setCurrentVertical = useCallback((id: string) => {
     setVerticalState((prev) => {
@@ -820,23 +838,25 @@ function App() {
   }, []);
 
   const [loc] = useLocation();
-  const isLnPortal = loc.startsWith("/portal/legalnations") || (loc.startsWith("/portal/") && !loc.startsWith("/portal-ets"));
+  const isOldLnPortal = loc.startsWith("/portal/legalnations") || (loc.startsWith("/portal/") && !loc.startsWith("/portal-ets") && !loc.startsWith("/portal-ln"));
+  const isNewLnPortal = loc.startsWith("/portal-ln");
   const isEtsPortal = loc.startsWith("/portal-ets");
-  const isAnyPortal = isLnPortal || isEtsPortal;
+  const isAnyPortal = isOldLnPortal || isNewLnPortal || isEtsPortal;
   return (
     <VerticalContext.Provider value={{ currentVertical, setCurrentVertical }}>
       <EtsRoleContext.Provider value={etsRoleState}>
+        <LnRoleContext.Provider value={lnRoleState}>
         <EtsCartProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
             <VerticalSync setCurrentVertical={setCurrentVertical} />
-            {isLnPortal ? (
+            {isOldLnPortal ? (
               <PortalLayout>
                 <PortalLNRouter />
               </PortalLayout>
             ) : (
               <div className="flex h-screen w-full flex-col">
-                {!isEtsPortal && <AnnouncementBanner />}
+                {!isEtsPortal && !isNewLnPortal && <AnnouncementBanner />}
                 <TopNavigation />
                 <main className="flex-1 overflow-auto">
                   {isEtsPortal ? (
@@ -845,6 +865,10 @@ function App() {
                         <Router />
                       </EtsSubNavSidebar>
                     </EtsOrderProvider>
+                  ) : isNewLnPortal ? (
+                    <LnSubNavSidebar>
+                      <Router />
+                    </LnSubNavSidebar>
                   ) : (
                     <Router />
                   )}
@@ -857,6 +881,7 @@ function App() {
           </TooltipProvider>
         </QueryClientProvider>
         </EtsCartProvider>
+        </LnRoleContext.Provider>
       </EtsRoleContext.Provider>
     </VerticalContext.Provider>
   );

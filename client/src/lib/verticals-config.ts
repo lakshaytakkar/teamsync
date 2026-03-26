@@ -1486,6 +1486,52 @@ export const verticals: Vertical[] = [
     ],
   },
   {
+    id: "ln-portal",
+    routePrefix: "portal-ln",
+    name: "LegalNations Client Portal",
+    shortName: "LegalNations",
+    icon: Shield,
+    logo: LegalNationsLogo,
+    color: "#225AEA",
+    tagline: "Client Portal",
+    description: "US company formation portal — track formations, documents & compliance",
+    isPortal: true,
+    navCategories: [
+      {
+        title: "Dashboard",
+        defaultUrl: "/portal-ln",
+        icon: LayoutDashboard,
+        items: [],
+      },
+      {
+        title: "Formation Tracking",
+        defaultUrl: "/portal-ln/companies",
+        icon: Building2,
+        items: [
+          { title: "My Companies", url: "/portal-ln/companies" },
+          { title: "Documents", url: "/portal-ln/documents" },
+        ],
+      },
+      {
+        title: "Documents & Billing",
+        defaultUrl: "/portal-ln/invoices",
+        icon: Receipt,
+        items: [
+          { title: "Invoices", url: "/portal-ln/invoices" },
+        ],
+      },
+      {
+        title: "Communication",
+        defaultUrl: "/portal-ln/messages",
+        icon: MessageSquare,
+        items: [
+          { title: "Messages", url: "/portal-ln/messages" },
+          { title: "Support", url: "/portal-ln/support" },
+        ],
+      },
+    ],
+  },
+  {
     id: "hrms",
     routePrefix: "hrms",
     name: "HR / HRMS",
@@ -2379,6 +2425,7 @@ export function detectVerticalFromUrl(location: string): Vertical | undefined {
   if (location.startsWith("/eventhub")) return getVerticalById("eventhub");
   if (location.startsWith("/lbm")) return getVerticalById("admin");
   if (location.startsWith("/dev")) return getVerticalById("dev");
+  if (location.startsWith("/portal-ln")) return getVerticalById("ln-portal");
   if (location.startsWith("/portal-ets")) return getVerticalById("ets-portal");
   if (location.startsWith("/ets")) return getVerticalById("ets");
   if (location.startsWith("/rnd")) return getVerticalById("rnd");
