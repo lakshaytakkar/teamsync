@@ -1,12 +1,13 @@
 import { createContext, useContext } from "react";
 import { useLocation, Link } from "wouter";
 import { useVertical } from "@/lib/vertical-store";
+import { useEtsRole } from "@/lib/use-ets-role";
 import { cn } from "@/lib/utils";
 import {
   Package, ClipboardList, ArrowDownToLine, AlertTriangle,
   Wallet, RotateCcw, BarChart3, Settings,
   ShoppingBag, Store, CheckSquare,
-  CreditCard, FileText,
+  CreditCard, FileText, Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -29,6 +30,7 @@ const SUB_ITEM_ICONS: Record<string, LucideIcon> = {
   "/portal-ets/checklist": CheckSquare,
   "/portal-ets/payments": CreditCard,
   "/portal-ets/invoices": FileText,
+  "/portal-ets/team-settings": Users,
 };
 
 const CATEGORY_SUBTITLES: Record<string, string> = {
@@ -56,9 +58,12 @@ function getActiveCategory(location: string, navCategories: any[]) {
 export function EtsSubNavSidebar({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { currentVertical } = useVertical();
+  const { roleId, subRole } = useEtsRole();
 
   const isEtsPortal = currentVertical?.id === "ets-portal";
   if (!isEtsPortal) return <>{children}</>;
+  if (roleId !== "partner") return <>{children}</>;
+  if (subRole === "cashier") return <>{children}</>;
 
   const activeCategory = getActiveCategory(location, currentVertical.navCategories);
   if (!activeCategory || !activeCategory.items || activeCategory.items.length <= 1) {

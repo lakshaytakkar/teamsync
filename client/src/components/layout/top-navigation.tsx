@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { MessageCircle, Users, BookOpen, BarChart2, Phone, Ticket, ClipboardList, Blocks, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,8 +44,11 @@ function isItemActive(location: string, itemUrl: string): boolean {
 }
 
 function EtsRoleSwitcher() {
-  const { role, roleId, setRole } = useEtsRole();
+  const { role, roleId, setRole, subRole, setSubRole } = useEtsRole();
   const [, setLocation] = useLocation();
+  const isPartner = roleId === "partner";
+  const isCashier = isPartner && subRole === "cashier";
+  const displayLabel = isCashier ? "Cashier" : role.label;
 
   return (
     <>
@@ -63,7 +67,7 @@ function EtsRoleSwitcher() {
             >
               {role.userInitials}
             </div>
-            <span className="text-xs font-semibold">{role.label}</span>
+            <span className="text-xs font-semibold">{displayLabel}</span>
             <ChevronDown className="size-3 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
@@ -84,6 +88,7 @@ function EtsRoleSwitcher() {
                 )}
                 onClick={() => {
                   setRole(r.id as EtsRoleId);
+                  if (r.id !== "partner") setSubRole("owner");
                   setLocation(r.defaultUrl);
                 }}
                 data-testid={`role-option-${r.id}`}
@@ -111,6 +116,52 @@ function EtsRoleSwitcher() {
               </DropdownMenuItem>
             );
           })}
+          {isPartner && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold px-2 py-1.5">
+                Sub-Role
+              </DropdownMenuLabel>
+              <DropdownMenuItem
+                className={cn(
+                  "flex items-center gap-3 px-2 py-2 rounded-md cursor-pointer",
+                  !isCashier && "bg-muted"
+                )}
+                onClick={() => {
+                  setSubRole("owner");
+                  setLocation("/portal-ets");
+                }}
+                data-testid="subrole-owner"
+              >
+                <div className="size-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0 bg-orange-500">
+                  SO
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-semibold">Store Owner</span>
+                  <p className="text-xs text-muted-foreground">Full access</p>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className={cn(
+                  "flex items-center gap-3 px-2 py-2 rounded-md cursor-pointer",
+                  isCashier && "bg-muted"
+                )}
+                onClick={() => {
+                  setSubRole("cashier");
+                  setLocation("/portal-ets/pos");
+                }}
+                data-testid="subrole-cashier"
+              >
+                <div className="size-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0 bg-amber-600">
+                  CA
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-semibold">Cashier</span>
+                  <p className="text-xs text-muted-foreground">POS + Stock Receive only</p>
+                </div>
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>
@@ -123,7 +174,19 @@ export function TopNavigation() {
   const navCategories = currentVertical.navCategories;
   const activeCategory = getActiveCategory(location, navCategories);
   const isEtsPortal = currentVertical?.id === "ets-portal";
+  const { roleId, role: etsRole, subRole } = useEtsRole();
+  const isEtsNonPartner = isEtsPortal && roleId !== "partner";
+  const isCashier = isEtsPortal && roleId === "partner" && subRole === "cashier";
+  const cashierAllowed = ["/portal-ets/pos", "/portal-ets/stock-receive"];
   const showSubNav = !isEtsPortal && activeCategory && activeCategory.items.length > 1;
+
+  const etsNavItems = isEtsNonPartner ? etsRole.navItems : isCashier ? etsRole.navItems.filter(n => cashierAllowed.includes(n.url)) : null;
+
+  useEffect(() => {
+    if (isCashier && !cashierAllowed.some(u => location === u || location.startsWith(u + "/"))) {
+      setLocation("/portal-ets/pos");
+    }
+  }, [isCashier, location, setLocation]);
 
   const findUrl = (...titles: string[]) => {
     for (const t of titles) {
@@ -179,31 +242,59 @@ export function TopNavigation() {
           <Separator orientation="vertical" className="h-6 hidden sm:block" />
 
           <nav className="flex items-center gap-0.5 overflow-x-auto overflow-y-hidden scrollbar-hide" data-testid="nav-level-1">
-            {navCategories.filter(cat => !PINNED_TITLES.has(cat.title)).map((cat) => {
-              const isActive = activeCategory?.title === cat.title;
-              return (
-                <Link
-                  key={cat.title}
-                  href={cat.defaultUrl}
-                  data-testid={`nav-l1-${cat.title.toLowerCase().replace(/\s+/g, "-")}`}
-                  className={cn(
-                    "relative whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors",
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {cat.title}
-                  {isActive && (
-                    <motion.div
-                      layoutId="nav-l1-indicator"
-                      className="absolute bottom-0 left-1 right-1 h-[2px] rounded-full bg-primary"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
+            {etsNavItems ? (
+              etsNavItems.map((item) => {
+                const isActive = location === item.url || location.startsWith(item.url + "/");
+                return (
+                  <Link
+                    key={item.url}
+                    href={item.url}
+                    data-testid={`nav-l1-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
+                    className={cn(
+                      "relative whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors",
+                      isActive
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {item.title}
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-l1-indicator"
+                        className="absolute bottom-0 left-1 right-1 h-[2px] rounded-full bg-primary"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })
+            ) : (
+              navCategories.filter(cat => !PINNED_TITLES.has(cat.title)).map((cat) => {
+                const isActive = activeCategory?.title === cat.title;
+                return (
+                  <Link
+                    key={cat.title}
+                    href={cat.defaultUrl}
+                    data-testid={`nav-l1-${cat.title.toLowerCase().replace(/\s+/g, "-")}`}
+                    className={cn(
+                      "relative whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors",
+                      isActive
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {cat.title}
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-l1-indicator"
+                        className="absolute bottom-0 left-1 right-1 h-[2px] rounded-full bg-primary"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })
+            )}
           </nav>
         </div>
 
