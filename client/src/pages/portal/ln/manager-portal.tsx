@@ -234,7 +234,7 @@ export default function LnManagerPortal() {
                         className="h-7 text-xs bg-sky-500 hover:bg-sky-600 text-white flex-shrink-0"
                         disabled={!isAssigned}
                         onClick={() => {
-                          if (quickAssign[lead.id]) setQuickAssignDone(prev => new Set([...prev, lead.id]));
+                          if (quickAssign[lead.id]) setQuickAssignDone(prev => new Set(Array.from(prev).concat(lead.id)));
                         }}
                         data-testid={`btn-assign-${lead.id}`}
                       >
@@ -372,10 +372,12 @@ export function LnManagerLeads() {
                 <tr className="border-b text-xs text-muted-foreground">
                   <th className="text-left px-4 py-3 font-medium">Lead</th>
                   <th className="text-left px-4 py-3 font-medium">Company & State</th>
+                  <th className="text-left px-4 py-3 font-medium">Source</th>
                   <th className="text-left px-4 py-3 font-medium">Current Stage</th>
                   <th className="text-left px-4 py-3 font-medium">Package</th>
                   <th className="text-left px-4 py-3 font-medium">Follow Up</th>
                   <th className="text-left px-4 py-3 font-medium">Assign Status</th>
+                  <th className="text-left px-4 py-3 font-medium">Sales Exec</th>
                   <th className="text-left px-4 py-3 font-medium">Assign To</th>
                   <th className="text-left px-4 py-3 font-medium"></th>
                 </tr>
@@ -409,6 +411,9 @@ export function LnManagerLeads() {
                         <p className="text-xs">{lead.state}</p>
                       </td>
                       <td className="px-4 py-3">
+                        <span className="text-xs text-muted-foreground">{lead.source}</span>
+                      </td>
+                      <td className="px-4 py-3">
                         <Badge variant="outline" className={`text-[10px] ${stageColor}`} data-testid={`badge-stage-${lead.id}`}>
                           {lead.stage}
                         </Badge>
@@ -431,6 +436,9 @@ export function LnManagerLeads() {
                         }`}>
                           {assignStatus === "converted" ? "Converted" : assignStatus === "assigned" ? "Assigned" : "Unassigned"}
                         </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-xs text-muted-foreground" data-testid={`text-sales-exec-${lead.id}`}>{lead.assignedSalesName}</span>
                       </td>
                       <td className="px-4 py-3">
                         {!isClientCreated ? (
@@ -463,7 +471,7 @@ export function LnManagerLeads() {
                           <Button
                             size="sm"
                             className="h-7 text-xs bg-sky-500 hover:bg-sky-600 text-white gap-1"
-                            onClick={() => setClientCreated(prev => new Set([...prev, lead.id]))}
+                            onClick={() => setClientCreated(prev => new Set(Array.from(prev).concat(lead.id)))}
                             data-testid={`btn-create-client-${lead.id}`}
                           >
                             <UserPlus className="w-3 h-3" /> Convert to Client
@@ -473,7 +481,7 @@ export function LnManagerLeads() {
                           <Button
                             size="sm" variant="outline"
                             className="h-7 text-xs border-amber-300 text-amber-700 hover:bg-amber-50 gap-1"
-                            onClick={() => setConverted(prev => new Set([...prev, lead.id]))}
+                            onClick={() => setConverted(prev => new Set(Array.from(prev).concat(lead.id)))}
                             data-testid={`btn-mark-converted-${lead.id}`}
                           >
                             Mark Converted
@@ -489,7 +497,7 @@ export function LnManagerLeads() {
                   );
                 })}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={8} className="px-4 py-8 text-center text-sm text-muted-foreground">No leads match the current filters.</td></tr>
+                  <tr><td colSpan={10} className="px-4 py-8 text-center text-sm text-muted-foreground">No leads match the current filters.</td></tr>
                 )}
               </tbody>
             </table>
