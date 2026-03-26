@@ -164,7 +164,7 @@ export default function EtsPortalCatalog() {
       </div>
 
       {filtered.length === 0 ? (
-        <Card>
+        <Card className="rounded-xl border bg-card">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
               <Package className="h-8 w-8 text-muted-foreground" />
@@ -176,7 +176,7 @@ export default function EtsPortalCatalog() {
       ) : viewMode === "grid" ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map(product => (
-            <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow" data-testid={`card-product-${product.id}`}>
+            <Card key={product.id} className="rounded-xl border bg-card overflow-hidden hover:bg-muted/20 transition-colors" data-testid={`card-product-${product.id}`}>
               <div className="aspect-square bg-muted flex items-center justify-center relative">
                 {product.image ? (
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
@@ -211,7 +211,7 @@ export default function EtsPortalCatalog() {
       ) : (
         <div className="space-y-3">
           {filtered.map(product => (
-            <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow" data-testid={`card-product-${product.id}`}>
+            <Card key={product.id} className="rounded-xl border bg-card overflow-hidden hover:bg-muted/20 transition-colors" data-testid={`card-product-${product.id}`}>
               <CardContent className="p-4 flex items-center gap-4">
                 <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center shrink-0">
                   {product.image ? (

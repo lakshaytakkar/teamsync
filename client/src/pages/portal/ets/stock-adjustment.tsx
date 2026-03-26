@@ -66,7 +66,7 @@ export default function EtsStockAdjustment() {
     const prod = POS_PRODUCTS.find(p => p.barcode === barcodeInput.trim());
     if (!prod) {
       navigator.vibrate?.([100, 50, 100]);
-      toast({ title: "❌ Not found", description: `Barcode ${barcodeInput} not in catalog`, variant: "destructive" });
+      toast({ title: "Not found", description: `Barcode ${barcodeInput} not in catalog`, variant: "destructive" });
       setBarcodeInput("");
       return;
     }
@@ -102,25 +102,25 @@ export default function EtsStockAdjustment() {
           <h1 className="text-2xl font-bold font-heading" data-testid="text-adjustment-title">Stock Adjustment</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">Fix stock mismatches between system and shelf</p>
         </div>
-        <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-700 bg-amber-50">
+        <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 bg-amber-50">
           Owner Only
         </Badge>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="space-y-4">
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4 space-y-3">
+          <Card className="rounded-xl border bg-card">
+            <CardContent className="p-5 space-y-3">
               <h2 className="text-sm font-semibold">Find Product</h2>
               <div>
-                <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                   Scan Barcode
                 </label>
                 <div className="relative">
                   <Barcode className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     ref={barcodeRef}
-                    className="pl-9 font-mono h-10"
+                    className="pl-9 h-10"
                     placeholder="Scan or enter barcode..."
                     value={barcodeInput}
                     onChange={e => setBarcodeInput(e.target.value)}
@@ -130,7 +130,7 @@ export default function EtsStockAdjustment() {
                 </div>
               </div>
               <div>
-                <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                   Or Search
                 </label>
                 <div className="relative">
@@ -144,11 +144,11 @@ export default function EtsStockAdjustment() {
                   />
                 </div>
                 {searchResults.length > 0 && (
-                  <div className="mt-1 border rounded-lg overflow-hidden bg-white shadow-sm">
+                  <div className="mt-1 border rounded-xl overflow-hidden bg-card shadow-lg z-10 relative">
                     {searchResults.map(p => (
                       <button
                         key={p.id}
-                        className="w-full text-left px-3 py-2 hover:bg-orange-50 flex items-center justify-between text-sm border-b last:border-0"
+                        className="w-full text-left px-3 py-2.5 hover:bg-muted/30 flex items-center justify-between text-sm border-b last:border-0"
                         onClick={() => selectProduct(p.id)}
                         data-testid={`button-select-${p.id}`}
                       >
@@ -156,7 +156,7 @@ export default function EtsStockAdjustment() {
                           <ProductImage src={p.image} alt={p.name} size="xs" />
                           <span>{p.name}</span>
                         </span>
-                        <span className="text-xs text-muted-foreground font-mono">{p.barcode}</span>
+                        <span className="text-xs text-muted-foreground">{p.barcode}</span>
                       </button>
                     ))}
                   </div>
@@ -166,26 +166,26 @@ export default function EtsStockAdjustment() {
           </Card>
 
           {selectedProduct && selectedInv && (
-            <Card className="border-0 shadow-sm border-l-4 border-l-amber-400">
-              <CardContent className="p-4 space-y-4">
+            <Card className="rounded-xl border bg-card border-l-4 border-l-amber-400">
+              <CardContent className="p-5 space-y-4">
                 <div className="flex items-center gap-3">
                   <ProductImage src={selectedProduct.image} alt={selectedProduct.name} size="xl" />
                   <div>
                     <p className="font-semibold">{selectedProduct.name}</p>
-                    <p className="text-xs text-muted-foreground font-mono">{selectedProduct.barcode}</p>
+                    <p className="text-xs text-muted-foreground">{selectedProduct.barcode}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 items-end">
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">System</p>
-                    <p className="text-2xl font-bold mt-1">{systemCount}</p>
+                <div className="grid grid-cols-3 gap-4 items-end">
+                  <div className="bg-muted/30 rounded-xl p-4 text-center">
+                    <p className="text-xs font-medium text-muted-foreground">System</p>
+                    <p className="text-2xl font-bold font-heading mt-1">{systemCount}</p>
                   </div>
                   <div className="flex justify-center">
                     <ArrowRight className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block text-center">
+                    <label className="text-xs font-medium text-muted-foreground mb-1.5 block text-center">
                       Actual Count
                     </label>
                     <Input
@@ -199,16 +199,16 @@ export default function EtsStockAdjustment() {
                 </div>
 
                 {physicalCount !== "" && (
-                  <div className={`rounded-lg p-3 text-center ${difference > 0 ? "bg-green-50" : difference < 0 ? "bg-red-50" : "bg-gray-50"}`}>
+                  <div className={`rounded-xl p-4 text-center ${difference > 0 ? "bg-green-50" : difference < 0 ? "bg-red-50" : "bg-muted/30"}`}>
                     <p className="text-xs text-muted-foreground">Difference</p>
-                    <p className={`text-2xl font-bold ${difference > 0 ? "text-green-600" : difference < 0 ? "text-red-600" : "text-gray-400"}`}>
+                    <p className={`text-2xl font-bold font-heading ${difference > 0 ? "text-green-600" : difference < 0 ? "text-red-600" : "text-muted-foreground"}`}>
                       {difference === 0 ? "No change" : `${difference > 0 ? "+" : ""}${difference}`}
                     </p>
                   </div>
                 )}
 
                 <div>
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                     Reason *
                   </label>
                   <Select value={reason} onValueChange={v => setReason(v as AdjustmentReason)}>
@@ -224,7 +224,7 @@ export default function EtsStockAdjustment() {
                 </div>
 
                 <Button
-                  className="w-full h-11 font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 gap-2"
+                  className="w-full h-11 font-semibold bg-amber-600 hover:bg-amber-700 gap-2"
                   disabled={!canSubmit}
                   onClick={() => setShowConfirm(true)}
                   data-testid="button-adjust-stock"
@@ -240,7 +240,7 @@ export default function EtsStockAdjustment() {
         <div className="space-y-3">
           <h2 className="text-sm font-semibold">Recent Adjustments</h2>
           {adjustmentLogs.length === 0 ? (
-            <Card className="border-0 shadow-sm">
+            <Card className="rounded-xl border bg-card">
               <CardContent className="p-8 text-center">
                 <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
                   <ClipboardList className="w-7 h-7 text-amber-500" />
@@ -250,26 +250,26 @@ export default function EtsStockAdjustment() {
             </Card>
           ) : (
             adjustmentLogs.map(log => (
-              <Card key={log.id} className="border-0 shadow-sm">
-                <CardContent className="p-3">
+              <Card key={log.id} className="rounded-xl border bg-card">
+                <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <ProductImage src={log.image} alt={log.productName} size="md" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{log.productName}</p>
-                      <p className="text-[10px] text-muted-foreground">{log.reason}</p>
+                      <p className="text-xs text-muted-foreground">{log.reason}</p>
                     </div>
                     <div className="text-right">
                       <div className="flex items-center gap-1.5 text-sm">
                         <span className="text-muted-foreground">{log.systemCount}</span>
                         <ArrowRight className="w-3 h-3 text-muted-foreground" />
-                        <span className="font-bold">{log.physicalCount}</span>
+                        <span className="font-semibold">{log.physicalCount}</span>
                       </div>
-                      <span className={`text-xs font-bold ${log.difference > 0 ? "text-green-600" : "text-red-500"}`}>
+                      <span className={`text-xs font-semibold ${log.difference > 0 ? "text-green-600" : "text-red-500"}`}>
                         {log.difference > 0 ? "+" : ""}{log.difference}
                       </span>
                     </div>
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1.5">
                     {new Date(log.timestamp).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                   </p>
                 </CardContent>
@@ -290,7 +290,7 @@ export default function EtsStockAdjustment() {
             </DialogDescription>
           </DialogHeader>
           {selectedProduct && (
-            <div className="bg-amber-50 rounded-lg p-4 text-center space-y-1">
+            <div className="bg-amber-50 rounded-xl p-4 text-center space-y-1">
               <ProductImage src={selectedProduct.image} alt={selectedProduct.name} size="xl" className="mx-auto" />
               <p className="font-semibold">{selectedProduct.name}</p>
               <div className="flex items-center justify-center gap-3 mt-2">
@@ -298,7 +298,7 @@ export default function EtsStockAdjustment() {
                 <ArrowRight className="w-5 h-5" />
                 <span className="text-lg font-bold">{physicalNum}</span>
               </div>
-              <p className={`text-sm font-bold ${difference > 0 ? "text-green-600" : "text-red-600"}`}>
+              <p className={`text-sm font-semibold ${difference > 0 ? "text-green-600" : "text-red-600"}`}>
                 {difference > 0 ? "+" : ""}{difference} units
               </p>
               <p className="text-xs text-muted-foreground mt-1">

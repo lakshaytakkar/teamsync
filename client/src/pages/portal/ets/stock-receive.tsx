@@ -57,7 +57,7 @@ export default function EtsStockReceive() {
       }]);
     }
     navigator.vibrate?.(50);
-    toast({ title: `✅ ${prod.name}`, description: `+${quantity} units added to receive list` });
+    toast({ title: `Added: ${prod.name}`, description: `+${quantity} units added to receive list` });
   }
 
   function handleBarcodeScan(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -65,7 +65,7 @@ export default function EtsStockReceive() {
     const prod = POS_PRODUCTS.find(p => p.barcode === barcodeInput.trim());
     if (!prod) {
       navigator.vibrate?.([100, 50, 100]);
-      toast({ title: "❌ Not found", description: `Barcode ${barcodeInput} not in catalog`, variant: "destructive" });
+      toast({ title: "Not found", description: `Barcode ${barcodeInput} not in catalog`, variant: "destructive" });
     } else {
       addProduct(prod.id);
     }
@@ -109,7 +109,7 @@ export default function EtsStockReceive() {
           <h1 className="text-2xl font-bold font-heading" data-testid="text-receive-title">Stock Receive</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">Record incoming inventory</p>
         </div>
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+        <div className="flex gap-1 bg-muted rounded-lg p-0.5">
           <Button
             variant={tab === "new" ? "default" : "ghost"}
             size="sm" className="h-7 text-xs gap-1.5"
@@ -132,26 +132,26 @@ export default function EtsStockReceive() {
       {tab === "new" && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           <div className="lg:col-span-2 space-y-4">
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-4 space-y-3">
+            <Card className="rounded-xl border bg-card">
+              <CardContent className="p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <Badge className="bg-green-100 text-green-700 border-0 text-xs">
                     {sessionRef}
                   </Badge>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     {new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                   </span>
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                     Scan Barcode
                   </label>
                   <div className="relative">
                     <Barcode className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       ref={barcodeRef}
-                      className="pl-9 font-mono h-10"
+                      className="pl-9 h-10"
                       placeholder="Scan or enter barcode..."
                       value={barcodeInput}
                       onChange={e => setBarcodeInput(e.target.value)}
@@ -162,7 +162,7 @@ export default function EtsStockReceive() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                     Or Search Product
                   </label>
                   <div className="relative">
@@ -176,11 +176,11 @@ export default function EtsStockReceive() {
                     />
                   </div>
                   {searchResults.length > 0 && (
-                    <div className="mt-1 border rounded-lg overflow-hidden bg-white shadow-sm">
+                    <div className="mt-1 border rounded-xl overflow-hidden bg-card shadow-lg z-10 relative">
                       {searchResults.map(p => (
                         <button
                           key={p.id}
-                          className="w-full text-left px-3 py-2 hover:bg-orange-50 flex items-center justify-between text-sm border-b last:border-0"
+                          className="w-full text-left px-3 py-2.5 hover:bg-muted/30 flex items-center justify-between text-sm border-b last:border-0"
                           onClick={() => { addProduct(p.id); setSearchInput(""); }}
                           data-testid={`button-add-product-${p.id}`}
                         >
@@ -188,7 +188,7 @@ export default function EtsStockReceive() {
                             <ProductImage src={p.image} alt={p.name} size="xs" />
                             <span>{p.name}</span>
                           </span>
-                          <span className="text-xs text-muted-foreground font-mono">{p.barcode}</span>
+                          <span className="text-xs text-muted-foreground">{p.barcode}</span>
                         </button>
                       ))}
                     </div>
@@ -196,7 +196,7 @@ export default function EtsStockReceive() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                     Quantity per scan
                   </label>
                   <Input
@@ -222,7 +222,7 @@ export default function EtsStockReceive() {
             </div>
 
             {receiveItems.length === 0 ? (
-              <Card className="border-0 shadow-sm">
+              <Card className="rounded-xl border bg-card">
                 <CardContent className="p-8 text-center">
                   <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
                     <Package className="w-8 h-8 text-green-500" />
@@ -234,12 +234,12 @@ export default function EtsStockReceive() {
             ) : (
               <div className="space-y-2">
                 {receiveItems.map(item => (
-                  <Card key={item.productId} className="border-0 shadow-sm">
-                    <CardContent className="p-3 flex items-center gap-3">
+                  <Card key={item.productId} className="rounded-xl border bg-card">
+                    <CardContent className="p-4 flex items-center gap-3">
                       <ProductImage src={item.image} alt={item.productName} size="lg" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{item.productName}</p>
-                        <p className="text-[10px] text-muted-foreground font-mono">{item.barcode}</p>
+                        <p className="text-xs text-muted-foreground">{item.barcode}</p>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Button
@@ -249,7 +249,7 @@ export default function EtsStockReceive() {
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="w-8 text-center font-bold text-sm">{item.quantity}</span>
+                        <span className="w-8 text-center font-semibold text-sm">{item.quantity}</span>
                         <Button
                           variant="outline" size="icon" className="h-7 w-7"
                           onClick={() => updateQuantity(item.productId, 1)}
@@ -273,7 +273,7 @@ export default function EtsStockReceive() {
 
             {receiveItems.length > 0 && (
               <Button
-                className="w-full h-12 text-base font-bold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 gap-2"
+                className="w-full h-12 text-base font-semibold bg-green-600 hover:bg-green-700 gap-2"
                 onClick={() => setShowConfirm(true)}
                 data-testid="button-confirm-receive"
               >
@@ -288,7 +288,7 @@ export default function EtsStockReceive() {
       {tab === "history" && (
         <div className="space-y-3">
           {receives.length === 0 ? (
-            <Card className="border-0 shadow-sm">
+            <Card className="rounded-xl border bg-card">
               <CardContent className="p-8 text-center">
                 <p className="text-muted-foreground">No receive sessions yet</p>
               </CardContent>
@@ -297,15 +297,15 @@ export default function EtsStockReceive() {
             receives.map(session => (
               <Card
                 key={session.id}
-                className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                className="rounded-xl border bg-card hover:bg-muted/20 transition-colors cursor-pointer"
                 onClick={() => setSelectedHistory(session)}
                 data-testid={`card-receive-${session.id}`}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center">
-                        <Truck className="w-4 h-4 text-green-600" />
+                      <div className="h-9 w-9 rounded-lg bg-green-100 flex items-center justify-center">
+                        <Truck className="h-4 w-4 text-green-600" />
                       </div>
                       <div>
                         <p className="font-medium text-sm">{session.referenceNumber}</p>
@@ -313,7 +313,7 @@ export default function EtsStockReceive() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <Badge variant="outline" className="text-[10px]">{session.items.length} products</Badge>
+                      <Badge variant="outline" className="text-xs">{session.items.length} products</Badge>
                       <p className="text-xs text-muted-foreground mt-1">
                         {new Date(session.timestamp).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                       </p>
@@ -321,9 +321,9 @@ export default function EtsStockReceive() {
                   </div>
                   <div className="flex gap-2 mt-3 flex-wrap">
                     {session.items.map(it => (
-                      <Badge key={it.productId} variant="secondary" className="text-[10px] gap-1.5 py-0.5">
+                      <Badge key={it.productId} variant="secondary" className="text-xs gap-1.5 py-0.5">
                         <ProductImage src={it.image} alt={it.productName} size="xs" />
-                        {it.productName} × {it.quantity}
+                        {it.productName} x {it.quantity}
                       </Badge>
                     ))}
                   </div>
@@ -351,7 +351,7 @@ export default function EtsStockReceive() {
                   <ProductImage src={i.image} alt={i.productName} size="xs" />
                   <span className="truncate max-w-[180px]">{i.productName}</span>
                 </span>
-                <span className="font-bold text-green-600">+{i.quantity}</span>
+                <span className="font-semibold text-green-600">+{i.quantity}</span>
               </div>
             ))}
           </div>
@@ -385,19 +385,19 @@ export default function EtsStockReceive() {
               </DialogHeader>
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {selectedHistory.items.map(i => (
-                  <div key={i.productId} className="flex items-center gap-3 py-2 border-b last:border-0">
+                  <div key={i.productId} className="flex items-center gap-3 py-2.5 border-b last:border-0">
                     <ProductImage src={i.image} alt={i.productName} size="md" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">{i.productName}</p>
-                      <p className="text-[10px] text-muted-foreground font-mono">{i.barcode}</p>
+                      <p className="text-xs text-muted-foreground">{i.barcode}</p>
                     </div>
                     <Badge className="bg-green-100 text-green-700 border-0">+{i.quantity}</Badge>
                   </div>
                 ))}
               </div>
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
+              <div className="bg-muted/30 rounded-xl p-4 text-center">
                 <p className="text-xs text-muted-foreground">Total items received</p>
-                <p className="text-xl font-bold text-green-700">{selectedHistory.totalItems}</p>
+                <p className="text-2xl font-bold font-heading text-green-700">{selectedHistory.totalItems}</p>
               </div>
             </>
           )}

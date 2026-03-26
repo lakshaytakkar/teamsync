@@ -16,6 +16,10 @@ import {
   type StoreSettings,
 } from "@/lib/mock-data-pos-ets";
 
+function formatINR(n: number) {
+  return "₹" + n.toLocaleString("en-IN");
+}
+
 export default function EtsStoreSettings() {
   const inSidebar = useEtsSidebar();
   const { toast } = useToast();
@@ -77,8 +81,8 @@ export default function EtsStoreSettings() {
         )}
       </div>
 
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-4 space-y-4">
+      <Card className="rounded-xl border bg-card">
+        <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2 mb-1">
             <Store className="w-4 h-4 text-orange-500" />
             <h2 className="text-sm font-semibold">Store Information</h2>
@@ -86,7 +90,7 @@ export default function EtsStoreSettings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">Store Name</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Store Name</label>
               <Input
                 value={settings.storeName}
                 onChange={e => update("storeName", e.target.value)}
@@ -94,7 +98,7 @@ export default function EtsStoreSettings() {
               />
             </div>
             <div>
-              <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">Phone</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Phone</label>
               <Input
                 value={settings.phone}
                 onChange={e => update("phone", e.target.value)}
@@ -104,7 +108,7 @@ export default function EtsStoreSettings() {
           </div>
 
           <div>
-            <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">Address</label>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Address</label>
             <Textarea
               rows={2} value={settings.address}
               onChange={e => update("address", e.target.value)}
@@ -114,37 +118,37 @@ export default function EtsStoreSettings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">GSTIN</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">GSTIN</label>
               <Input
                 value={settings.gstin}
                 onChange={e => update("gstin", e.target.value)}
                 placeholder="Not set"
                 data-testid="input-gstin"
               />
-              <p className="text-[10px] text-muted-foreground mt-0.5">Printed on receipts. No GST calculation.</p>
+              <p className="text-xs text-muted-foreground mt-1">Printed on receipts. No GST calculation.</p>
             </div>
             <div>
-              <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">Low Stock Threshold</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Low Stock Threshold</label>
               <Input
                 type="number" min="1" max="100"
                 value={settings.lowStockThreshold}
                 onChange={e => update("lowStockThreshold", parseInt(e.target.value) || 5)}
                 data-testid="input-threshold"
               />
-              <p className="text-[10px] text-muted-foreground mt-0.5">Products below this count show as "Low Stock"</p>
+              <p className="text-xs text-muted-foreground mt-1">Products below this count show as "Low Stock"</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-4 space-y-3">
+      <Card className="rounded-xl border bg-card">
+        <CardContent className="p-5 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Package className="w-4 h-4 text-orange-500" />
               <h2 className="text-sm font-semibold">Quick-Add Products</h2>
             </div>
-            <Badge variant="outline" className="text-[10px]">
+            <Badge variant="outline" className="text-xs">
               {settings.quickAddProductIds.length}/12
             </Badge>
           </div>
@@ -156,7 +160,7 @@ export default function EtsStoreSettings() {
                 <ProductImage src={p.image} alt={p.name} size="xs" />
                 <span>{p.name}</span>
                 <button
-                  className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                  className="ml-1 hover:bg-muted rounded-full p-0.5"
                   onClick={() => removeQuickAddProduct(p.id)}
                   data-testid={`button-remove-quick-${p.id}`}
                 >
@@ -176,11 +180,11 @@ export default function EtsStoreSettings() {
                 data-testid="input-quick-add-search"
               />
               {searchResults.length > 0 && (
-                <div className="absolute w-full mt-1 border rounded-lg overflow-hidden bg-white shadow-lg z-10">
+                <div className="absolute w-full mt-1 border rounded-xl overflow-hidden bg-card shadow-lg z-10">
                   {searchResults.map(p => (
                     <button
                       key={p.id}
-                      className="w-full text-left px-3 py-2 hover:bg-orange-50 flex items-center justify-between text-sm border-b last:border-0"
+                      className="w-full text-left px-3 py-2.5 hover:bg-muted/30 flex items-center justify-between text-sm border-b last:border-0"
                       onClick={() => addQuickAddProduct(p.id)}
                       data-testid={`button-add-quick-${p.id}`}
                     >
@@ -198,8 +202,8 @@ export default function EtsStoreSettings() {
         </CardContent>
       </Card>
 
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-4 space-y-4">
+      <Card className="rounded-xl border bg-card">
+        <CardContent className="p-5 space-y-4">
           <div className="flex items-center gap-2 mb-1">
             <Printer className="w-4 h-4 text-orange-500" />
             <h2 className="text-sm font-semibold">Receipt Settings</h2>
@@ -219,28 +223,28 @@ export default function EtsStoreSettings() {
         </CardContent>
       </Card>
 
-      <Card className="border-0 shadow-sm bg-gray-50">
-        <CardContent className="p-4 space-y-3">
+      <Card className="rounded-xl border bg-card">
+        <CardContent className="p-5 space-y-3">
           <div className="flex items-center gap-2 mb-1">
-            <Shield className="w-4 h-4 text-gray-500" />
+            <Shield className="w-4 h-4 text-muted-foreground" />
             <h2 className="text-sm font-semibold">System Information</h2>
           </div>
           <p className="text-xs text-muted-foreground">Read-only information about your store</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="bg-white rounded-lg p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Store ID</p>
-              <p className="text-sm font-mono font-medium mt-0.5" data-testid="text-store-id">{settings.storeId}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-muted/30 rounded-xl p-4">
+              <p className="text-xs font-medium text-muted-foreground">Store ID</p>
+              <p className="text-sm font-medium mt-1" data-testid="text-store-id">{settings.storeId}</p>
             </div>
-            <div className="bg-white rounded-lg p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Partner Package</p>
-              <Badge className="mt-1 bg-orange-100 text-orange-700 border-0 text-xs" data-testid="text-package">
+            <div className="bg-muted/30 rounded-xl p-4">
+              <p className="text-xs font-medium text-muted-foreground">Partner Package</p>
+              <Badge className="mt-1.5 bg-orange-100 text-orange-700 border-0 text-xs" data-testid="text-package">
                 {settings.partnerPackage}
               </Badge>
             </div>
-            <div className="bg-white rounded-lg p-3">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Store Status</p>
-              <Badge className="mt-1 bg-green-100 text-green-700 border-0 text-xs capitalize" data-testid="text-status">
+            <div className="bg-muted/30 rounded-xl p-4">
+              <p className="text-xs font-medium text-muted-foreground">Store Status</p>
+              <Badge className="mt-1.5 bg-green-100 text-green-700 border-0 text-xs capitalize" data-testid="text-status">
                 {settings.storeStatus}
               </Badge>
             </div>

@@ -69,7 +69,7 @@ export default function EtsPortalProfile() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-8">
-        <Card>
+        <Card className="rounded-xl border bg-card">
           <CardContent className="p-6 flex flex-col items-center text-center">
             <Avatar className="h-24 w-24 mb-4">
               <AvatarFallback
@@ -89,12 +89,12 @@ export default function EtsPortalProfile() {
               {ETS_STAGE_DISPLAY_LABELS[client.stage] || client.stage}
             </Badge>
             <p className="text-sm text-muted-foreground">
-              Partner ID: <span className="font-mono font-medium" data-testid="text-partner-id">ETS-{String(client.id).padStart(4, '0')}</span>
+              Partner ID: <span className="font-medium" data-testid="text-partner-id">ETS-{String(client.id).padStart(4, '0')}</span>
             </p>
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card className="rounded-xl border bg-card md:col-span-2">
           <CardHeader>
             <CardTitle>Account Details</CardTitle>
           </CardHeader>
@@ -102,11 +102,11 @@ export default function EtsPortalProfile() {
             <div className="grid sm:grid-cols-2 gap-6">
               {detailItems.map((item, idx) => (
                 <div key={idx} className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
                     <item.icon className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
                     <p className="font-medium text-sm mt-0.5" data-testid={`text-detail-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
                       {item.value}
                     </p>
@@ -118,24 +118,24 @@ export default function EtsPortalProfile() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="rounded-xl border bg-card">
         <CardHeader>
           <CardTitle>Program Information</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid sm:grid-cols-3 gap-6">
             <div className="p-4 rounded-lg border">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Package</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Package</p>
               <p className="font-semibold" data-testid="text-package">{client.packageName || "Standard Package"}</p>
             </div>
             <div className="p-4 rounded-lg border">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Investment</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Investment</p>
               <p className="font-semibold" data-testid="text-investment">
                 {client.totalInvestment ? `\u20B9${client.totalInvestment.toLocaleString("en-IN")}` : "As per agreement"}
               </p>
             </div>
             <div className="p-4 rounded-lg border">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Estimated Launch</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Estimated Launch</p>
               <p className="font-semibold" data-testid="text-launch-date">{client.estimatedLaunchDate || "TBD"}</p>
             </div>
           </div>

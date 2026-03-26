@@ -58,43 +58,43 @@ export default function EtsPortalLaunchKit() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        <Card>
+        <Card className="rounded-xl border bg-card">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-2">
               <Package className="h-5 w-5" style={{ color: ETS_PORTAL_COLOR }} />
               <span className="text-sm font-medium text-muted-foreground">Total Items</span>
             </div>
-            <p className="text-3xl font-bold" data-testid="text-total-items">{totalItems}</p>
+            <p className="text-2xl font-bold font-heading" data-testid="text-total-items">{totalItems}</p>
             <p className="text-xs text-muted-foreground mt-1">{kitItems.length} products selected</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-xl border bg-card">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-2">
               <Truck className="h-5 w-5" style={{ color: ETS_PORTAL_COLOR }} />
               <span className="text-sm font-medium text-muted-foreground">Estimated Value</span>
             </div>
-            <p className="text-3xl font-bold" data-testid="text-total-value">
+            <p className="text-2xl font-bold font-heading" data-testid="text-total-value">
               {"\u20B9"}{totalValue.toLocaleString("en-IN")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">At wholesale pricing</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-xl border bg-card">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-2">
               <CheckCircle2 className="h-5 w-5" style={{ color: ETS_PORTAL_COLOR }} />
               <span className="text-sm font-medium text-muted-foreground">Confirmed</span>
             </div>
-            <p className="text-3xl font-bold" data-testid="text-confirmed">{confirmedItems}/{kitItems.length}</p>
+            <p className="text-2xl font-bold font-heading" data-testid="text-confirmed">{confirmedItems}/{kitItems.length}</p>
             <Progress value={kitItems.length > 0 ? (confirmedItems / kitItems.length) * 100 : 0} className="h-2 mt-2" />
           </CardContent>
         </Card>
       </div>
 
-      <Card>
+      <Card className="rounded-xl border bg-card">
         <CardHeader>
           <CardTitle>Kit Items</CardTitle>
           <CardDescription>Products in your launch inventory.</CardDescription>

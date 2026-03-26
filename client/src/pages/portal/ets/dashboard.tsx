@@ -221,7 +221,7 @@ export default function EtsPortalDashboard() {
               <div className="flex items-center gap-3 mt-2 text-sm text-orange-100">
                 <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {client.city || portalEtsClient.city}</span>
                 <span className="w-px h-4 bg-white/30" />
-                <Badge className="bg-white/20 text-white border-0 text-[10px] font-semibold hover:bg-white/30" data-testid="text-client-stage">
+                <Badge className="bg-white/20 text-white border-0 text-xs font-semibold hover:bg-white/30" data-testid="text-client-stage">
                   {ETS_STAGE_DISPLAY_LABELS[client.stage] || client.stage}
                 </Badge>
               </div>
@@ -256,7 +256,7 @@ export default function EtsPortalDashboard() {
                   <p className="text-sm font-semibold" data-testid="text-onboarding-cta">Complete your store profile</p>
                   <div className="flex items-center gap-2 mt-1">
                     <Progress value={(client.onboardingStep || 1) / 5 * 100} className="h-1.5 flex-1 max-w-[140px]" />
-                    <span className="text-[10px] text-muted-foreground font-medium" data-testid="text-onboarding-progress">{client.onboardingStep || 1}/5</span>
+                    <span className="text-xs text-muted-foreground font-medium" data-testid="text-onboarding-progress">{client.onboardingStep || 1}/5</span>
                   </div>
                 </div>
               </div>
@@ -277,10 +277,10 @@ export default function EtsPortalDashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2.5 mb-2">
                   <img src={iconRevenue} alt="Revenue" className="w-9 h-9 object-contain" />
-                  <span className="text-[10px] font-semibold text-green-700 uppercase tracking-wider">Revenue</span>
+                  <span className="text-xs font-semibold text-green-700 uppercase tracking-wider">Revenue</span>
                 </div>
                 <p className="text-xl md:text-2xl font-bold text-green-800" data-testid="text-today-revenue">{formatINR(todayStats.totalRevenue)}</p>
-                <p className="text-[10px] text-green-600 mt-0.5">{todayStats.txCount} transactions today</p>
+                <p className="text-xs text-green-600 mt-0.5">{todayStats.txCount} transactions today</p>
               </CardContent>
             </Card>
 
@@ -288,10 +288,10 @@ export default function EtsPortalDashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2.5 mb-2">
                   <img src={iconAvgBasket} alt="Avg Basket" className="w-9 h-9 object-contain" />
-                  <span className="text-[10px] font-semibold text-blue-700 uppercase tracking-wider">Avg Basket</span>
+                  <span className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Avg Basket</span>
                 </div>
                 <p className="text-xl md:text-2xl font-bold text-blue-800" data-testid="text-avg-basket">{formatINR(todayStats.avgBasket)}</p>
-                <p className="text-[10px] text-blue-600 mt-0.5">per transaction</p>
+                <p className="text-xs text-blue-600 mt-0.5">per transaction</p>
               </CardContent>
             </Card>
 
@@ -299,10 +299,10 @@ export default function EtsPortalDashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2.5 mb-2">
                   <img src={iconDigitalPayment} alt="Digital" className="w-9 h-9 object-contain" />
-                  <span className="text-[10px] font-semibold text-purple-700 uppercase tracking-wider">Digital</span>
+                  <span className="text-xs font-semibold text-purple-700 uppercase tracking-wider">Digital</span>
                 </div>
                 <p className="text-xl md:text-2xl font-bold text-purple-800" data-testid="text-digital-total">{formatINR(todayStats.upiTotal + todayStats.cardTotal)}</p>
-                <p className="text-[10px] text-purple-600 mt-0.5">UPI + Card payments</p>
+                <p className="text-xs text-purple-600 mt-0.5">UPI + Card payments</p>
               </CardContent>
             </Card>
 
@@ -310,10 +310,10 @@ export default function EtsPortalDashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2.5 mb-2">
                   <img src={iconCashPayment} alt="Cash" className="w-9 h-9 object-contain" />
-                  <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider">Cash</span>
+                  <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">Cash</span>
                 </div>
                 <p className="text-xl md:text-2xl font-bold text-amber-800" data-testid="text-cash-total">{formatINR(todayStats.cashTotal)}</p>
-                <p className="text-[10px] text-amber-600 mt-0.5">in cash drawer</p>
+                <p className="text-xs text-amber-600 mt-0.5">in cash drawer</p>
               </CardContent>
             </Card>
           </div>
@@ -321,12 +321,12 @@ export default function EtsPortalDashboard() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
             {quickActions.map(action => (
                 <Link key={action.label} href={action.href}>
-                  <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full" data-testid={`card-action-${action.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                  <Card className="rounded-xl border bg-card shadow-sm hover:bg-muted/20 transition-colors cursor-pointer h-full" data-testid={`card-action-${action.label.toLowerCase().replace(/\s+/g, "-")}`}>
                     <CardContent className="p-3 flex flex-col items-center text-center gap-1.5">
                       <img src={action.img} alt={action.label} className="w-12 h-12 object-contain" />
                       <div>
                         <p className="text-xs font-semibold leading-tight">{action.label}</p>
-                        <p className="text-[9px] text-muted-foreground mt-0.5">{action.desc}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{action.desc}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -354,7 +354,7 @@ export default function EtsPortalDashboard() {
                       <ProductImage src={product.image} alt={product.name} size="md" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{product.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{product.qty} sold</p>
+                        <p className="text-xs text-muted-foreground">{product.qty} sold</p>
                       </div>
                       <span className="text-sm font-bold">{formatINR(product.revenue)}</span>
                     </div>
@@ -367,7 +367,7 @@ export default function EtsPortalDashboard() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-semibold">Recent Sales</CardTitle>
-                  <Badge variant="outline" className="text-[9px] font-medium">{todayStats.txCount} today</Badge>
+                  <Badge variant="outline" className="text-xs font-medium">{todayStats.txCount} today</Badge>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
@@ -379,7 +379,7 @@ export default function EtsPortalDashboard() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium">{sale.receiptNumber}</p>
-                        <p className="text-[10px] text-muted-foreground">{sale.items.length} items · {sale.paymentMethod}</p>
+                        <p className="text-xs text-muted-foreground">{sale.items.length} items · {sale.paymentMethod}</p>
                       </div>
                       <span className="text-xs font-bold">{formatINR(sale.totalAmount)}</span>
                     </div>
@@ -411,7 +411,7 @@ export default function EtsPortalDashboard() {
                         <ProductImage src={item.image} alt={item.name} size="sm" />
                         <div className="min-w-0">
                           <p className="text-xs font-medium truncate">{item.name}</p>
-                          <p className={`text-[10px] font-bold ${item.currentStock === 0 ? "text-red-600" : "text-amber-600"}`}>
+                          <p className={`text-xs font-bold ${item.currentStock === 0 ? "text-red-600" : "text-amber-600"}`}>
                             {item.currentStock === 0 ? "Out of Stock" : `${item.currentStock} left`}
                           </p>
                         </div>
@@ -429,7 +429,7 @@ export default function EtsPortalDashboard() {
                 <div className="flex items-center gap-3">
                   <img src={iconCashPayment} alt="Cash" className="w-10 h-10 object-contain" />
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cash Payments</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Cash Payments</p>
                     <p className="text-lg font-bold">{formatINR(todayStats.cashTotal)}</p>
                   </div>
                 </div>
@@ -444,7 +444,7 @@ export default function EtsPortalDashboard() {
                 <div className="flex items-center gap-3">
                   <img src={iconDigitalPayment} alt="UPI" className="w-10 h-10 object-contain" />
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">UPI Payments</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">UPI Payments</p>
                     <p className="text-lg font-bold">{formatINR(todayStats.upiTotal)}</p>
                   </div>
                 </div>
@@ -459,7 +459,7 @@ export default function EtsPortalDashboard() {
                 <div className="flex items-center gap-3">
                   <img src={iconDigitalPayment} alt="Card" className="w-10 h-10 object-contain" />
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Card Payments</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Card Payments</p>
                     <p className="text-lg font-bold">{formatINR(todayStats.cardTotal)}</p>
                   </div>
                 </div>
@@ -485,7 +485,7 @@ export default function EtsPortalDashboard() {
                   <span data-testid="text-progress-percent">{Math.round(progress)}% Complete</span>
                 </div>
                 <Progress value={progress} className="h-2.5" />
-                <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
                   <span>Token Paid</span>
                   <span className="font-semibold" style={{ color: ETS_PORTAL_COLOR }}>
                     Current: {ETS_STAGE_DISPLAY_LABELS[client.stage] || client.stage}
@@ -517,7 +517,7 @@ export default function EtsPortalDashboard() {
                     <TrendingUp className="w-4 h-4 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Total Paid</p>
+                    <p className="text-xs text-muted-foreground uppercase font-semibold">Total Paid</p>
                     <p className="text-lg font-bold" data-testid="text-total-paid">{formatCurrency(totalPaid)}</p>
                   </div>
                 </div>
@@ -531,7 +531,7 @@ export default function EtsPortalDashboard() {
                     <Package className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Inventory</p>
+                    <p className="text-xs text-muted-foreground uppercase font-semibold">Inventory</p>
                     <p className="text-lg font-bold" data-testid="text-inventory-units">{kitItemCount} Items</p>
                   </div>
                 </div>
@@ -545,7 +545,7 @@ export default function EtsPortalDashboard() {
                     <Users className="w-4 h-4 text-orange-600" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Manager</p>
+                    <p className="text-xs text-muted-foreground uppercase font-semibold">Manager</p>
                     <p className="text-sm font-bold" data-testid="text-manager-name">{client.managerName || "EazyToSell Team"}</p>
                   </div>
                 </div>
@@ -597,7 +597,7 @@ export default function EtsPortalDashboard() {
                         className="absolute -left-[7px] top-1 h-3 w-3 rounded-full border-2 border-white shadow-sm"
                         style={{ backgroundColor: event.completed ? ETS_PORTAL_COLOR : "#e5e7eb" }}
                       />
-                      {event.date && <p className="text-[10px] text-muted-foreground">{event.date}</p>}
+                      {event.date && <p className="text-xs text-muted-foreground">{event.date}</p>}
                       <p className="text-sm font-medium" data-testid={`text-timeline-${idx}`}>{event.label}</p>
                     </div>
                   ))}
@@ -619,7 +619,7 @@ export default function EtsPortalDashboard() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Progress value={checklistTotal > 0 ? (checklistDone / checklistTotal) * 100 : 0} className="flex-1 h-2" />
-                  <Badge variant="outline" className="shrink-0 text-[10px]" data-testid="badge-checklist-progress">
+                  <Badge variant="outline" className="shrink-0 text-xs" data-testid="badge-checklist-progress">
                     {checklistDone}/{checklistTotal}
                   </Badge>
                 </div>

@@ -109,7 +109,7 @@ export default function EtsDailyReport() {
           <h1 className="text-2xl font-bold font-heading" data-testid="text-report-title">Daily Sales Report</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">{getDateLabel(range)}</p>
         </div>
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+        <div className="flex gap-1 bg-muted rounded-lg p-0.5">
           {(["today", "yesterday", "week", "month"] as DateRange[]).map(r => (
             <Button
               key={r} variant={range === r ? "default" : "ghost"}
@@ -123,61 +123,49 @@ export default function EtsDailyReport() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="border-0 shadow-sm bg-teal-50">
-          <CardContent className="p-3">
-            <div className="flex items-center gap-1.5 mb-1">
-              <TrendingUp className="w-3.5 h-3.5 text-teal-600" />
-              <p className="text-[10px] text-teal-600 uppercase tracking-wider font-medium">Total Revenue</p>
-            </div>
-            <p className="text-xl font-bold text-teal-700" data-testid="stat-revenue">{formatINR(stats.totalRevenue)}</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
+            <p className="text-xs font-medium text-teal-600">Total Revenue</p>
+            <p className="text-2xl font-bold font-heading text-teal-700 mt-1" data-testid="stat-revenue">{formatINR(stats.totalRevenue)}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-3">
-            <div className="flex items-center gap-1.5 mb-1">
-              <Receipt className="w-3.5 h-3.5 text-muted-foreground" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Transactions</p>
-            </div>
-            <p className="text-xl font-bold" data-testid="stat-tx-count">{stats.txCount}</p>
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
+            <p className="text-xs font-medium text-muted-foreground">Transactions</p>
+            <p className="text-2xl font-bold font-heading mt-1" data-testid="stat-tx-count">{stats.txCount}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-3">
-            <div className="flex items-center gap-1.5 mb-1">
-              <ShoppingCart className="w-3.5 h-3.5 text-muted-foreground" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Avg Basket</p>
-            </div>
-            <p className="text-xl font-bold" data-testid="stat-avg-basket">{formatINR(stats.avgBasket)}</p>
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
+            <p className="text-xs font-medium text-muted-foreground">Avg Basket</p>
+            <p className="text-2xl font-bold font-heading mt-1" data-testid="stat-avg-basket">{formatINR(stats.avgBasket)}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-3">
-            <div className="flex items-center gap-1.5 mb-1">
-              <ShoppingCart className="w-3.5 h-3.5 text-muted-foreground" />
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Avg Items/Tx</p>
-            </div>
-            <p className="text-xl font-bold" data-testid="stat-avg-items">{stats.avgItems}</p>
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
+            <p className="text-xs font-medium text-muted-foreground">Avg Items/Tx</p>
+            <p className="text-2xl font-bold font-heading mt-1" data-testid="stat-avg-items">{stats.avgItems}</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold">Top Sellers</h3>
-              <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+              <div className="flex gap-1 bg-muted rounded-lg p-0.5">
                 <Button
                   variant={topTab === "qty" ? "default" : "ghost"}
-                  size="sm" className="h-6 text-[10px] px-2"
+                  size="sm" className="h-6 text-xs px-2"
                   onClick={() => setTopTab("qty")}
                 >
                   By Qty
                 </Button>
                 <Button
                   variant={topTab === "revenue" ? "default" : "ghost"}
-                  size="sm" className="h-6 text-[10px] px-2"
+                  size="sm" className="h-6 text-xs px-2"
                   onClick={() => setTopTab("revenue")}
                 >
                   By Revenue
@@ -190,11 +178,11 @@ export default function EtsDailyReport() {
               <div className="space-y-1.5">
                 {(topTab === "qty" ? topByQty : topByRevenue).map((item, idx) => (
                   <div key={item.productId} className="flex items-center gap-2 py-1.5">
-                    <span className="text-xs font-bold text-muted-foreground w-5 text-right">{idx + 1}.</span>
+                    <span className="text-xs font-semibold text-muted-foreground w-5 text-right">{idx + 1}.</span>
                     <ProductImage src={item.image} alt={item.name} size="md" />
                     <span className="text-sm flex-1 truncate">{item.name}</span>
                     <span className="text-xs text-muted-foreground">{item.qty} sold</span>
-                    <span className="text-sm font-bold w-20 text-right">{formatINR(item.revenue)}</span>
+                    <span className="text-sm font-semibold w-20 text-right">{formatINR(item.revenue)}</span>
                   </div>
                 ))}
               </div>
@@ -202,8 +190,8 @@ export default function EtsDailyReport() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
             <h3 className="text-sm font-semibold mb-3">Payment Breakdown</h3>
             <div className="space-y-4">
               {[
@@ -212,8 +200,8 @@ export default function EtsDailyReport() {
                 { label: "Card", value: stats.cardTotal, icon: CreditCard, color: "bg-blue-500", iconBg: "bg-blue-100", iconColor: "text-blue-600" },
               ].map(pm => (
                 <div key={pm.label} className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-lg ${pm.iconBg} flex items-center justify-center shrink-0`}>
-                    <pm.icon className={`w-4 h-4 ${pm.iconColor}`} />
+                  <div className={`h-9 w-9 rounded-lg ${pm.iconBg} flex items-center justify-center shrink-0`}>
+                    <pm.icon className={`h-4 w-4 ${pm.iconColor}`} />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
@@ -222,10 +210,10 @@ export default function EtsDailyReport() {
                         <span className="text-xs text-muted-foreground">
                           {stats.totalRevenue > 0 ? Math.round((pm.value / stats.totalRevenue) * 100) : 0}%
                         </span>
-                        <span className="text-sm font-bold">{formatINR(pm.value)}</span>
+                        <span className="text-sm font-semibold">{formatINR(pm.value)}</span>
                       </div>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className={`h-full ${pm.color} rounded-full transition-all`}
                         style={{ width: stats.totalRevenue > 0 ? `${(pm.value / stats.totalRevenue) * 100}%` : "0%" }}
@@ -236,7 +224,7 @@ export default function EtsDailyReport() {
               ))}
               <div className="pt-3 border-t flex items-center justify-between">
                 <span className="text-sm font-medium">Total</span>
-                <span className="text-lg font-bold">{formatINR(stats.totalRevenue)}</span>
+                <span className="text-lg font-bold font-heading">{formatINR(stats.totalRevenue)}</span>
               </div>
             </div>
           </CardContent>
@@ -244,8 +232,8 @@ export default function EtsDailyReport() {
       </div>
 
       {hourlyData.length > 0 && (
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
             <h3 className="text-sm font-semibold mb-3">
               {range === "today" ? "Hourly Sales" : "Yesterday's Hourly Sales"}
             </h3>
@@ -254,16 +242,16 @@ export default function EtsDailyReport() {
                 <div key={h.hour} className="flex-1 flex flex-col items-center gap-1">
                   <div className="w-full flex flex-col items-center justify-end h-28">
                     {h.revenue > 0 && (
-                      <span className="text-[8px] text-muted-foreground mb-0.5 truncate">
+                      <span className="text-xs text-muted-foreground mb-0.5 truncate">
                         {formatINR(h.revenue)}
                       </span>
                     )}
                     <div
-                      className="w-full rounded-t bg-gradient-to-t from-teal-500 to-teal-400 transition-all min-h-[2px]"
+                      className="w-full rounded-t bg-teal-500 transition-all min-h-[2px]"
                       style={{ height: `${Math.max(2, (h.revenue / maxHourly) * 100)}%` }}
                     />
                   </div>
-                  <span className="text-[9px] text-muted-foreground">{h.hour > 12 ? h.hour - 12 : h.hour}{h.hour >= 12 ? "p" : "a"}</span>
+                  <span className="text-xs text-muted-foreground">{h.hour > 12 ? h.hour - 12 : h.hour}{h.hour >= 12 ? "p" : "a"}</span>
                 </div>
               ))}
             </div>
@@ -272,23 +260,23 @@ export default function EtsDailyReport() {
       )}
 
       {todayReturns.length > 0 && range === "today" && (
-        <Card className="border-0 shadow-sm border-l-4 border-l-rose-400">
-          <CardContent className="p-4">
-            <h3 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+        <Card className="rounded-xl border bg-card border-l-4 border-l-rose-400">
+          <CardContent className="p-5">
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
               <RotateCcw className="w-3.5 h-3.5 text-rose-500" /> Returns Today
             </h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-rose-50 rounded-lg p-2 text-center">
-                <p className="text-[10px] text-rose-600 uppercase">Count</p>
-                <p className="text-lg font-bold text-rose-700">{todayReturns.length}</p>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-rose-50 rounded-xl p-3 text-center">
+                <p className="text-xs font-medium text-rose-600">Count</p>
+                <p className="text-2xl font-bold font-heading text-rose-700 mt-1">{todayReturns.length}</p>
               </div>
-              <div className="bg-rose-50 rounded-lg p-2 text-center">
-                <p className="text-[10px] text-rose-600 uppercase">Refund Total</p>
-                <p className="text-lg font-bold text-rose-700">{formatINR(todayReturns.reduce((s, r) => s + r.totalRefund, 0))}</p>
+              <div className="bg-rose-50 rounded-xl p-3 text-center">
+                <p className="text-xs font-medium text-rose-600">Refund Total</p>
+                <p className="text-2xl font-bold font-heading text-rose-700 mt-1">{formatINR(todayReturns.reduce((s, r) => s + r.totalRefund, 0))}</p>
               </div>
-              <div className="bg-rose-50 rounded-lg p-2 text-center">
-                <p className="text-[10px] text-rose-600 uppercase">Top Reason</p>
-                <p className="text-xs font-medium text-rose-700 mt-1">{todayReturns[0]?.reason}</p>
+              <div className="bg-rose-50 rounded-xl p-3 text-center">
+                <p className="text-xs font-medium text-rose-600">Top Reason</p>
+                <p className="text-sm font-medium text-rose-700 mt-1">{todayReturns[0]?.reason}</p>
               </div>
             </div>
           </CardContent>

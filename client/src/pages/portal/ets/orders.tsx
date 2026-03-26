@@ -55,7 +55,7 @@ function OrderTimeline({ status }: { status: string }) {
                 )}
               </div>
               <span className={cn(
-                "text-[11px] mt-2 text-center whitespace-nowrap font-medium",
+                "text-xs mt-2 text-center whitespace-nowrap font-medium",
                 isCompleted ? (isCurrent ? config?.color || "text-orange-600" : "text-green-600") : "text-muted-foreground/50"
               )}>
                 {ETS_ORDER_STAGE_LABELS[stage]}
@@ -77,7 +77,7 @@ function OrderCard({ order }: { order: any }) {
   const config = statusConfig[order.status] || statusConfig["ordered"];
 
   return (
-    <Card className="overflow-hidden" data-testid={`card-order-${order.id}`}>
+    <Card className="rounded-xl border bg-card overflow-hidden" data-testid={`card-order-${order.id}`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div>
@@ -158,7 +158,7 @@ export default function EtsPortalOrders() {
       </div>
 
       {orders.length === 0 ? (
-        <Card>
+        <Card className="rounded-xl border bg-card">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
               <Package className="h-8 w-8 text-muted-foreground" />

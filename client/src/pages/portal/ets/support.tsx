@@ -56,7 +56,7 @@ export default function EtsPortalSupport() {
 
       <div className="grid md:grid-cols-3 gap-6">
         <a href="https://wa.me/919306566900" target="_blank" rel="noopener noreferrer" className="block">
-          <Card className="h-full hover:shadow-md transition-shadow cursor-pointer border-green-200 dark:border-green-900">
+          <Card className="rounded-xl border bg-card h-full hover:bg-muted/20 transition-colors cursor-pointer border-green-200 dark:border-green-900">
             <CardContent className="p-6 flex flex-col items-center text-center">
               <div className="h-14 w-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
                 <MessageCircle className="h-7 w-7 text-green-600" />
@@ -71,7 +71,7 @@ export default function EtsPortalSupport() {
         </a>
 
         <a href="tel:+919306566900" className="block">
-          <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+          <Card className="rounded-xl border bg-card h-full hover:bg-muted/20 transition-colors cursor-pointer">
             <CardContent className="p-6 flex flex-col items-center text-center">
               <div className="h-14 w-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
                 <Phone className="h-7 w-7 text-blue-600" />
@@ -84,7 +84,7 @@ export default function EtsPortalSupport() {
         </a>
 
         <a href="mailto:support@eazytosell.com" className="block">
-          <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+          <Card className="rounded-xl border bg-card h-full hover:bg-muted/20 transition-colors cursor-pointer">
             <CardContent className="p-6 flex flex-col items-center text-center">
               <div className="h-14 w-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
                 <Mail className="h-7 w-7 text-purple-600" />
@@ -97,7 +97,7 @@ export default function EtsPortalSupport() {
         </a>
       </div>
 
-      <Card>
+      <Card className="rounded-xl border bg-card">
         <CardHeader>
           <div className="flex items-center gap-2">
             <HelpCircle className="h-5 w-5" style={{ color: ETS_PORTAL_COLOR }} />
@@ -114,7 +114,7 @@ export default function EtsPortalSupport() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="rounded-xl border bg-card">
         <CardContent className="p-6">
           <div className="flex items-center gap-3 text-muted-foreground">
             <Clock className="h-5 w-5 shrink-0" />

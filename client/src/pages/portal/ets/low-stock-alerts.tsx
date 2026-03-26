@@ -55,29 +55,29 @@ export default function EtsLowStockAlerts() {
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <Card className="border-0 shadow-sm bg-red-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[10px] text-red-600 uppercase tracking-wider font-medium">Out of Stock</p>
-            <p className="text-2xl font-bold text-red-700 mt-1" data-testid="stat-alerts-out">{outCount}</p>
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5 text-center">
+            <p className="text-xs font-medium text-red-600">Out of Stock</p>
+            <p className="text-2xl font-bold font-heading text-red-700 mt-1" data-testid="stat-alerts-out">{outCount}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-amber-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[10px] text-amber-600 uppercase tracking-wider font-medium">Critical (1-2)</p>
-            <p className="text-2xl font-bold text-amber-700 mt-1" data-testid="stat-alerts-critical">{criticalCount}</p>
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5 text-center">
+            <p className="text-xs font-medium text-amber-600">Critical (1-2)</p>
+            <p className="text-2xl font-bold font-heading text-amber-700 mt-1" data-testid="stat-alerts-critical">{criticalCount}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-yellow-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-[10px] text-yellow-600 uppercase tracking-wider font-medium">Low (3-5)</p>
-            <p className="text-2xl font-bold text-yellow-700 mt-1" data-testid="stat-alerts-low">{lowCount}</p>
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5 text-center">
+            <p className="text-xs font-medium text-yellow-600">Low (3-5)</p>
+            <p className="text-2xl font-bold font-heading text-yellow-700 mt-1" data-testid="stat-alerts-low">{lowCount}</p>
           </CardContent>
         </Card>
       </div>
 
       {alerts.length === 0 ? (
-        <Card className="border-0 shadow-sm">
+        <Card className="rounded-xl border bg-card">
           <CardContent className="p-12 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
               <Package className="w-8 h-8 text-green-500" />
@@ -93,50 +93,50 @@ export default function EtsLowStockAlerts() {
             return (
               <Card
                 key={item.productId}
-                className={`border-0 shadow-sm border-l-4 ${style.border} ${style.bg}`}
+                className={`rounded-xl border bg-card border-l-4 ${style.border}`}
                 data-testid={`alert-${item.productId}`}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-5">
                   <div className="flex items-start gap-3">
                     <ProductImage src={item.image} alt={item.name} size="lg" className="mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-sm">{item.name}</h3>
-                        <Badge className={`text-[9px] border-0 ${style.badge}`}>{style.label}</Badge>
+                        <Badge className={`text-xs border-0 ${style.badge}`}>{style.label}</Badge>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">{item.category} · MRP ₹{item.mrp}</p>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3">
                         <div>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Stock</p>
-                          <p className={`text-lg font-bold ${item.currentStock === 0 ? "text-red-600" : "text-amber-600"}`}>
+                          <p className="text-xs font-medium text-muted-foreground">Stock</p>
+                          <p className={`text-lg font-bold font-heading ${item.currentStock === 0 ? "text-red-600" : "text-amber-600"}`}>
                             {item.currentStock === 0 ? "OUT" : item.currentStock}
                           </p>
                         </div>
                         <div>
                           <div className="flex items-center gap-1">
                             <TrendingDown className="w-3 h-3 text-muted-foreground" />
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Daily Sales</p>
+                            <p className="text-xs font-medium text-muted-foreground">Daily Sales</p>
                           </div>
-                          <p className="text-lg font-bold">
+                          <p className="text-lg font-bold font-heading">
                             {item.dailyRate > 0 ? item.dailyRate.toFixed(1) : "—"}
                           </p>
                         </div>
                         <div>
                           <div className="flex items-center gap-1">
                             <Clock className="w-3 h-3 text-muted-foreground" />
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Days Left</p>
+                            <p className="text-xs font-medium text-muted-foreground">Days Left</p>
                           </div>
-                          <p className={`text-lg font-bold ${item.daysUntilOut === 0 ? "text-red-600" : item.daysUntilOut !== null && item.daysUntilOut <= 3 ? "text-amber-600" : ""}`}>
+                          <p className={`text-lg font-bold font-heading ${item.daysUntilOut === 0 ? "text-red-600" : item.daysUntilOut !== null && item.daysUntilOut <= 3 ? "text-amber-600" : ""}`}>
                             {item.daysUntilOut === 0 ? "OUT" : item.daysUntilOut !== null ? `~${item.daysUntilOut}d` : "—"}
                           </p>
                         </div>
                         <div>
                           <div className="flex items-center gap-1">
                             <ShoppingCart className="w-3 h-3 text-muted-foreground" />
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Suggest Order</p>
+                            <p className="text-xs font-medium text-muted-foreground">Suggest Order</p>
                           </div>
-                          <p className="text-lg font-bold text-blue-600">{item.suggestedReorder}</p>
+                          <p className="text-lg font-bold font-heading text-blue-600">{item.suggestedReorder}</p>
                         </div>
                       </div>
                     </div>

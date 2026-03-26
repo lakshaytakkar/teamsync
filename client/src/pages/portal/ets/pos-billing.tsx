@@ -276,7 +276,7 @@ export default function PosBilling() {
           <div className="flex items-center gap-2">
             <Receipt className="w-4 h-4 text-orange-500" />
             <h1 className="text-sm font-bold font-heading" data-testid="text-store-name">POS Billing</h1>
-            <Badge variant="outline" className="text-[9px] border-green-300 text-green-700 bg-green-50 ml-1">Live</Badge>
+            <Badge variant="outline" className="text-xs border-green-300 text-green-700 bg-green-50 ml-1">Live</Badge>
           </div>
           <div className="flex items-center gap-2">
             {heldBills.length > 0 && (
@@ -359,7 +359,7 @@ export default function PosBilling() {
                     <ProductImage src={p.image} alt={p.name} size="sm" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{p.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{p.category}</p>
+                      <p className="text-xs text-muted-foreground">{p.category}</p>
                     </div>
                     <span className="text-sm font-bold text-orange-600">{formatINR(p.mrp)}</span>
                   </button>
@@ -474,7 +474,7 @@ export default function PosBilling() {
                 data-testid={`quickadd-${p.id}`}
               >
                 <ProductImage src={p.image} alt={p.name} size="lg" className="group-hover:scale-110 transition-transform" />
-                <p className="text-[10px] font-medium text-gray-700 leading-tight line-clamp-2">{p.name}</p>
+                <p className="text-xs font-medium text-gray-700 leading-tight line-clamp-2">{p.name}</p>
                 <p className="text-xs font-bold text-orange-600">{formatINR(p.mrp)}</p>
               </button>
             ))}
@@ -489,7 +489,7 @@ export default function PosBilling() {
                   <PauseCircle className="w-3.5 h-3.5" />
                   Held Bills
                 </span>
-                <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600 bg-amber-50">
+                <Badge variant="outline" className="text-xs border-amber-300 text-amber-600 bg-amber-50">
                   {heldBills.length}
                 </Badge>
               </div>
@@ -503,7 +503,7 @@ export default function PosBilling() {
                   <PlayCircle className="w-4 h-4 text-amber-600 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium">{held.itemCount} items</p>
-                    <p className="text-[10px] text-muted-foreground">{formatINR(held.total)}</p>
+                    <p className="text-xs text-muted-foreground">{formatINR(held.total)}</p>
                   </div>
                   <ChevronRight className="w-3 h-3 text-muted-foreground" />
                 </button>
@@ -512,7 +512,7 @@ export default function PosBilling() {
           ) : (
             <div className="text-center py-3">
               <PauseCircle className="w-6 h-6 mx-auto text-gray-300 mb-1" />
-              <p className="text-[10px] text-muted-foreground">No held bills</p>
+              <p className="text-xs text-muted-foreground">No held bills</p>
             </div>
           )}
         </div>

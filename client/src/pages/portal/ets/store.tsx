@@ -93,7 +93,7 @@ export default function EtsPortalStore() {
 
       <div className="grid md:grid-cols-3 gap-8">
         <div className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border bg-card">
             <CardHeader>
               <CardTitle>Store Details</CardTitle>
             </CardHeader>
@@ -127,7 +127,7 @@ export default function EtsPortalStore() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-xl border bg-card">
             <CardHeader>
               <CardTitle>Design Status</CardTitle>
             </CardHeader>
@@ -148,7 +148,7 @@ export default function EtsPortalStore() {
         </div>
 
         <div className="md:col-span-2">
-          <Card className="h-full">
+          <Card className="rounded-xl border bg-card h-full">
             <CardHeader>
               <CardTitle>Launch Roadmap</CardTitle>
               <CardDescription>Track your journey from signup to grand opening.</CardDescription>

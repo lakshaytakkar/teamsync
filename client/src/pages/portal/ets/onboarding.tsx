@@ -108,7 +108,7 @@ export default function EtsPortalOnboarding() {
               >
                 {currentStep > step.id ? <CheckCircle2 className="h-5 w-5" /> : <step.icon className="h-5 w-5" />}
               </div>
-              <span className="text-[11px] mt-1 text-center hidden sm:block">{step.title}</span>
+              <span className="text-xs mt-1 text-center hidden sm:block">{step.title}</span>
             </div>
             {idx < STEPS.length - 1 && (
               <div className={`flex-1 h-0.5 mx-2 ${currentStep > step.id ? "bg-green-500" : "bg-muted-foreground/15"}`} />
@@ -119,7 +119,7 @@ export default function EtsPortalOnboarding() {
 
       <Progress value={progress} className="h-2" />
 
-      <Card>
+      <Card className="rounded-xl border bg-card">
         <CardHeader>
           <CardTitle>{STEPS[currentStep - 1].title}</CardTitle>
           <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>
@@ -186,7 +186,7 @@ export default function EtsPortalOnboarding() {
                   { label: "Notes", value: formData.notes || "None" },
                 ].map((item, idx) => (
                   <div key={idx} className="p-3 rounded-lg border">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
                     <p className="font-medium text-sm mt-1" data-testid={`text-review-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>{item.value}</p>
                   </div>
                 ))}

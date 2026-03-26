@@ -95,7 +95,7 @@ export default function EtsCashRegister() {
           <h1 className="text-2xl font-bold font-heading" data-testid="text-register-title">Cash Register</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">Daily cash cycle management</p>
         </div>
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+        <div className="flex gap-1 bg-muted rounded-lg p-0.5">
           <Button
             variant={tab === "current" ? "default" : "ghost"}
             size="sm" className="h-7 text-xs gap-1.5"
@@ -118,15 +118,15 @@ export default function EtsCashRegister() {
       {tab === "current" && (
         <div className="space-y-4">
           {!currentSession ? (
-            <Card className="border-0 shadow-sm border-l-4 border-l-amber-400">
+            <Card className="rounded-xl border bg-card border-l-4 border-l-amber-400">
               <CardContent className="p-6 text-center space-y-3">
                 <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto">
                   <Lock className="w-8 h-8 text-amber-500" />
                 </div>
-                <h2 className="text-lg font-bold">Register is Closed</h2>
+                <h2 className="text-lg font-semibold font-heading">Register is Closed</h2>
                 <p className="text-sm text-muted-foreground">Open the register to start tracking today's cash</p>
                 <Button
-                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 gap-2"
+                  className="bg-indigo-600 hover:bg-indigo-700 gap-2"
                   onClick={() => setShowOpenDialog(true)}
                   data-testid="button-open-register"
                 >
@@ -137,7 +137,7 @@ export default function EtsCashRegister() {
             </Card>
           ) : (
             <>
-              <Card className="border-0 shadow-sm border-l-4 border-l-green-500 bg-green-50/50">
+              <Card className="rounded-xl border bg-card border-l-4 border-l-green-500 bg-green-50/30">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -161,59 +161,47 @@ export default function EtsCashRegister() {
                 </CardContent>
               </Card>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <Card className="border-0 shadow-sm">
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <Banknote className="w-3.5 h-3.5 text-muted-foreground" />
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Opening Cash</p>
-                    </div>
-                    <p className="text-xl font-bold" data-testid="stat-opening">{formatINR(currentSession.openingAmount)}</p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card className="rounded-xl border bg-card">
+                  <CardContent className="p-5">
+                    <p className="text-xs font-medium text-muted-foreground">Opening Cash</p>
+                    <p className="text-2xl font-bold font-heading mt-1" data-testid="stat-opening">{formatINR(currentSession.openingAmount)}</p>
                   </CardContent>
                 </Card>
-                <Card className="border-0 shadow-sm bg-green-50">
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <ArrowUpRight className="w-3.5 h-3.5 text-green-600" />
-                      <p className="text-[10px] text-green-600 uppercase tracking-wider font-medium">Cash Sales Today</p>
-                    </div>
-                    <p className="text-xl font-bold text-green-700" data-testid="stat-cash-sales">{formatINR(cashSalesToday)}</p>
+                <Card className="rounded-xl border bg-card">
+                  <CardContent className="p-5">
+                    <p className="text-xs font-medium text-green-600">Cash Sales Today</p>
+                    <p className="text-2xl font-bold font-heading text-green-700 mt-1" data-testid="stat-cash-sales">{formatINR(cashSalesToday)}</p>
                   </CardContent>
                 </Card>
-                <Card className="border-0 shadow-sm bg-indigo-50">
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <DollarSign className="w-3.5 h-3.5 text-indigo-600" />
-                      <p className="text-[10px] text-indigo-600 uppercase tracking-wider font-medium">Expected in Drawer</p>
-                    </div>
-                    <p className="text-xl font-bold text-indigo-700" data-testid="stat-expected">{formatINR(expectedCash)}</p>
+                <Card className="rounded-xl border bg-card">
+                  <CardContent className="p-5">
+                    <p className="text-xs font-medium text-indigo-600">Expected in Drawer</p>
+                    <p className="text-2xl font-bold font-heading text-indigo-700 mt-1" data-testid="stat-expected">{formatINR(expectedCash)}</p>
                   </CardContent>
                 </Card>
-                <Card className="border-0 shadow-sm">
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Transactions</p>
-                    </div>
-                    <p className="text-xl font-bold" data-testid="stat-transactions">{todayStats.totalTransactions}</p>
+                <Card className="rounded-xl border bg-card">
+                  <CardContent className="p-5">
+                    <p className="text-xs font-medium text-muted-foreground">Transactions</p>
+                    <p className="text-2xl font-bold font-heading mt-1" data-testid="stat-transactions">{todayStats.totalTransactions}</p>
                   </CardContent>
                 </Card>
               </div>
 
-              <Card className="border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <h3 className="text-sm font-semibold mb-3">Payment Method Breakdown</h3>
+              <Card className="rounded-xl border bg-card">
+                <CardContent className="p-5">
+                  <h3 className="text-sm font-semibold mb-4">Payment Method Breakdown</h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
-                        <Banknote className="w-4 h-4 text-green-600" />
+                      <div className="h-9 w-9 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
+                        <Banknote className="h-4 w-4 text-green-600" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-medium">Cash</span>
-                          <span className="text-sm font-bold">{formatINR(todayStats.cashTotal)}</span>
+                          <span className="text-sm font-semibold">{formatINR(todayStats.cashTotal)}</span>
                         </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-green-500 rounded-full transition-all"
                             style={{ width: todayStats.totalRevenue > 0 ? `${(todayStats.cashTotal / todayStats.totalRevenue) * 100}%` : "0%" }}
@@ -222,15 +210,15 @@ export default function EtsCashRegister() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
-                        <Smartphone className="w-4 h-4 text-purple-600" />
+                      <div className="h-9 w-9 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
+                        <Smartphone className="h-4 w-4 text-purple-600" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-medium">UPI</span>
-                          <span className="text-sm font-bold">{formatINR(todayStats.upiTotal)}</span>
+                          <span className="text-sm font-semibold">{formatINR(todayStats.upiTotal)}</span>
                         </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-purple-500 rounded-full transition-all"
                             style={{ width: todayStats.totalRevenue > 0 ? `${(todayStats.upiTotal / todayStats.totalRevenue) * 100}%` : "0%" }}
@@ -239,15 +227,15 @@ export default function EtsCashRegister() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-                        <CreditCard className="w-4 h-4 text-blue-600" />
+                      <div className="h-9 w-9 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                        <CreditCard className="h-4 w-4 text-blue-600" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-medium">Card</span>
-                          <span className="text-sm font-bold">{formatINR(todayStats.cardTotal)}</span>
+                          <span className="text-sm font-semibold">{formatINR(todayStats.cardTotal)}</span>
                         </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-blue-500 rounded-full transition-all"
                             style={{ width: todayStats.totalRevenue > 0 ? `${(todayStats.cardTotal / todayStats.totalRevenue) * 100}%` : "0%" }}
@@ -256,30 +244,30 @@ export default function EtsCashRegister() {
                       </div>
                     </div>
                   </div>
-                  <div className="mt-3 pt-3 border-t flex items-center justify-between">
+                  <div className="mt-4 pt-4 border-t flex items-center justify-between">
                     <span className="text-sm font-medium">Total Revenue</span>
-                    <span className="text-lg font-bold">{formatINR(todayStats.totalRevenue)}</span>
+                    <span className="text-lg font-bold font-heading">{formatINR(todayStats.totalRevenue)}</span>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-sm">
-                <CardContent className="p-4">
+              <Card className="rounded-xl border bg-card">
+                <CardContent className="p-5">
                   <h3 className="text-sm font-semibold mb-3">Today's Cash Transactions</h3>
                   {todayCashSales.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-4">No cash sales today</p>
                   ) : (
                     <div className="space-y-1.5">
                       {todayCashSales.map(sale => (
-                        <div key={sale.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                        <div key={sale.id} className="flex items-center justify-between py-2.5 border-b last:border-0">
                           <div>
                             <p className="text-sm font-medium">{sale.receiptNumber}</p>
-                            <p className="text-[10px] text-muted-foreground">
+                            <p className="text-xs text-muted-foreground">
                               {new Date(sale.timestamp).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                               {" · "}{sale.items.reduce((s, i) => s + i.quantity, 0)} items
                             </p>
                           </div>
-                          <span className="text-sm font-bold text-green-600">+{formatINR(sale.totalAmount)}</span>
+                          <span className="text-sm font-semibold text-green-600">+{formatINR(sale.totalAmount)}</span>
                         </div>
                       ))}
                     </div>
@@ -292,23 +280,23 @@ export default function EtsCashRegister() {
       )}
 
       {tab === "history" && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {closedSessions.length === 0 ? (
-            <Card className="border-0 shadow-sm">
+            <Card className="rounded-xl border bg-card">
               <CardContent className="p-8 text-center text-muted-foreground">No past register sessions</CardContent>
             </Card>
           ) : (
-            <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+            <div className="rounded-xl border bg-card overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50/80 text-left border-b">
-                    <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Date</th>
-                    <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Opened By</th>
-                    <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs text-right">Opening</th>
-                    <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs text-right">Expected</th>
-                    <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs text-right">Actual</th>
-                    <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs text-right">Difference</th>
-                    <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Notes</th>
+                  <tr className="border-b bg-muted/40">
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-left tracking-wide">Date</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-left tracking-wide">Opened By</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right tracking-wide">Opening</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right tracking-wide">Expected</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right tracking-wide">Actual</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right tracking-wide">Difference</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-left tracking-wide">Notes</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -316,23 +304,23 @@ export default function EtsCashRegister() {
                     const diff = session.difference ?? 0;
                     const diffColor = diff === 0 ? "text-green-600" : Math.abs(diff) <= 50 ? "text-amber-600" : "text-red-600";
                     return (
-                      <tr key={session.id} className="border-b last:border-0" data-testid={`row-session-${session.id}`}>
-                        <td className="px-4 py-2.5">
+                      <tr key={session.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors" data-testid={`row-session-${session.id}`}>
+                        <td className="px-4 py-3.5">
                           <p className="font-medium">{new Date(session.openedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</p>
-                          <p className="text-[10px] text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             {new Date(session.openedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                             {" — "}
                             {session.closedAt && new Date(session.closedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                           </p>
                         </td>
-                        <td className="px-4 py-2.5 text-muted-foreground">{session.openedBy}</td>
-                        <td className="px-4 py-2.5 text-right">{formatINR(session.openingAmount)}</td>
-                        <td className="px-4 py-2.5 text-right">{formatINR(session.expectedAmount ?? 0)}</td>
-                        <td className="px-4 py-2.5 text-right font-medium">{formatINR(session.closingAmount ?? 0)}</td>
-                        <td className={`px-4 py-2.5 text-right font-bold ${diffColor}`}>
-                          {diff === 0 ? "✓ Match" : `${diff > 0 ? "+" : ""}${formatINR(diff)}`}
+                        <td className="px-4 py-3.5 text-muted-foreground">{session.openedBy}</td>
+                        <td className="px-4 py-3.5 text-right">{formatINR(session.openingAmount)}</td>
+                        <td className="px-4 py-3.5 text-right">{formatINR(session.expectedAmount ?? 0)}</td>
+                        <td className="px-4 py-3.5 text-right font-medium">{formatINR(session.closingAmount ?? 0)}</td>
+                        <td className={`px-4 py-3.5 text-right font-semibold ${diffColor}`}>
+                          {diff === 0 ? "Match" : `${diff > 0 ? "+" : ""}${formatINR(diff)}`}
                         </td>
-                        <td className="px-4 py-2.5 text-xs text-muted-foreground max-w-[150px] truncate">
+                        <td className="px-4 py-3.5 text-xs text-muted-foreground max-w-[150px] truncate">
                           {session.notes || "—"}
                         </td>
                       </tr>
@@ -355,7 +343,7 @@ export default function EtsCashRegister() {
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 Opening Cash Amount
               </label>
               <Input
@@ -390,15 +378,15 @@ export default function EtsCashRegister() {
             <DialogDescription>Count the cash and enter the actual amount</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="bg-indigo-50 rounded-lg p-3 text-center">
-              <p className="text-xs text-indigo-600 uppercase tracking-wider">Expected Cash in Drawer</p>
-              <p className="text-2xl font-bold text-indigo-700 mt-1">{formatINR(expectedCash)}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">
+            <div className="bg-indigo-50 rounded-xl p-4 text-center">
+              <p className="text-xs font-medium text-indigo-600">Expected Cash in Drawer</p>
+              <p className="text-2xl font-bold font-heading text-indigo-700 mt-1">{formatINR(expectedCash)}</p>
+              <p className="text-xs text-muted-foreground mt-1">
                 {formatINR(currentSession?.openingAmount ?? 0)} opening + {formatINR(cashSalesToday)} cash sales
               </p>
             </div>
             <div>
-              <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 Actual Cash Counted
               </label>
               <Input
@@ -409,12 +397,12 @@ export default function EtsCashRegister() {
               />
             </div>
             {closingAmount && (
-              <div className={`rounded-lg p-3 text-center ${
+              <div className={`rounded-xl p-4 text-center ${
                 parseFloat(closingAmount) === expectedCash ? "bg-green-50" :
                 Math.abs(parseFloat(closingAmount) - expectedCash) <= 50 ? "bg-amber-50" : "bg-red-50"
               }`}>
                 <p className="text-xs text-muted-foreground">Difference</p>
-                <p className={`text-xl font-bold ${
+                <p className={`text-xl font-bold font-heading ${
                   parseFloat(closingAmount) === expectedCash ? "text-green-600" :
                   Math.abs(parseFloat(closingAmount) - expectedCash) <= 50 ? "text-amber-600" : "text-red-600"
                 }`}>
@@ -426,7 +414,7 @@ export default function EtsCashRegister() {
               </div>
             )}
             <div>
-              <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 Notes (optional)
               </label>
               <Textarea

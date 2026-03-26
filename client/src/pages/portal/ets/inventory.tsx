@@ -82,36 +82,36 @@ export default function EtsInventory() {
         <p className="mt-0.5 text-sm text-muted-foreground">Stock control center</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Total SKUs</p>
-            <p className="text-2xl font-bold mt-1" data-testid="stat-total-skus">{stats.total}</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
+            <p className="text-xs font-medium text-muted-foreground">Total SKUs</p>
+            <p className="text-2xl font-bold font-heading mt-1" data-testid="stat-total-skus">{stats.total}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-emerald-50">
-          <CardContent className="p-3">
-            <p className="text-[10px] text-emerald-600 uppercase tracking-wider font-medium">Healthy</p>
-            <p className="text-2xl font-bold text-emerald-700 mt-1" data-testid="stat-healthy">{stats.healthy}</p>
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
+            <p className="text-xs font-medium text-emerald-600">Healthy</p>
+            <p className="text-2xl font-bold font-heading text-emerald-700 mt-1" data-testid="stat-healthy">{stats.healthy}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-amber-50">
-          <CardContent className="p-3">
-            <p className="text-[10px] text-amber-600 uppercase tracking-wider font-medium">Low Stock</p>
-            <p className="text-2xl font-bold text-amber-700 mt-1" data-testid="stat-low">{stats.low}</p>
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
+            <p className="text-xs font-medium text-amber-600">Low Stock</p>
+            <p className="text-2xl font-bold font-heading text-amber-700 mt-1" data-testid="stat-low">{stats.low}</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm bg-red-50">
-          <CardContent className="p-3">
-            <p className="text-[10px] text-red-600 uppercase tracking-wider font-medium">Out of Stock</p>
-            <p className="text-2xl font-bold text-red-700 mt-1" data-testid="stat-out">{stats.out}</p>
+        <Card className="rounded-xl border bg-card">
+          <CardContent className="p-5">
+            <p className="text-xs font-medium text-red-600">Out of Stock</p>
+            <p className="text-2xl font-bold font-heading text-red-700 mt-1" data-testid="stat-out">{stats.out}</p>
           </CardContent>
         </Card>
         {isOwner && (
-          <Card className="border-0 shadow-sm bg-blue-50">
-            <CardContent className="p-3">
-              <p className="text-[10px] text-blue-600 uppercase tracking-wider font-medium">Inventory Value</p>
-              <p className="text-2xl font-bold text-blue-700 mt-1" data-testid="stat-value">₹{stats.totalValue.toLocaleString("en-IN")}</p>
+          <Card className="rounded-xl border bg-card">
+            <CardContent className="p-5">
+              <p className="text-xs font-medium text-blue-600">Inventory Value</p>
+              <p className="text-2xl font-bold font-heading text-blue-700 mt-1" data-testid="stat-value">₹{stats.totalValue.toLocaleString("en-IN")}</p>
             </CardContent>
           </Card>
         )}
@@ -162,18 +162,18 @@ export default function EtsInventory() {
         </Select>
       </div>
 
-      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      <div className="rounded-xl border bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50/80 text-left border-b">
-                <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Product</th>
-                <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs hidden md:table-cell">Barcode</th>
-                <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Category</th>
-                <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs text-right">MRP</th>
-                <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs text-right">Stock</th>
-                <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs text-center">Status</th>
-                {isOwner && <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs text-right hidden lg:table-cell">Value</th>}
+              <tr className="border-b bg-muted/40">
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-left tracking-wide">Product</th>
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-left tracking-wide hidden md:table-cell">Barcode</th>
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-left tracking-wide">Category</th>
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right tracking-wide">MRP</th>
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right tracking-wide">Stock</th>
+                <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-center tracking-wide">Status</th>
+                {isOwner && <th className="px-4 py-3 text-xs font-medium text-muted-foreground text-right tracking-wide hidden lg:table-cell">Value</th>}
               </tr>
             </thead>
             <tbody>
@@ -182,32 +182,32 @@ export default function EtsInventory() {
                 return (
                   <tr
                     key={item.productId}
-                    className="border-b last:border-0 hover:bg-orange-50/50 cursor-pointer transition-colors"
+                    className="border-b last:border-0 hover:bg-muted/20 cursor-pointer transition-colors"
                     onClick={() => setSelectedProduct(item.productId)}
                     data-testid={`row-inventory-${item.productId}`}
                   >
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
                         <ProductImage src={item.image} alt={item.name} size="sm" />
                         <span className="font-medium truncate max-w-[200px]">{item.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-2.5 text-muted-foreground font-mono text-xs hidden md:table-cell">{item.barcode}</td>
-                    <td className="px-4 py-2.5">
-                      <Badge variant="outline" className="text-[10px] font-normal">{item.category}</Badge>
+                    <td className="px-4 py-3.5 text-muted-foreground text-xs hidden md:table-cell">{item.barcode}</td>
+                    <td className="px-4 py-3.5">
+                      <Badge variant="outline" className="text-xs font-normal">{item.category}</Badge>
                     </td>
-                    <td className="px-4 py-2.5 text-right font-medium">₹{item.mrp}</td>
-                    <td className="px-4 py-2.5 text-right font-bold">{item.currentStock}</td>
-                    <td className="px-4 py-2.5 text-center">
+                    <td className="px-4 py-3.5 text-right font-medium">₹{item.mrp}</td>
+                    <td className="px-4 py-3.5 text-right font-semibold">{item.currentStock}</td>
+                    <td className="px-4 py-3.5 text-center">
                       <Badge
-                        className="text-[10px] border-0 font-medium"
+                        className="text-xs border-0 font-medium"
                         style={{ backgroundColor: cfg.bg, color: cfg.color }}
                       >
                         {cfg.label}
                       </Badge>
                     </td>
                     {isOwner && (
-                      <td className="px-4 py-2.5 text-right text-muted-foreground hidden lg:table-cell">
+                      <td className="px-4 py-3.5 text-right text-muted-foreground hidden lg:table-cell">
                         ₹{item.stockValue.toLocaleString("en-IN")}
                       </td>
                     )}
@@ -237,15 +237,15 @@ export default function EtsInventory() {
                 </SheetTitle>
               </SheetHeader>
               <div className="mt-4 space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Current Stock</p>
-                    <p className="text-xl font-bold mt-0.5">{selectedInv.currentStock}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-muted/30 rounded-xl p-4">
+                    <p className="text-xs font-medium text-muted-foreground">Current Stock</p>
+                    <p className="text-2xl font-bold font-heading mt-1">{selectedInv.currentStock}</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Status</p>
+                  <div className="bg-muted/30 rounded-xl p-4">
+                    <p className="text-xs font-medium text-muted-foreground">Status</p>
                     <Badge
-                      className="text-[10px] border-0 font-medium mt-1"
+                      className="text-xs border-0 font-medium mt-1.5"
                       style={{
                         backgroundColor: STOCK_STATUS_CONFIG[getStockStatus(selectedInv.currentStock, selectedInv.reorderThreshold)].bg,
                         color: STOCK_STATUS_CONFIG[getStockStatus(selectedInv.currentStock, selectedInv.reorderThreshold)].color,
@@ -254,14 +254,14 @@ export default function EtsInventory() {
                       {STOCK_STATUS_CONFIG[getStockStatus(selectedInv.currentStock, selectedInv.reorderThreshold)].label}
                     </Badge>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Reorder At</p>
-                    <p className="text-xl font-bold mt-0.5">{selectedInv.reorderThreshold}</p>
+                  <div className="bg-muted/30 rounded-xl p-4">
+                    <p className="text-xs font-medium text-muted-foreground">Reorder At</p>
+                    <p className="text-2xl font-bold font-heading mt-1">{selectedInv.reorderThreshold}</p>
                   </div>
                   {isOwner && (
-                    <div className="bg-gray-50 rounded-lg p-3">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Stock Value</p>
-                      <p className="text-xl font-bold mt-0.5">₹{(selectedInv.currentStock * selectedInv.costPrice).toLocaleString("en-IN")}</p>
+                    <div className="bg-muted/30 rounded-xl p-4">
+                      <p className="text-xs font-medium text-muted-foreground">Stock Value</p>
+                      <p className="text-2xl font-bold font-heading mt-1">₹{(selectedInv.currentStock * selectedInv.costPrice).toLocaleString("en-IN")}</p>
                     </div>
                   )}
                 </div>
@@ -279,13 +279,13 @@ export default function EtsInventory() {
                         const isPositive = m.quantityChange > 0;
                         return (
                           <div key={m.id} className="flex items-start gap-3 py-2.5 border-b last:border-0">
-                            <div className="mt-0.5 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                            <div className="mt-0.5 w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0">
                               <MovementIcon type={m.movementType} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between">
                                 <p className="text-sm font-medium capitalize">{m.movementType}</p>
-                                <span className={`text-sm font-bold ${isPositive ? "text-green-600" : "text-red-500"}`}>
+                                <span className={`text-sm font-semibold ${isPositive ? "text-green-600" : "text-red-500"}`}>
                                   {isPositive ? "+" : ""}{m.quantityChange}
                                 </span>
                               </div>
@@ -293,7 +293,7 @@ export default function EtsInventory() {
                                 {m.referenceId} · {m.performedBy}
                               </p>
                               {m.reason && <p className="text-xs text-amber-600 mt-0.5">Reason: {m.reason}</p>}
-                              <p className="text-[10px] text-muted-foreground mt-0.5">
+                              <p className="text-xs text-muted-foreground mt-0.5">
                                 {date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })} at{" "}
                                 {date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                               </p>

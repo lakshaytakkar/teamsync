@@ -57,7 +57,7 @@ export default function EtsPortalInvoices() {
         </div>
       </div>
 
-      <Card>
+      <Card className="rounded-xl border bg-card">
         <CardHeader>
           <CardTitle>All Invoices</CardTitle>
         </CardHeader>

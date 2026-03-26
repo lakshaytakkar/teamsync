@@ -46,18 +46,18 @@ export default function EtsPortalPayments() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        <Card className="bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-900">
+        <Card className="rounded-xl border bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-900">
           <CardContent className="p-6">
             <p className="text-sm font-medium text-green-800 dark:text-green-300">Total Paid</p>
-            <p className="text-3xl font-bold text-green-700 dark:text-green-400 mt-2" data-testid="text-total-paid">
+            <p className="text-2xl font-bold font-heading text-green-700 dark:text-green-400 mt-2" data-testid="text-total-paid">
               {"\u20B9"}{totalPaid.toLocaleString("en-IN")}
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900">
+        <Card className="rounded-xl border bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900">
           <CardContent className="p-6">
             <p className="text-sm font-medium text-amber-800 dark:text-amber-300">Total Due</p>
-            <p className="text-3xl font-bold text-amber-700 dark:text-amber-400 mt-2" data-testid="text-total-due">
+            <p className="text-2xl font-bold font-heading text-amber-700 dark:text-amber-400 mt-2" data-testid="text-total-due">
               {"\u20B9"}{totalDue.toLocaleString("en-IN")}
             </p>
           </CardContent>
@@ -73,7 +73,7 @@ export default function EtsPortalPayments() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="rounded-xl border bg-card">
         <CardHeader>
           <CardTitle>Transaction History</CardTitle>
         </CardHeader>

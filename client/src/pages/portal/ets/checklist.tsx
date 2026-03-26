@@ -81,11 +81,11 @@ export default function EtsPortalChecklist() {
         <p className="text-muted-foreground">Complete all items before your store launch.</p>
       </div>
 
-      <Card>
+      <Card className="rounded-xl border bg-card">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <div className="text-2xl font-bold" data-testid="text-checklist-progress">{completedCount}/{totalCount}</div>
+              <div className="text-2xl font-bold font-heading" data-testid="text-checklist-progress">{completedCount}/{totalCount}</div>
               <span className="text-muted-foreground text-sm">items completed</span>
             </div>
             <Badge
@@ -106,7 +106,7 @@ export default function EtsPortalChecklist() {
         const CatIcon = categoryIcons[category] || FileText;
 
         return (
-          <Card key={category}>
+          <Card key={category} className="rounded-xl border bg-card">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

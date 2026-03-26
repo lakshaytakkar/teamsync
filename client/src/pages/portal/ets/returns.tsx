@@ -102,7 +102,7 @@ export default function EtsReturns() {
           <h1 className="text-2xl font-bold font-heading" data-testid="text-returns-title">Returns</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">Process product returns and refunds</p>
         </div>
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+        <div className="flex gap-1 bg-muted rounded-lg p-0.5">
           <Button
             variant={tab === "new" ? "default" : "ghost"}
             size="sm" className="h-7 text-xs gap-1.5"
@@ -138,26 +138,26 @@ export default function EtsReturns() {
             {filteredSales.map(sale => (
               <Card
                 key={sale.id}
-                className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                className="rounded-xl border bg-card hover:bg-muted/20 transition-colors cursor-pointer"
                 onClick={() => selectSale(sale)}
                 data-testid={`card-sale-${sale.id}`}
               >
-                <CardContent className="p-3 flex items-center justify-between">
+                <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
-                      <Receipt className="w-4 h-4 text-gray-500" />
+                    <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center">
+                      <Receipt className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">{sale.receiptNumber}</p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {new Date(sale.timestamp).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
                         {" · "}{sale.items.reduce((s, i) => s + i.quantity, 0)} items
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold">{formatINR(sale.totalAmount)}</p>
-                    <Badge variant="outline" className="text-[9px] capitalize">{sale.paymentMethod}</Badge>
+                    <p className="text-sm font-semibold">{formatINR(sale.totalAmount)}</p>
+                    <Badge variant="outline" className="text-xs capitalize">{sale.paymentMethod}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -181,14 +181,14 @@ export default function EtsReturns() {
             </Button>
           </div>
 
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
+          <Card className="rounded-xl border bg-card">
+            <CardContent className="p-5">
               <h3 className="text-sm font-semibold mb-3">Select items to return</h3>
               <div className="space-y-3">
                 {selectedSale.items.map(item => {
                   const state = returnItems[item.id];
                   return (
-                    <div key={item.id} className={`flex items-center gap-3 py-2.5 px-3 rounded-lg border ${state?.checked ? "border-rose-200 bg-rose-50/50" : "border-gray-100"}`}>
+                    <div key={item.id} className={`flex items-center gap-3 py-2.5 px-3 rounded-lg border ${state?.checked ? "border-rose-200 bg-rose-50/50" : "border-border"}`}>
                       <Checkbox
                         checked={state?.checked ?? false}
                         onCheckedChange={checked => setReturnItems(prev => ({ ...prev, [item.id]: { ...prev[item.id], checked: !!checked } }))}
@@ -209,7 +209,7 @@ export default function EtsReturns() {
                           >
                             <Minus className="w-3 h-3" />
                           </Button>
-                          <span className="w-6 text-center font-bold text-sm">{state.qty}</span>
+                          <span className="w-6 text-center font-semibold text-sm">{state.qty}</span>
                           <Button
                             variant="outline" size="icon" className="h-7 w-7"
                             onClick={() => setReturnItems(prev => ({
@@ -228,15 +228,15 @@ export default function EtsReturns() {
           </Card>
 
           {checkedItems.length > 0 && (
-            <Card className="border-0 shadow-sm border-l-4 border-l-rose-400">
-              <CardContent className="p-4 space-y-3">
+            <Card className="rounded-xl border bg-card border-l-4 border-l-rose-400">
+              <CardContent className="p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold">Return Details</h3>
-                  <p className="text-lg font-bold text-rose-600">{formatINR(totalRefund)}</p>
+                  <p className="text-lg font-bold font-heading text-rose-600">{formatINR(totalRefund)}</p>
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">Return Reason *</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Return Reason *</label>
                   <Select value={reason} onValueChange={setReason}>
                     <SelectTrigger className="h-9" data-testid="select-return-reason">
                       <SelectValue placeholder="Select reason..." />
@@ -256,7 +256,7 @@ export default function EtsReturns() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1 block">Refund Method</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Refund Method</label>
                   <div className="flex gap-2">
                     <Button
                       variant={refundMethod === "cash" ? "default" : "outline"} size="sm" className="text-xs flex-1"
@@ -276,7 +276,7 @@ export default function EtsReturns() {
                 </div>
 
                 <Button
-                  className="w-full h-11 font-bold bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 gap-2"
+                  className="w-full h-11 font-semibold bg-rose-600 hover:bg-rose-700 gap-2"
                   disabled={!canSubmit}
                   onClick={() => setShowConfirm(true)}
                   data-testid="button-process-return"
@@ -293,22 +293,22 @@ export default function EtsReturns() {
       {tab === "history" && (
         <div className="space-y-3">
           {returns.length === 0 ? (
-            <Card className="border-0 shadow-sm">
+            <Card className="rounded-xl border bg-card">
               <CardContent className="p-8 text-center text-muted-foreground">No returns processed yet</CardContent>
             </Card>
           ) : (
             returns.map(ret => (
               <Card
                 key={ret.id}
-                className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                className="rounded-xl border bg-card hover:bg-muted/20 transition-colors cursor-pointer"
                 onClick={() => setSelectedReturn(ret)}
                 data-testid={`card-return-${ret.id}`}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center">
-                        <RotateCcw className="w-4 h-4 text-rose-600" />
+                      <div className="h-9 w-9 rounded-lg bg-rose-100 flex items-center justify-center">
+                        <RotateCcw className="h-4 w-4 text-rose-600" />
                       </div>
                       <div>
                         <p className="font-medium text-sm">{ret.referenceNumber}</p>
@@ -316,15 +316,15 @@ export default function EtsReturns() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-rose-600">-{formatINR(ret.totalRefund)}</p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-sm font-semibold text-rose-600">-{formatINR(ret.totalRefund)}</p>
+                      <p className="text-xs text-muted-foreground">
                         {new Date(ret.timestamp).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-2 flex-wrap">
+                  <div className="flex gap-2 mt-2.5 flex-wrap">
                     {ret.items.map(i => (
-                      <Badge key={i.productId} variant="secondary" className="text-[10px] gap-1.5 py-0.5">
+                      <Badge key={i.productId} variant="secondary" className="text-xs gap-1.5 py-0.5">
                         <ProductImage src={i.image} alt={i.productName} size="xs" />
                         {i.productName} x{i.returnQty}
                       </Badge>
@@ -355,13 +355,13 @@ export default function EtsReturns() {
                   <span className="truncate max-w-[160px]">{i.name}</span>
                   <span className="text-muted-foreground">x{returnItems[i.id]?.qty}</span>
                 </span>
-                <span className="font-bold text-rose-600">-{formatINR(i.mrp * (returnItems[i.id]?.qty ?? 0))}</span>
+                <span className="font-semibold text-rose-600">-{formatINR(i.mrp * (returnItems[i.id]?.qty ?? 0))}</span>
               </div>
             ))}
           </div>
-          <div className="bg-rose-50 rounded-lg p-3 text-center">
+          <div className="bg-rose-50 rounded-xl p-4 text-center">
             <p className="text-xs text-muted-foreground">Total Refund</p>
-            <p className="text-2xl font-bold text-rose-600">{formatINR(totalRefund)}</p>
+            <p className="text-2xl font-bold font-heading text-rose-600">{formatINR(totalRefund)}</p>
             <p className="text-xs text-muted-foreground mt-1">via {refundMethod === "cash" ? "Cash" : "Store Credit"}</p>
           </div>
           <div className="flex gap-2 pt-2">
@@ -387,17 +387,17 @@ export default function EtsReturns() {
               </DialogHeader>
               <div className="space-y-2">
                 {selectedReturn.items.map(i => (
-                  <div key={i.productId} className="flex items-center gap-3 py-2 border-b last:border-0">
+                  <div key={i.productId} className="flex items-center gap-3 py-2.5 border-b last:border-0">
                     <ProductImage src={i.image} alt={i.productName} size="md" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">{i.productName}</p>
                       <p className="text-xs text-muted-foreground">{formatINR(i.mrp)} x {i.returnQty}</p>
                     </div>
-                    <span className="text-sm font-bold text-rose-600">-{formatINR(i.lineTotal)}</span>
+                    <span className="text-sm font-semibold text-rose-600">-{formatINR(i.lineTotal)}</span>
                   </div>
                 ))}
               </div>
-              <div className="bg-gray-50 rounded-lg p-3 space-y-1">
+              <div className="bg-muted/30 rounded-xl p-4 space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Reason</span>
                   <span className="font-medium">{selectedReturn.reason}</span>
