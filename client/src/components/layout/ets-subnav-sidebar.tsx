@@ -11,6 +11,7 @@ import {
   ShoppingBag, Store, CheckSquare,
   CreditCard, FileText, Users,
   Receipt, Lock, Phone, UserRound,
+  Hammer, ListChecks, LayoutDashboard, Palette,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -30,6 +31,10 @@ const SUB_ITEM_ICONS: Record<string, LucideIcon> = {
   "/portal-ets/store-settings": Settings,
   "/portal-ets/launch-kit": ShoppingBag,
   "/portal-ets/store": Store,
+  "/portal-ets/setup-kit": Hammer,
+  "/portal-ets/boq-builder": ListChecks,
+  "/portal-ets/layout-guide": LayoutDashboard,
+  "/portal-ets/brand-kit": Palette,
   "/portal-ets/checklist": CheckSquare,
   "/portal-ets/payments": CreditCard,
   "/portal-ets/invoices": FileText,

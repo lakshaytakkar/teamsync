@@ -1435,6 +1435,10 @@ export const verticals: Vertical[] = [
         items: [
           { title: "Store Profile", url: "/portal-ets/store" },
           { title: "Launch Kit", url: "/portal-ets/launch-kit" },
+          { title: "Setup Kit", url: "/portal-ets/setup-kit" },
+          { title: "BOQ Builder", url: "/portal-ets/boq-builder" },
+          { title: "Layout Guide", url: "/portal-ets/layout-guide" },
+          { title: "Brand Kit", url: "/portal-ets/brand-kit" },
           { title: "Readiness Checklist", url: "/portal-ets/checklist" },
         ],
       },

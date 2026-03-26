@@ -225,6 +225,10 @@ import EtsProductPortal, { EtsProductCategories, EtsProductPricing, EtsProductCo
 import EtsVendorPortal, { EtsVendorListings, EtsVendorOrders, EtsVendorStock, EtsVendorKYC } from "@/pages/portal/ets/vendor-portal";
 import EtsTeamSettings from "@/pages/portal/ets/team-settings";
 import EtsPortalCart from "@/pages/portal/ets/cart";
+import EtsSetupKit from "@/pages/portal/ets/setup-kit";
+import EtsBOQBuilder from "@/pages/portal/ets/boq-builder";
+import EtsLayoutGuide from "@/pages/portal/ets/layout-guide";
+import EtsBrandKit from "@/pages/portal/ets/brand-kit";
 import FairePricing from "@/pages/faire/pricing";
 import FaireVendors from "@/pages/faire/vendors";
 import FaireInventory from "@/pages/faire/inventory";
@@ -464,6 +468,10 @@ function Router() {
 
       <Route path="/portal-ets/profile" component={EtsPortalProfile} />
       <Route path="/portal-ets/support" component={EtsPortalSupport} />
+      <Route path="/portal-ets/setup-kit" component={EtsSetupKit} />
+      <Route path="/portal-ets/boq-builder" component={EtsBOQBuilder} />
+      <Route path="/portal-ets/layout-guide" component={EtsLayoutGuide} />
+      <Route path="/portal-ets/brand-kit" component={EtsBrandKit} />
       <Route path="/portal-ets/checklist" component={EtsPortalChecklist} />
       <Route path="/portal-ets/onboarding" component={EtsPortalOnboarding} />
       <Route path="/portal-ets/pos" component={EtsPortalPosBilling} />
