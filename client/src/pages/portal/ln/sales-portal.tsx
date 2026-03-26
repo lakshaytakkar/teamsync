@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Star, Clock, MessageSquare, Users, DollarSign,
+  Star, Clock, MessageSquare, Users, DollarSign, FileText,
 } from "lucide-react";
 import { FORMATION_PACKAGES } from "@/lib/mock-data-dashboard-ln";
 
@@ -35,7 +35,7 @@ export default function LnSalesPortal() {
   const totalPipelineValue = LEADS.reduce((s, l) => s + l.value, 0);
 
   return (
-    <div className="p-6 space-y-6" data-testid="ln-sales-portal-dashboard">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ln-sales-portal-dashboard">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 p-6 text-white shadow-lg">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
         <div className="relative z-10">
@@ -147,7 +147,7 @@ export default function LnSalesPortal() {
 export function LnSalesPipeline() {
   const stages = ["New Lead", "Qualified", "Proposal Sent", "Converted"];
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <h1 className="text-xl font-bold">Lead Pipeline</h1>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {stages.map((stage) => {
@@ -183,7 +183,7 @@ export function LnSalesPipeline() {
 
 export function LnSalesProposals() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <h1 className="text-xl font-bold">Proposals</h1>
       <div className="space-y-3">
         {PROPOSALS.map((p) => (
@@ -207,7 +207,7 @@ export function LnSalesProposals() {
 
 export function LnSalesFollowups() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <h1 className="text-xl font-bold">Follow-up Queue</h1>
       <div className="space-y-3">
         {LEADS.map((lead) => (
@@ -241,7 +241,7 @@ export function LnSalesFollowups() {
 
 export function LnSalesPackages() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">Formation Packages</h1>
         <p className="text-sm text-muted-foreground">Packages available for client proposals</p>

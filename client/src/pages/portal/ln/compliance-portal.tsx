@@ -50,7 +50,7 @@ export default function LnCompliancePortal() {
   const highAlerts = COMPLIANCE_DEADLINES.filter(d => d.priority === "high").length;
 
   return (
-    <div className="p-6 space-y-6" data-testid="ln-compliance-portal-dashboard">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ln-compliance-portal-dashboard">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-lg">
         <div className="relative z-10">
           <p className="text-sm text-emerald-200 mb-1">Compliance Officer</p>
@@ -152,7 +152,7 @@ export default function LnCompliancePortal() {
 
 export function LnComplianceBOI() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">BOI Filing Queue</h1>
         <p className="text-sm text-muted-foreground">Beneficial Ownership Information reports for FinCEN</p>
@@ -211,7 +211,7 @@ export function LnComplianceBOI() {
 
 export function LnComplianceAnnual() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">Annual Reports</h1>
         <p className="text-sm text-muted-foreground">Track and file annual reports across all states</p>
@@ -245,7 +245,7 @@ export function LnComplianceAnnual() {
 
 export function LnComplianceAlerts() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <h1 className="text-xl font-bold">Compliance Alerts</h1>
       <div className="space-y-3">
         {COMPLIANCE_DEADLINES.map((dl) => (
@@ -276,7 +276,7 @@ export function LnComplianceAlerts() {
 
 export function LnComplianceDetail() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <h1 className="text-xl font-bold">Client Compliance Detail</h1>
       <div className="space-y-4">
         {COMPLIANCE_CLIENTS.map((cc) => (

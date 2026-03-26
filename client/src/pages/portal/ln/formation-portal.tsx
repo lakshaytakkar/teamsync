@@ -49,7 +49,7 @@ export default function LnFormationPortal() {
   const einPending = EIN_TRACKER.filter(e => e.status === "pending").length;
 
   return (
-    <div className="p-6 space-y-6" data-testid="ln-formation-portal-dashboard">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ln-formation-portal-dashboard">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 p-6 text-white shadow-lg">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
         <div className="relative z-10">
@@ -152,7 +152,7 @@ export default function LnFormationPortal() {
 
 export function LnFormationPipeline() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <h1 className="text-xl font-bold">Formation Pipeline</h1>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {FORMATION_STAGES.slice(0, 4).map((stage) => {
@@ -186,7 +186,7 @@ export function LnFormationPipeline() {
 
 export function LnFormationKYC() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">KYC Review Queue</h1>
         <p className="text-sm text-muted-foreground">Review client identity documents and approve KYC submissions</p>
@@ -234,7 +234,7 @@ export function LnFormationKYC() {
 
 export function LnFormationEIN() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">EIN Tracker</h1>
         <p className="text-sm text-muted-foreground">Track IRS EIN applications across all formations</p>
@@ -295,7 +295,7 @@ export function LnFormationActions() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">Stage Actions</h1>
         <p className="text-sm text-muted-foreground">Checklists and actions for each formation stage</p>

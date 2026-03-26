@@ -35,7 +35,7 @@ export default function LnAdminPortal() {
   const inPipeline = COMPANIES_ALL.length - completed;
 
   return (
-    <div className="p-6 space-y-6" data-testid="ln-admin-portal-dashboard">
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ln-admin-portal-dashboard">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/3" />
         <div className="relative z-10">
@@ -158,7 +158,7 @@ export default function LnAdminPortal() {
 export function LnAdminPipeline() {
   const stages = Object.entries(PIPELINE_COUNTS);
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">Pipeline Overview</h1>
         <p className="text-sm text-muted-foreground">All client formations across every stage</p>
@@ -196,7 +196,7 @@ export function LnAdminPipeline() {
 
 export function LnAdminTeam() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <h1 className="text-xl font-bold">Team Management</h1>
       <div className="grid md:grid-cols-2 gap-4">
         {TEAM.map((member, idx) => (
@@ -230,7 +230,7 @@ export function LnAdminRevenue() {
   const totalRevenue = monthlyRevenue.reduce((s, m) => s + m.amount, 0);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <h1 className="text-xl font-bold">Revenue Analytics</h1>
       <div className="grid grid-cols-3 gap-3">
         <Card className="border-0 shadow-sm">
@@ -277,7 +277,7 @@ export function LnAdminRevenue() {
 
 export function LnAdminSettings() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 lg:px-10 py-6 space-y-6">
       <h1 className="text-xl font-bold">System Settings</h1>
       <Card className="border-0 shadow-sm">
         <CardContent className="p-6 space-y-4">
