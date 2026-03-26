@@ -84,8 +84,15 @@ export function calculateEtsPrices(inputs: EtsPriceInputs): EtsPriceResult {
   const assessableValue = cifInr + customsDuty + swSurcharge;
   const igst = assessableValue * (inputs.categoryIgstPercent / 100);
 
-  const totalLandedCost = assessableValue + igst;
+  const chaPortCost = assessableValue * ((inputs.chaPortPercent ?? 2) / 100);
+  const mrpTaggingCost = inputs.mrpTaggingCostPerUnit ?? 5;
+
+  const totalLandedCostBeforeDomFreight = assessableValue + igst + chaPortCost + mrpTaggingCost;
+  const domesticFreightCost = totalLandedCostBeforeDomFreight * ((inputs.domesticFreightPercent ?? 3) / 100);
+  const totalLandedCost = totalLandedCostBeforeDomFreight + domesticFreightCost;
+
   const storeLandingPrice = totalLandedCost * (1 + inputs.ourMarkupPercent / 100);
+  const openingInventoryPrice = totalLandedCost * (1 + (inputs.openingInventoryMarkup ?? 20) / 100);
 
   const targetMarginFraction = (inputs.targetStoreMargin || 35) / 100;
   let suggestedMrp = ETS_MRP_BANDS[ETS_MRP_BANDS.length - 1];
@@ -109,8 +116,12 @@ export function calculateEtsPrices(inputs: EtsPriceInputs): EtsPriceResult {
     customsDuty: round2(customsDuty),
     swSurcharge: round2(swSurcharge),
     igst: round2(igst),
+    chaPortCost: round2(chaPortCost),
+    domesticFreightCost: round2(domesticFreightCost),
+    mrpTaggingCost: round2(mrpTaggingCost),
     totalLandedCost: round2(totalLandedCost),
     storeLandingPrice: round2(storeLandingPrice),
+    openingInventoryPrice: round2(openingInventoryPrice),
     suggestedMrp,
     storeMarginPercent: round1(storeMarginPercent),
     storeMarginRs: round2(storeMarginRs),
@@ -124,7 +135,11 @@ export const defaultPriceSettings: EtsPriceSetting[] = [
   { key: "freight_per_cbm", value: 8000, label: "Freight per CBM", unit: "₹" },
   { key: "insurance_percent", value: 0.5, label: "Insurance", unit: "%" },
   { key: "sw_surcharge_percent", value: 10, label: "SW Surcharge", unit: "%" },
-  { key: "our_markup_percent", value: 25, label: "Our Markup", unit: "%" },
+  { key: "cha_port_percent", value: 2, label: "CHA / Port Handling", unit: "%" },
+  { key: "domestic_freight_percent", value: 3, label: "Domestic Freight", unit: "%" },
+  { key: "mrp_tagging_cost_per_unit", value: 5, label: "MRP Tagging Cost", unit: "₹/unit" },
+  { key: "our_markup_percent", value: 25, label: "Replenishment Markup", unit: "%" },
+  { key: "opening_inventory_markup", value: 20, label: "Opening Inventory Markup", unit: "%" },
   { key: "target_store_margin", value: 50, label: "Target Store Margin", unit: "%" },
 ];
 

@@ -14,7 +14,7 @@ import {
   Edit2, ChevronRight, ChevronDown, Plus, Trash2,
   ArrowUpDown, ArrowLeft, ShieldAlert, ShieldCheck, ShieldX, XCircle,
   Download, CheckCircle2, RefreshCw, BarChart3, Settings, ArrowRight,
-  TrendingUp, Layers, Brain, FileUp, AlertCircle, Info, Sliders,
+  TrendingUp, Layers, Brain, FileUp, AlertCircle, Info, Sliders, Package,
 } from "lucide-react";
 import {
   CATALOG_PRODUCTS, CATALOG_ZONE_TREE, getCatalogStats, SOURCE_LABELS,
@@ -1324,7 +1324,9 @@ export function EtsProductPricing() {
     for (const s of defaultPriceSettings) obj[s.key] = s.value;
     return obj as {
       exchange_rate: number; sourcing_commission: number; freight_per_cbm: number;
-      insurance_percent: number; sw_surcharge_percent: number; our_markup_percent: number; target_store_margin: number;
+      insurance_percent: number; sw_surcharge_percent: number; cha_port_percent: number;
+      domestic_freight_percent: number; mrp_tagging_cost_per_unit: number;
+      our_markup_percent: number; opening_inventory_markup: number; target_store_margin: number;
     };
   });
   const [categoryRates, setCategoryRates] = useState(() => {
@@ -1360,7 +1362,11 @@ export function EtsProductPricing() {
       freightPerCbm: settings.freight_per_cbm,
       insurancePercent: settings.insurance_percent,
       swSurchargePercent: settings.sw_surcharge_percent,
+      chaPortPercent: settings.cha_port_percent,
+      domesticFreightPercent: settings.domestic_freight_percent,
+      mrpTaggingCostPerUnit: settings.mrp_tagging_cost_per_unit,
       ourMarkupPercent: settings.our_markup_percent,
+      openingInventoryMarkup: settings.opening_inventory_markup,
       targetStoreMargin: settings.target_store_margin,
     });
   }, [settings, categoryRates, test]);
@@ -1521,19 +1527,61 @@ export function EtsProductPricing() {
 
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2"><CreditCard className="w-4 h-4 text-pink-500" />Our Pricing</CardTitle>
+              <CardTitle className="text-sm font-semibold flex items-center gap-2"><Package className="w-4 h-4 text-pink-500" />Clearance & Domestic Costs</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-xs text-muted-foreground">Our Markup (on landed cost)</Label>
-                <div className="flex items-center gap-2 mt-1">
+                <Label className="text-xs text-muted-foreground">CHA / Port Handling %</Label>
+                <p className="text-[10px] text-muted-foreground mb-1">% of assessable value</p>
+                <div className="flex items-center gap-2">
+                  <Input type="number" step="0.5" value={settings.cha_port_percent} onChange={e => setSetting("cha_port_percent", +e.target.value)} className="h-9" data-testid="input-cha-port" />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Domestic Freight %</Label>
+                <p className="text-[10px] text-muted-foreground mb-1">% of post-customs cost</p>
+                <div className="flex items-center gap-2">
+                  <Input type="number" step="0.5" value={settings.domestic_freight_percent} onChange={e => setSetting("domestic_freight_percent", +e.target.value)} className="h-9" data-testid="input-domestic-freight" />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+              <div className="col-span-2">
+                <Label className="text-xs text-muted-foreground">MRP Tagging Cost (per unit)</Label>
+                <p className="text-[10px] text-muted-foreground mb-1">Fixed ₹ cost added to landed cost per unit for sticker labelling</p>
+                <div className="flex items-center gap-2 max-w-xs">
+                  <Input type="number" step="1" value={settings.mrp_tagging_cost_per_unit} onChange={e => setSetting("mrp_tagging_cost_per_unit", +e.target.value)} className="h-9" data-testid="input-mrp-tagging" />
+                  <span className="text-sm text-muted-foreground">₹/unit</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2"><CreditCard className="w-4 h-4 text-pink-500" />Markup & Target Margin</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-xs text-muted-foreground">Replenishment Markup %</Label>
+                <p className="text-[10px] text-muted-foreground mb-1">Applied to ongoing orders</p>
+                <div className="flex items-center gap-2">
                   <Input type="number" step="1" value={settings.our_markup_percent} onChange={e => setSetting("our_markup_percent", +e.target.value)} className="h-9" data-testid="input-our-markup" />
                   <span className="text-sm text-muted-foreground">%</span>
                 </div>
               </div>
               <div>
+                <Label className="text-xs text-muted-foreground">Opening Inventory Markup %</Label>
+                <p className="text-[10px] text-muted-foreground mb-1">Applied to first stock order</p>
+                <div className="flex items-center gap-2">
+                  <Input type="number" step="1" value={settings.opening_inventory_markup} onChange={e => setSetting("opening_inventory_markup", +e.target.value)} className="h-9" data-testid="input-opening-markup" />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+              <div className="col-span-2">
                 <Label className="text-xs text-muted-foreground">Target Store Margin</Label>
-                <div className="flex items-center gap-2 mt-1">
+                <p className="text-[10px] text-muted-foreground mb-1">Minimum % margin to snap MRP band</p>
+                <div className="flex items-center gap-2 max-w-xs">
                   <Input type="number" step="1" value={settings.target_store_margin} onChange={e => setSetting("target_store_margin", +e.target.value)} className="h-9" data-testid="input-target-margin" />
                   <span className="text-sm text-muted-foreground">%</span>
                 </div>
@@ -1546,7 +1594,7 @@ export function EtsProductPricing() {
               <Info className="w-4 h-4 text-pink-400 shrink-0 mt-0.5" />
               <div className="text-xs text-muted-foreground space-y-0.5">
                 <p><strong>MRP Bands:</strong> {ETS_MRP_BANDS.join(", ")} — suggested MRP snaps to the lowest band that meets the target store margin.</p>
-                <p><strong>Formula:</strong> EXW × rate → FOB → + Freight + Insurance → CIF → + Duty + SW + IGST → Landed → × Markup → Store Landing Price → Snap to MRP Band</p>
+                <p><strong>Formula:</strong> EXW × FX → FOB → +Freight+Insurance → CIF → +Duty+SW+IGST → +CHA+Tagging → +DomFreight → Landed Cost → ×Replenishment Markup → Store Price → Snap to MRP Band</p>
               </div>
             </CardContent>
           </Card>
@@ -1607,14 +1655,26 @@ export function EtsProductPricing() {
                   ["Customs Duty", `₹${preview.customsDuty}`],
                   ["SW Surcharge", `₹${preview.swSurcharge}`],
                   ["IGST", `₹${preview.igst}`],
+                  ["CHA / Port", `₹${preview.chaPortCost}`],
+                  ["MRP Tagging", `₹${preview.mrpTaggingCost}`],
+                  ["Domestic Freight", `₹${preview.domesticFreightCost}`],
                   ["Total Landed Cost", `₹${preview.totalLandedCost}`],
-                  ["Store Landing Price", `₹${preview.storeLandingPrice}`],
                 ].map(([label, val]) => (
                   <div key={label} className="flex justify-between">
                     <span className="text-muted-foreground">{label}</span>
                     <span className="font-mono font-medium">{val}</span>
                   </div>
                 ))}
+                <div className="border-t pt-1.5 mt-1 space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Opening Inv. Price</span>
+                    <span className="font-mono font-medium">₹{preview.openingInventoryPrice}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Replenishment Price</span>
+                    <span className="font-mono font-medium">₹{preview.storeLandingPrice}</span>
+                  </div>
+                </div>
                 <div className="border-t pt-1.5 mt-1 space-y-1">
                   <div className="flex justify-between font-semibold text-sm">
                     <span>Suggested MRP</span>
@@ -1871,6 +1931,49 @@ export function EtsProductBulkUpload() {
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-3">Fields marked <strong>source</strong>, <strong>name</strong>, <strong>zone</strong>, and <strong>category</strong> are required. All others are optional.</p>
+
+              <div className="mt-4 border rounded-xl overflow-hidden">
+                <div className="bg-muted/40 px-3 py-2 text-xs font-semibold">Field Guide — all 19 columns</div>
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/20 border-b">
+                    <tr>
+                      <th className="text-left px-3 py-2 font-medium">Column</th>
+                      <th className="text-center px-2 py-2 font-medium w-20">Required</th>
+                      <th className="text-left px-3 py-2 font-medium">Description / Example</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {[
+                      ["name", true, "Product display name — e.g. Bamboo Cutting Board XL"],
+                      ["description", false, "Short product description (max 200 chars)"],
+                      ["zone", true, "Zone label — e.g. Kitchen Zone, Home Decor Zone"],
+                      ["category", true, "Category slug — e.g. cooking-utensils, indoor-decor"],
+                      ["subcategory", false, "Subcategory slug — e.g. choppers-graters, clocks"],
+                      ["source", true, "Source code: india_deodap | india_wholesaledock | china_allen | china_haoduobao | china_bestex"],
+                      ["supplier_name", false, "Supplier display name — e.g. Deodap, Allen Exports"],
+                      ["barcode", false, "EAN-13 barcode — 13 digits"],
+                      ["exw_price_yuan", false, "China EXW price in ¥ (required for China-source products)"],
+                      ["wholesale_price_inr", false, "India wholesale price in ₹ (required for India-source products)"],
+                      ["moq", false, "Minimum order quantity — integer, e.g. 12"],
+                      ["units_per_carton", false, "Units packed per carton — integer"],
+                      ["carton_length_cm", false, "Carton outer length in cm"],
+                      ["carton_width_cm", false, "Carton outer width in cm"],
+                      ["carton_height_cm", false, "Carton outer height in cm"],
+                      ["compliance_status", false, "safe | restricted | banned (leave blank if unknown)"],
+                      ["bis_required", false, "true or false — whether BIS certification applies"],
+                      ["label_status", false, "english | chinese | needs_relabel"],
+                      ["tags", false, "Comma-separated tags — e.g. \"Bestseller,Fast Mover\""],
+                      ["suggested_mrp", false, "Suggested retail price in ₹ — snaps to nearest MRP band"],
+                    ].map(([col, req, desc]) => (
+                      <tr key={col as string} className="hover:bg-muted/10">
+                        <td className="px-3 py-1.5 font-mono font-medium text-[10px]">{col as string}</td>
+                        <td className="px-2 py-1.5 text-center">{req ? <span className="text-pink-600 font-semibold">✓</span> : <span className="text-muted-foreground">—</span>}</td>
+                        <td className="px-3 py-1.5 text-muted-foreground">{desc as string}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
           <Button variant="outline" className="text-sm gap-1.5" onClick={() => setStep(2)}>
@@ -2255,6 +2358,58 @@ export function EtsProductIntelligence() {
             <div className="pt-2 border-t text-xs text-muted-foreground space-y-1">
               <p>China avg margin: <strong>{stats.avgMarginChina}%</strong> · India avg margin: <strong>{stats.avgMarginIndia}%</strong></p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm lg:col-span-2" data-testid="panel-china-vs-india">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2"><ArrowUpDown className="w-4 h-4 text-pink-500" />China vs India — Landed Cost Comparison</CardTitle>
+            <p className="text-xs text-muted-foreground">Products in overlapping categories — comparing cheapest China-sourced vs India-sourced landed cost per unit</p>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {(() => {
+              const chinaProds = CATALOG_PRODUCTS.filter(p => p.source?.startsWith("china_") && p.landedCostInr);
+              const indiaProds = CATALOG_PRODUCTS.filter(p => p.source?.startsWith("india_") && p.landedCostInr);
+              const sharedCats = [...new Set(chinaProds.map(p => p.categoryId).filter(c => indiaProds.some(p => p.categoryId === c)))];
+              const rows = sharedCats.map(catId => {
+                const china = chinaProds.filter(p => p.categoryId === catId).sort((a, b) => (a.landedCostInr ?? 999999) - (b.landedCostInr ?? 999999))[0];
+                const india = indiaProds.filter(p => p.categoryId === catId).sort((a, b) => (a.landedCostInr ?? 999999) - (b.landedCostInr ?? 999999))[0];
+                if (!china || !india) return null;
+                const diff = (india.landedCostInr ?? 0) - (china.landedCostInr ?? 0);
+                const pct = china.landedCostInr ? Math.round(Math.abs(diff) / china.landedCostInr * 100) : 0;
+                return { catId, catName: CAT_NAME[catId] || catId, china, india, diff, pct, cheaperSource: diff > 0 ? "china" : "india" };
+              }).filter(Boolean);
+              return (
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left pb-2 font-medium text-muted-foreground">Category</th>
+                      <th className="text-right pb-2 font-medium text-muted-foreground">China Product</th>
+                      <th className="text-right pb-2 font-medium text-muted-foreground">China Landed ₹</th>
+                      <th className="text-right pb-2 font-medium text-muted-foreground">India Product</th>
+                      <th className="text-right pb-2 font-medium text-muted-foreground">India Landed ₹</th>
+                      <th className="text-right pb-2 font-medium text-muted-foreground">Delta</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {rows.map(r => !r ? null : (
+                      <tr key={r.catId} className="hover:bg-muted/20" data-testid={`china-vs-india-${r.catId}`}>
+                        <td className="py-2 font-medium">{r.catName}</td>
+                        <td className="py-2 text-right text-muted-foreground max-w-[120px] truncate">{r.china.name}</td>
+                        <td className="py-2 text-right font-mono">₹{r.china.landedCostInr}</td>
+                        <td className="py-2 text-right text-muted-foreground max-w-[120px] truncate">{r.india.name}</td>
+                        <td className="py-2 text-right font-mono">₹{r.india.landedCostInr}</td>
+                        <td className="py-2 text-right">
+                          <span className={`font-semibold ${r.cheaperSource === "china" ? "text-blue-600" : "text-orange-600"}`}>
+                            {r.cheaperSource === "china" ? "China " : "India "}{r.pct}% cheaper
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              );
+            })()}
           </CardContent>
         </Card>
 

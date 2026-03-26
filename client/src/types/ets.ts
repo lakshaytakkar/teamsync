@@ -145,6 +145,10 @@ export interface EtsPriceInputs {
   swSurchargePercent: number;
   ourMarkupPercent: number;
   targetStoreMargin: number;
+  chaPortPercent?: number;
+  domesticFreightPercent?: number;
+  mrpTaggingCostPerUnit?: number;
+  openingInventoryMarkup?: number;
 }
 
 export interface EtsPriceResult {
@@ -156,8 +160,12 @@ export interface EtsPriceResult {
   customsDuty: number;
   swSurcharge: number;
   igst: number;
+  chaPortCost: number;
+  domesticFreightCost: number;
+  mrpTaggingCost: number;
   totalLandedCost: number;
   storeLandingPrice: number;
+  openingInventoryPrice: number;
   suggestedMrp: number;
   storeMarginPercent: number;
   storeMarginRs: number;
