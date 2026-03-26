@@ -887,6 +887,7 @@ export function EtsProductCategories() {
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
   const [editingSubcatId, setEditingSubcatId] = useState<string | null>(null);
   const [editInput, setEditInput] = useState("");
+  const [editDesc, setEditDesc] = useState("");
 
   function toggleExpand(id: string) {
     setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
@@ -940,29 +941,32 @@ export function EtsProductCategories() {
     setZones(prev => prev.map(z => ({
       ...z,
       categories: z.categories.map(c => c.id === catId
-        ? { ...c, subcategories: c.subcategories.map(sc => sc.id === editingSubcatId ? { ...sc, name: editInput.trim() } : sc) }
+        ? { ...c, subcategories: c.subcategories.map(sc => sc.id === editingSubcatId ? { ...sc, name: editInput.trim(), description: editDesc.trim() || undefined } : sc) }
         : c
       ),
     })));
     setEditingSubcatId(null);
     setEditInput("");
+    setEditDesc("");
   }
 
   function handleSaveZoneEdit() {
     if (!editInput.trim() || !editingZoneId) return;
-    setZones(prev => prev.map(z => z.id === editingZoneId ? { ...z, name: editInput.trim() } : z));
+    setZones(prev => prev.map(z => z.id === editingZoneId ? { ...z, name: editInput.trim(), description: editDesc.trim() || undefined } : z));
     setEditingZoneId(null);
     setEditInput("");
+    setEditDesc("");
   }
 
   function handleSaveCatEdit() {
     if (!editInput.trim() || !editingCatId || !selectedZone) return;
     setZones(prev => prev.map(z => z.id === selectedZone.id
-      ? { ...z, categories: z.categories.map(c => c.id === editingCatId ? { ...c, name: editInput.trim() } : c) }
+      ? { ...z, categories: z.categories.map(c => c.id === editingCatId ? { ...c, name: editInput.trim(), description: editDesc.trim() || undefined } : c) }
       : z
     ));
     setEditingCatId(null);
     setEditInput("");
+    setEditDesc("");
   }
 
   function handleDeleteZone(zoneId: string) {
@@ -992,12 +996,14 @@ export function EtsProductCategories() {
     setEditingZoneId(zone.id);
     setEditingCatId(null);
     setEditInput(zone.name);
+    setEditDesc(zone.description ?? "");
   }
 
-  function startEditCat(cat: { id: string; name: string }) {
+  function startEditCat(cat: { id: string; name: string; description?: string }) {
     setEditingCatId(cat.id);
     setEditingZoneId(null);
     setEditInput(cat.name);
+    setEditDesc(cat.description ?? "");
   }
 
   return (
@@ -1116,14 +1122,20 @@ export function EtsProductCategories() {
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">{selectedZone.name}</p>
                     {editingCatId === selectedCat.id ? (
-                      <div className="flex gap-2 mt-1">
-                        <Input autoFocus value={editInput} onChange={e => setEditInput(e.target.value)} className="h-8 text-base font-bold" data-testid="input-edit-cat-name"
-                          onKeyDown={e => { if (e.key === "Enter") handleSaveCatEdit(); if (e.key === "Escape") { setEditingCatId(null); setEditInput(""); } }} />
-                        <Button size="sm" className="h-8 bg-pink-500 hover:bg-pink-600 text-white" onClick={handleSaveCatEdit} data-testid="button-save-cat-edit">Save</Button>
-                        <Button size="sm" variant="ghost" className="h-8" onClick={() => { setEditingCatId(null); setEditInput(""); }}>Cancel</Button>
+                      <div className="space-y-2 mt-1">
+                        <Input autoFocus value={editInput} onChange={e => setEditInput(e.target.value)} className="h-8 text-base font-bold" placeholder="Category name" data-testid="input-edit-cat-name"
+                          onKeyDown={e => { if (e.key === "Escape") { setEditingCatId(null); setEditInput(""); setEditDesc(""); } }} />
+                        <Input value={editDesc} onChange={e => setEditDesc(e.target.value)} className="h-7 text-sm" placeholder="Short description (optional)" data-testid="input-edit-cat-desc" />
+                        <div className="flex gap-2">
+                          <Button size="sm" className="h-7 bg-pink-500 hover:bg-pink-600 text-white" onClick={handleSaveCatEdit} data-testid="button-save-cat-edit">Save</Button>
+                          <Button size="sm" variant="ghost" className="h-7" onClick={() => { setEditingCatId(null); setEditInput(""); setEditDesc(""); }}>Cancel</Button>
+                        </div>
                       </div>
                     ) : (
-                      <CardTitle className="text-lg">{selectedCat.name}</CardTitle>
+                      <>
+                        <CardTitle className="text-lg">{selectedCat.name}</CardTitle>
+                        {selectedCat.description && <p className="text-sm text-muted-foreground mt-0.5">{selectedCat.description}</p>}
+                      </>
                     )}
                   </div>
                   {editingCatId !== selectedCat.id && (
@@ -1157,20 +1169,27 @@ export function EtsProductCategories() {
                     {selectedCat.subcategories.map(sc => (
                       <div key={sc.id} className="p-2.5 rounded-lg border" data-testid={`detail-subcat-${sc.id}`}>
                         {editingSubcatId === sc.id ? (
-                          <div className="flex gap-2">
-                            <Input autoFocus value={editInput} onChange={e => setEditInput(e.target.value)} className="h-7 text-sm flex-1"
+                          <div className="space-y-1.5">
+                            <Input autoFocus value={editInput} onChange={e => setEditInput(e.target.value)} className="h-7 text-sm"
+                              placeholder="Subcategory name"
                               data-testid={`input-edit-subcat-${sc.id}`}
-                              onKeyDown={e => { if (e.key === "Enter") handleSaveSubcatEdit(selectedCat.id); if (e.key === "Escape") { setEditingSubcatId(null); setEditInput(""); } }} />
-                            <Button size="sm" className="h-7 bg-pink-500 hover:bg-pink-600 text-white text-xs" onClick={() => handleSaveSubcatEdit(selectedCat.id)} data-testid={`save-subcat-edit-${sc.id}`}>Save</Button>
-                            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setEditingSubcatId(null); setEditInput(""); }}>Cancel</Button>
+                              onKeyDown={e => { if (e.key === "Escape") { setEditingSubcatId(null); setEditInput(""); setEditDesc(""); } }} />
+                            <Input value={editDesc} onChange={e => setEditDesc(e.target.value)} className="h-6 text-xs" placeholder="Description (optional)" data-testid={`input-edit-subcat-desc-${sc.id}`} />
+                            <div className="flex gap-1.5">
+                              <Button size="sm" className="h-6 bg-pink-500 hover:bg-pink-600 text-white text-xs" onClick={() => handleSaveSubcatEdit(selectedCat.id)} data-testid={`save-subcat-edit-${sc.id}`}>Save</Button>
+                              <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => { setEditingSubcatId(null); setEditInput(""); setEditDesc(""); }}>Cancel</Button>
+                            </div>
                           </div>
                         ) : (
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">{sc.name}</span>
+                            <div>
+                              <span className="text-sm">{sc.name}</span>
+                              {sc.description && <p className="text-xs text-muted-foreground mt-0.5">{sc.description}</p>}
+                            </div>
                             <div className="flex items-center gap-1">
                               <Badge variant="outline" className="text-[10px]">{subcatCount(sc.id)} products</Badge>
                               <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                                onClick={() => { setEditingSubcatId(sc.id); setEditInput(sc.name); setEditingZoneId(null); setEditingCatId(null); }}
+                                onClick={() => { setEditingSubcatId(sc.id); setEditInput(sc.name); setEditDesc(sc.description ?? ""); setEditingZoneId(null); setEditingCatId(null); }}
                                 data-testid={`edit-subcat-${sc.id}`}>
                                 <Edit2 className="w-3 h-3 text-muted-foreground" />
                               </Button>
@@ -1222,11 +1241,14 @@ export function EtsProductCategories() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     {editingZoneId === selectedZone.id ? (
-                      <div className="flex gap-2">
-                        <Input autoFocus value={editInput} onChange={e => setEditInput(e.target.value)} className="h-8 text-base font-bold" data-testid="input-edit-zone-name"
-                          onKeyDown={e => { if (e.key === "Enter") handleSaveZoneEdit(); if (e.key === "Escape") { setEditingZoneId(null); setEditInput(""); } }} />
-                        <Button size="sm" className="h-8 bg-pink-500 hover:bg-pink-600 text-white" onClick={handleSaveZoneEdit} data-testid="button-save-zone-edit">Save</Button>
-                        <Button size="sm" variant="ghost" className="h-8" onClick={() => { setEditingZoneId(null); setEditInput(""); }}>Cancel</Button>
+                      <div className="space-y-2 mt-1">
+                        <Input autoFocus value={editInput} onChange={e => setEditInput(e.target.value)} className="h-8 text-base font-bold" placeholder="Zone name" data-testid="input-edit-zone-name"
+                          onKeyDown={e => { if (e.key === "Escape") { setEditingZoneId(null); setEditInput(""); setEditDesc(""); } }} />
+                        <Input value={editDesc} onChange={e => setEditDesc(e.target.value)} className="h-7 text-sm" placeholder="Short description (optional)" data-testid="input-edit-zone-desc" />
+                        <div className="flex gap-2">
+                          <Button size="sm" className="h-7 bg-pink-500 hover:bg-pink-600 text-white" onClick={handleSaveZoneEdit} data-testid="button-save-zone-edit">Save</Button>
+                          <Button size="sm" variant="ghost" className="h-7" onClick={() => { setEditingZoneId(null); setEditInput(""); setEditDesc(""); }}>Cancel</Button>
+                        </div>
                       </div>
                     ) : (
                       <>
