@@ -36,6 +36,8 @@ export interface PosSale {
   cashReceived?: number;
   changeReturned?: number;
   timestamp: string;
+  cashierId?: string;
+  cashierName?: string;
 }
 
 export const POS_STORE = {

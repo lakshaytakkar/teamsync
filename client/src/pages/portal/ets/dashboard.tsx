@@ -1,11 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import {
   AlertCircle, ChevronRight, MapPin, Phone, Store,
   ShoppingCart, CreditCard, TrendingUp, Zap,
   Package, ClipboardList, AlertTriangle, Receipt,
-  Users,
+  Users, CheckCircle2, ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +22,7 @@ import {
   EXPANDED_SALES, RETURN_RECORDS, POS_PRODUCTS, INVENTORY,
   getProductImage,
 } from "@/lib/mock-data-pos-ets";
+import { getStoreStatus } from "@/lib/mock-data-ets-store";
 
 import iconPosBilling from "@assets/generated_images/icon-pos-billing.png";
 import iconInventory from "@assets/generated_images/icon-inventory.png";
@@ -97,6 +98,18 @@ export default function EtsPortalDashboard() {
   const [, navigate] = useLocation();
   const clientId = portalEtsClient.id;
 
+  useEffect(() => {
+    const alreadyVisited = sessionStorage.getItem("ets-portal-visited");
+    if (!alreadyVisited) {
+      sessionStorage.setItem("ets-portal-visited", "1");
+      const status = getStoreStatus();
+      if (status.status === "setup") {
+        navigate("/portal-ets/store");
+        return;
+      }
+    }
+  }, [navigate]);
+
   const { data: clientData, isLoading: clientLoading } = useQuery<{ client: any }>({
     queryKey: ['/api/ets-portal/client', clientId],
   });
@@ -161,18 +174,21 @@ export default function EtsPortalDashboard() {
 
   if (clientLoading) return <DashboardSkeleton />;
 
+  const storeStatusData = getStoreStatus();
+  const isStoreActive = storeStatusData.status === "active";
+
   const fallbackClient = {
     id: portalEtsClient.id,
     name: portalEtsClient.name,
     email: portalEtsClient.email,
     phone: portalEtsClient.phone,
     city: portalEtsClient.city,
-    stage: "qualified",
+    stage: isStoreActive ? "launched" : "qualified",
     totalPaid: 0,
     pendingDues: 0,
     profileCompleted: false,
-    onboardingStep: 1,
-    estimatedLaunchDate: null,
+    onboardingStep: storeStatusData.onboardingStep,
+    estimatedLaunchDate: storeStatusData.launchDate,
     nextAction: null,
     managerName: "EazyToSell Team",
     managerPhone: "+91 93065 66900",
@@ -192,7 +208,7 @@ export default function EtsPortalDashboard() {
   const nextSteps = getNextSteps(client, kitItemCount);
   const checklistDone = checklist.filter((c: any) => c.completed).length;
   const checklistTotal = checklist.length;
-  const isLive = client.stage === "launched" || client.stage === "reordering";
+  const isLive = isStoreActive || client.stage === "launched" || client.stage === "reordering";
 
   const quickActions = [
     { label: "POS Billing", href: "/portal-ets/pos", img: iconPosBilling, desc: "Start billing" },
@@ -474,27 +490,64 @@ export default function EtsPortalDashboard() {
 
       {!isLive && (
         <>
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold">Launch Progress</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-medium">
-                  <span>Stage {stageIdx + 1} of {PIPELINE_STAGES.length}</span>
-                  <span data-testid="text-progress-percent">{Math.round(progress)}% Complete</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="border-0 shadow-sm md:col-span-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Store className="w-4 h-4 text-orange-500" /> Setup Progress
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-medium">
+                    <span>Stage {stageIdx + 1} of {PIPELINE_STAGES.length}</span>
+                    <span data-testid="text-progress-percent">{Math.round(progress)}% Complete</span>
+                  </div>
+                  <Progress value={progress} className="h-2.5" />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>Token Paid</span>
+                    <span className="font-semibold" style={{ color: ETS_PORTAL_COLOR }}>
+                      Current: {ETS_STAGE_DISPLAY_LABELS[client.stage] || client.stage}
+                    </span>
+                    <span>Launch</span>
+                  </div>
                 </div>
-                <Progress value={progress} className="h-2.5" />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>Token Paid</span>
-                  <span className="font-semibold" style={{ color: ETS_PORTAL_COLOR }}>
-                    Current: {ETS_STAGE_DISPLAY_LABELS[client.stage] || client.stage}
-                  </span>
-                  <span>Launch</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-orange-500" /> Readiness Checklist
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {checklistTotal > 0 ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Progress value={(checklistDone / checklistTotal) * 100} className="flex-1 h-3" />
+                      <span className="text-sm font-bold" data-testid="text-checklist-percent">{Math.round((checklistDone / checklistTotal) * 100)}%</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{checklistDone} of {checklistTotal} tasks completed</p>
+                    <Link href="/portal-ets/checklist">
+                      <Button size="sm" variant="outline" className="gap-1 h-7 text-xs border-orange-200 text-orange-700 hover:bg-orange-50" data-testid="button-view-checklist-setup">
+                        View All Tasks <ArrowRight className="w-3 h-3" />
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="text-center py-2">
+                    <p className="text-xs text-muted-foreground mb-2">Complete your launch checklist</p>
+                    <Link href="/portal-ets/checklist">
+                      <Button size="sm" variant="outline" className="gap-1 h-7 text-xs border-orange-200 text-orange-700 hover:bg-orange-50" data-testid="button-start-checklist">
+                        Start Checklist <ArrowRight className="w-3 h-3" />
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
           {client.nextAction && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">

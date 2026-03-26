@@ -4,40 +4,124 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useEtsRole } from "@/lib/use-ets-role";
-import { Users, UserPlus, Eye, EyeOff, Info } from "lucide-react";
+import {
+  Users, UserPlus, Eye, EyeOff, Info, Key, Pencil, UserX,
+} from "lucide-react";
+import {
+  getStaffMembers, addStaffMember, updateStaffMember,
+  type EtsStaffMember,
+} from "@/lib/mock-data-ets-store";
 
-interface StaffMember {
-  id: string;
+function PinField({ value, onChange, label }: { value: string; onChange: (v: string) => void; label?: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="space-y-1">
+      {label && <Label className="text-xs font-medium">{label}</Label>}
+      <div className="relative">
+        <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <Input
+          type={show ? "text" : "password"}
+          inputMode="numeric"
+          maxLength={4}
+          placeholder="4-digit PIN"
+          value={value}
+          onChange={e => {
+            const v = e.target.value.replace(/\D/g, "").slice(0, 4);
+            onChange(v);
+          }}
+          className="pl-9 pr-9 font-mono tracking-widest"
+          data-testid="input-pin"
+        />
+        <button
+          type="button"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          onClick={() => setShow(s => !s)}
+          tabIndex={-1}
+          data-testid="button-toggle-pin"
+        >
+          {show ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+interface StaffFormData {
   name: string;
   phone: string;
   role: "owner" | "cashier";
-  active: boolean;
+  pin: string;
 }
 
-const INITIAL_STAFF: StaffMember[] = [
-  { id: "s1", name: "Ramesh Kumar", phone: "+91 98765 43210", role: "cashier", active: true },
-  { id: "s2", name: "Priya Sharma", phone: "+91 87654 32109", role: "cashier", active: false },
-];
+const EMPTY_FORM: StaffFormData = { name: "", phone: "", role: "cashier", pin: "" };
 
 export default function EtsTeamSettings() {
   const { subRole, setSubRole, isCashier } = useEtsRole();
-  const [staff, setStaff] = useState<StaffMember[]>(INITIAL_STAFF);
+  const [staff, setStaff] = useState<EtsStaffMember[]>(() => getStaffMembers());
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<StaffFormData>(EMPTY_FORM);
+  const [formError, setFormError] = useState("");
 
   const toggleCashierMode = () => {
     setSubRole(isCashier ? "owner" : "cashier");
   };
 
-  const toggleStaffRole = (id: string) => {
-    setStaff(prev =>
-      prev.map(s => s.id === id ? { ...s, role: s.role === "cashier" ? "owner" : "cashier" } : s)
-    );
+  const openAdd = () => {
+    setEditingId(null);
+    setFormData(EMPTY_FORM);
+    setFormError("");
+    setDialogOpen(true);
+  };
+
+  const openEdit = (member: EtsStaffMember) => {
+    setEditingId(member.id);
+    setFormData({ name: member.name, phone: member.phone, role: member.role, pin: member.pin });
+    setFormError("");
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!formData.name.trim()) { setFormError("Name is required."); return; }
+    if (!formData.phone.trim()) { setFormError("Phone is required."); return; }
+    if (formData.pin.length !== 4) { setFormError("PIN must be exactly 4 digits."); return; }
+
+    if (editingId) {
+      updateStaffMember(editingId, {
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        role: formData.role,
+        pin: formData.pin,
+      });
+      setStaff(getStaffMembers());
+    } else {
+      addStaffMember({
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        role: formData.role,
+        pin: formData.pin,
+        active: true,
+      });
+      setStaff(getStaffMembers());
+    }
+    setDialogOpen(false);
   };
 
   const toggleActive = (id: string) => {
-    setStaff(prev =>
-      prev.map(s => s.id === id ? { ...s, active: !s.active } : s)
-    );
+    const member = staff.find(s => s.id === id);
+    if (!member) return;
+    updateStaffMember(id, { active: !member.active });
+    setStaff(getStaffMembers());
+  };
+
+  const toggleRole = (id: string) => {
+    const member = staff.find(s => s.id === id);
+    if (!member) return;
+    updateStaffMember(id, { role: member.role === "cashier" ? "owner" : "cashier" });
+    setStaff(getStaffMembers());
   };
 
   return (
@@ -58,6 +142,7 @@ export default function EtsTeamSettings() {
               <p className="text-xs text-orange-700 mt-0.5 leading-relaxed">
                 When a staff member logs in with the cashier role, they can only access POS Billing and Stock Receive.
                 Reports, settings, payments, and financial data are hidden from cashiers.
+                Each cashier has a 4-digit PIN for identifying who processed a sale.
               </p>
             </div>
           </div>
@@ -113,7 +198,7 @@ export default function EtsTeamSettings() {
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Users className="w-4 h-4 text-orange-500" /> Staff Members
             </CardTitle>
-            <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white gap-1 h-7 text-xs" data-testid="button-add-staff">
+            <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white gap-1 h-7 text-xs" onClick={openAdd} data-testid="button-add-staff">
               <UserPlus className="w-3.5 h-3.5" /> Add Staff
             </Button>
           </div>
@@ -131,27 +216,51 @@ export default function EtsTeamSettings() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold">{member.name}</p>
                 <p className="text-xs text-muted-foreground">{member.phone}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <Key className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground font-mono">••••</span>
+                </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Badge
                   variant="outline"
                   className={`text-[10px] cursor-pointer select-none ${member.role === "cashier" ? "border-amber-300 text-amber-700 bg-amber-50" : "border-orange-300 text-orange-700 bg-orange-50"}`}
-                  onClick={() => toggleStaffRole(member.id)}
+                  onClick={() => toggleRole(member.id)}
                   data-testid={`toggle-role-${member.id}`}
                 >
                   {member.role === "cashier" ? "Cashier" : "Co-owner"}
                 </Badge>
-                <Switch
-                  checked={member.active}
-                  onCheckedChange={() => toggleActive(member.id)}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-orange-600"
+                  onClick={() => openEdit(member)}
+                  data-testid={`button-edit-${member.id}`}
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`h-7 w-7 ${member.active ? "text-muted-foreground hover:text-red-500" : "text-green-500 hover:text-green-700"}`}
+                  onClick={() => toggleActive(member.id)}
                   data-testid={`toggle-active-${member.id}`}
-                />
+                  title={member.active ? "Deactivate staff" : "Activate staff"}
+                >
+                  <UserX className="w-3.5 h-3.5" />
+                </Button>
               </div>
             </div>
           ))}
 
+          {staff.length === 0 && (
+            <div className="p-4 rounded-xl border border-dashed text-center">
+              <p className="text-xs text-muted-foreground">No staff members yet. Add your first cashier.</p>
+            </div>
+          )}
+
           <div className="p-4 rounded-xl border border-dashed text-center">
-            <p className="text-xs text-muted-foreground">Click the role badge to toggle between Cashier and Co-owner</p>
+            <p className="text-xs text-muted-foreground">Click the role badge to toggle between Cashier and Co-owner · Click <Pencil className="inline w-3 h-3" /> to edit PIN</p>
           </div>
         </CardContent>
       </Card>
@@ -165,6 +274,7 @@ export default function EtsTeamSettings() {
             {[
               { feature: "POS Billing", owner: true, cashier: true },
               { feature: "Stock Receive", owner: true, cashier: true },
+              { feature: "Held Bills", owner: true, cashier: true },
               { feature: "Inventory", owner: true, cashier: false },
               { feature: "Daily Report", owner: true, cashier: false },
               { feature: "Payments", owner: true, cashier: false },
@@ -185,6 +295,73 @@ export default function EtsTeamSettings() {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-md" data-testid="staff-dialog">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Edit Staff Member" : "Add Staff Member"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Full Name</Label>
+              <Input
+                placeholder="e.g. Ramesh Kumar"
+                value={formData.name}
+                onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
+                data-testid="input-staff-name"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Phone Number</Label>
+              <Input
+                placeholder="+91 98765 43210"
+                value={formData.phone}
+                onChange={e => setFormData(f => ({ ...f, phone: e.target.value }))}
+                data-testid="input-staff-phone"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Role</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={formData.role === "cashier" ? "default" : "outline"}
+                  size="sm"
+                  className={formData.role === "cashier" ? "bg-amber-500 hover:bg-amber-600" : ""}
+                  onClick={() => setFormData(f => ({ ...f, role: "cashier" }))}
+                  data-testid="button-role-cashier"
+                >
+                  Cashier
+                </Button>
+                <Button
+                  type="button"
+                  variant={formData.role === "owner" ? "default" : "outline"}
+                  size="sm"
+                  className={formData.role === "owner" ? "bg-orange-500 hover:bg-orange-600" : ""}
+                  onClick={() => setFormData(f => ({ ...f, role: "owner" }))}
+                  data-testid="button-role-owner"
+                >
+                  Co-owner
+                </Button>
+              </div>
+            </div>
+            <PinField
+              label="4-Digit PIN"
+              value={formData.pin}
+              onChange={pin => setFormData(f => ({ ...f, pin }))}
+            />
+            {formError && (
+              <p className="text-xs text-red-500" data-testid="text-form-error">{formError}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)} data-testid="button-cancel">Cancel</Button>
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={handleSave} data-testid="button-save-staff">
+              {editingId ? "Save Changes" : "Add Staff"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
-import { MessageCircle, Users, BookOpen, BarChart2, Phone, Ticket, ClipboardList, Blocks, ChevronDown } from "lucide-react";
+import { MessageCircle, Users, BookOpen, BarChart2, Phone, Ticket, ClipboardList, Blocks, ChevronDown, Lock, PauseCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getStoreStatus } from "@/lib/mock-data-ets-store";
 import { Button } from "@/components/ui/button";
 import { NotificationPanel } from "./notification-panel";
 import { SearchPanel } from "./search-panel";
@@ -177,8 +179,12 @@ export function TopNavigation() {
   const { roleId, role: etsRole, subRole } = useEtsRole();
   const isEtsNonPartner = isEtsPortal && roleId !== "partner";
   const isCashier = isEtsPortal && roleId === "partner" && subRole === "cashier";
+  const isEtsPartner = isEtsPortal && roleId === "partner";
   const cashierAllowed = ["/portal-ets/pos", "/portal-ets/stock-receive"];
   const showSubNav = !isEtsPortal && activeCategory && activeCategory.items.length > 1;
+
+  const storeStatus = isEtsPartner ? getStoreStatus().status : "active";
+  const isStoreSetup = storeStatus === "setup";
 
   const etsNavItems = isEtsNonPartner ? etsRole.navItems : isCashier ? etsRole.navItems.filter(n => cashierAllowed.includes(n.url)) : null;
 
@@ -243,31 +249,95 @@ export function TopNavigation() {
 
           <nav className="flex items-center gap-0.5 overflow-x-auto overflow-y-hidden scrollbar-hide" data-testid="nav-level-1">
             {etsNavItems ? (
-              etsNavItems.map((item) => {
-                const isActive = location === item.url || location.startsWith(item.url + "/");
-                return (
+              <>
+                {etsNavItems.map((item) => {
+                  const isActive = location === item.url || location.startsWith(item.url + "/");
+                  return (
+                    <Link
+                      key={item.url}
+                      href={item.url}
+                      data-testid={`nav-l1-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
+                      className={cn(
+                        "relative whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors",
+                        isActive
+                          ? "text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {item.title}
+                      {isActive && (
+                        <motion.div
+                          layoutId="nav-l1-indicator"
+                          className="absolute bottom-0 left-1 right-1 h-[2px] rounded-full bg-primary"
+                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                    </Link>
+                  );
+                })}
+                {isCashier && (
                   <Link
-                    key={item.url}
-                    href={item.url}
-                    data-testid={`nav-l1-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
+                    href="/portal-ets/pos"
+                    data-testid="nav-l1-held-bills"
                     className={cn(
-                      "relative whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors",
-                      isActive
-                        ? "text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
+                      "relative whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1",
+                      location === "/portal-ets/pos"
+                        ? "text-amber-600"
+                        : "text-muted-foreground hover:text-amber-600"
                     )}
                   >
-                    {item.title}
-                    {isActive && (
-                      <motion.div
-                        layoutId="nav-l1-indicator"
-                        className="absolute bottom-0 left-1 right-1 h-[2px] rounded-full bg-primary"
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                      />
-                    )}
+                    <PauseCircle className="w-3.5 h-3.5" />
+                    Held Bills
                   </Link>
-                );
-              })
+                )}
+              </>
+            ) : isEtsPartner ? (
+              <TooltipProvider>
+                {navCategories.filter(cat => !PINNED_TITLES.has(cat.title)).map((cat) => {
+                  const isActive = activeCategory?.title === cat.title;
+                  const isLocked = isStoreSetup && cat.lockWhenSetup;
+                  if (isLocked) {
+                    return (
+                      <Tooltip key={cat.title}>
+                        <TooltipTrigger asChild>
+                          <span
+                            className="relative whitespace-nowrap px-3 py-1.5 text-sm font-medium text-muted-foreground/50 cursor-not-allowed flex items-center gap-1.5 select-none"
+                            data-testid={`nav-l1-${cat.title.toLowerCase().replace(/\s+/g, "-")}-locked`}
+                          >
+                            <Lock className="w-3 h-3" />
+                            {cat.title}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="text-xs">
+                          Available when your store is live
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }
+                  return (
+                    <Link
+                      key={cat.title}
+                      href={cat.defaultUrl}
+                      data-testid={`nav-l1-${cat.title.toLowerCase().replace(/\s+/g, "-")}`}
+                      className={cn(
+                        "relative whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors",
+                        isActive
+                          ? "text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {cat.title}
+                      {isActive && (
+                        <motion.div
+                          layoutId="nav-l1-indicator"
+                          className="absolute bottom-0 left-1 right-1 h-[2px] rounded-full bg-primary"
+                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                    </Link>
+                  );
+                })}
+              </TooltipProvider>
             ) : (
               navCategories.filter(cat => !PINNED_TITLES.has(cat.title)).map((cat) => {
                 const isActive = activeCategory?.title === cat.title;

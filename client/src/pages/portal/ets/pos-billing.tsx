@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
+import { useEtsRole } from "@/lib/use-ets-role";
 import {
   Barcode, Search, Plus, Minus, Trash2, ShoppingCart,
   CreditCard, Smartphone, Banknote, Printer, PauseCircle,
@@ -22,6 +23,7 @@ import {
   getNextReceiptNumber,
   type PosProduct, type PosBillItem, type PosHeldBill, type PosSale,
 } from "@/lib/mock-data-pos-ets";
+import { getStoreStatus, getStaffMembers } from "@/lib/mock-data-ets-store";
 
 function formatINR(val: number): string {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
@@ -62,6 +64,7 @@ type ScreenState = "billing" | "payment" | "receipt";
 export default function PosBilling() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  const { subRole, roleId } = useEtsRole();
   const barcodeRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -82,8 +85,9 @@ export default function PosBilling() {
   const [completedSale, setCompletedSale] = useState<PosSale | null>(null);
 
   const store = POS_STORE;
+  const storeActive = getStoreStatus().status === "active";
 
-  if (store.status !== "active") {
+  if (!storeActive) {
     return <StoreLocked />;
   }
 
@@ -219,6 +223,13 @@ export default function PosBilling() {
 
   const completeSale = () => {
     if (!paymentMethod) return;
+    let cashierId: string | undefined;
+    let cashierName: string | undefined;
+    if (subRole === "cashier") {
+      const staff = getStaffMembers().find(s => s.active && s.role === "cashier");
+      cashierId = staff?.id ?? "cashier";
+      cashierName = staff?.name ?? "Cashier";
+    }
     const sale: PosSale = {
       id: `sale-${Date.now()}`,
       receiptNumber: getNextReceiptNumber(),
@@ -229,6 +240,8 @@ export default function PosBilling() {
       cashReceived: paymentMethod === "cash" ? parseFloat(cashReceived) || totalAmount : undefined,
       changeReturned: paymentMethod === "cash" ? Math.max(0, changeAmount) : undefined,
       timestamp: new Date().toISOString(),
+      cashierId,
+      cashierName,
     };
     setCompletedSale(sale);
     setScreenState("receipt");
@@ -771,6 +784,11 @@ function ReceiptScreen({ sale, store, onNewSale, onPrint }: {
             </div>
             <h2 className="text-xl font-bold text-white" data-testid="text-sale-complete">Sale Complete!</h2>
             <p className="text-gray-400 text-sm mt-1">{sale.receiptNumber} • {formatINR(sale.totalAmount)}</p>
+            {sale.cashierName && (
+              <p className="text-amber-300 text-xs mt-1 font-medium" data-testid="text-cashier-attribution">
+                Processed by {sale.cashierName}
+              </p>
+            )}
           </div>
 
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -821,6 +839,7 @@ function ThermalReceipt({ sale, store, dateStr, timeStr }: {
       </div>
       <div className="flex justify-between text-[10px]">
         <span>Payment: {sale.paymentMethod.toUpperCase()}</span>
+        {sale.cashierName && <span>By: {sale.cashierName}</span>}
       </div>
       <div className="border-t border-dashed border-gray-300 my-2" />
       <div className="text-left space-y-1">

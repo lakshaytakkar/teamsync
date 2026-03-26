@@ -93,6 +93,8 @@ export interface NavCategory {
   defaultUrl: string;
   icon: LucideIcon;
   items: NavItem[];
+  phase?: string;
+  lockWhenSetup?: boolean;
 }
 
 export interface Vertical {
@@ -1419,39 +1421,45 @@ export const verticals: Vertical[] = [
     isPortal: true,
     navCategories: [
       {
-        title: "Home",
+        title: "Dashboard",
         defaultUrl: "/portal-ets",
         icon: LayoutDashboard,
         items: [],
+        phase: "home",
       },
       {
-        title: "Products",
-        defaultUrl: "/portal-ets/catalog",
-        icon: ShoppingBag,
-        items: [],
-      },
-      {
-        title: "POS Billing",
-        defaultUrl: "/portal-ets/pos",
-        icon: Receipt,
-        items: [],
-      },
-      {
-        title: "Inventory",
-        defaultUrl: "/portal-ets/inventory",
-        icon: Package,
+        title: "Phase A — Store Setup",
+        defaultUrl: "/portal-ets/store",
+        icon: Store,
+        phase: "setup",
         items: [
-          { title: "Stock Overview", url: "/portal-ets/inventory" },
-          { title: "Stock Receive", url: "/portal-ets/stock-receive" },
-          { title: "Stock Adjustment", url: "/portal-ets/stock-adjustment" },
-          { title: "Low Stock Alerts", url: "/portal-ets/low-stock-alerts" },
+          { title: "Store Profile", url: "/portal-ets/store" },
+          { title: "Launch Kit", url: "/portal-ets/launch-kit" },
+          { title: "Readiness Checklist", url: "/portal-ets/checklist" },
         ],
       },
       {
-        title: "Operations",
-        defaultUrl: "/portal-ets/cash-register",
-        icon: Wallet,
+        title: "Phase B — Products & Orders",
+        defaultUrl: "/portal-ets/catalog",
+        icon: ShoppingBag,
+        phase: "products",
         items: [
+          { title: "Product Catalog", url: "/portal-ets/catalog" },
+          { title: "Orders", url: "/portal-ets/orders" },
+          { title: "Payments", url: "/portal-ets/payments" },
+          { title: "Invoices", url: "/portal-ets/invoices" },
+        ],
+      },
+      {
+        title: "Phase C — Store Operations",
+        defaultUrl: "/portal-ets/pos",
+        icon: Receipt,
+        phase: "operations",
+        lockWhenSetup: true,
+        items: [
+          { title: "POS Billing", url: "/portal-ets/pos" },
+          { title: "Inventory", url: "/portal-ets/inventory" },
+          { title: "Stock Receive", url: "/portal-ets/stock-receive" },
           { title: "Cash Register", url: "/portal-ets/cash-register" },
           { title: "Returns", url: "/portal-ets/returns" },
           { title: "Daily Report", url: "/portal-ets/daily-report" },
@@ -1459,42 +1467,15 @@ export const verticals: Vertical[] = [
         ],
       },
       {
-        title: "My Store",
-        defaultUrl: "/portal-ets/launch-kit",
-        icon: Store,
-        items: [
-          { title: "Launch Kit", url: "/portal-ets/launch-kit" },
-          { title: "Store Setup", url: "/portal-ets/store" },
-          { title: "Readiness Checklist", url: "/portal-ets/checklist" },
-          { title: "Team Settings", url: "/portal-ets/team-settings" },
-        ],
-      },
-      {
-        title: "Orders",
-        defaultUrl: "/portal-ets/orders",
-        icon: Package,
-        items: [],
-      },
-      {
-        title: "Payments",
-        defaultUrl: "/portal-ets/payments",
-        icon: CreditCard,
-        items: [
-          { title: "Payment History", url: "/portal-ets/payments" },
-          { title: "Invoices", url: "/portal-ets/invoices" },
-        ],
-      },
-      {
-        title: "Support",
-        defaultUrl: "/portal-ets/support",
-        icon: Headphones,
-        items: [],
-      },
-      {
-        title: "Profile",
+        title: "My Account",
         defaultUrl: "/portal-ets/profile",
         icon: UserRound,
-        items: [],
+        phase: "account",
+        items: [
+          { title: "Profile", url: "/portal-ets/profile" },
+          { title: "Support", url: "/portal-ets/support" },
+          { title: "Team & Staff", url: "/portal-ets/team-settings" },
+        ],
       },
     ],
   },
