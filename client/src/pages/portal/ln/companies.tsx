@@ -84,6 +84,10 @@ function CompanyCard({ company }: { company: LnCompany }) {
           </div>
         </div>
 
+        <div className="flex items-center gap-3 mb-3">
+          <Progress value={progress} className="flex-1 h-2" />
+          <span className="text-sm font-semibold text-muted-foreground">{progress}%</span>
+        </div>
         <div className="flex items-center gap-1.5 mb-2" data-testid={`stepper-${company.id}`}>
           {FORMATION_STAGES.map((stage, idx) => (
             <div key={stage.id} className="flex items-center gap-1 flex-1">
