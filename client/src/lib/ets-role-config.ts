@@ -134,6 +134,7 @@ export const ETS_ROLES: EtsRoleDefinition[] = [
       { title: "Pricing Rules", url: "/portal-ets/product/pricing", icon: CreditCard },
       { title: "Compliance", url: "/portal-ets/product/compliance", icon: CheckSquare },
       { title: "Bulk Upload", url: "/portal-ets/product/bulk-upload", icon: Upload },
+      { title: "Intelligence", url: "/portal-ets/product/intelligence", icon: BarChart3 },
     ],
   },
   {

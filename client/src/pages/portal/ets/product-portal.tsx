@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import {
   Tag, CreditCard, CheckSquare, Upload, AlertTriangle, Search,
   Edit2, ChevronRight, ChevronDown, Plus, Trash2,
   ArrowUpDown, ArrowLeft, ShieldAlert, ShieldCheck, ShieldX, XCircle,
+  Download, CheckCircle2, RefreshCw, BarChart3, Settings, ArrowRight,
+  TrendingUp, Layers, Brain, FileUp, AlertCircle, Info, Sliders,
 } from "lucide-react";
 import {
   CATALOG_PRODUCTS, CATALOG_ZONE_TREE, getCatalogStats, SOURCE_LABELS,
@@ -19,7 +22,7 @@ import {
   type CatalogProduct, type ProductSource, type ProductComplianceStatus,
   type ProductLabelStatus, type ProductTag, type CatalogZone,
 } from "@/lib/mock-data-product-catalog";
-import { calculateEtsPrices, ETS_CATEGORY_DUTY_RATES } from "@/lib/mock-data-ets";
+import { calculateEtsPrices, ETS_CATEGORY_DUTY_RATES, ETS_MRP_BANDS, defaultPriceSettings } from "@/lib/mock-data-ets";
 
 const ZONE_NAME: Record<string, string> = {};
 const CAT_NAME: Record<string, string> = {};
@@ -1310,17 +1313,326 @@ export function EtsProductCategories() {
   );
 }
 
+const DUTY_CATEGORY_LABELS: Record<string, string> = {
+  toys: "Toys", kitchenware: "Kitchenware", stationery: "Stationery",
+  decor: "Decor", bags: "Bags", household: "Household", gifts: "Gifts",
+};
+
 export function EtsProductPricing() {
+  const [settings, setSettings] = useState(() => ({
+    exchange_rate: 12.0,
+    sourcing_commission: 5,
+    freight_per_cbm: 8000,
+    insurance_percent: 0.5,
+    sw_surcharge_percent: 10,
+    our_markup_percent: 25,
+    target_store_margin: 50,
+  }));
+  const [test, setTest] = useState({
+    exwPriceYuan: 25,
+    unitsPerCarton: 12,
+    cartonLengthCm: 40,
+    cartonWidthCm: 30,
+    cartonHeightCm: 25,
+    category: "kitchenware" as keyof typeof ETS_CATEGORY_DUTY_RATES,
+  });
+  const [saved, setSaved] = useState(false);
+  const [recalcOpen, setRecalcOpen] = useState(false);
+  const [recalcProgress, setRecalcProgress] = useState(0);
+  const [recalcDone, setRecalcDone] = useState(false);
+
+  const preview = useMemo(() => {
+    const duty = ETS_CATEGORY_DUTY_RATES[test.category];
+    return calculateEtsPrices({
+      exwPriceYuan: test.exwPriceYuan,
+      unitsPerCarton: test.unitsPerCarton,
+      cartonLengthCm: test.cartonLengthCm,
+      cartonWidthCm: test.cartonWidthCm,
+      cartonHeightCm: test.cartonHeightCm,
+      categoryDutyPercent: duty.duty,
+      categoryIgstPercent: duty.igst,
+      exchangeRate: settings.exchange_rate,
+      sourcingCommission: settings.sourcing_commission,
+      freightPerCbm: settings.freight_per_cbm,
+      insurancePercent: settings.insurance_percent,
+      swSurchargePercent: settings.sw_surcharge_percent,
+      ourMarkupPercent: settings.our_markup_percent,
+      targetStoreMargin: settings.target_store_margin,
+    });
+  }, [settings, test]);
+
+  function setSetting(key: keyof typeof settings, val: number) {
+    setSettings(s => ({ ...s, [key]: val }));
+    setSaved(false);
+  }
+
+  function startRecalc() {
+    setRecalcProgress(0);
+    setRecalcDone(false);
+    let p = 0;
+    const iv = setInterval(() => {
+      p += Math.random() * 18 + 4;
+      if (p >= 100) { p = 100; clearInterval(iv); setRecalcDone(true); }
+      setRecalcProgress(Math.min(p, 100));
+    }, 180);
+  }
+
   return (
-    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="pricing-stub">
-      <h1 className="text-xl font-bold">Price Engine Settings</h1>
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-8 text-center text-muted-foreground">
-          <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p className="text-sm font-medium">Price Engine Settings coming soon</p>
-          <p className="text-xs mt-1">Configure exchange rate, sourcing commissions, freight costs, duty rates, and markup percentages.</p>
-        </CardContent>
-      </Card>
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="pricing-page">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold flex items-center gap-2"><Sliders className="w-5 h-5 text-pink-500" />Price Engine Settings</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Configure global pricing variables — changes immediately update the live preview</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="text-sm gap-1.5" onClick={() => setRecalcOpen(true)} data-testid="button-recalculate-all">
+            <RefreshCw className="w-4 h-4" />Recalculate All Products
+          </Button>
+          <Button className="bg-pink-500 hover:bg-pink-600 text-white text-sm gap-1.5" onClick={() => setSaved(true)} data-testid="button-save-settings">
+            <CheckCircle2 className="w-4 h-4" />{saved ? "Saved!" : "Save Settings"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-[1fr_380px] gap-6">
+        <div className="space-y-4">
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2"><TrendingUp className="w-4 h-4 text-pink-500" />Exchange & Sourcing</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-xs text-muted-foreground">Exchange Rate (₹ per ¥)</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input type="number" step="0.1" value={settings.exchange_rate} onChange={e => setSetting("exchange_rate", +e.target.value)} className="h-9" data-testid="input-exchange-rate" />
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">₹/¥</span>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Sourcing Commission</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input type="number" step="0.5" value={settings.sourcing_commission} onChange={e => setSetting("sourcing_commission", +e.target.value)} className="h-9" data-testid="input-sourcing-commission" />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2"><Layers className="w-4 h-4 text-pink-500" />Freight & Insurance</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-xs text-muted-foreground">Freight per CBM (₹)</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input type="number" step="100" value={settings.freight_per_cbm} onChange={e => setSetting("freight_per_cbm", +e.target.value)} className="h-9" data-testid="input-freight-per-cbm" />
+                  <span className="text-sm text-muted-foreground">₹/m³</span>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Insurance</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input type="number" step="0.1" value={settings.insurance_percent} onChange={e => setSetting("insurance_percent", +e.target.value)} className="h-9" data-testid="input-insurance" />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-pink-500" />Customs & Duties</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-4">
+              <div className="max-w-xs">
+                <Label className="text-xs text-muted-foreground">SW Surcharge (on customs duty)</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input type="number" step="1" value={settings.sw_surcharge_percent} onChange={e => setSetting("sw_surcharge_percent", +e.target.value)} className="h-9" data-testid="input-sw-surcharge" />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-2">Per-Category Duty & IGST Rates</p>
+                <div className="rounded-xl border overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/40">
+                      <tr>
+                        <th className="text-left px-3 py-2 font-medium">Category</th>
+                        <th className="text-right px-3 py-2 font-medium">Customs Duty</th>
+                        <th className="text-right px-3 py-2 font-medium">IGST</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {Object.entries(ETS_CATEGORY_DUTY_RATES).map(([cat, rates]) => (
+                        <tr key={cat} className="hover:bg-muted/20">
+                          <td className="px-3 py-2 font-medium">{DUTY_CATEGORY_LABELS[cat] ?? cat}</td>
+                          <td className="px-3 py-2 text-right">{rates.duty}%</td>
+                          <td className="px-3 py-2 text-right">{rates.igst}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2"><CreditCard className="w-4 h-4 text-pink-500" />Our Pricing</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-xs text-muted-foreground">Our Markup (on landed cost)</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input type="number" step="1" value={settings.our_markup_percent} onChange={e => setSetting("our_markup_percent", +e.target.value)} className="h-9" data-testid="input-our-markup" />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Target Store Margin</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input type="number" step="1" value={settings.target_store_margin} onChange={e => setSetting("target_store_margin", +e.target.value)} className="h-9" data-testid="input-target-margin" />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm bg-muted/20">
+            <CardContent className="p-4 flex items-start gap-3">
+              <Info className="w-4 h-4 text-pink-400 shrink-0 mt-0.5" />
+              <div className="text-xs text-muted-foreground space-y-0.5">
+                <p><strong>MRP Bands:</strong> {ETS_MRP_BANDS.join(", ")} — suggested MRP snaps to the lowest band that meets the target store margin.</p>
+                <p><strong>Formula:</strong> EXW × rate → FOB → + Freight + Insurance → CIF → + Duty + SW + IGST → Landed → × Markup → Store Landing Price → Snap to MRP Band</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-4">
+          <Card className="border-0 shadow-sm sticky top-6">
+            <CardHeader className="pb-3 border-b">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2"><Brain className="w-4 h-4 text-pink-500" />Live Price Preview</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">EXW Price (¥)</Label>
+                  <Input type="number" step="1" value={test.exwPriceYuan} onChange={e => setTest(t => ({ ...t, exwPriceYuan: +e.target.value }))} className="h-8 mt-1" data-testid="preview-exw-price" />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">L (cm)</Label>
+                    <Input type="number" value={test.cartonLengthCm} onChange={e => setTest(t => ({ ...t, cartonLengthCm: +e.target.value }))} className="h-8 mt-1" data-testid="preview-length" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">W (cm)</Label>
+                    <Input type="number" value={test.cartonWidthCm} onChange={e => setTest(t => ({ ...t, cartonWidthCm: +e.target.value }))} className="h-8 mt-1" data-testid="preview-width" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">H (cm)</Label>
+                    <Input type="number" value={test.cartonHeightCm} onChange={e => setTest(t => ({ ...t, cartonHeightCm: +e.target.value }))} className="h-8 mt-1" data-testid="preview-height" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Units/Carton</Label>
+                    <Input type="number" value={test.unitsPerCarton} onChange={e => setTest(t => ({ ...t, unitsPerCarton: +e.target.value }))} className="h-8 mt-1" data-testid="preview-units" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Category</Label>
+                    <Select value={test.category} onValueChange={v => setTest(t => ({ ...t, category: v as typeof test.category }))}>
+                      <SelectTrigger className="h-8 mt-1" data-testid="preview-category">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.keys(ETS_CATEGORY_DUTY_RATES).map(c => (
+                          <SelectItem key={c} value={c}>{DUTY_CATEGORY_LABELS[c] ?? c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-muted/30 p-3 space-y-1.5 text-xs">
+                {[
+                  ["FOB Price (¥)", `¥${preview.fobPriceYuan}`],
+                  ["FOB Price (₹)", `₹${preview.fobPriceInr}`],
+                  ["Freight/unit", `₹${preview.freightPerUnit}`],
+                  ["CIF Price", `₹${preview.cifPriceInr}`],
+                  ["Customs Duty", `₹${preview.customsDuty}`],
+                  ["SW Surcharge", `₹${preview.swSurcharge}`],
+                  ["IGST", `₹${preview.igst}`],
+                  ["Total Landed Cost", `₹${preview.totalLandedCost}`],
+                  ["Store Landing Price", `₹${preview.storeLandingPrice}`],
+                ].map(([label, val]) => (
+                  <div key={label} className="flex justify-between">
+                    <span className="text-muted-foreground">{label}</span>
+                    <span className="font-mono font-medium">{val}</span>
+                  </div>
+                ))}
+                <div className="border-t pt-1.5 mt-1 space-y-1">
+                  <div className="flex justify-between font-semibold text-sm">
+                    <span>Suggested MRP</span>
+                    <span className="text-pink-600">₹{preview.suggestedMrp}</span>
+                  </div>
+                  <div className={`flex justify-between text-xs ${preview.marginWarning ? "text-red-600" : "text-green-700"}`}>
+                    <span>Store Margin</span>
+                    <span className="font-semibold">{preview.storeMarginPercent}% (₹{preview.storeMarginRs})</span>
+                  </div>
+                  {preview.marginWarning && (
+                    <div className="flex items-center gap-1 text-red-600 text-[10px] mt-1">
+                      <AlertCircle className="w-3 h-3" />Margin below target — consider adjusting settings
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {recalcOpen && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" data-testid="recalculate-modal">
+          <Card className="w-full max-w-md border-0 shadow-xl">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Recalculate All Products</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                This will apply the current price settings to all {CATALOG_PRODUCTS.length} products and recompute landed costs, store prices, and suggested MRPs.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!recalcDone && recalcProgress === 0 && (
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setRecalcOpen(false)} className="flex-1" data-testid="recalc-cancel">Cancel</Button>
+                  <Button className="flex-1 bg-pink-500 hover:bg-pink-600 text-white" onClick={startRecalc} data-testid="recalc-confirm">Recalculate</Button>
+                </div>
+              )}
+              {recalcProgress > 0 && !recalcDone && (
+                <div className="space-y-3">
+                  <Progress value={recalcProgress} className="h-2" data-testid="recalc-progress" />
+                  <p className="text-xs text-center text-muted-foreground">Processing {Math.round((recalcProgress / 100) * CATALOG_PRODUCTS.length)} / {CATALOG_PRODUCTS.length} products…</p>
+                </div>
+              )}
+              {recalcDone && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 border border-green-200">
+                    <CheckCircle2 className="w-6 h-6 text-green-600 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-green-800">Recalculation complete</p>
+                      <p className="text-xs text-green-700 mt-0.5">{CATALOG_PRODUCTS.length} products updated — {Math.round(CATALOG_PRODUCTS.length * 0.82)} prices changed, {Math.round(CATALOG_PRODUCTS.length * 0.18)} unchanged</p>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-pink-500 hover:bg-pink-600 text-white" onClick={() => { setRecalcOpen(false); setRecalcDone(false); setRecalcProgress(0); }} data-testid="recalc-done">Done</Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
@@ -1381,41 +1693,515 @@ export function EtsProductCompliance() {
   );
 }
 
+const BULK_CSV_COLUMNS = [
+  "name", "description", "zone", "category", "subcategory", "source", "supplier_name",
+  "barcode", "exw_price_yuan", "wholesale_price_inr", "moq", "units_per_carton",
+  "carton_length_cm", "carton_width_cm", "carton_height_cm",
+  "compliance_status", "bis_required", "label_status", "tags", "suggested_mrp",
+];
+
+const MOCK_PREVIEW_ROWS = [
+  { row: 2, name: "Bamboo Cutting Board XL", zone: "Kitchen Zone", category: "cooking-utensils", source: "india_deodap", exw: "₹145", mrp: "₹349", status: "valid" as const, error: null },
+  { row: 3, name: "Stainless Steel Lunch Box 4pc", zone: "Kitchen Zone", category: "food-storage", source: "india_wholesaledock", exw: "₹210", mrp: "₹499", status: "valid" as const, error: null },
+  { row: 4, name: "LED String Fairy Lights 10m", zone: "Home Decor", category: "indoor-decor", source: "china_allen", exw: "¥18", mrp: "₹299", status: "valid" as const, error: null },
+  { row: 5, name: "Wooden Desk Organiser 5 Slot", zone: "Stationery", category: "office-supplies", source: "india_basketo", exw: "₹180", mrp: "₹449", status: "valid" as const, error: null },
+  { row: 6, name: "Silicone Baking Mat 2pc", zone: "Kitchen Zone", category: "cooking-utensils", source: "china_haoduobao", exw: "¥12", mrp: "₹199", status: "valid" as const, error: null },
+  { row: 7, name: "Kids Watercolour Set 24pc", zone: "Toys & Games", category: "educational", source: "india_deodap", exw: "₹95", mrp: "₹199", status: "valid" as const, error: null },
+  { row: 8, name: "Portable Phone Stand Adjustable", zone: "Gifts & Novelty", category: "novelty", source: "china_allen", exw: "¥8", mrp: "₹149", status: "valid" as const, error: null },
+  { row: 9, name: "Cotton Tote Bag Printed", zone: "Bags & Storage", category: "everyday-bags", source: "india_wholesaledock", exw: "₹65", mrp: "₹149", status: "valid" as const, error: null },
+  { row: 10, name: "Essential Oil Roller Set 6pc", zone: "Personal Care", category: "skincare", source: "india_deodap", exw: "₹220", mrp: "₹499", status: "valid" as const, error: null },
+  { row: 11, name: "Wall Clock Silent Sweep 30cm", zone: "Home Decor", category: "indoor-decor", source: "china_haoduobao", exw: "¥22", mrp: "₹399", status: "valid" as const, error: null },
+  { row: 12, name: "Kitchen Scale Digital 5kg", zone: "Kitchen Zone", category: "cooking-utensils", source: "china_allen", exw: "¥35", mrp: "", status: "warning" as const, error: "Missing suggested_mrp — price will be auto-calculated" },
+  { row: 13, name: "Yoga Block Eva 2pc", zone: "Personal Care", category: "bath-body", source: "india_basketo", exw: "₹310", mrp: "₹699", status: "warning" as const, error: "Missing barcode — will be auto-generated on import" },
+  { row: 14, name: "Ceramic Mug Set 6pc", zone: "Kitchen Zone", category: "dining", source: "", exw: "₹380", mrp: "₹799", status: "warning" as const, error: "Unknown source value 'hand_made' — defaulted to india_other" },
+  { row: 15, name: "Bluetooth RC Car 1:16", zone: "Toys & Games", category: "kids-toys", source: "china_haoduobao", exw: "¥45", mrp: "₹1,299", status: "error" as const, error: "BIS required but compliance_status is missing — review required before import" },
+  { row: 16, name: "Electronic Smart Lock Wifi", zone: "", category: "", source: "china_allen", exw: "¥280", mrp: "₹5,499", status: "error" as const, error: "Missing zone and category — cannot determine duty rates. Fix and re-upload" },
+];
+
+const ROW_STATUS = {
+  valid: { bg: "bg-green-50 border-green-200", dot: "bg-green-500", label: "Valid" },
+  warning: { bg: "bg-amber-50 border-amber-200", dot: "bg-amber-400", label: "Warning" },
+  error: { bg: "bg-red-50 border-red-200", dot: "bg-red-500", label: "Error" },
+};
+
+const STEPS = ["Download Template", "Upload File", "Preview & Validate", "Confirm", "Import"];
+
 export function EtsProductBulkUpload() {
+  const [step, setStep] = useState(1);
   const [dragging, setDragging] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [importProgress, setImportProgress] = useState(0);
+  const [importDone, setImportDone] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const validCount = MOCK_PREVIEW_ROWS.filter(r => r.status === "valid").length;
+  const warnCount = MOCK_PREVIEW_ROWS.filter(r => r.status === "warning").length;
+  const errorCount = MOCK_PREVIEW_ROWS.filter(r => r.status === "error").length;
+
+  function handleFileDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    const f = e.dataTransfer.files[0];
+    if (f) { setFileName(f.name); setStep(3); }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (f) { setFileName(f.name); setStep(3); }
+  }
+
+  function startImport() {
+    setStep(5);
+    setImportProgress(0);
+    setImportDone(false);
+    let p = 0;
+    const iv = setInterval(() => {
+      p += Math.random() * 14 + 5;
+      if (p >= 100) { p = 100; clearInterval(iv); setImportDone(true); }
+      setImportProgress(Math.min(p, 100));
+    }, 200);
+  }
+
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="bulk-upload-page">
       <div>
-        <h1 className="text-xl font-bold">Bulk Upload</h1>
-        <p className="text-sm text-muted-foreground">Upload a CSV to add or update products in bulk</p>
+        <h1 className="text-xl font-bold flex items-center gap-2"><FileUp className="w-5 h-5 text-pink-500" />Bulk Upload</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Add or update up to 10,000+ products at once via CSV</p>
       </div>
-      <Card
-        className={`border-2 border-dashed ${dragging ? "border-pink-400 bg-pink-50" : "border-gray-200"} rounded-2xl shadow-none`}
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(e) => { e.preventDefault(); setDragging(false); }}
-        data-testid="drop-zone"
-      >
-        <CardContent className="p-12 text-center">
-          <Upload className={`w-12 h-12 mx-auto mb-4 ${dragging ? "text-pink-500" : "text-gray-300"}`} />
-          <p className="text-sm font-medium mb-2">Drag & drop your CSV file here</p>
-          <p className="text-xs text-muted-foreground mb-4">Bulk import/update up to 10,000+ products at once</p>
-          <div className="flex gap-3 justify-center">
-            <Button variant="outline" className="text-xs" data-testid="button-download-template">Download Template</Button>
-            <Button className="bg-pink-500 hover:bg-pink-600 text-white" data-testid="button-choose-file">Choose File</Button>
+
+      <div className="flex items-center gap-0">
+        {STEPS.map((s, i) => {
+          const n = i + 1;
+          const isActive = step === n;
+          const isDone = step > n;
+          return (
+            <div key={s} className="flex items-center flex-1 last:flex-none">
+              <div className={`flex items-center gap-2 shrink-0 px-3 py-2 rounded-full text-xs font-medium ${isActive ? "bg-pink-100 text-pink-700" : isDone ? "bg-green-100 text-green-700" : "text-muted-foreground"}`}>
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${isActive ? "bg-pink-500 text-white" : isDone ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"}`}>
+                  {isDone ? "✓" : n}
+                </span>
+                {s}
+              </div>
+              {i < STEPS.length - 1 && <div className={`flex-1 h-0.5 mx-1 ${isDone ? "bg-green-300" : "bg-gray-200"}`} />}
+            </div>
+          );
+        })}
+      </div>
+
+      {step === 1 && (
+        <div className="space-y-4">
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center shrink-0">
+                  <Download className="w-6 h-6 text-pink-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold">Download the CSV template</p>
+                  <p className="text-sm text-muted-foreground mt-1 mb-4">Use our template to ensure your data is formatted correctly. Fill in all required columns before uploading.</p>
+                  <Button className="bg-pink-500 hover:bg-pink-600 text-white gap-2" onClick={() => setStep(2)} data-testid="button-download-template">
+                    <Download className="w-4 h-4" />Download Template (CSV)
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold">Required CSV Columns</CardTitle></CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex flex-wrap gap-2">
+                {BULK_CSV_COLUMNS.map(col => (
+                  <Badge key={col} variant="outline" className="text-xs font-mono" data-testid={`col-${col}`}>{col}</Badge>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">Fields marked <strong>source</strong>, <strong>name</strong>, <strong>zone</strong>, and <strong>category</strong> are required. All others are optional.</p>
+            </CardContent>
+          </Card>
+          <Button variant="outline" className="text-sm gap-1.5" onClick={() => setStep(2)}>
+            Skip — I already have the template <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="space-y-4">
+          <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFileChange} data-testid="file-input" />
+          <div
+            className={`border-2 border-dashed ${dragging ? "border-pink-400 bg-pink-50" : "border-gray-200 hover:border-pink-300 hover:bg-pink-50/30"} rounded-2xl cursor-pointer transition-colors`}
+            onDragOver={e => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleFileDrop}
+            onClick={() => fileRef.current?.click()}
+            data-testid="drop-zone"
+          >
+            <div className="p-14 text-center">
+              <Upload className={`w-12 h-12 mx-auto mb-4 ${dragging ? "text-pink-500" : "text-gray-300"}`} />
+              <p className="text-sm font-medium mb-1">Drag & drop your CSV file here</p>
+              <p className="text-xs text-muted-foreground mb-4">or click to browse — max 50 MB</p>
+              <Button variant="outline" className="gap-2 pointer-events-none" data-testid="button-choose-file">
+                <Upload className="w-4 h-4" />Choose File
+              </Button>
+            </div>
           </div>
-        </CardContent>
-      </Card>
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-5">
-          <p className="text-sm font-semibold mb-3">CSV Template Columns</p>
-          <div className="flex flex-wrap gap-2">
-            {["name", "description", "zone", "category", "source", "barcode", "exw_price_yuan", "wholesale_price_inr", "units_per_carton", "carton_length_cm", "carton_width_cm", "carton_height_cm", "compliance_status", "label_status", "suggested_mrp"].map((col) => (
-              <Badge key={col} variant="outline" className="text-xs font-mono" data-testid={`col-${col}`}>{col}</Badge>
+          <div className="flex justify-between">
+            <Button variant="ghost" onClick={() => setStep(1)} className="gap-1.5 text-sm"><ArrowLeft className="w-4 h-4" />Back</Button>
+            <Button className="bg-pink-500 hover:bg-pink-600 text-white gap-1.5 text-sm" onClick={() => { setFileName("products_batch_03.csv"); setStep(3); }} data-testid="button-use-sample">
+              Use Sample File for Demo <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/30 border">
+            <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
+            <div>
+              <p className="text-sm font-medium">{fileName ?? "products_batch_03.csv"} parsed</p>
+              <p className="text-xs text-muted-foreground">{MOCK_PREVIEW_ROWS.length} rows found — review below before proceeding</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            {[["Valid", validCount, "text-green-700 bg-green-100"], ["Warnings", warnCount, "text-amber-700 bg-amber-100"], ["Errors", errorCount, "text-red-700 bg-red-100"]].map(([label, count, cls]) => (
+              <div key={label as string} className={`flex-1 rounded-xl p-3 text-center ${cls as string}`}>
+                <p className="text-xl font-bold">{count as number}</p>
+                <p className="text-xs font-medium">{label as string}</p>
+              </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-0 overflow-hidden rounded-xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/40 border-b">
+                    <tr>
+                      <th className="text-left px-3 py-2.5 font-medium w-10">Row</th>
+                      <th className="text-left px-3 py-2.5 font-medium">Product Name</th>
+                      <th className="text-left px-3 py-2.5 font-medium">Zone / Category</th>
+                      <th className="text-left px-3 py-2.5 font-medium">Source</th>
+                      <th className="text-right px-3 py-2.5 font-medium">EXW</th>
+                      <th className="text-right px-3 py-2.5 font-medium">MRP</th>
+                      <th className="text-left px-3 py-2.5 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {MOCK_PREVIEW_ROWS.map(r => {
+                      const s = ROW_STATUS[r.status];
+                      return (
+                        <tr key={r.row} className={`${r.status !== "valid" ? s.bg : "hover:bg-muted/20"} border-l-2 ${r.status === "valid" ? "border-l-transparent" : r.status === "warning" ? "border-l-amber-400" : "border-l-red-400"}`} data-testid={`preview-row-${r.row}`}>
+                          <td className="px-3 py-2 text-muted-foreground">{r.row}</td>
+                          <td className="px-3 py-2 font-medium max-w-[200px]">
+                            <p className="truncate">{r.name}</p>
+                            {r.error && <p className={`text-[10px] mt-0.5 ${r.status === "error" ? "text-red-600" : "text-amber-600"}`}>{r.error}</p>}
+                          </td>
+                          <td className="px-3 py-2 text-muted-foreground">{r.zone} · {r.category}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{r.source || <span className="italic text-red-500">missing</span>}</td>
+                          <td className="px-3 py-2 text-right font-mono">{r.exw}</td>
+                          <td className="px-3 py-2 text-right font-mono">{r.mrp || <span className="italic text-muted-foreground">auto</span>}</td>
+                          <td className="px-3 py-2">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${s.bg}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />{s.label}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+          <div className="flex justify-between">
+            <div className="flex gap-2">
+              <Button variant="ghost" onClick={() => setStep(2)} className="gap-1.5 text-sm"><ArrowLeft className="w-4 h-4" />Back</Button>
+              <Button variant="outline" className="gap-1.5 text-sm" onClick={() => setStep(2)} data-testid="button-re-upload">
+                <RefreshCw className="w-4 h-4" />Fix & Re-upload
+              </Button>
+            </div>
+            {errorCount === 0
+              ? <Button className="bg-pink-500 hover:bg-pink-600 text-white gap-1.5 text-sm" onClick={() => setStep(4)} data-testid="button-proceed">Proceed to Confirm <ArrowRight className="w-4 h-4" /></Button>
+              : <Button className="bg-pink-500 hover:bg-pink-600 text-white gap-1.5 text-sm" onClick={() => setStep(4)} data-testid="button-proceed-anyway">Proceed (skip errors) <ArrowRight className="w-4 h-4" /></Button>
+            }
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="space-y-4 max-w-xl">
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold">Import Summary</CardTitle></CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              {[
+                ["New products to add", validCount + warnCount, "text-green-700"],
+                ["Rows with warnings (will import with auto-fixes)", warnCount, "text-amber-700"],
+                ["Rows with errors (will be skipped)", errorCount, "text-red-700"],
+                ["Total rows in file", MOCK_PREVIEW_ROWS.length, ""],
+              ].map(([label, count, cls]) => (
+                <div key={label as string} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
+                  <span className="text-muted-foreground">{label as string}</span>
+                  <span className={`font-semibold ${cls as string}`}>{count as number}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>Importing will add new products to your catalog. Existing products with matching barcodes will be updated. This action cannot be undone — save a backup of your current catalog first.</span>
+          </div>
+          <div className="flex justify-between">
+            <Button variant="ghost" onClick={() => setStep(3)} className="gap-1.5 text-sm"><ArrowLeft className="w-4 h-4" />Back</Button>
+            <Button className="bg-pink-500 hover:bg-pink-600 text-white gap-1.5 text-sm" onClick={startImport} data-testid="button-start-import">
+              Import {validCount + warnCount} Products <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {step === 5 && (
+        <div className="max-w-lg space-y-6">
+          {!importDone ? (
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-8 space-y-5">
+                <div className="text-center">
+                  <FileUp className="w-10 h-10 mx-auto mb-3 text-pink-400 animate-pulse" />
+                  <p className="font-semibold">Importing products…</p>
+                  <p className="text-xs text-muted-foreground mt-1">Please wait while we process your file</p>
+                </div>
+                <Progress value={importProgress} className="h-2" data-testid="import-progress" />
+                <p className="text-xs text-center text-muted-foreground">
+                  {Math.round((importProgress / 100) * (validCount + warnCount))} / {validCount + warnCount} products processed
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-8 space-y-5">
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-green-50 border border-green-200">
+                  <CheckCircle2 className="w-8 h-8 text-green-600 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-green-900">Import Complete!</p>
+                    <p className="text-xs text-green-700 mt-0.5">{validCount + warnCount} products imported successfully · {errorCount} rows skipped</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  {[["Added", validCount, "text-green-700"], ["Auto-fixed", warnCount, "text-amber-700"], ["Skipped", errorCount, "text-red-600"]].map(([l, c, cls]) => (
+                    <div key={l as string} className="rounded-xl bg-muted/30 p-3">
+                      <p className={`text-2xl font-bold ${cls as string}`}>{c as number}</p>
+                      <p className="text-xs text-muted-foreground">{l as string}</p>
+                    </div>
+                  ))}
+                </div>
+                <Button className="w-full bg-pink-500 hover:bg-pink-600 text-white" onClick={() => { setStep(1); setFileName(null); setImportProgress(0); setImportDone(false); }} data-testid="button-new-upload">
+                  Start Another Upload
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function EtsProductIntelligence() {
+  const stats = useMemo(() => getCatalogStats(), []);
+
+  const byZone = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const p of CATALOG_PRODUCTS) {
+      if (p.zoneId) counts[p.zoneId] = (counts[p.zoneId] || 0) + 1;
+    }
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, []);
+
+  const maxZoneCount = byZone[0]?.[1] ?? 1;
+
+  const mrpBands = useMemo(() => {
+    const bands: number[] = [0, ...ETS_MRP_BANDS];
+    const buckets: { label: string; count: number }[] = [];
+    for (let i = 0; i < ETS_MRP_BANDS.length; i++) {
+      const lo = bands[i];
+      const hi = ETS_MRP_BANDS[i];
+      const count = CATALOG_PRODUCTS.filter(p => {
+        const m = p.suggestedMrp ?? 0;
+        return m > lo && m <= hi;
+      }).length;
+      buckets.push({ label: `₹${hi}`, count });
+    }
+    const maxCount = Math.max(...buckets.map(b => b.count), 1);
+    return { buckets, maxCount };
+  }, []);
+
+  const bySource = useMemo(() => {
+    const sourceStats: Record<string, { count: number; totalMargin: number; marginCount: number; avgPrice: number; priceCount: number }> = {};
+    for (const p of CATALOG_PRODUCTS) {
+      if (!sourceStats[p.source]) sourceStats[p.source] = { count: 0, totalMargin: 0, marginCount: 0, avgPrice: 0, priceCount: 0 };
+      sourceStats[p.source].count++;
+      if (p.marginPercent !== undefined) { sourceStats[p.source].totalMargin += p.marginPercent; sourceStats[p.source].marginCount++; }
+      const price = p.partnerPriceInr ?? 0;
+      if (price > 0) { sourceStats[p.source].avgPrice += price; sourceStats[p.source].priceCount++; }
+    }
+    return Object.entries(sourceStats).map(([source, s]) => ({
+      source,
+      label: SOURCE_LABELS[source as ProductSource] ?? source,
+      count: s.count,
+      avgMargin: s.marginCount ? Math.round(s.totalMargin / s.marginCount) : 0,
+      avgPrice: s.priceCount ? Math.round(s.avgPrice / s.priceCount) : 0,
+    })).sort((a, b) => b.avgMargin - a.avgMargin);
+  }, []);
+
+  const zoneName = (id: string) => ZONE_NAME[id] || id;
+
+  return (
+    <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="intelligence-page">
+      <div>
+        <h1 className="text-xl font-bold flex items-center gap-2"><Brain className="w-5 h-5 text-pink-500" />Catalog Intelligence</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Analytics and insights across your {CATALOG_PRODUCTS.length}-product catalog</p>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-5">
+        <Card className="border-0 shadow-sm" data-testid="panel-by-zone">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-pink-500" />Products by Zone</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 space-y-2">
+            {byZone.map(([zoneId, count]) => (
+              <div key={zoneId} className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="font-medium">{zoneName(zoneId)}</span>
+                  <span className="text-muted-foreground">{count} products</span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full"
+                    style={{ width: `${(count / maxZoneCount) * 100}%` }}
+                    data-testid={`bar-zone-${zoneId}`}
+                  />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm" data-testid="panel-compliance">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2"><CheckSquare className="w-4 h-4 text-pink-500" />Compliance Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 space-y-4">
+            {[
+              { label: "Safe", count: stats.compliance.safe, color: "bg-green-500", text: "text-green-700", bg: "bg-green-50" },
+              { label: "Restricted", count: stats.compliance.restricted, color: "bg-amber-400", text: "text-amber-700", bg: "bg-amber-50" },
+              { label: "Banned", count: stats.compliance.banned, color: "bg-red-500", text: "text-red-700", bg: "bg-red-50" },
+              { label: "Unclassified", count: stats.compliance.undefined, color: "bg-gray-300", text: "text-gray-600", bg: "bg-gray-50" },
+            ].map(s => (
+              <div key={s.label} className={`flex items-center justify-between p-3 rounded-xl ${s.bg}`}>
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${s.color}`} />
+                  <span className={`text-sm font-medium ${s.text}`}>{s.label}</span>
+                </div>
+                <div className="text-right">
+                  <span className={`text-lg font-bold ${s.text}`}>{s.count}</span>
+                  <span className="text-xs text-muted-foreground ml-1.5">({Math.round((s.count / stats.total) * 100)}%)</span>
+                </div>
+              </div>
+            ))}
+            <div className="text-xs text-muted-foreground flex items-start gap-1.5 pt-1">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-500" />
+              {stats.missingCompliance} products have no compliance classification — review recommended.
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm lg:col-span-2" data-testid="panel-mrp-histogram">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2"><TrendingUp className="w-4 h-4 text-pink-500" />MRP Band Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex items-end gap-1 h-28">
+              {mrpBands.buckets.map(b => (
+                <div key={b.label} className="flex-1 flex flex-col items-center gap-1 group">
+                  <span className="text-[9px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity font-medium">{b.count}</span>
+                  <div
+                    className="w-full rounded-t-sm bg-gradient-to-t from-pink-500 to-rose-400 transition-all"
+                    style={{ height: `${Math.max((b.count / mrpBands.maxCount) * 90, b.count > 0 ? 4 : 0)}%` }}
+                    data-testid={`mrp-bar-${b.label}`}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-1 mt-1">
+              {mrpBands.buckets.map(b => (
+                <div key={b.label} className="flex-1 text-center text-[9px] text-muted-foreground truncate">{b.label}</div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">{stats.missingMrp} products have no MRP set · hover bars to see counts</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm" data-testid="panel-margin-by-source">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-pink-500" />Margin by Source</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left pb-2 font-medium text-muted-foreground">Source</th>
+                  <th className="text-right pb-2 font-medium text-muted-foreground">SKUs</th>
+                  <th className="text-right pb-2 font-medium text-muted-foreground">Avg Margin</th>
+                  <th className="text-right pb-2 font-medium text-muted-foreground">Avg Price</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {bySource.map(s => (
+                  <tr key={s.source} className="hover:bg-muted/20" data-testid={`margin-row-${s.source}`}>
+                    <td className="py-2.5">
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${SOURCE_COLORS[s.source as ProductSource]}`}>
+                        {s.label.split(" (")[0]}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-right font-medium">{s.count}</td>
+                    <td className="py-2.5 text-right">
+                      <span className={`font-semibold ${s.avgMargin >= 38 ? "text-green-700" : s.avgMargin >= 33 ? "text-amber-700" : "text-red-600"}`}>
+                        {s.avgMargin}%
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-right text-muted-foreground">₹{s.avgPrice}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm" data-testid="panel-source-comparison">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2"><ArrowUpDown className="w-4 h-4 text-pink-500" />Source Price Comparison</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 space-y-3">
+            <p className="text-xs text-muted-foreground">Average partner price per source — higher indicates premium product positioning</p>
+            {bySource.sort((a, b) => b.avgPrice - a.avgPrice).map(s => {
+              const maxAvg = Math.max(...bySource.map(x => x.avgPrice), 1);
+              return (
+                <div key={s.source} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className={`inline-block px-2 py-0.5 rounded-full ${SOURCE_COLORS[s.source as ProductSource]}`}>
+                      {s.label.split(" (")[0]}
+                    </span>
+                    <span className="font-mono font-medium">₹{s.avgPrice}</span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-pink-400 to-rose-400 rounded-full" style={{ width: `${(s.avgPrice / maxAvg) * 100}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+            <div className="pt-2 border-t text-xs text-muted-foreground space-y-1">
+              <p>China avg margin: <strong>{stats.avgMarginChina}%</strong> · India avg margin: <strong>{stats.avgMarginIndia}%</strong></p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
