@@ -84,9 +84,22 @@ function CompanyCard({ company }: { company: LnCompany }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mb-2">
-          <Progress value={progress} className="flex-1 h-2" />
-          <span className="text-sm font-semibold text-muted-foreground">{progress}%</span>
+        <div className="flex items-center gap-1.5 mb-2" data-testid={`stepper-${company.id}`}>
+          {FORMATION_STAGES.map((stage, idx) => (
+            <div key={stage.id} className="flex items-center gap-1 flex-1">
+              <div className={cn(
+                "size-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0",
+                idx < completedStages ? "bg-emerald-500 text-white" :
+                idx === completedStages && company.status === "forming" ? "bg-blue-500 text-white ring-2 ring-blue-200" :
+                "bg-gray-200 text-gray-400"
+              )}>
+                {idx < completedStages ? <CheckCircle2 className="size-3" /> : idx + 1}
+              </div>
+              {idx < FORMATION_STAGES.length - 1 && (
+                <div className={cn("h-0.5 flex-1 rounded-full", idx < completedStages ? "bg-emerald-400" : "bg-gray-200")} />
+              )}
+            </div>
+          ))}
         </div>
         <div className="flex items-center justify-between">
           <p className="text-xs text-muted-foreground">

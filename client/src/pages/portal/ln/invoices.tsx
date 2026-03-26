@@ -105,6 +105,7 @@ export default function LnInvoices() {
                     <Badge variant="outline" className={cn("text-[10px]", st.cls)} data-testid={`badge-inv-status-${inv.id}`}>{st.label}</Badge>
                   </div>
                   <p className="text-sm">{inv.description}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{inv.companyName}</p>
                   <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                     <span>Issued: {fmt(inv.issuedAt)}</span>
                     <span>Due: {fmt(inv.dueDate)}</span>
