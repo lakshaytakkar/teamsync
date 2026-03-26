@@ -204,6 +204,10 @@ import LnOnboarding from "@/pages/portal/ln/onboarding";
 import LnRolePlaceholder from "@/pages/portal/ln/role-placeholder";
 import LnClientPlaceholder from "@/pages/portal/ln/client-placeholder";
 import LnCompanies from "@/pages/portal/ln/companies";
+import LnAdminPortal, { LnAdminPipeline, LnAdminTeam, LnAdminRevenue, LnAdminSettings } from "@/pages/portal/ln/admin-portal";
+import LnFormationPortal, { LnFormationPipeline, LnFormationKYC, LnFormationEIN, LnFormationActions } from "@/pages/portal/ln/formation-portal";
+import LnSalesPortal, { LnSalesPipeline, LnSalesProposals, LnSalesFollowups, LnSalesPackages } from "@/pages/portal/ln/sales-portal";
+import LnCompliancePortal, { LnComplianceBOI, LnComplianceAnnual, LnComplianceAlerts, LnComplianceDetail } from "@/pages/portal/ln/compliance-portal";
 import LnCompanyDetail from "@/pages/portal/ln/company-detail";
 import LnDocuments from "@/pages/portal/ln/documents";
 import LnInvoices from "@/pages/portal/ln/invoices";
@@ -549,16 +553,28 @@ function Router() {
       <Route path="/portal-ln/messages" component={LnMessagesPage} />
       <Route path="/portal-ln/support" component={LnSupport} />
       <Route path="/portal-ln/profile" component={LnProfile} />
-      <Route path="/portal-ln/admin/:rest*" component={LnRolePlaceholder} />
-      <Route path="/portal-ln/admin" component={LnRolePlaceholder} />
-      <Route path="/portal-ln/formation/:rest*" component={LnRolePlaceholder} />
-      <Route path="/portal-ln/formation" component={LnRolePlaceholder} />
-      <Route path="/portal-ln/compliance/:rest*" component={LnRolePlaceholder} />
-      <Route path="/portal-ln/compliance" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/admin/pipeline" component={LnAdminPipeline} />
+      <Route path="/portal-ln/admin/team" component={LnAdminTeam} />
+      <Route path="/portal-ln/admin/revenue" component={LnAdminRevenue} />
+      <Route path="/portal-ln/admin/settings" component={LnAdminSettings} />
+      <Route path="/portal-ln/admin" component={LnAdminPortal} />
+      <Route path="/portal-ln/formation/pipeline" component={LnFormationPipeline} />
+      <Route path="/portal-ln/formation/kyc" component={LnFormationKYC} />
+      <Route path="/portal-ln/formation/ein" component={LnFormationEIN} />
+      <Route path="/portal-ln/formation/actions" component={LnFormationActions} />
+      <Route path="/portal-ln/formation" component={LnFormationPortal} />
+      <Route path="/portal-ln/compliance/boi" component={LnComplianceBOI} />
+      <Route path="/portal-ln/compliance/annual" component={LnComplianceAnnual} />
+      <Route path="/portal-ln/compliance/alerts" component={LnComplianceAlerts} />
+      <Route path="/portal-ln/compliance/detail" component={LnComplianceDetail} />
+      <Route path="/portal-ln/compliance" component={LnCompliancePortal} />
       <Route path="/portal-ln/tax/:rest*" component={LnRolePlaceholder} />
       <Route path="/portal-ln/tax" component={LnRolePlaceholder} />
-      <Route path="/portal-ln/sales/:rest*" component={LnRolePlaceholder} />
-      <Route path="/portal-ln/sales" component={LnRolePlaceholder} />
+      <Route path="/portal-ln/sales/pipeline" component={LnSalesPipeline} />
+      <Route path="/portal-ln/sales/proposals" component={LnSalesProposals} />
+      <Route path="/portal-ln/sales/followups" component={LnSalesFollowups} />
+      <Route path="/portal-ln/sales/packages" component={LnSalesPackages} />
+      <Route path="/portal-ln/sales" component={LnSalesPortal} />
       <Route path="/portal-ln" component={LnDashboard} />
       <Route path="/hrms" component={HrmsDashboard} />
       <Route path="/hrms/notifications" component={UniversalNotifications} />

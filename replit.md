@@ -1596,11 +1596,27 @@ New role-based LN portal using the admin panel layout (TopNavigation + role swit
 | Messages | `/portal-ln/messages` | `client/src/pages/portal/ln/messages.tsx` |
 | Support | `/portal-ln/support` | `client/src/pages/portal/ln/support.tsx` |
 | Profile | `/portal-ln/profile` | `client/src/pages/portal/ln/profile.tsx` |
-| Admin (placeholder) | `/portal-ln/admin/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
-| Formation (placeholder) | `/portal-ln/formation/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
-| Compliance (placeholder) | `/portal-ln/compliance/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
+| Admin Overview | `/portal-ln/admin` | `client/src/pages/portal/ln/admin-portal.tsx` |
+| Admin Pipeline | `/portal-ln/admin/pipeline` | `admin-portal.tsx` → `LnAdminPipeline` |
+| Admin Team | `/portal-ln/admin/team` | `admin-portal.tsx` → `LnAdminTeam` |
+| Admin Revenue | `/portal-ln/admin/revenue` | `admin-portal.tsx` → `LnAdminRevenue` |
+| Admin Settings | `/portal-ln/admin/settings` | `admin-portal.tsx` → `LnAdminSettings` |
+| Formation Dashboard | `/portal-ln/formation` | `client/src/pages/portal/ln/formation-portal.tsx` |
+| Formation Pipeline | `/portal-ln/formation/pipeline` | `formation-portal.tsx` → `LnFormationPipeline` |
+| Formation KYC Review | `/portal-ln/formation/kyc` | `formation-portal.tsx` → `LnFormationKYC` |
+| Formation EIN Tracker | `/portal-ln/formation/ein` | `formation-portal.tsx` → `LnFormationEIN` |
+| Formation Stage Actions | `/portal-ln/formation/actions` | `formation-portal.tsx` → `LnFormationActions` |
+| Compliance Dashboard | `/portal-ln/compliance` | `client/src/pages/portal/ln/compliance-portal.tsx` |
+| Compliance BOI Queue | `/portal-ln/compliance/boi` | `compliance-portal.tsx` → `LnComplianceBOI` |
+| Compliance Annual Reports | `/portal-ln/compliance/annual` | `compliance-portal.tsx` → `LnComplianceAnnual` |
+| Compliance Alerts | `/portal-ln/compliance/alerts` | `compliance-portal.tsx` → `LnComplianceAlerts` |
+| Compliance Client Detail | `/portal-ln/compliance/detail` | `compliance-portal.tsx` → `LnComplianceDetail` |
+| Sales Dashboard | `/portal-ln/sales` | `client/src/pages/portal/ln/sales-portal.tsx` |
+| Sales Lead Pipeline | `/portal-ln/sales/pipeline` | `sales-portal.tsx` → `LnSalesPipeline` |
+| Sales Proposals | `/portal-ln/sales/proposals` | `sales-portal.tsx` → `LnSalesProposals` |
+| Sales Follow-ups | `/portal-ln/sales/followups` | `sales-portal.tsx` → `LnSalesFollowups` |
+| Sales Packages | `/portal-ln/sales/packages` | `sales-portal.tsx` → `LnSalesPackages` |
 | Tax (placeholder) | `/portal-ln/tax/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
-| Sales (placeholder) | `/portal-ln/sales/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
 
 ### Navigation Entry
 - Vertical switcher (`vertical-switcher.tsx`) has two portal categories:
