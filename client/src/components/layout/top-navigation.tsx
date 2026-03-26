@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { MessageCircle, Users, BookOpen, BarChart2, Phone, Ticket, ClipboardList, Blocks } from "lucide-react";
+import { MessageCircle, Users, BookOpen, BarChart2, Phone, Ticket, ClipboardList, Blocks, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationPanel } from "./notification-panel";
 import { SearchPanel } from "./search-panel";
@@ -9,6 +9,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -17,6 +18,8 @@ import { useVertical } from "@/lib/vertical-store";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import type { NavCategory } from "@/lib/verticals-config";
+import { useEtsRole } from "@/lib/use-ets-role";
+import { ETS_ROLES, type EtsRoleId } from "@/lib/ets-role-config";
 
 const PINNED_TITLES = new Set(["Chat", "Team", "Resources", "Reports", "Contacts", "Important Contacts", "Tickets", "Tasks", "Apps"]);
 
@@ -37,6 +40,81 @@ function getActiveCategory(location: string, categories: NavCategory[]): NavCate
 
 function isItemActive(location: string, itemUrl: string): boolean {
   return location === itemUrl || location.startsWith(itemUrl + "/");
+}
+
+function EtsRoleSwitcher() {
+  const { role, roleId, setRole } = useEtsRole();
+  const [, setLocation] = useLocation();
+
+  return (
+    <>
+      <Separator orientation="vertical" className="h-5" />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-2 h-8 px-2.5 rounded-lg"
+            data-testid="button-ets-role-switcher"
+          >
+            <div
+              className="size-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
+              style={{ backgroundColor: role.color }}
+            >
+              {role.userInitials}
+            </div>
+            <span className="text-xs font-semibold">{role.label}</span>
+            <ChevronDown className="size-3 text-muted-foreground" />
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-64 p-1" data-testid="ets-role-menu">
+          <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold px-2 py-1.5">
+            Switch Role (Dev Mode)
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {ETS_ROLES.map((r) => {
+            const isSelected = r.id === roleId;
+            return (
+              <DropdownMenuItem
+                key={r.id}
+                className={cn(
+                  "flex items-center gap-3 px-2 py-2 rounded-md cursor-pointer",
+                  isSelected && "bg-muted"
+                )}
+                onClick={() => {
+                  setRole(r.id as EtsRoleId);
+                  setLocation(r.defaultUrl);
+                }}
+                data-testid={`role-option-${r.id}`}
+              >
+                <div
+                  className="size-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
+                  style={{ backgroundColor: r.color }}
+                >
+                  {r.userInitials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-semibold">{r.label}</span>
+                    {isSelected && (
+                      <span
+                        className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full text-white"
+                        style={{ backgroundColor: r.color }}
+                      >
+                        Active
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate">{r.userName}</p>
+                </div>
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
 }
 
 export function TopNavigation() {
@@ -141,6 +219,8 @@ export function TopNavigation() {
           <PinnedBtn url={chatUrl} icon={MessageCircle} label="Chat" testId="button-chat" />
           <PinnedBtn url={teamUrl} icon={Users} label="Team" testId="button-team" />
           <PinnedBtn url={appsUrl} icon={Blocks} label="Apps" testId="button-apps" />
+
+          {isEtsPortal && <EtsRoleSwitcher />}
 
           <Separator orientation="vertical" className="h-5" />
 

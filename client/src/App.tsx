@@ -7,9 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnnouncementBanner } from "@/components/layout/announcement-banner";
 import { TopNavigation } from "@/components/layout/top-navigation";
 import { EtsSubNavSidebar } from "@/components/layout/ets-subnav-sidebar";
-import { EtsPortalLayout } from "@/components/portal/ets/ets-portal-layout";
-import { EtsRoleContext } from "@/lib/use-ets-role";
-import { useEtsRoleState } from "@/lib/use-ets-role";
+import { EtsRoleContext, useEtsRoleState } from "@/lib/use-ets-role";
 import { PwaInstallPrompt } from "@/components/layout/pwa-install-prompt";
 import { AIChatWidget } from "@/components/ai-chat/AIChatWidget";
 import { VerticalContext, getStoredVertical, setStoredVerticalId } from "@/lib/vertical-store";
@@ -784,17 +782,9 @@ function VerticalSync({ setCurrentVertical }: { setCurrentVertical: (id: string)
   return null;
 }
 
-function EtsPortalApp({ children }: { children: import("react").ReactNode }) {
-  const etsRoleState = useEtsRoleState();
-  return (
-    <EtsRoleContext.Provider value={etsRoleState}>
-      <EtsPortalLayout>{children}</EtsPortalLayout>
-    </EtsRoleContext.Provider>
-  );
-}
-
 function App() {
   const [currentVertical, setVerticalState] = useState<Vertical>(getStoredVertical);
+  const etsRoleState = useEtsRoleState();
 
   const setCurrentVertical = useCallback((id: string) => {
     setVerticalState((prev) => {
@@ -813,31 +803,35 @@ function App() {
   const isAnyPortal = isLnPortal || isEtsPortal;
   return (
     <VerticalContext.Provider value={{ currentVertical, setCurrentVertical }}>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <VerticalSync setCurrentVertical={setCurrentVertical} />
-          {isLnPortal ? (
-            <PortalLayout>
-              <PortalLNRouter />
-            </PortalLayout>
-          ) : isEtsPortal ? (
-            <EtsPortalApp>
-              <Router />
-            </EtsPortalApp>
-          ) : (
-            <div className="flex h-screen w-full flex-col">
-              <AnnouncementBanner />
-              <TopNavigation />
-              <main className="flex-1 overflow-auto">
-                <Router />
-              </main>
-            </div>
-          )}
-          <Toaster />
-          {!isAnyPortal && <PwaInstallPrompt />}
-          {!isAnyPortal && <AIChatWidget />}
-        </TooltipProvider>
-      </QueryClientProvider>
+      <EtsRoleContext.Provider value={etsRoleState}>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <VerticalSync setCurrentVertical={setCurrentVertical} />
+            {isLnPortal ? (
+              <PortalLayout>
+                <PortalLNRouter />
+              </PortalLayout>
+            ) : (
+              <div className="flex h-screen w-full flex-col">
+                {!isEtsPortal && <AnnouncementBanner />}
+                <TopNavigation />
+                <main className="flex-1 overflow-auto">
+                  {isEtsPortal ? (
+                    <EtsSubNavSidebar>
+                      <Router />
+                    </EtsSubNavSidebar>
+                  ) : (
+                    <Router />
+                  )}
+                </main>
+              </div>
+            )}
+            <Toaster />
+            {!isAnyPortal && <PwaInstallPrompt />}
+            {!isAnyPortal && <AIChatWidget />}
+          </TooltipProvider>
+        </QueryClientProvider>
+      </EtsRoleContext.Provider>
     </VerticalContext.Provider>
   );
 }
