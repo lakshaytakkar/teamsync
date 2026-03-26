@@ -5,34 +5,14 @@ import { Progress } from "@/components/ui/progress";
 import {
   Users, Building2, DollarSign, Kanban, Shield,
 } from "lucide-react";
-
-const COMPANIES_ALL = [
-  { name: "TechVentures LLC", client: "Rajesh Kumar", state: "Delaware", stage: "EIN Application", stageNum: 4, package: "Premium", revenue: 1499, health: 78 },
-  { name: "CloudBase Corp", client: "Rajesh Kumar", state: "Wyoming", stage: "Completed", stageNum: 7, package: "Standard", revenue: 799, health: 100 },
-  { name: "GreenLeaf Organics LLC", client: "Amit Patel", state: "Delaware", stage: "Articles Filing", stageNum: 3, package: "Premium", revenue: 1499, health: 55 },
-  { name: "SwiftPay Solutions Inc", client: "Neha Joshi", state: "Nevada", stage: "KYC", stageNum: 2, package: "Basic", revenue: 399, health: 30 },
-  { name: "DataBridge Analytics LLC", client: "Vikram Rao", state: "Wyoming", stage: "BOI Filing", stageNum: 5, package: "Standard", revenue: 799, health: 88 },
-  { name: "UrbanNest Realty Corp", client: "Priya Singh", state: "Texas", stage: "Payment", stageNum: 1, package: "Premium", revenue: 1499, health: 12 },
-  { name: "NovaTech AI Inc", client: "Deepak Verma", state: "Delaware", stage: "Banking Setup", stageNum: 6, package: "Standard", revenue: 799, health: 92 },
-  { name: "MediCare Solutions LLC", client: "Sunita Agarwal", state: "Florida", stage: "Completed", stageNum: 7, package: "Premium", revenue: 1499, health: 100 },
-];
-
-const PIPELINE_COUNTS: Record<string, number> = {
-  "Payment": 3, "KYC": 5, "Articles Filing": 4,
-  "EIN Application": 6, "BOI Filing": 3, "Banking Setup": 2, "Completed": 12,
-};
-
-const TEAM = [
-  { name: "Priya Sharma", role: "Formation Specialist", status: "Active", activeClients: 14 },
-  { name: "Arjun Mehta", role: "Compliance Officer", status: "Active", activeClients: 11 },
-  { name: "Neha Gupta", role: "Sales/BD", status: "Active", activeClients: 8 },
-  { name: "Deepak Verma", role: "Tax Specialist", status: "Active", activeClients: 9 },
-];
+import {
+  ADMIN_COMPANIES_ALL, ADMIN_PIPELINE_COUNTS, ADMIN_TEAM, ADMIN_MONTHLY_REVENUE,
+} from "@/lib/mock-data-dashboard-ln";
 
 export default function LnAdminPortal() {
-  const totalRevenue = COMPANIES_ALL.reduce((sum, c) => sum + c.revenue, 0);
-  const completed = COMPANIES_ALL.filter(c => c.stageNum === 7).length;
-  const inPipeline = COMPANIES_ALL.length - completed;
+  const totalRevenue = ADMIN_COMPANIES_ALL.reduce((sum, c) => sum + c.revenue, 0);
+  const completed = ADMIN_COMPANIES_ALL.filter(c => c.stageNum === 7).length;
+  const inPipeline = ADMIN_COMPANIES_ALL.length - completed;
 
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ln-admin-portal-dashboard">
@@ -42,7 +22,7 @@ export default function LnAdminPortal() {
           <p className="text-sm text-violet-200 mb-1">CEO Command Center</p>
           <h1 className="text-2xl font-bold font-heading" data-testid="text-ln-admin-title">LegalNations — Overview</h1>
           <div className="flex items-center gap-6 mt-3 text-sm text-violet-200">
-            <span><strong className="text-white">{COMPANIES_ALL.length}</strong> Total Formations</span>
+            <span><strong className="text-white">{ADMIN_COMPANIES_ALL.length}</strong> Total Formations</span>
             <span><strong className="text-white">{completed}</strong> Completed</span>
             <span><strong className="text-white">${totalRevenue.toLocaleString()}</strong> Revenue</span>
           </div>
@@ -51,7 +31,7 @@ export default function LnAdminPortal() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Total Formations", value: COMPANIES_ALL.length, icon: Building2, color: "text-violet-600", bg: "bg-violet-50" },
+          { label: "Total Formations", value: ADMIN_COMPANIES_ALL.length, icon: Building2, color: "text-violet-600", bg: "bg-violet-50" },
           { label: "Completed", value: completed, icon: Shield, color: "text-green-600", bg: "bg-green-50" },
           { label: "In Pipeline", value: inPipeline, icon: Kanban, color: "text-amber-600", bg: "bg-amber-50" },
           { label: "Total Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-blue-600", bg: "bg-blue-50" },
@@ -76,11 +56,11 @@ export default function LnAdminPortal() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold">Active Formations</CardTitle>
-              <Badge variant="outline" className="text-xs">{COMPANIES_ALL.length} companies</Badge>
+              <Badge variant="outline" className="text-xs">{ADMIN_COMPANIES_ALL.length} companies</Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-0 space-y-2">
-            {COMPANIES_ALL.map((co, idx) => (
+            {ADMIN_COMPANIES_ALL.map((co, idx) => (
               <div
                 key={idx}
                 className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors"
@@ -116,7 +96,7 @@ export default function LnAdminPortal() {
               <CardTitle className="text-sm font-semibold">Pipeline Overview</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-2">
-              {Object.entries(PIPELINE_COUNTS).map(([stage, count]) => (
+              {Object.entries(ADMIN_PIPELINE_COUNTS).map(([stage, count]) => (
                 <div key={stage} className="flex items-center justify-between" data-testid={`admin-pipeline-${stage.toLowerCase().replace(/\s+/g, "-")}`}>
                   <span className="text-xs text-muted-foreground">{stage}</span>
                   <div className="flex items-center gap-2">
@@ -135,7 +115,7 @@ export default function LnAdminPortal() {
               <CardTitle className="text-sm font-semibold">Team Performance</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-2">
-              {TEAM.map((member, idx) => (
+              {ADMIN_TEAM.map((member, idx) => (
                 <div key={idx} className="flex items-center gap-2.5" data-testid={`admin-team-${member.name.toLowerCase().replace(/\s+/g, "-")}`}>
                   <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-[10px] font-bold text-violet-600 shrink-0">
                     {member.name.split(" ").map(n => n[0]).join("")}
@@ -156,9 +136,9 @@ export default function LnAdminPortal() {
 }
 
 export function LnAdminPipeline() {
-  const stages = Object.entries(PIPELINE_COUNTS);
+  const stages = Object.entries(ADMIN_PIPELINE_COUNTS);
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">Pipeline Overview</h1>
         <p className="text-sm text-muted-foreground">All client formations across every stage</p>
@@ -177,7 +157,7 @@ export function LnAdminPipeline() {
         <CardHeader><CardTitle className="text-sm">All Formations</CardTitle></CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {COMPANIES_ALL.map((co, idx) => (
+            {ADMIN_COMPANIES_ALL.map((co, idx) => (
               <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-muted/40" data-testid={`admin-pipeline-co-${idx}`}>
                 <div>
                   <p className="text-sm font-medium">{co.name}</p>
@@ -196,10 +176,10 @@ export function LnAdminPipeline() {
 
 export function LnAdminTeam() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <h1 className="text-xl font-bold">Team Management</h1>
       <div className="grid md:grid-cols-2 gap-4">
-        {TEAM.map((member, idx) => (
+        {ADMIN_TEAM.map((member, idx) => (
           <Card key={idx} className="border-0 shadow-sm">
             <CardContent className="p-5 flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-600">
@@ -219,18 +199,10 @@ export function LnAdminTeam() {
 }
 
 export function LnAdminRevenue() {
-  const monthlyRevenue = [
-    { month: "Oct 2025", amount: 2298, formations: 3 },
-    { month: "Nov 2025", amount: 1598, formations: 2 },
-    { month: "Dec 2025", amount: 3497, formations: 4 },
-    { month: "Jan 2026", amount: 2697, formations: 3 },
-    { month: "Feb 2026", amount: 1898, formations: 2 },
-    { month: "Mar 2026", amount: 2996, formations: 3 },
-  ];
-  const totalRevenue = monthlyRevenue.reduce((s, m) => s + m.amount, 0);
+  const totalRevenue = ADMIN_MONTHLY_REVENUE.reduce((s, m) => s + m.amount, 0);
 
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <h1 className="text-xl font-bold">Revenue Analytics</h1>
       <div className="grid grid-cols-3 gap-3">
         <Card className="border-0 shadow-sm">
@@ -255,7 +227,7 @@ export function LnAdminRevenue() {
       <Card className="border-0 shadow-sm">
         <CardHeader><CardTitle className="text-sm">Monthly Breakdown</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          {monthlyRevenue.map((m) => (
+          {ADMIN_MONTHLY_REVENUE.map((m) => (
             <div key={m.month} className="flex items-center justify-between" data-testid={`revenue-${m.month.replace(/\s+/g, "-").toLowerCase()}`}>
               <div>
                 <p className="text-sm font-medium">{m.month}</p>
@@ -277,7 +249,7 @@ export function LnAdminRevenue() {
 
 export function LnAdminSettings() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <h1 className="text-xl font-bold">System Settings</h1>
       <Card className="border-0 shadow-sm">
         <CardContent className="p-6 space-y-4">

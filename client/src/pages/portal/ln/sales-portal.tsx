@@ -4,16 +4,9 @@ import { Button } from "@/components/ui/button";
 import {
   Star, Clock, MessageSquare, Users, DollarSign, FileText,
 } from "lucide-react";
-import { FORMATION_PACKAGES } from "@/lib/mock-data-dashboard-ln";
-
-const LEADS = [
-  { id: "LN-L001", name: "Rohit Agarwal", company: "Proposed LLC", state: "Delaware", stage: "Qualified", source: "Website", followUp: "Today", hot: true, value: 1499 },
-  { id: "LN-L002", name: "Kavita Nair", company: "KN Imports Corp", state: "Wyoming", stage: "New Lead", source: "Referral", followUp: "Tomorrow", hot: false, value: 799 },
-  { id: "LN-L003", name: "Suresh Kapoor", company: "AquaFlow Systems LLC", state: "Delaware", stage: "Proposal Sent", source: "LinkedIn", followUp: "Today", hot: true, value: 1499 },
-  { id: "LN-L004", name: "Meera Reddy", company: "BrightStar Consulting Corp", state: "Nevada", stage: "Qualified", source: "Website", followUp: "In 2 days", hot: false, value: 399 },
-  { id: "LN-L005", name: "Arjun Desai", company: "FinEdge Solutions LLC", state: "Wyoming", stage: "Proposal Sent", source: "Referral", followUp: "Today", hot: true, value: 799 },
-  { id: "LN-L006", name: "Pooja Bhatia", company: "PB Wellness Inc", state: "Texas", stage: "New Lead", source: "Instagram", followUp: "In 3 days", hot: false, value: 399 },
-];
+import {
+  FORMATION_PACKAGES, SALES_LEADS, SALES_PROPOSALS,
+} from "@/lib/mock-data-dashboard-ln";
 
 const STAGE_COLORS: Record<string, string> = {
   "New Lead": "bg-gray-100 text-gray-600",
@@ -22,17 +15,10 @@ const STAGE_COLORS: Record<string, string> = {
   "Converted": "bg-green-100 text-green-700",
 };
 
-const PROPOSALS = [
-  { id: "LN-P001", client: "Suresh Kapoor", company: "AquaFlow Systems LLC", package: "Premium", amount: "$1,499", status: "Sent", date: "Mar 23" },
-  { id: "LN-P002", client: "Arjun Desai", company: "FinEdge Solutions LLC", package: "Standard", amount: "$799", status: "Under Review", date: "Mar 24" },
-  { id: "LN-P003", client: "Vikram Rao", company: "DataBridge Analytics LLC", package: "Standard", amount: "$799", status: "Accepted", date: "Mar 18" },
-  { id: "LN-P004", client: "Rohit Agarwal", company: "Proposed LLC", package: "Premium", amount: "$1,499", status: "Draft", date: "Mar 25" },
-];
-
 export default function LnSalesPortal() {
-  const todayFollowups = LEADS.filter(l => l.followUp === "Today").length;
-  const hotLeads = LEADS.filter(l => l.hot).length;
-  const totalPipelineValue = LEADS.reduce((s, l) => s + l.value, 0);
+  const todayFollowups = SALES_LEADS.filter(l => l.followUp === "Today").length;
+  const hotLeads = SALES_LEADS.filter(l => l.hot).length;
+  const totalPipelineValue = SALES_LEADS.reduce((s, l) => s + l.value, 0);
 
   return (
     <div className="px-16 lg:px-24 py-6 space-y-6" data-testid="ln-sales-portal-dashboard">
@@ -42,7 +28,7 @@ export default function LnSalesPortal() {
           <p className="text-sm text-pink-200 mb-1">Sales & Business Development</p>
           <h1 className="text-2xl font-bold" data-testid="text-sales-title">Lead Pipeline</h1>
           <div className="flex items-center gap-6 mt-3 text-sm text-pink-200">
-            <span><strong className="text-white">{LEADS.length}</strong> Active Leads</span>
+            <span><strong className="text-white">{SALES_LEADS.length}</strong> Active Leads</span>
             <span><strong className="text-white">{todayFollowups}</strong> Follow-ups Today</span>
             <span><strong className="text-white">{hotLeads}</strong> Hot Leads</span>
             <span><strong className="text-white">${totalPipelineValue.toLocaleString()}</strong> Pipeline Value</span>
@@ -57,11 +43,11 @@ export default function LnSalesPortal() {
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <Users className="w-4 h-4 text-pink-500" /> Lead Pipeline
               </CardTitle>
-              <Badge variant="outline" className="text-xs">{LEADS.length} leads</Badge>
+              <Badge variant="outline" className="text-xs">{SALES_LEADS.length} leads</Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-0 space-y-2">
-            {LEADS.map((lead) => (
+            {SALES_LEADS.map((lead) => (
               <div
                 key={lead.id}
                 className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors"
@@ -98,7 +84,7 @@ export default function LnSalesPortal() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-2">
-              {LEADS.filter(l => l.followUp === "Today").map((lead) => (
+              {SALES_LEADS.filter(l => l.followUp === "Today").map((lead) => (
                 <div key={lead.id} className="flex items-center justify-between p-2.5 rounded-lg border border-red-100 bg-red-50/50" data-testid={`sales-followup-${lead.id}`}>
                   <div>
                     <p className="text-sm font-medium">{lead.name}</p>
@@ -119,7 +105,7 @@ export default function LnSalesPortal() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-2">
-              {PROPOSALS.slice(0, 3).map((p) => (
+              {SALES_PROPOSALS.slice(0, 3).map((p) => (
                 <div key={p.id} className="flex items-center justify-between py-2" data-testid={`sales-proposal-${p.id}`}>
                   <div>
                     <p className="text-sm font-medium">{p.client}</p>
@@ -147,11 +133,11 @@ export default function LnSalesPortal() {
 export function LnSalesPipeline() {
   const stages = ["New Lead", "Qualified", "Proposal Sent", "Converted"];
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <h1 className="text-xl font-bold">Lead Pipeline</h1>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {stages.map((stage) => {
-          const count = LEADS.filter(l => l.stage === stage).length;
+          const count = SALES_LEADS.filter(l => l.stage === stage).length;
           return (
             <Card key={stage} className="border-0 shadow-sm">
               <CardContent className="p-4">
@@ -163,7 +149,7 @@ export function LnSalesPipeline() {
         })}
       </div>
       <div className="space-y-2">
-        {LEADS.map((lead) => (
+        {SALES_LEADS.map((lead) => (
           <div key={lead.id} className="flex items-center gap-3 p-4 rounded-xl border bg-white hover:bg-muted/20 transition-colors" data-testid={`sales-pipeline-lead-${lead.id}`}>
             <div className="w-9 h-9 rounded-full bg-pink-100 flex items-center justify-center font-bold text-pink-600 text-xs">{lead.name[0]}</div>
             <div className="flex-1">
@@ -183,10 +169,10 @@ export function LnSalesPipeline() {
 
 export function LnSalesProposals() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <h1 className="text-xl font-bold">Proposals</h1>
       <div className="space-y-3">
-        {PROPOSALS.map((p) => (
+        {SALES_PROPOSALS.map((p) => (
           <Card key={p.id} className="border-0 shadow-sm" data-testid={`sales-proposal-card-${p.id}`}>
             <CardContent className="p-5 flex items-center justify-between">
               <div>
@@ -207,10 +193,10 @@ export function LnSalesProposals() {
 
 export function LnSalesFollowups() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <h1 className="text-xl font-bold">Follow-up Queue</h1>
       <div className="space-y-3">
-        {LEADS.map((lead) => (
+        {SALES_LEADS.map((lead) => (
           <div
             key={lead.id}
             className={`flex items-center gap-4 p-4 rounded-xl border ${lead.followUp === "Today" ? "border-red-200 bg-red-50/50" : "bg-white"}`}
@@ -241,7 +227,7 @@ export function LnSalesFollowups() {
 
 export function LnSalesPackages() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">Formation Packages</h1>
         <p className="text-sm text-muted-foreground">Packages available for client proposals</p>

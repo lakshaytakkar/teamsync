@@ -349,6 +349,99 @@ export const LN_FAQS = [
   { question: "How do I set up Stripe for payment processing?", answer: "After your company has an EIN and a US bank account, we assist with creating your Stripe account. The process involves verifying your business details, connecting your bank account, and setting up your payment preferences. Most setups are completed within 3-5 business days." },
 ];
 
+export const ADMIN_COMPANIES_ALL = [
+  { name: "TechVentures LLC", client: "Rajesh Kumar", state: "Delaware", stage: "EIN Application", stageNum: 4, package: "Premium", revenue: 1499, health: 78 },
+  { name: "CloudBase Corp", client: "Rajesh Kumar", state: "Wyoming", stage: "Completed", stageNum: 7, package: "Standard", revenue: 799, health: 100 },
+  { name: "GreenLeaf Organics LLC", client: "Amit Patel", state: "Delaware", stage: "Articles Filing", stageNum: 3, package: "Premium", revenue: 1499, health: 55 },
+  { name: "SwiftPay Solutions Inc", client: "Neha Joshi", state: "Nevada", stage: "KYC", stageNum: 2, package: "Basic", revenue: 399, health: 30 },
+  { name: "DataBridge Analytics LLC", client: "Vikram Rao", state: "Wyoming", stage: "BOI Filing", stageNum: 5, package: "Standard", revenue: 799, health: 88 },
+  { name: "UrbanNest Realty Corp", client: "Priya Singh", state: "Texas", stage: "Payment", stageNum: 1, package: "Premium", revenue: 1499, health: 12 },
+  { name: "NovaTech AI Inc", client: "Deepak Verma", state: "Delaware", stage: "Banking Setup", stageNum: 6, package: "Standard", revenue: 799, health: 92 },
+  { name: "MediCare Solutions LLC", client: "Sunita Agarwal", state: "Florida", stage: "Completed", stageNum: 7, package: "Premium", revenue: 1499, health: 100 },
+];
+
+export const ADMIN_PIPELINE_COUNTS: Record<string, number> = {
+  "Payment": 3, "KYC": 5, "Articles Filing": 4,
+  "EIN Application": 6, "BOI Filing": 3, "Banking Setup": 2, "Completed": 12,
+};
+
+export const ADMIN_TEAM = [
+  { name: "Priya Sharma", role: "Formation Specialist", status: "Active", activeClients: 14 },
+  { name: "Arjun Mehta", role: "Compliance Officer", status: "Active", activeClients: 11 },
+  { name: "Neha Gupta", role: "Sales/BD", status: "Active", activeClients: 8 },
+  { name: "Deepak Verma", role: "Tax Specialist", status: "Active", activeClients: 9 },
+];
+
+export const ADMIN_MONTHLY_REVENUE = [
+  { month: "Oct 2025", amount: 2298, formations: 3 },
+  { month: "Nov 2025", amount: 1598, formations: 2 },
+  { month: "Dec 2025", amount: 3497, formations: 4 },
+  { month: "Jan 2026", amount: 2697, formations: 3 },
+  { month: "Feb 2026", amount: 1898, formations: 2 },
+  { month: "Mar 2026", amount: 2996, formations: 3 },
+];
+
+export const FORMATION_CLIENTS = [
+  { id: "FC-001", name: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", stage: 4, stageName: "EIN Application", package: "Premium", daysInStage: 12, kycStatus: "approved" as const, einStatus: "pending" as const },
+  { id: "FC-002", name: "GreenLeaf Organics LLC", client: "Amit Patel", state: "DE", stage: 3, stageName: "Articles Filing", package: "Premium", daysInStage: 8, kycStatus: "approved" as const, einStatus: "not-started" as const },
+  { id: "FC-003", name: "SwiftPay Solutions Inc", client: "Neha Joshi", state: "NV", stage: 2, stageName: "KYC", package: "Basic", daysInStage: 3, kycStatus: "in-review" as const, einStatus: "not-started" as const },
+  { id: "FC-004", name: "DataBridge Analytics LLC", client: "Vikram Rao", state: "WY", stage: 5, stageName: "BOI Filing", package: "Standard", daysInStage: 5, kycStatus: "approved" as const, einStatus: "received" as const },
+  { id: "FC-005", name: "UrbanNest Realty Corp", client: "Priya Singh", state: "TX", stage: 1, stageName: "Payment", package: "Premium", daysInStage: 1, kycStatus: "not-started" as const, einStatus: "not-started" as const },
+  { id: "FC-006", name: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", stage: 6, stageName: "Banking Setup", package: "Standard", daysInStage: 4, kycStatus: "approved" as const, einStatus: "received" as const },
+];
+
+export const KYC_QUEUE = [
+  { id: "KYC-001", client: "Neha Joshi", company: "SwiftPay Solutions Inc", submitted: "2026-03-23", docs: ["Passport", "Address Proof"], status: "in-review" as const, notes: "Utility bill is blurry — may need re-upload" },
+  { id: "KYC-002", client: "Priya Singh", company: "UrbanNest Realty Corp", submitted: "2026-03-25", docs: ["Passport"], status: "incomplete" as const, notes: "Missing address proof document" },
+  { id: "KYC-003", client: "Suresh Kapoor", company: "AquaFlow Systems LLC", submitted: "2026-03-20", docs: ["Passport", "Address Proof", "Selfie"], status: "approved" as const, notes: "" },
+  { id: "KYC-004", client: "Meera Reddy", company: "BrightStar Consulting Corp", submitted: "2026-03-24", docs: ["Passport", "Address Proof"], status: "in-review" as const, notes: "Awaiting ITIN confirmation" },
+];
+
+export const EIN_TRACKER = [
+  { id: "EIN-001", company: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", submittedDate: "2026-02-01", status: "pending" as const, method: "Fax", estimatedDate: "2026-03-15" },
+  { id: "EIN-002", company: "DataBridge Analytics LLC", client: "Vikram Rao", state: "WY", submittedDate: "2026-01-20", status: "received" as const, method: "Online", estimatedDate: "2026-01-20", ein: "92-8765432" },
+  { id: "EIN-003", company: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", submittedDate: "2026-01-25", status: "received" as const, method: "Fax", estimatedDate: "2026-02-20", ein: "88-9123456" },
+  { id: "EIN-004", company: "GreenLeaf Organics LLC", client: "Amit Patel", state: "DE", submittedDate: "", status: "not-started" as const, method: "-", estimatedDate: "-" },
+];
+
+export const SALES_LEADS = [
+  { id: "LN-L001", name: "Rohit Agarwal", company: "Proposed LLC", state: "Delaware", stage: "Qualified", source: "Website", followUp: "Today", hot: true, value: 1499 },
+  { id: "LN-L002", name: "Kavita Nair", company: "KN Imports Corp", state: "Wyoming", stage: "New Lead", source: "Referral", followUp: "Tomorrow", hot: false, value: 799 },
+  { id: "LN-L003", name: "Suresh Kapoor", company: "AquaFlow Systems LLC", state: "Delaware", stage: "Proposal Sent", source: "LinkedIn", followUp: "Today", hot: true, value: 1499 },
+  { id: "LN-L004", name: "Meera Reddy", company: "BrightStar Consulting Corp", state: "Nevada", stage: "Qualified", source: "Website", followUp: "In 2 days", hot: false, value: 399 },
+  { id: "LN-L005", name: "Arjun Desai", company: "FinEdge Solutions LLC", state: "Wyoming", stage: "Proposal Sent", source: "Referral", followUp: "Today", hot: true, value: 799 },
+  { id: "LN-L006", name: "Pooja Bhatia", company: "PB Wellness Inc", state: "Texas", stage: "New Lead", source: "Instagram", followUp: "In 3 days", hot: false, value: 399 },
+];
+
+export const SALES_PROPOSALS = [
+  { id: "LN-P001", client: "Suresh Kapoor", company: "AquaFlow Systems LLC", package: "Premium", amount: "$1,499", status: "Sent", date: "Mar 23" },
+  { id: "LN-P002", client: "Arjun Desai", company: "FinEdge Solutions LLC", package: "Standard", amount: "$799", status: "Under Review", date: "Mar 24" },
+  { id: "LN-P003", client: "Vikram Rao", company: "DataBridge Analytics LLC", package: "Standard", amount: "$799", status: "Accepted", date: "Mar 18" },
+  { id: "LN-P004", client: "Rohit Agarwal", company: "Proposed LLC", package: "Premium", amount: "$1,499", status: "Draft", date: "Mar 25" },
+];
+
+export const BOI_QUEUE = [
+  { id: "BOI-001", company: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", status: "draft-ready" as const, dueDate: "2026-04-15", owners: 1, filedDate: "" },
+  { id: "BOI-002", company: "GreenLeaf Organics LLC", client: "Amit Patel", state: "DE", status: "in-progress" as const, dueDate: "2026-05-01", owners: 2, filedDate: "" },
+  { id: "BOI-003", company: "SwiftPay Solutions Inc", client: "Neha Joshi", state: "NV", status: "pending-kyc" as const, dueDate: "2026-06-20", owners: 1, filedDate: "" },
+  { id: "BOI-004", company: "CloudBase Corp", client: "Rajesh Kumar", state: "WY", status: "filed" as const, dueDate: "2025-09-20", owners: 1, filedDate: "2025-09-18" },
+  { id: "BOI-005", company: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", status: "pending-kyc" as const, dueDate: "2026-04-25", owners: 3, filedDate: "" },
+];
+
+export const ANNUAL_REPORTS = [
+  { id: "AR-001", company: "CloudBase Corp", state: "Wyoming", dueDate: "2026-05-01", fee: 50, status: "upcoming" as const },
+  { id: "AR-002", company: "TechVentures LLC", state: "Delaware", dueDate: "2026-06-01", fee: 300, status: "upcoming" as const },
+  { id: "AR-003", company: "MediCare Solutions LLC", state: "Florida", dueDate: "2026-05-15", fee: 138, status: "filed" as const },
+  { id: "AR-004", company: "DataBridge Analytics LLC", state: "Wyoming", dueDate: "2026-07-20", fee: 50, status: "upcoming" as const },
+];
+
+export const COMPLIANCE_CLIENTS = [
+  { id: "CC-001", company: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", boiStatus: "draft-ready", annualReportDue: "2026-06-01", raExpiry: "2027-01-01", overallHealth: 72 },
+  { id: "CC-002", company: "CloudBase Corp", client: "Rajesh Kumar", state: "WY", boiStatus: "filed", annualReportDue: "2026-05-01", raExpiry: "2026-08-20", overallHealth: 85 },
+  { id: "CC-003", company: "GreenLeaf Organics LLC", client: "Amit Patel", state: "DE", boiStatus: "in-progress", annualReportDue: "2026-06-01", raExpiry: "2027-03-15", overallHealth: 58 },
+  { id: "CC-004", company: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", boiStatus: "pending-kyc", annualReportDue: "2026-06-01", raExpiry: "2027-02-01", overallHealth: 45 },
+];
+
 export const US_STATES_POPULAR = [
   { code: "DE", name: "Delaware", tag: "Most Popular", description: "No state income tax for LLCs, business-friendly courts" },
   { code: "WY", name: "Wyoming", tag: "Best Value", description: "No state tax, strong privacy, low fees" },

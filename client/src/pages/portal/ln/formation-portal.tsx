@@ -5,30 +5,9 @@ import { Progress } from "@/components/ui/progress";
 import {
   Kanban, UserPlus, ClipboardList, Briefcase, CheckCircle2, FileText,
 } from "lucide-react";
-import { FORMATION_STAGES } from "@/lib/mock-data-dashboard-ln";
-
-const FORMATION_CLIENTS = [
-  { id: "FC-001", name: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", stage: 4, stageName: "EIN Application", package: "Premium", daysInStage: 12, kycStatus: "approved" as const, einStatus: "pending" as const },
-  { id: "FC-002", name: "GreenLeaf Organics LLC", client: "Amit Patel", state: "DE", stage: 3, stageName: "Articles Filing", package: "Premium", daysInStage: 8, kycStatus: "approved" as const, einStatus: "not-started" as const },
-  { id: "FC-003", name: "SwiftPay Solutions Inc", client: "Neha Joshi", state: "NV", stage: 2, stageName: "KYC", package: "Basic", daysInStage: 3, kycStatus: "in-review" as const, einStatus: "not-started" as const },
-  { id: "FC-004", name: "DataBridge Analytics LLC", client: "Vikram Rao", state: "WY", stage: 5, stageName: "BOI Filing", package: "Standard", daysInStage: 5, kycStatus: "approved" as const, einStatus: "received" as const },
-  { id: "FC-005", name: "UrbanNest Realty Corp", client: "Priya Singh", state: "TX", stage: 1, stageName: "Payment", package: "Premium", daysInStage: 1, kycStatus: "not-started" as const, einStatus: "not-started" as const },
-  { id: "FC-006", name: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", stage: 6, stageName: "Banking Setup", package: "Standard", daysInStage: 4, kycStatus: "approved" as const, einStatus: "received" as const },
-];
-
-const KYC_QUEUE = [
-  { id: "KYC-001", client: "Neha Joshi", company: "SwiftPay Solutions Inc", submitted: "2026-03-23", docs: ["Passport", "Address Proof"], status: "in-review" as const, notes: "Utility bill is blurry — may need re-upload" },
-  { id: "KYC-002", client: "Priya Singh", company: "UrbanNest Realty Corp", submitted: "2026-03-25", docs: ["Passport"], status: "incomplete" as const, notes: "Missing address proof document" },
-  { id: "KYC-003", client: "Suresh Kapoor", company: "AquaFlow Systems LLC", submitted: "2026-03-20", docs: ["Passport", "Address Proof", "Selfie"], status: "approved" as const, notes: "" },
-  { id: "KYC-004", client: "Meera Reddy", company: "BrightStar Consulting Corp", submitted: "2026-03-24", docs: ["Passport", "Address Proof"], status: "in-review" as const, notes: "Awaiting ITIN confirmation" },
-];
-
-const EIN_TRACKER = [
-  { id: "EIN-001", company: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", submittedDate: "2026-02-01", status: "pending" as const, method: "Fax", estimatedDate: "2026-03-15" },
-  { id: "EIN-002", company: "DataBridge Analytics LLC", client: "Vikram Rao", state: "WY", submittedDate: "2026-01-20", status: "received" as const, method: "Online", estimatedDate: "2026-01-20", ein: "92-8765432" },
-  { id: "EIN-003", company: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", submittedDate: "2026-01-25", status: "received" as const, method: "Fax", estimatedDate: "2026-02-20", ein: "88-9123456" },
-  { id: "EIN-004", company: "GreenLeaf Organics LLC", client: "Amit Patel", state: "DE", submittedDate: "", status: "not-started" as const, method: "-", estimatedDate: "-" },
-];
+import {
+  FORMATION_STAGES, FORMATION_CLIENTS, KYC_QUEUE, EIN_TRACKER,
+} from "@/lib/mock-data-dashboard-ln";
 
 const KYC_STATUS_COLORS: Record<string, string> = {
   "approved": "border-green-300 text-green-700 bg-green-50",
@@ -152,7 +131,7 @@ export default function LnFormationPortal() {
 
 export function LnFormationPipeline() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <h1 className="text-xl font-bold">Formation Pipeline</h1>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {FORMATION_STAGES.slice(0, 4).map((stage) => {
@@ -186,7 +165,7 @@ export function LnFormationPipeline() {
 
 export function LnFormationKYC() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">KYC Review Queue</h1>
         <p className="text-sm text-muted-foreground">Review client identity documents and approve KYC submissions</p>
@@ -234,7 +213,7 @@ export function LnFormationKYC() {
 
 export function LnFormationEIN() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">EIN Tracker</h1>
         <p className="text-sm text-muted-foreground">Track IRS EIN applications across all formations</p>
@@ -295,7 +274,7 @@ export function LnFormationActions() {
   ];
 
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">Stage Actions</h1>
         <p className="text-sm text-muted-foreground">Checklists and actions for each formation stage</p>

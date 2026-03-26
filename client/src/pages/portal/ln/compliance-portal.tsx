@@ -6,29 +6,9 @@ import {
   Shield, Calendar, AlertTriangle, Building2,
   FileText, Eye,
 } from "lucide-react";
-import { COMPLIANCE_DEADLINES } from "@/lib/mock-data-dashboard-ln";
-
-const BOI_QUEUE = [
-  { id: "BOI-001", company: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", status: "draft-ready" as const, dueDate: "2026-04-15", owners: 1, filedDate: "" },
-  { id: "BOI-002", company: "GreenLeaf Organics LLC", client: "Amit Patel", state: "DE", status: "in-progress" as const, dueDate: "2026-05-01", owners: 2, filedDate: "" },
-  { id: "BOI-003", company: "SwiftPay Solutions Inc", client: "Neha Joshi", state: "NV", status: "pending-kyc" as const, dueDate: "2026-06-20", owners: 1, filedDate: "" },
-  { id: "BOI-004", company: "CloudBase Corp", client: "Rajesh Kumar", state: "WY", status: "filed" as const, dueDate: "2025-09-20", owners: 1, filedDate: "2025-09-18" },
-  { id: "BOI-005", company: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", status: "pending-kyc" as const, dueDate: "2026-04-25", owners: 3, filedDate: "" },
-];
-
-const ANNUAL_REPORTS = [
-  { id: "AR-001", company: "CloudBase Corp", state: "Wyoming", dueDate: "2026-05-01", fee: 50, status: "upcoming" as const },
-  { id: "AR-002", company: "TechVentures LLC", state: "Delaware", dueDate: "2026-06-01", fee: 300, status: "upcoming" as const },
-  { id: "AR-003", company: "MediCare Solutions LLC", state: "Florida", dueDate: "2026-05-15", fee: 138, status: "filed" as const },
-  { id: "AR-004", company: "DataBridge Analytics LLC", state: "Wyoming", dueDate: "2026-07-20", fee: 50, status: "upcoming" as const },
-];
-
-const COMPLIANCE_CLIENTS = [
-  { id: "CC-001", company: "TechVentures LLC", client: "Rajesh Kumar", state: "DE", boiStatus: "draft-ready", annualReportDue: "2026-06-01", raExpiry: "2027-01-01", overallHealth: 72 },
-  { id: "CC-002", company: "CloudBase Corp", client: "Rajesh Kumar", state: "WY", boiStatus: "filed", annualReportDue: "2026-05-01", raExpiry: "2026-08-20", overallHealth: 85 },
-  { id: "CC-003", company: "GreenLeaf Organics LLC", client: "Amit Patel", state: "DE", boiStatus: "in-progress", annualReportDue: "2026-06-01", raExpiry: "2027-03-15", overallHealth: 58 },
-  { id: "CC-004", company: "NovaTech AI Inc", client: "Deepak Verma", state: "DE", boiStatus: "pending-kyc", annualReportDue: "2026-06-01", raExpiry: "2027-02-01", overallHealth: 45 },
-];
+import {
+  COMPLIANCE_DEADLINES, BOI_QUEUE, ANNUAL_REPORTS, COMPLIANCE_CLIENTS,
+} from "@/lib/mock-data-dashboard-ln";
 
 const BOI_STATUS_COLORS: Record<string, string> = {
   "filed": "border-green-300 text-green-700 bg-green-50",
@@ -152,7 +132,7 @@ export default function LnCompliancePortal() {
 
 export function LnComplianceBOI() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">BOI Filing Queue</h1>
         <p className="text-sm text-muted-foreground">Beneficial Ownership Information reports for FinCEN</p>
@@ -211,7 +191,7 @@ export function LnComplianceBOI() {
 
 export function LnComplianceAnnual() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold">Annual Reports</h1>
         <p className="text-sm text-muted-foreground">Track and file annual reports across all states</p>
@@ -245,7 +225,7 @@ export function LnComplianceAnnual() {
 
 export function LnComplianceAlerts() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <h1 className="text-xl font-bold">Compliance Alerts</h1>
       <div className="space-y-3">
         {COMPLIANCE_DEADLINES.map((dl) => (
@@ -276,7 +256,7 @@ export function LnComplianceAlerts() {
 
 export function LnComplianceDetail() {
   return (
-    <div className="px-6 lg:px-10 py-6 space-y-6">
+    <div className="px-16 lg:px-24 py-6 space-y-6">
       <h1 className="text-xl font-bold">Client Compliance Detail</h1>
       <div className="space-y-4">
         {COMPLIANCE_CLIENTS.map((cc) => (
