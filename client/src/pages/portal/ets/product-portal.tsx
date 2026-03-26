@@ -181,7 +181,7 @@ export default function EtsProductPortal() {
   );
 }
 
-type SortKey = "name" | "zoneId" | "source" | "exwPriceYuan" | "landedCostInr" | "partnerPriceInr" | "suggestedMrp" | "marginPercent" | "complianceStatus" | "labelStatus";
+type SortKey = "name" | "zoneId" | "source" | "exwPriceYuan" | "landedCostInr" | "partnerPriceInr" | "suggestedMrp" | "marginPercent" | "complianceStatus" | "labelStatus" | "barcode";
 
 function sortProducts(list: CatalogProduct[], key: SortKey, dir: "asc" | "desc"): CatalogProduct[] {
   return [...list].sort((a, b) => {
@@ -202,6 +202,7 @@ function sortProducts(list: CatalogProduct[], key: SortKey, dir: "asc" | "desc")
 }
 
 export function EtsProductList() {
+  const [products, setProducts] = useState<CatalogProduct[]>(CATALOG_PRODUCTS);
   const [search, setSearch] = useState("");
   const [filterSource, setFilterSource] = useState<string>("all");
   const [filterZone, setFilterZone] = useState<string>("all");
@@ -213,10 +214,30 @@ export function EtsProductList() {
   const [editingProduct, setEditingProduct] = useState<CatalogProduct | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  const selectedZoneData = CATALOG_ZONE_TREE.find(z => z.id === filterZone);
+  const categoryOptions = useMemo(() => {
+    if (filterZone !== "all") {
+      const zone = CATALOG_ZONE_TREE.find(z => z.id === filterZone);
+      return zone ? zone.categories.map(c => ({ id: c.id, name: c.name, zoneName: zone.name })) : [];
+    }
+    return CATALOG_ZONE_TREE.flatMap(z => z.categories.map(c => ({ id: c.id, name: c.name, zoneName: z.name })));
+  }, [filterZone]);
+
+  function handleSaveProduct(saved: CatalogProduct) {
+    setProducts(prev => {
+      const idx = prev.findIndex(p => p.id === saved.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = saved;
+        return next;
+      }
+      return [saved, ...prev];
+    });
+    setShowForm(false);
+    setEditingProduct(null);
+  }
 
   const filtered = useMemo(() => {
-    let list = CATALOG_PRODUCTS;
+    let list = products;
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -242,7 +263,7 @@ export function EtsProductList() {
     if (filterMissing === "no-compliance") list = list.filter((p) => !p.complianceStatus);
 
     return sortProducts(list, sortKey, sortDir);
-  }, [search, filterSource, filterZone, filterCategory, filterCompliance, filterMissing, sortKey, sortDir]);
+  }, [products, search, filterSource, filterZone, filterCategory, filterCompliance, filterMissing, sortKey, sortDir]);
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -254,6 +275,7 @@ export function EtsProductList() {
       <EtsProductFormPage
         product={editingProduct}
         onBack={() => { setShowForm(false); setEditingProduct(null); }}
+        onSave={handleSaveProduct}
       />
     );
   }
@@ -269,7 +291,7 @@ export function EtsProductList() {
     { label: "Margin", key: "marginPercent" },
     { label: "Compliance", key: "complianceStatus" },
     { label: "Label", key: "labelStatus" },
-    { label: "Barcode", key: null },
+    { label: "Barcode", key: "barcode" },
     { label: "", key: null },
   ];
 
@@ -322,19 +344,20 @@ export function EtsProductList() {
             ))}
           </SelectContent>
         </Select>
-        {filterZone !== "all" && selectedZoneData && (
-          <Select value={filterCategory} onValueChange={setFilterCategory}>
-            <SelectTrigger className="w-44" data-testid="filter-category">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {selectedZoneData.categories.map(c => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <SelectTrigger className="w-48" data-testid="filter-category">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {categoryOptions.map(c => (
+              <SelectItem key={c.id} value={c.id}>
+                <span className="text-xs text-muted-foreground mr-1">{c.zoneName.split(" ")[0]}</span>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={filterCompliance} onValueChange={setFilterCompliance}>
           <SelectTrigger className="w-40" data-testid="filter-compliance">
             <SelectValue placeholder="All Compliance" />
@@ -441,7 +464,7 @@ export function EtsProductList() {
   );
 }
 
-function EtsProductFormPage({ product, onBack }: { product: CatalogProduct | null; onBack: () => void }) {
+function EtsProductFormPage({ product, onBack, onSave }: { product: CatalogProduct | null; onBack: () => void; onSave: (p: CatalogProduct) => void }) {
   const isNew = product === null;
   const [activeTab, setActiveTab] = useState("basic");
   const [formData, setFormData] = useState({
@@ -500,6 +523,38 @@ function EtsProductFormPage({ product, onBack }: { product: CatalogProduct | nul
 
   function updateField<K extends keyof typeof formData>(k: K, v: (typeof formData)[K]) {
     setFormData(prev => ({ ...prev, [k]: v }));
+  }
+
+  function handleSave() {
+    const saved: CatalogProduct = {
+      id: product?.id ?? `PRD-NEW-${Date.now()}`,
+      name: formData.name || "Untitled Product",
+      description: formData.description,
+      zoneId: formData.zoneId || undefined,
+      categoryId: formData.categoryId || undefined,
+      subcategoryId: formData.subcategoryId || undefined,
+      barcode: formData.barcode || undefined,
+      imageUrl: formData.imageUrl || undefined,
+      tags: formData.tags,
+      source: formData.source,
+      supplierName: formData.supplierName,
+      exwPriceYuan: isChina ? (formData.exwPriceYuan || undefined) : undefined,
+      wholesalePriceInr: !isChina ? (formData.wholesalePriceInr || undefined) : undefined,
+      moq: formData.moq,
+      unitsPerCarton: formData.unitsPerCarton,
+      cartonLengthCm: formData.cartonLengthCm,
+      cartonWidthCm: formData.cartonWidthCm,
+      cartonHeightCm: formData.cartonHeightCm,
+      landedCostInr: pricing ? pricing.totalLandedCost : (!isChina && formData.wholesalePriceInr ? Math.round(formData.wholesalePriceInr * 1.2) : undefined),
+      partnerPriceInr: pricing ? pricing.storeLandingPrice : (!isChina && formData.wholesalePriceInr ? Math.round(formData.wholesalePriceInr * 1.2 * 1.25) : undefined),
+      suggestedMrp: formData.mrpOverride ?? (pricing ? pricing.suggestedMrp : undefined),
+      marginPercent: pricing ? pricing.storeMarginPercent : undefined,
+      complianceStatus: formData.complianceStatus,
+      bisRequired: formData.bisRequired,
+      complianceNotes: formData.complianceNotes || undefined,
+      labelStatus: formData.labelStatus,
+    };
+    onSave(saved);
   }
 
   function toggleTag(tag: ProductTag) {
@@ -805,7 +860,7 @@ function EtsProductFormPage({ product, onBack }: { product: CatalogProduct | nul
           </Card>
           <div className="flex justify-between mt-4">
             <Button variant="outline" onClick={() => setActiveTab("pricing")}>← Back</Button>
-            <Button className="bg-pink-500 hover:bg-pink-600 text-white" data-testid="button-save-product">
+            <Button className="bg-pink-500 hover:bg-pink-600 text-white" onClick={handleSave} data-testid="button-save-product">
               {isNew ? "Add Product" : "Save Changes"}
             </Button>
           </div>
