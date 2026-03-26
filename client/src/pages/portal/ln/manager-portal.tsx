@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import {
   MANAGER_CLIENTS, MANAGER_ALL_LEADS, MANAGER_TEAM,
-  type ManagerClient, type ManagerClientDoc, type ManagerTask, type ManagerTicket, type ManagerBOIOwner,
+  type ManagerClient, type ManagerClientDoc, type ManagerTask, type ManagerNote, type ManagerTicket, type ManagerBOIOwner, type BankingChecklistItem,
 } from "@/lib/mock-data-manager-ln";
 import { FORMATION_STAGES } from "@/lib/mock-data-dashboard-ln";
 
@@ -28,11 +28,10 @@ const STAGE_ICONS = [Package, UserPlus, Gavel, ClipboardList, ShieldCheck, Bankn
 
 const DOC_STATUS_COLORS: Record<string, string> = {
   "approved": "border-green-300 text-green-700 bg-green-50",
-  "in-review": "border-amber-300 text-amber-700 bg-amber-50",
   "uploaded": "border-sky-300 text-sky-700 bg-sky-50",
-  "action-required": "border-red-300 text-red-700 bg-red-50",
+  "requested": "border-amber-300 text-amber-700 bg-amber-50",
   "rejected": "border-red-300 text-red-700 bg-red-50",
-  "pending-upload": "border-gray-200 text-gray-500 bg-gray-50",
+  "not-requested": "border-gray-200 text-gray-400 bg-gray-50",
 };
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -93,12 +92,12 @@ export default function LnManagerPortal() {
   const activeFormations = MANAGER_CLIENTS.filter(c => c.stage < 7).length;
   // truly unassigned = no assignedTo team member set (sales role), stage not Converted
   const unassignedLeads = MANAGER_ALL_LEADS.filter(l => l.stage !== "Converted" && l.assignedTo === "sales").length;
-  const tasksDueToday = MANAGER_CLIENTS.flatMap(c => c.tasks).filter(t => !t.done && t.due <= TODAY).length;
+  const tasksDueToday = MANAGER_CLIENTS.flatMap(c => c.tasks).filter(t => t.status !== "done" && t.due <= TODAY).length;
   const openTickets = MANAGER_CLIENTS.flatMap(c => c.tickets).filter(t => t.status !== "resolved").length;
 
   const actionNeeded = MANAGER_CLIENTS.filter(c => {
     const stalled = c.daysInStage > 7 && c.stage < 7;
-    const overdueTasks = c.tasks.some(t => !t.done && t.due <= TODAY);
+    const overdueTasks = c.tasks.some(t => t.status !== "done" && t.due <= TODAY);
     return stalled || overdueTasks;
   });
 
@@ -158,7 +157,7 @@ export default function LnManagerPortal() {
               </p>
             ) : actionNeeded.map((c) => {
               const stalled = c.daysInStage > 7 && c.stage < 7;
-              const overdueTasks = c.tasks.filter(t => !t.done && t.due <= TODAY);
+              const overdueTasks = c.tasks.filter(t => t.status !== "done" && t.due <= TODAY);
               return (
                 <div
                   key={c.id}
@@ -564,19 +563,18 @@ export function LnManagerClientDetail() {
   const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
   const [rejectInputs, setRejectInputs] = useState<Record<string, string>>({});
   const [showRejectInput, setShowRejectInput] = useState<Record<string, boolean>>({});
-  const [taskStates, setTaskStates] = useState<Record<string, boolean>>({});
+  const [taskStatuses, setTaskStatuses] = useState<Record<string, ManagerTask["status"]>>({});
   const [ticketStatuses, setTicketStatuses] = useState<Record<string, ManagerTicket["status"]>>({});
   const [ticketAssignees, setTicketAssignees] = useState<Record<string, string>>({});
   const [ticketReplies, setTicketReplies] = useState<Record<string, TicketReply[]>>({});
   const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
   const [openTicketId, setOpenTicketId] = useState<string | null>(null);
-  const [extraDocs, setExtraDocs] = useState<ManagerClientDoc[]>([]);
-  const [reqDocName, setReqDocName] = useState("");
-  const [showReqDoc, setShowReqDoc] = useState(false);
 
   const [articleState, setArticleState] = useState<string | undefined>(undefined);
   const [oaState, setOaState] = useState<string | undefined>(undefined);
-  const [articlesConfirmed, setArticlesConfirmed] = useState(false);
+  const [llcEntityName, setLlcEntityName] = useState<boolean | undefined>(undefined);
+  const [llcRegAgent, setLlcRegAgent] = useState<boolean | undefined>(undefined);
+  const [llcStateFee, setLlcStateFee] = useState<boolean | undefined>(undefined);
 
   const [einMethodSel, setEinMethodSel] = useState("");
   const [einDateSel, setEinDateSel] = useState("");
@@ -587,16 +585,18 @@ export function LnManagerClientDetail() {
   const [boiStatus, setBoiStatus] = useState<string | undefined>(undefined);
   const [boiFiledDate, setBoiFiledDate] = useState("");
   const [boiConfirmNum, setBoiConfirmNum] = useState("");
+  const [boiConfirmDocFilename, setBoiConfirmDocFilename] = useState("");
   const [showAddOwner, setShowAddOwner] = useState(false);
   const [ownerDraft, setOwnerDraft] = useState({ name: "", ownership: "", dob: "", address: "", passportNum: "" });
   const [extraOwners, setExtraOwners] = useState<ManagerBOIOwner[]>([]);
 
-  const [mercuryStatus, setMercuryStatus] = useState<string | undefined>(undefined);
-  const [stripeStatus, setStripeStatus] = useState<string | undefined>(undefined);
+  const [mercuryChecklist, setMercuryChecklist] = useState<BankingChecklistItem[] | undefined>(undefined);
+  const [stripeChecklist, setStripeChecklist] = useState<BankingChecklistItem[] | undefined>(undefined);
   const [mercuryAccountNum, setMercuryAccountNum] = useState("");
-  const [mercuryApprovedDate, setMercuryApprovedDate] = useState("");
+  const [mercuryRoutingNum, setMercuryRoutingNum] = useState("");
   const [stripeAccountId, setStripeAccountId] = useState("");
-  const [stripeApprovedDate, setStripeApprovedDate] = useState("");
+  const [showMercuryAccount, setShowMercuryAccount] = useState(false);
+  const [showStripeAccount, setShowStripeAccount] = useState(false);
   const [stageGuardError, setStageGuardError] = useState<string | null>(null);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -604,7 +604,8 @@ export function LnManagerClientDetail() {
   const [newTaskDue, setNewTaskDue] = useState("");
   const [newTaskPriority, setNewTaskPriority] = useState<"high" | "medium" | "low">("medium");
   const [extraTasks, setExtraTasks] = useState<ManagerTask[]>([]);
-  const [notes, setNotes] = useState("");
+  const [extraNotes, setExtraNotes] = useState<ManagerNote[]>([]);
+  const [noteInput, setNoteInput] = useState("");
 
   const [newTicketSubject, setNewTicketSubject] = useState("");
   const [newTicketPriority, setNewTicketPriority] = useState<"high" | "medium" | "low">("medium");
@@ -626,36 +627,45 @@ export function LnManagerClientDetail() {
   const currentStage = clientStage ?? client.stage;
 
   const getDocStatus = (doc: ManagerClientDoc) => docStates[doc.id] ?? doc.status;
-  const getTaskDone = (task: ManagerTask) => taskStates[task.id] ?? task.done;
+  const getTaskStatus = (task: ManagerTask): ManagerTask["status"] => taskStatuses[task.id] ?? task.status;
   const getTicketStatus = (ticket: ManagerTicket) => ticketStatuses[ticket.id] ?? ticket.status;
 
-  const allDocs = [...client.kycDocs, ...extraDocs];
   const allTasks = [...client.tasks, ...extraTasks];
+  const allNotes = [...client.notes, ...extraNotes];
   const allTickets = [...client.tickets, ...extraTickets];
+  const allOwners = [...client.boiOwners, ...extraOwners];
 
   const effectiveArticleState = articleState ?? client.articlesState;
   const effectiveOaState = oaState ?? client.operatingAgreement;
+  const effectiveLlcEntityName = llcEntityName ?? client.llcEntityNameConfirmed;
+  const effectiveLlcRegAgent = llcRegAgent ?? client.llcRegisteredAgentSelected;
+  const effectiveLlcStateFee = llcStateFee ?? client.llcStateFeeCollected;
   const effectiveEinStatus = einStateSel ?? client.einStatus;
   const effectiveBoiStatus = boiStatus ?? client.boiStatus;
-  const effectiveMercuryStatus = mercuryStatus ?? client.mercuryStatus;
-  const effectiveStripeStatus = stripeStatus ?? client.stripeStatus;
-  const allOwners = [...client.boiOwners, ...extraOwners];
+  const effectiveMercuryChecklist = mercuryChecklist ?? client.mercuryChecklist;
+  const effectiveStripeChecklist = stripeChecklist ?? client.stripeChecklist;
 
   const effectiveMercuryAccountNum = mercuryAccountNum || client.mercuryAccountNum || "";
+  const effectiveMercuryRoutingNum = mercuryRoutingNum || client.mercuryRoutingNum || "";
   const effectiveStripeAccountId = stripeAccountId || client.stripeAccountId || "";
   const effectiveBoiConfirmNum = boiConfirmNum || client.boiConfirmationNum || "";
   const effectiveBoiFiledDate = boiFiledDate || client.boiFiledDate || "";
   const effectiveEinNumber = einNumberInput || client.einNumber || "";
 
+  const mercuryAllDone = effectiveMercuryChecklist.every(i => i.done);
+  const stripeAllDone = effectiveStripeChecklist.every(i => i.done);
+
+  const requiredDocs = client.kycDocs.filter(d => d.required);
   const stageRequirements: Record<number, Array<{ label: string; met: boolean }>> = {
     1: [
       { label: "Payment confirmed", met: client.paymentStatus === "paid" },
     ],
     2: [
-      { label: "All KYC documents approved", met: allDocs.length > 0 && allDocs.every(d => (docStates[d.id] ?? d.status) === "approved") },
+      { label: "All required KYC documents approved", met: requiredDocs.length > 0 && requiredDocs.every(d => (docStates[d.id] ?? d.status) === "approved") },
     ],
     3: [
-      { label: "Articles approved by state", met: effectiveArticleState === "approved" },
+      { label: "LLC pre-filing checklist complete", met: effectiveLlcEntityName && effectiveLlcRegAgent && effectiveLlcStateFee },
+      { label: "Articles stamped copy received", met: effectiveArticleState === "stamped" },
       { label: "Operating Agreement signed", met: effectiveOaState === "signed" },
     ],
     4: [
@@ -667,13 +677,13 @@ export function LnManagerClientDetail() {
       { label: "FinCEN confirmation number recorded", met: !!effectiveBoiConfirmNum },
     ],
     6: [
-      { label: "Mercury account approved", met: effectiveMercuryStatus === "approved" },
-      { label: "Mercury account number recorded", met: !!effectiveMercuryAccountNum },
-      { label: "Stripe account approved", met: effectiveStripeStatus === "approved" },
+      { label: "Mercury checklist complete", met: mercuryAllDone },
+      { label: "Mercury account & routing number recorded", met: !!effectiveMercuryAccountNum && !!effectiveMercuryRoutingNum },
+      { label: "Stripe checklist complete", met: stripeAllDone },
       { label: "Stripe Account ID recorded", met: !!effectiveStripeAccountId },
     ],
     7: [
-      { label: "Mercury & Stripe banking active", met: effectiveMercuryStatus === "approved" && effectiveStripeStatus === "approved" },
+      { label: "Mercury & Stripe banking checklists complete", met: mercuryAllDone && stripeAllDone },
     ],
   };
 
@@ -732,13 +742,31 @@ export function LnManagerClientDetail() {
   }
 
   function renderOverview() {
+    const h = client.healthScore;
+    const hColor = h >= 80 ? "#22c55e" : h >= 50 ? "#f59e0b" : "#ef4444";
+    const circumference = 2 * Math.PI * 28;
+    const dashOffset = circumference - (h / 100) * circumference;
+
     return (
       <div className="space-y-4">
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Card className="border shadow-none">
+        <div className="grid sm:grid-cols-3 gap-4">
+          <Card className="border shadow-none sm:col-span-2">
             <CardContent className="p-4 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Client Info</p>
-              {[["Company", client.companyName], ["Entity", client.entityType], ["Client", client.clientName], ["Email", client.email], ["Phone", client.phone], ["State", client.state], ["Package", client.package], ["Started", client.startedAt]].map(([label, value]) => (
+              {[
+                ["Company", client.companyName],
+                ["Entity Type", client.entityType],
+                ["Client Name", client.clientName],
+                ["Email", client.email],
+                ["Phone", client.phone],
+                ["Country", client.country ?? "India"],
+                ["State", client.state],
+                ["Reg. Agent", client.registeredAgent ?? "—"],
+                ["Package", `${client.package} · $${client.packageAmount.toLocaleString()}`],
+                ["Payment", client.paymentStatus === "paid" ? "Paid ✓" : "Pending"],
+                ["Started", client.startedAt],
+                ["Assigned To", client.assignedTo],
+              ].map(([label, value]) => (
                 <div key={label} className="flex items-center justify-between text-sm border-b border-border/20 pb-1.5 last:border-0 last:pb-0">
                   <span className="text-muted-foreground">{label}</span>
                   <span className="font-medium">{value}</span>
@@ -747,27 +775,69 @@ export function LnManagerClientDetail() {
             </CardContent>
           </Card>
           <Card className="border shadow-none">
-            <CardContent className="p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Formation Status</p>
-              {[
-                ["Stage", `${currentStage}/7 — ${FORMATION_STAGES[currentStage - 1]?.shortName ?? client.stageName}`],
-                ["Health Score", `${client.healthScore}%`],
-                ["Assigned To", client.assignedTo],
-                ["Payment", client.paymentStatus === "paid" ? `Paid — $${client.packageAmount.toLocaleString()}` : "Pending"],
-                ["KYC", client.kycStatus],
-                ["EIN", effectiveEinStatus],
-                ["BOI", effectiveBoiStatus],
-                ["Mercury", effectiveMercuryStatus],
-                ["Stripe", effectiveStripeStatus],
-              ].map(([label, value]) => (
-                <div key={label} className="flex items-center justify-between text-sm border-b border-border/20 pb-1.5 last:border-0 last:pb-0">
-                  <span className="text-muted-foreground">{label}</span>
-                  <span className="font-medium capitalize">{value}</span>
+            <CardContent className="p-4 flex flex-col items-center gap-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider self-start">Health Score</p>
+              <div className="relative w-20 h-20">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
+                  <circle cx="32" cy="32" r="28" fill="none" stroke="#e5e7eb" strokeWidth="6" />
+                  <circle cx="32" cy="32" r="28" fill="none" stroke={hColor} strokeWidth="6"
+                    strokeDasharray={circumference} strokeDashoffset={dashOffset}
+                    strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.5s ease" }} />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-lg font-bold" style={{ color: hColor }}>{h}%</span>
                 </div>
-              ))}
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                {h >= 80 ? "On track — great progress" : h >= 50 ? "Needs attention" : "At risk — action required"}
+              </p>
+              <div className="w-full space-y-1.5 border-t pt-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Current Stage</p>
+                <p className="text-sm font-medium">{currentStage}/7 — {FORMATION_STAGES[currentStage - 1]?.shortName ?? client.stageName}</p>
+                <p className="text-xs text-muted-foreground">{client.daysInStage}d in stage</p>
+              </div>
             </CardContent>
           </Card>
         </div>
+
+        <Card className="border shadow-none">
+          <CardHeader className="pb-2"><CardTitle className="text-sm">Formation Stage Timeline</CardTitle></CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-0">
+              {FORMATION_STAGES.map((s, idx) => {
+                const stageNum = idx + 1;
+                const Icon = STAGE_ICONS[idx];
+                const isDone = currentStage > stageNum;
+                const isCurrent = currentStage === stageNum;
+                const date = client.stageDates[stageNum];
+                return (
+                  <div key={s.id} className="flex items-start gap-3 relative">
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center z-10
+                        ${isCurrent ? "bg-sky-500 text-white" : isDone ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"}`}>
+                        {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
+                      </div>
+                      {idx < FORMATION_STAGES.length - 1 && (
+                        <div className={`w-0.5 h-6 ${isDone ? "bg-green-300" : "bg-gray-200"}`} />
+                      )}
+                    </div>
+                    <div className="pb-3 flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className={`text-sm font-medium ${isCurrent ? "text-sky-700" : isDone ? "text-green-700" : "text-muted-foreground"}`}>
+                          {s.shortName}
+                        </p>
+                        {isCurrent && <Badge variant="outline" className="text-[10px] border-sky-300 text-sky-700 bg-sky-50">In Progress</Badge>}
+                        {isDone && date && <span className="text-[10px] text-muted-foreground">Completed {date}</span>}
+                        {!isDone && !isCurrent && <span className="text-[10px] text-gray-400">Pending</span>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="border shadow-none">
           <CardHeader className="pb-2"><CardTitle className="text-sm">Activity Log</CardTitle></CardHeader>
           <CardContent className="pt-0 space-y-2">
@@ -787,68 +857,80 @@ export function LnManagerClientDetail() {
   }
 
   function renderDocuments() {
+    const docs = client.kycDocs;
     return (
       <div className="space-y-4">
         <StageCompleteBar stageNum={2} />
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">{allDocs.length} document(s) on file</p>
-          <Button size="sm" variant="outline" className="h-8 gap-1.5" onClick={() => setShowReqDoc(v => !v)} data-testid="btn-request-doc">
-            <Plus className="w-3.5 h-3.5" /> Request Document
-          </Button>
+          <p className="text-sm text-muted-foreground">
+            {docs.filter(d => (docStates[d.id] ?? d.status) === "approved").length} / {docs.filter(d => d.required).length} required docs approved
+          </p>
         </div>
-        {showReqDoc && (
-          <div className="flex items-center gap-2 p-3 rounded-xl border bg-muted/20">
-            <Input value={reqDocName} onChange={e => setReqDocName(e.target.value)} placeholder="Document name…" className="flex-1 h-8 text-sm" data-testid="input-req-doc-name" />
-            <Button size="sm" className="h-8 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => {
-              if (!reqDocName.trim()) return;
-              setExtraDocs(prev => [...prev, { id: `rd-${Date.now()}`, name: reqDocName.trim(), category: "identity", status: "pending-upload" }]);
-              setReqDocName(""); setShowReqDoc(false);
-            }} data-testid="btn-confirm-req-doc">Send Request</Button>
-            <Button size="sm" variant="ghost" className="h-8" onClick={() => setShowReqDoc(false)}><X className="w-4 h-4" /></Button>
-          </div>
-        )}
         <div className="space-y-2">
-          {allDocs.map(doc => {
+          {docs.map(doc => {
             const status = getDocStatus(doc);
             const showingRejectInput = showRejectInput[doc.id];
             return (
               <div key={doc.id} className="rounded-xl border bg-card" data-testid={`doc-${doc.id}`}>
                 <div className="p-3 flex items-center gap-3">
-                  <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <FileText className={`w-4 h-4 flex-shrink-0 ${doc.required ? "text-sky-500" : "text-muted-foreground"}`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{doc.name}</p>
-                    {doc.uploadedAt && <p className="text-xs text-muted-foreground">Uploaded {doc.uploadedAt}</p>}
-                    {rejectReasons[doc.id] && <p className="text-xs text-red-600 mt-0.5">Rejected: {rejectReasons[doc.id]}</p>}
-                    {doc.notes && !rejectReasons[doc.id] && <p className="text-xs text-amber-600 mt-0.5">{doc.notes}</p>}
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-medium">{doc.name}</p>
+                      {!doc.required && <span className="text-[10px] text-muted-foreground">(optional)</span>}
+                    </div>
+                    {status === "requested" && doc.requestedAt && (
+                      <p className="text-xs text-amber-600 mt-0.5">Requested {doc.requestedAt} — awaiting upload</p>
+                    )}
+                    {status === "uploaded" && doc.uploadedAt && (
+                      <p className="text-xs text-sky-600 mt-0.5">Uploaded {doc.uploadedAt} — pending review</p>
+                    )}
+                    {status === "approved" && doc.uploadedAt && (
+                      <p className="text-xs text-green-600 mt-0.5">Approved · Uploaded {doc.uploadedAt}</p>
+                    )}
+                    {status === "rejected" && (
+                      <p className="text-xs text-red-600 mt-0.5">
+                        Rejected{(rejectReasons[doc.id] || doc.rejectReason) ? `: ${rejectReasons[doc.id] || doc.rejectReason}` : ""}
+                      </p>
+                    )}
+                    {status === "not-requested" && <p className="text-xs text-muted-foreground mt-0.5">Not yet requested</p>}
                   </div>
                   <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${DOC_STATUS_COLORS[status]}`}>
                     {status.replace(/-/g, " ")}
                   </Badge>
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    {status !== "approved" && (
-                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => {
-                        setDocStates(p => ({ ...p, [doc.id]: "approved" }));
-                        setShowRejectInput(p => ({ ...p, [doc.id]: false }));
-                      }} data-testid={`btn-approve-doc-${doc.id}`} title="Approve">
-                        <CheckCircle2 className="w-4 h-4" />
+                    {status === "not-requested" && (
+                      <Button size="sm" variant="ghost" className="h-7 text-xs text-sky-600 hover:bg-sky-50 gap-1" onClick={() => {
+                        setDocStates(p => ({ ...p, [doc.id]: "requested" }));
+                      }} data-testid={`btn-request-doc-${doc.id}`}>
+                        <Send className="w-3 h-3" /> Request
                       </Button>
                     )}
-                    {status !== "rejected" && (
-                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => setShowRejectInput(p => ({ ...p, [doc.id]: true }))} data-testid={`btn-reject-doc-${doc.id}`} title="Reject">
-                        <XCircle className="w-4 h-4" />
-                      </Button>
+                    {status === "uploaded" && (
+                      <>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-green-600 hover:bg-green-50" onClick={() => {
+                          setDocStates(p => ({ ...p, [doc.id]: "approved" }));
+                        }} data-testid={`btn-approve-doc-${doc.id}`} title="Approve">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-500 hover:bg-red-50" onClick={() => setShowRejectInput(p => ({ ...p, [doc.id]: true }))} data-testid={`btn-reject-doc-${doc.id}`} title="Reject">
+                          <XCircle className="w-4 h-4" />
+                        </Button>
+                      </>
                     )}
                     {status === "rejected" && (
-                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-amber-600 hover:bg-amber-50" onClick={() => {
-                        setDocStates(p => ({ ...p, [doc.id]: "pending-upload" }));
+                      <Button size="sm" variant="ghost" className="h-7 text-xs text-amber-600 hover:bg-amber-50 gap-1" onClick={() => {
+                        setDocStates(p => ({ ...p, [doc.id]: "requested" }));
                         setRejectReasons(p => { const n = { ...p }; delete n[doc.id]; return n; });
-                      }} title="Re-request">
-                        <RefreshCcw className="w-3.5 h-3.5" />
+                      }} data-testid={`btn-rerequest-doc-${doc.id}`}>
+                        <RefreshCcw className="w-3 h-3" /> Re-request
                       </Button>
                     )}
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" title="View" data-testid={`btn-view-doc-${doc.id}`}>
-                      <Eye className="w-4 h-4 text-muted-foreground" />
-                    </Button>
+                    {status === "approved" && (
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" title="View" data-testid={`btn-view-doc-${doc.id}`}>
+                        <Eye className="w-4 h-4 text-muted-foreground" />
+                      </Button>
+                    )}
                   </div>
                 </div>
                 {showingRejectInput && (
@@ -874,33 +956,71 @@ export function LnManagerClientDetail() {
   }
 
   function renderLLC() {
-    const articlesStages: Array<ManagerClient["articlesState"]> = ["not-started", "in-progress", "submitted", "approved"];
+    const articlesStages: Array<ManagerClient["articlesState"]> = ["not-started", "draft", "submitted", "under-review", "approved", "stamped"];
+    const articlesLabels: Record<string, string> = { "not-started": "Not Started", "draft": "Draft", "submitted": "Submitted", "under-review": "Under Review", "approved": "Approved", "stamped": "Stamped Copy Received" };
     const oaStages: Array<ManagerClient["operatingAgreement"]> = ["pending", "generated", "signed"];
-    const isComplete = effectiveArticleState === "approved" && effectiveOaState === "signed";
+    const preFilingItems = [
+      { key: "entityName", label: "LLC entity name confirmed (name check done)", value: effectiveLlcEntityName, set: setLlcEntityName },
+      { key: "regAgent", label: "Registered agent selected & paid", value: effectiveLlcRegAgent, set: setLlcRegAgent },
+      { key: "stateFee", label: "State filing fee collected from client", value: effectiveLlcStateFee, set: setLlcStateFee },
+    ];
+    const preFilingDone = effectiveLlcEntityName && effectiveLlcRegAgent && effectiveLlcStateFee;
+    const isComplete = effectiveArticleState === "stamped" && effectiveOaState === "signed";
     return (
       <div className="space-y-4">
         <StageCompleteBar stageNum={3} />
+        <Card className="border shadow-none">
+          <CardContent className="p-4 space-y-3">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pre-Filing Checklist</p>
+            <div className="space-y-2">
+              {preFilingItems.map(item => (
+                <button key={item.key} onClick={() => item.set(!item.value)} className="flex items-center gap-2.5 w-full text-left group" data-testid={`prefiling-${item.key}`}>
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors
+                    ${item.value ? "border-green-500 bg-green-500" : "border-gray-300 group-hover:border-sky-400"}`}>
+                    {item.value && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                  </div>
+                  <span className={`text-sm ${item.value ? "line-through text-muted-foreground" : "text-foreground"}`}>{item.label}</span>
+                </button>
+              ))}
+            </div>
+            {preFilingDone && (
+              <div className="flex items-center gap-2 text-xs text-green-600 pt-1">
+                <CheckCircle2 className="w-4 h-4" /> Pre-filing checklist complete — ready to file Articles
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <div className="grid sm:grid-cols-2 gap-4">
           <Card className="border shadow-none">
             <CardContent className="p-4 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Articles of Organization / Incorporation</p>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 {articlesStages.map(s => (
-                  <button key={s} onClick={() => setArticleState(s)} className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${effectiveArticleState === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground hover:border-gray-300"}`} data-testid={`articles-state-${s}`}>
-                    {s.replace(/-/g, " ")}
+                  <button key={s} onClick={() => setArticleState(s)} className={`px-2 py-0.5 rounded-md text-[10px] font-medium border transition-colors ${effectiveArticleState === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground hover:border-gray-300"}`} data-testid={`articles-state-${s}`}>
+                    {articlesLabels[s]}
                   </button>
                 ))}
               </div>
               {client.articlesFiledDate && <p className="text-xs text-muted-foreground">Filed: {client.articlesFiledDate}</p>}
-              {effectiveArticleState === "submitted" && !articlesConfirmed && (
-                <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-between gap-2">
-                  <p className="text-xs text-amber-700">Awaiting state acceptance — stamped copy pending</p>
-                  <Button size="sm" className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white" onClick={() => { setArticleState("approved"); setArticlesConfirmed(true); }} data-testid="btn-confirm-articles">Mark Accepted</Button>
-                </div>
+              {client.articlesApprovedDate && <p className="text-xs text-muted-foreground">Approved: {client.articlesApprovedDate}</p>}
+              {effectiveArticleState === "submitted" && (
+                <p className="text-xs text-amber-600">Submitted to state — awaiting acceptance</p>
+              )}
+              {effectiveArticleState === "under-review" && (
+                <p className="text-xs text-amber-600">Under review by state — stamped copy pending</p>
               )}
               {effectiveArticleState === "approved" && (
-                <div className="flex items-center gap-2 text-xs text-green-600"><CheckCircle2 className="w-4 h-4" /> Articles accepted — stamped copy in vault</div>
+                <p className="text-xs text-green-600">Approved — waiting for stamped copy</p>
               )}
+              {effectiveArticleState === "stamped" && (
+                <div className="flex items-center gap-2 text-xs text-green-600"><CheckCircle2 className="w-4 h-4" /> Stamped copy received & filed in vault</div>
+              )}
+              <div className="pt-2">
+                <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-sky-300 text-sky-700 hover:bg-sky-50" data-testid="btn-generate-oa">
+                  <FileText className="w-3.5 h-3.5" /> Generate OA
+                </Button>
+              </div>
             </CardContent>
           </Card>
           <Card className="border shadow-none">
@@ -914,7 +1034,7 @@ export function LnManagerClientDetail() {
                 ))}
               </div>
               {effectiveOaState === "generated" && (
-                <div className="text-xs text-amber-600">Sent to client for review and signature</div>
+                <div className="text-xs text-amber-600">Generated — sent to client for review and signature</div>
               )}
               {effectiveOaState === "signed" && (
                 <div className="flex items-center gap-2 text-xs text-green-600"><CheckCircle2 className="w-4 h-4" /> Operating Agreement signed & delivered</div>
@@ -924,7 +1044,7 @@ export function LnManagerClientDetail() {
         </div>
         {isComplete && (
           <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-sm text-green-700 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" /> LLC stage complete — Articles approved, Operating Agreement signed.
+            <CheckCircle2 className="w-4 h-4" /> LLC stage complete — Articles stamped, Operating Agreement signed.
           </div>
         )}
         {client.llcNotes && (
@@ -1032,13 +1152,21 @@ export function LnManagerClientDetail() {
   }
 
   function renderBOI() {
+    const BOI_STATUSES: Array<{ value: ManagerClient["boiStatus"]; label: string }> = [
+      { value: "not-started", label: "Not Started" },
+      { value: "pending-kyc", label: "Pending KYC" },
+      { value: "draft-ready", label: "Draft Ready" },
+      { value: "sent-for-review", label: "Sent to Client for Review" },
+      { value: "client-approved", label: "Client Approved" },
+      { value: "filed", label: "Filed with FinCEN" },
+    ];
     return (
       <div className="space-y-4">
         <StageCompleteBar stageNum={5} />
-        <div className="flex items-center gap-2 flex-wrap">
-          {(["not-started", "pending-kyc", "in-progress", "draft-ready", "filed"] as const).map(s => (
-            <button key={s} onClick={() => setBoiStatus(s)} className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${effectiveBoiStatus === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground hover:border-gray-300"}`} data-testid={`boi-state-${s}`}>
-              {s.replace(/-/g, " ")}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {BOI_STATUSES.map(s => (
+            <button key={s.value} onClick={() => setBoiStatus(s.value)} className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${effectiveBoiStatus === s.value ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground hover:border-gray-300"}`} data-testid={`boi-state-${s.value}`}>
+              {s.label}
             </button>
           ))}
         </div>
@@ -1089,7 +1217,25 @@ export function LnManagerClientDetail() {
 
         {effectiveBoiStatus === "draft-ready" && (
           <div className="p-3 rounded-xl border bg-sky-50/50 space-y-3">
-            <p className="text-sm font-medium text-sky-700">Ready to file with FinCEN BOIR system</p>
+            <p className="text-sm font-medium text-sky-700">Draft ready — send to client for review</p>
+            <Button size="sm" className="bg-sky-500 hover:bg-sky-600 text-white h-8" onClick={() => setBoiStatus("sent-for-review")} data-testid="btn-send-boi-review">
+              <Send className="w-3.5 h-3.5 mr-1.5" /> Send to Client for Review
+            </Button>
+          </div>
+        )}
+
+        {effectiveBoiStatus === "sent-for-review" && (
+          <div className="p-3 rounded-xl border border-amber-200 bg-amber-50/50 space-y-3">
+            <p className="text-sm font-medium text-amber-700">Sent to client — awaiting approval</p>
+            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white h-8" onClick={() => setBoiStatus("client-approved")} data-testid="btn-client-approved-boi">
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" /> Mark as Client Approved
+            </Button>
+          </div>
+        )}
+
+        {effectiveBoiStatus === "client-approved" && (
+          <div className="p-3 rounded-xl border border-green-200 bg-green-50/50 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-green-700"><CheckCircle2 className="w-4 h-4" /> Client approved — ready to file with FinCEN</div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-muted-foreground">FinCEN Filing Date</label>
@@ -1098,6 +1244,13 @@ export function LnManagerClientDetail() {
               <div>
                 <label className="text-xs text-muted-foreground">Confirmation Number</label>
                 <Input value={boiConfirmNum} onChange={e => setBoiConfirmNum(e.target.value)} placeholder="BOIR-XXXXXXX" className="h-7 text-xs mt-0.5" data-testid="input-boi-confirm-num" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Confirmation Document (filename)</label>
+              <div className="flex items-center gap-2 mt-0.5">
+                <Input value={boiConfirmDocFilename} onChange={e => setBoiConfirmDocFilename(e.target.value)} placeholder="e.g. boi-confirmation-FIN-2026.pdf" className="h-7 text-xs flex-1" data-testid="input-boi-confirm-doc" />
+                {boiConfirmDocFilename && <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />}
               </div>
             </div>
             <Button size="sm" className="bg-sky-500 hover:bg-sky-600 text-white h-8" onClick={() => { setBoiStatus("filed"); }} data-testid="btn-file-boi">
@@ -1111,6 +1264,9 @@ export function LnManagerClientDetail() {
             <div className="flex items-center gap-2 text-sm text-green-700"><CheckCircle2 className="w-4 h-4" /> BOI filed with FinCEN — Compliant</div>
             {effectiveBoiFiledDate && <p className="text-xs text-muted-foreground ml-6">Filed: {effectiveBoiFiledDate}</p>}
             {effectiveBoiConfirmNum && <p className="text-xs text-green-700 font-medium ml-6">FinCEN Confirmation: {effectiveBoiConfirmNum}</p>}
+            {(boiConfirmDocFilename || client.boiConfirmDocUploaded) && (
+              <p className="text-xs text-sky-700 ml-6 flex items-center gap-1"><FileText className="w-3 h-3" /> {boiConfirmDocFilename || "Confirmation document uploaded"}</p>
+            )}
           </div>
         )}
 
@@ -1122,19 +1278,18 @@ export function LnManagerClientDetail() {
   }
 
   function renderBanking() {
-    const allDone = effectiveMercuryStatus === "approved" && effectiveStripeStatus === "approved";
-    const mercurySteps = [
-      { label: "Gather docs: passport, EIN letter, articles", done: currentStage >= 4 },
-      { label: "Submit Mercury online application", done: effectiveMercuryStatus === "applied" || effectiveMercuryStatus === "approved" },
-      { label: "Account approved & account number received", done: effectiveMercuryStatus === "approved" },
-      { label: "Record account details", done: effectiveMercuryStatus === "approved" && !!effectiveMercuryAccountNum },
-    ];
-    const stripeSteps = [
-      { label: "EIN received & business documents ready", done: effectiveEinStatus === "received" },
-      { label: "Submit Stripe business account application", done: effectiveStripeStatus === "applied" || effectiveStripeStatus === "approved" },
-      { label: "Stripe account verified & active", done: effectiveStripeStatus === "approved" },
-      { label: "Record Stripe Account ID", done: effectiveStripeStatus === "approved" && !!effectiveStripeAccountId },
-    ];
+    const toggleMercuryItem = (idx: number) => {
+      const list = [...effectiveMercuryChecklist];
+      list[idx] = { ...list[idx], done: !list[idx].done, date: !list[idx].done ? TODAY : undefined };
+      setMercuryChecklist(list);
+    };
+    const toggleStripeItem = (idx: number) => {
+      const list = [...effectiveStripeChecklist];
+      list[idx] = { ...list[idx], done: !list[idx].done, date: !list[idx].done ? TODAY : undefined };
+      setStripeChecklist(list);
+    };
+
+    const allBankingDone = mercuryAllDone && stripeAllDone && !!effectiveMercuryAccountNum && !!effectiveStripeAccountId;
 
     return (
       <div className="space-y-4">
@@ -1144,29 +1299,52 @@ export function LnManagerClientDetail() {
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">Mercury Bank</p>
-                <div className="flex gap-1 flex-wrap">
-                  {(["not-started", "applied", "approved", "rejected"] as const).map(s => (
-                    <button key={s} onClick={() => setMercuryStatus(s)} className={`px-2 py-0.5 rounded text-[10px] border transition-colors ${effectiveMercuryStatus === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground"}`} data-testid={`mercury-state-${s}`}>{s.replace(/-/g, " ")}</button>
-                  ))}
-                </div>
+                <Badge variant="outline" className={`text-[10px] ${mercuryAllDone ? "border-green-300 text-green-700 bg-green-50" : "border-amber-300 text-amber-700 bg-amber-50"}`}>
+                  {effectiveMercuryChecklist.filter(i => i.done).length}/{effectiveMercuryChecklist.length} done
+                </Badge>
               </div>
               <div className="space-y-2">
-                {mercurySteps.map((step, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm">
-                    {step.done ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" /> : <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />}
-                    <span className={step.done ? "text-foreground" : "text-muted-foreground text-xs"}>{step.label}</span>
-                  </div>
+                {effectiveMercuryChecklist.map((item, idx) => (
+                  <button key={item.id} onClick={() => toggleMercuryItem(idx)} className="flex items-start gap-2.5 w-full text-left group" data-testid={`mercury-item-${item.id}`}>
+                    <div className={`w-4.5 h-4.5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors
+                      ${item.done ? "border-green-500 bg-green-500" : "border-gray-300 group-hover:border-sky-400"}`} style={{ width: "18px", height: "18px" }}>
+                      {item.done && <CheckCircle2 className="w-3 h-3 text-white" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-xs ${item.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{item.label}</span>
+                      {item.done && item.date && <p className="text-[10px] text-muted-foreground mt-0.5">Done {item.date}</p>}
+                    </div>
+                  </button>
                 ))}
               </div>
-              {effectiveMercuryStatus === "approved" && (
-                <div className="space-y-2 border-t pt-2">
+              {mercuryAllDone && (
+                <div className="border-t pt-2 space-y-2">
                   <div>
                     <label className="text-xs text-muted-foreground">Account Number</label>
-                    <Input value={mercuryAccountNum || client.mercuryAccountNum || ""} onChange={e => setMercuryAccountNum(e.target.value)} placeholder="e.g. 1234567890" className="h-7 text-xs mt-0.5" data-testid="input-mercury-account" />
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <Input
+                        type={showMercuryAccount ? "text" : "password"}
+                        value={mercuryAccountNum || client.mercuryAccountNum || ""}
+                        onChange={e => setMercuryAccountNum(e.target.value)}
+                        placeholder="e.g. 1234567890"
+                        className="h-7 text-xs flex-1"
+                        data-testid="input-mercury-account"
+                      />
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setShowMercuryAccount(v => !v)}>
+                        <Eye className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground">Approved Date</label>
-                    <Input type="date" value={mercuryApprovedDate || client.mercuryApprovedDate || ""} onChange={e => setMercuryApprovedDate(e.target.value)} className="h-7 text-xs mt-0.5" data-testid="input-mercury-date" />
+                    <label className="text-xs text-muted-foreground">Routing Number</label>
+                    <Input
+                      type="text"
+                      value={mercuryRoutingNum || client.mercuryRoutingNum || ""}
+                      onChange={e => setMercuryRoutingNum(e.target.value)}
+                      placeholder="e.g. 021000089"
+                      className="h-7 text-xs mt-0.5"
+                      data-testid="input-mercury-routing"
+                    />
                   </div>
                 </div>
               )}
@@ -1177,38 +1355,50 @@ export function LnManagerClientDetail() {
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">Stripe Payments</p>
-                <div className="flex gap-1 flex-wrap">
-                  {(["not-started", "applied", "approved", "rejected"] as const).map(s => (
-                    <button key={s} onClick={() => setStripeStatus(s)} className={`px-2 py-0.5 rounded text-[10px] border transition-colors ${effectiveStripeStatus === s ? "bg-sky-50 border-sky-300 text-sky-700" : "border-gray-200 text-muted-foreground"}`} data-testid={`stripe-state-${s}`}>{s.replace(/-/g, " ")}</button>
-                  ))}
-                </div>
+                <Badge variant="outline" className={`text-[10px] ${stripeAllDone ? "border-green-300 text-green-700 bg-green-50" : "border-amber-300 text-amber-700 bg-amber-50"}`}>
+                  {effectiveStripeChecklist.filter(i => i.done).length}/{effectiveStripeChecklist.length} done
+                </Badge>
               </div>
               <div className="space-y-2">
-                {stripeSteps.map((step, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm">
-                    {step.done ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" /> : <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />}
-                    <span className={step.done ? "text-foreground" : "text-muted-foreground text-xs"}>{step.label}</span>
-                  </div>
+                {effectiveStripeChecklist.map((item, idx) => (
+                  <button key={item.id} onClick={() => toggleStripeItem(idx)} className="flex items-start gap-2.5 w-full text-left group" data-testid={`stripe-item-${item.id}`}>
+                    <div className={`rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors
+                      ${item.done ? "border-green-500 bg-green-500" : "border-gray-300 group-hover:border-sky-400"}`} style={{ width: "18px", height: "18px" }}>
+                      {item.done && <CheckCircle2 className="w-3 h-3 text-white" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-xs ${item.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{item.label}</span>
+                      {item.done && item.date && <p className="text-[10px] text-muted-foreground mt-0.5">Done {item.date}</p>}
+                    </div>
+                  </button>
                 ))}
               </div>
-              {effectiveStripeStatus === "approved" && (
-                <div className="space-y-2 border-t pt-2">
+              {stripeAllDone && (
+                <div className="border-t pt-2 space-y-2">
                   <div>
                     <label className="text-xs text-muted-foreground">Stripe Account ID</label>
-                    <Input value={stripeAccountId || client.stripeAccountId || ""} onChange={e => setStripeAccountId(e.target.value)} placeholder="acct_XXXXXXXX" className="h-7 text-xs mt-0.5" data-testid="input-stripe-account" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground">Approved Date</label>
-                    <Input type="date" value={stripeApprovedDate || client.stripeApprovedDate || ""} onChange={e => setStripeApprovedDate(e.target.value)} className="h-7 text-xs mt-0.5" data-testid="input-stripe-date" />
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <Input
+                        type={showStripeAccount ? "text" : "password"}
+                        value={stripeAccountId || client.stripeAccountId || ""}
+                        onChange={e => setStripeAccountId(e.target.value)}
+                        placeholder="acct_XXXXXXXX"
+                        className="h-7 text-xs flex-1"
+                        data-testid="input-stripe-account"
+                      />
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setShowStripeAccount(v => !v)}>
+                        <Eye className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
-        {allDone && (
+        {allBankingDone && (
           <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-sm text-green-700 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" /> Banking stage complete — Mercury {effectiveMercuryAccountNum ? `(${effectiveMercuryAccountNum})` : "approved"}, Stripe {effectiveStripeAccountId ? `(${effectiveStripeAccountId})` : "active"}
+            <CheckCircle2 className="w-4 h-4" /> Banking setup complete — Mercury account & routing on record, Stripe ID recorded.
           </div>
         )}
         {client.bankingNotes && (
@@ -1219,11 +1409,17 @@ export function LnManagerClientDetail() {
   }
 
   function renderTasks() {
-    const openTasks = allTasks.filter(t => !getTaskDone(t));
-    const doneTasks = allTasks.filter(t => getTaskDone(t));
+    const TASK_STATUS_COLORS: Record<string, string> = {
+      "todo": "border-gray-200 text-gray-500",
+      "in-progress": "border-amber-300 text-amber-700 bg-amber-50",
+      "done": "border-green-300 text-green-700 bg-green-50",
+    };
+    const openTasks = allTasks.filter(t => getTaskStatus(t) !== "done");
+    const doneTasks = allTasks.filter(t => getTaskStatus(t) === "done");
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         <StageCompleteBar stageNum={7} />
+
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Add Task</p>
           <div className="p-3 rounded-xl border bg-muted/20 space-y-2">
@@ -1247,7 +1443,7 @@ export function LnManagerClientDetail() {
             </div>
             <Button size="sm" className="h-8 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => {
               if (!newTaskTitle.trim()) return;
-              setExtraTasks(prev => [...prev, { id: `et-${Date.now()}`, title: newTaskTitle.trim(), assignedTo: newTaskAssignee || "Priya Sharma", due: newTaskDue || "2026-04-30", done: false, priority: newTaskPriority }]);
+              setExtraTasks(prev => [...prev, { id: `et-${Date.now()}`, title: newTaskTitle.trim(), assignedTo: newTaskAssignee || "Priya Sharma", due: newTaskDue || "2026-04-30", status: "todo", priority: newTaskPriority }]);
               setNewTaskTitle(""); setNewTaskAssignee(""); setNewTaskDue("");
             }} data-testid="btn-add-task">
               <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Task
@@ -1257,16 +1453,33 @@ export function LnManagerClientDetail() {
 
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Open Tasks ({openTasks.length})</p>
-          {openTasks.map(task => (
-            <div key={task.id} className="p-3 rounded-xl border bg-card flex items-start gap-3" data-testid={`task-${task.id}`}>
-              <button className="w-5 h-5 rounded border border-gray-300 hover:border-sky-400 flex items-center justify-center flex-shrink-0 mt-0.5" onClick={() => setTaskStates(p => ({ ...p, [task.id]: true }))} data-testid={`btn-toggle-task-${task.id}`} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">{task.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{task.assignedTo} · Due {task.due}</p>
+          {openTasks.map(task => {
+            const ts = getTaskStatus(task);
+            return (
+              <div key={task.id} className="p-3 rounded-xl border bg-card flex items-start gap-3" data-testid={`task-${task.id}`}>
+                <button
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors
+                    ${ts === "in-progress" ? "border-amber-400 bg-amber-100" : "border-gray-300 hover:border-sky-400"}`}
+                  onClick={() => setTaskStatuses(p => ({
+                    ...p,
+                    [task.id]: ts === "todo" ? "in-progress" : ts === "in-progress" ? "done" : "todo"
+                  }))}
+                  data-testid={`btn-toggle-task-${task.id}`}
+                  title="Click to cycle status"
+                >
+                  {ts === "in-progress" && <Circle className="w-2.5 h-2.5 text-amber-500" />}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{task.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{task.assignedTo} · Due {task.due}</p>
+                </div>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <Badge variant="outline" className={`text-[10px] ${TASK_STATUS_COLORS[ts]}`}>{ts.replace("-", " ")}</Badge>
+                  <Badge variant="outline" className={`text-[10px] ${PRIORITY_COLORS[task.priority]}`}>{task.priority}</Badge>
+                </div>
               </div>
-              <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${PRIORITY_COLORS[task.priority]}`}>{task.priority}</Badge>
-            </div>
-          ))}
+            );
+          })}
           {openTasks.length === 0 && <p className="text-sm text-muted-foreground py-2 text-center">No open tasks.</p>}
         </div>
 
@@ -1279,15 +1492,47 @@ export function LnManagerClientDetail() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm line-through text-muted-foreground">{task.title}</p>
                 </div>
-                <Button size="sm" variant="ghost" className="h-6 text-xs text-muted-foreground hover:text-foreground" onClick={() => setTaskStates(p => ({ ...p, [task.id]: false }))} data-testid={`btn-reopen-task-${task.id}`}>Reopen</Button>
+                <Button size="sm" variant="ghost" className="h-6 text-xs text-muted-foreground hover:text-foreground" onClick={() => setTaskStatuses(p => ({ ...p, [task.id]: "todo" }))} data-testid={`btn-reopen-task-${task.id}`}>Reopen</Button>
               </div>
             ))}
           </div>
         )}
 
-        <div className="space-y-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5"><StickyNote className="w-3.5 h-3.5" /> Internal Notes</p>
-          <Textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Add internal notes about this client…" className="text-sm min-h-[100px]" data-testid="textarea-notes" />
+        <div className="border-t pt-4 space-y-3">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+            <StickyNote className="w-3.5 h-3.5" /> Activity Notes Log
+          </p>
+          <div className="flex items-start gap-2">
+            <Textarea
+              value={noteInput}
+              onChange={e => setNoteInput(e.target.value)}
+              placeholder="Add a timestamped note about this client…"
+              className="text-sm min-h-[60px] flex-1"
+              data-testid="textarea-note-input"
+            />
+            <Button size="sm" className="h-8 bg-sky-500 hover:bg-sky-600 text-white flex-shrink-0" onClick={() => {
+              if (!noteInput.trim()) return;
+              setExtraNotes(prev => [...prev, {
+                id: `note-${Date.now()}`,
+                text: noteInput.trim(),
+                by: "Vikas (Manager)",
+                timestamp: new Date().toISOString(),
+              }]);
+              setNoteInput("");
+            }} data-testid="btn-add-note">
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Note
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {allNotes.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No notes yet.</p>
+            ) : [...allNotes].reverse().map(note => (
+              <div key={note.id} className="p-2.5 rounded-xl bg-muted/30 text-sm border border-border/30" data-testid={`note-${note.id}`}>
+                <p>{note.text}</p>
+                <p className="text-[11px] text-muted-foreground mt-1">{note.by} · {new Date(note.timestamp).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -1468,7 +1713,7 @@ export function LnManagerClientDetail() {
 
 export function LnManagerTasks() {
   const [, navigate] = useLocation();
-  const [taskStates, setTaskStates] = useState<Record<string, boolean>>({});
+  const [taskStatuses, setTaskStatuses] = useState<Record<string, "todo" | "in-progress" | "done">>({});
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [clientFilter, setClientFilter] = useState("all");
@@ -1486,24 +1731,26 @@ export function LnManagerTasks() {
   const baseTasks = MANAGER_CLIENTS.flatMap(c => c.tasks.map(t => ({ ...t, company: c.companyName, clientId: c.id })));
   const allTasks = [...baseTasks, ...extraTasks];
 
-  const isTaskDone = (t: typeof allTasks[number]) => taskStates[t.id] ?? t.done;
+  const getGlobalTaskStatus = (t: typeof allTasks[number]): "todo" | "in-progress" | "done" =>
+    (taskStatuses[t.id] as "todo" | "in-progress" | "done") ?? t.status ?? "todo";
 
   const filtered = allTasks.filter(t => {
     if (priorityFilter !== "all" && t.priority !== priorityFilter) return false;
     if (assigneeFilter !== "all" && t.assignedTo !== assigneeFilter) return false;
     if (clientFilter !== "all" && t.clientId !== clientFilter) return false;
-    if (statusFilter === "open" && isTaskDone(t)) return false;
-    if (statusFilter === "done" && !isTaskDone(t)) return false;
+    const ts = getGlobalTaskStatus(t);
+    if (statusFilter === "open" && ts === "done") return false;
+    if (statusFilter === "done" && ts !== "done") return false;
     if (dueDateFilter && t.due > dueDateFilter) return false;
     return true;
   });
 
-  const open = filtered.filter(t => !isTaskDone(t));
-  const done = filtered.filter(t => isTaskDone(t));
+  const open = filtered.filter(t => getGlobalTaskStatus(t) !== "done");
+  const done = filtered.filter(t => getGlobalTaskStatus(t) === "done");
   const assignees = [...new Set(allTasks.map(t => t.assignedTo))];
 
-  const totalOpen = allTasks.filter(t => !isTaskDone(t)).length;
-  const totalDone = allTasks.filter(t => isTaskDone(t)).length;
+  const totalOpen = allTasks.filter(t => getGlobalTaskStatus(t) !== "done").length;
+  const totalDone = allTasks.filter(t => getGlobalTaskStatus(t) === "done").length;
 
   return (
     <div className="px-16 lg:px-24 py-6 space-y-5" data-testid="ln-manager-tasks">
@@ -1548,7 +1795,7 @@ export function LnManagerTasks() {
             <Button size="sm" className="h-8 bg-sky-500 hover:bg-sky-600 text-white" onClick={() => {
               if (!newTitle.trim() || !newClientId) return;
               const co = MANAGER_CLIENTS.find(c => c.id === newClientId);
-              setExtraTasks(prev => [...prev, { id: `nt-${Date.now()}`, title: newTitle.trim(), assignedTo: newAssignee || "Priya Sharma", due: newDue || "2026-04-30", done: false, priority: newPriority, company: co?.companyName ?? "", clientId: newClientId }]);
+              setExtraTasks(prev => [...prev, { id: `nt-${Date.now()}`, title: newTitle.trim(), assignedTo: newAssignee || "Priya Sharma", due: newDue || "2026-04-30", status: "todo" as const, priority: newPriority, company: co?.companyName ?? "", clientId: newClientId }]);
               setNewTitle(""); setNewClientId(""); setNewAssignee(""); setNewDue(""); setShowCreate(false);
             }} data-testid="btn-save-new-task">Create Task</Button>
             <Button size="sm" variant="ghost" className="h-8" onClick={() => setShowCreate(false)}>Cancel</Button>
@@ -1598,7 +1845,7 @@ export function LnManagerTasks() {
       <div className="space-y-2">
         {open.map(task => (
           <div key={task.id} className="p-3 rounded-xl border bg-card flex items-start gap-3" data-testid={`task-row-${task.id}`}>
-            <button className="w-5 h-5 rounded border border-gray-300 hover:border-sky-400 flex items-center justify-center flex-shrink-0 mt-0.5" onClick={() => setTaskStates(p => ({ ...p, [task.id]: true }))} data-testid={`btn-complete-task-${task.id}`} />
+            <button className="w-5 h-5 rounded border border-gray-300 hover:border-green-400 flex items-center justify-center flex-shrink-0 mt-0.5" onClick={() => setTaskStatuses(p => ({ ...p, [task.id]: "done" }))} data-testid={`btn-complete-task-${task.id}`} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium">{task.title}</p>
               <div className="flex items-center gap-3 mt-0.5">
@@ -1623,7 +1870,7 @@ export function LnManagerTasks() {
                   <p className="text-sm line-through text-muted-foreground">{task.title}</p>
                   <p className="text-xs text-muted-foreground">{task.company}</p>
                 </div>
-                <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setTaskStates(p => ({ ...p, [task.id]: false }))} data-testid={`btn-reopen-task-${task.id}`}>Reopen</Button>
+                <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setTaskStatuses(p => ({ ...p, [task.id]: "todo" }))} data-testid={`btn-reopen-task-${task.id}`}>Reopen</Button>
               </div>
             ))}
           </div>
