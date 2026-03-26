@@ -1,5 +1,5 @@
 import { useParams, Link } from "wouter";
-import { ArrowLeft, Printer, Building2 } from "lucide-react";
+import { ArrowLeft, Printer, Building2, CheckCircle2, Clock, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -131,6 +131,56 @@ export default function LnInvoiceDetail() {
                 <span>Total</span>
                 <span data-testid="text-total">${invoice.amount}</span>
               </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div data-testid="payment-history">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Payment History</p>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="size-7 rounded-full bg-blue-50 flex items-center justify-center">
+                  <CreditCard className="size-3.5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Invoice Created</p>
+                  <p className="text-xs text-muted-foreground">{fmt(invoice.issuedAt)}</p>
+                </div>
+              </div>
+              {invoice.status === "overdue" && (
+                <div className="flex items-center gap-3">
+                  <div className="size-7 rounded-full bg-red-50 flex items-center justify-center">
+                    <Clock className="size-3.5 text-red-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-red-700">Payment Overdue</p>
+                    <p className="text-xs text-muted-foreground">Due date was {fmt(invoice.dueDate)}</p>
+                  </div>
+                </div>
+              )}
+              {invoice.paidAt && (
+                <div className="flex items-center gap-3">
+                  <div className="size-7 rounded-full bg-emerald-50 flex items-center justify-center">
+                    <CheckCircle2 className="size-3.5 text-emerald-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-emerald-700">Payment Received</p>
+                    <p className="text-xs text-muted-foreground">{fmt(invoice.paidAt)} via Wire Transfer — ${invoice.amount} USD</p>
+                  </div>
+                </div>
+              )}
+              {!invoice.paidAt && invoice.status !== "overdue" && (
+                <div className="flex items-center gap-3">
+                  <div className="size-7 rounded-full bg-amber-50 flex items-center justify-center">
+                    <Clock className="size-3.5 text-amber-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-amber-700">Awaiting Payment</p>
+                    <p className="text-xs text-muted-foreground">Due by {fmt(invoice.dueDate)}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

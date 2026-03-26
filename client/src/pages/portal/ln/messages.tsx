@@ -75,39 +75,53 @@ export default function LnMessages() {
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Conversations</p>
           </div>
           <div className="flex-1 overflow-y-auto">
-            {localConvos.map(convo => (
-              <button
-                key={convo.id}
-                className={cn(
-                  "w-full text-left px-4 py-3 border-b hover:bg-muted/30 transition-colors",
-                  activeConvo === convo.id && "bg-blue-50 border-l-2 border-l-blue-600"
-                )}
-                onClick={() => {
-                  setActiveConvo(convo.id);
-                  setLocalConvos(prev => prev.map(c => c.id === convo.id ? { ...c, unread: 0 } : c));
-                }}
-                data-testid={`convo-${convo.id}`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="size-9 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 shrink-0">
-                    {convo.specialistInitials}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold truncate">{convo.specialistName}</p>
-                      {convo.unread > 0 && (
-                        <span className="size-2 rounded-full bg-blue-600 shrink-0 ml-1" data-testid={`unread-dot-${convo.id}`} />
-                      )}
-                    </div>
-                    <Badge variant="outline" className={cn("text-[9px] h-4 mt-0.5", roleBadgeColor[convo.specialistRole] || "")}>
-                      {convo.specialistRole}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground mt-1 truncate">{convo.companyName}</p>
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">{convo.lastMessage}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{formatShortTime(convo.lastTimestamp)}</p>
-                  </div>
+            {Object.entries(
+              localConvos.reduce<Record<string, typeof localConvos>>((groups, convo) => {
+                const role = convo.specialistRole;
+                if (!groups[role]) groups[role] = [];
+                groups[role].push(convo);
+                return groups;
+              }, {})
+            ).map(([role, convos]) => (
+              <div key={role}>
+                <div className="px-4 py-1.5 bg-muted/20 border-b">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{role}</p>
                 </div>
-              </button>
+                {convos.map(convo => (
+                  <button
+                    key={convo.id}
+                    className={cn(
+                      "w-full text-left px-4 py-3 border-b hover:bg-muted/30 transition-colors",
+                      activeConvo === convo.id && "bg-blue-50 border-l-2 border-l-blue-600"
+                    )}
+                    onClick={() => {
+                      setActiveConvo(convo.id);
+                      setLocalConvos(prev => prev.map(c => c.id === convo.id ? { ...c, unread: 0 } : c));
+                    }}
+                    data-testid={`convo-${convo.id}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="size-9 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 shrink-0">
+                        {convo.specialistInitials}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-semibold truncate">{convo.specialistName}</p>
+                          {convo.unread > 0 && (
+                            <span className="size-2 rounded-full bg-blue-600 shrink-0 ml-1" data-testid={`unread-dot-${convo.id}`} />
+                          )}
+                        </div>
+                        <Badge variant="outline" className={cn("text-[9px] h-4 mt-0.5", roleBadgeColor[convo.specialistRole] || "")}>
+                          {convo.specialistRole}
+                        </Badge>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">{convo.companyName}</p>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{convo.lastMessage}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{formatShortTime(convo.lastTimestamp)}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
         </Card>

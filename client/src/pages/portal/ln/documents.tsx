@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   FileText, Download, Upload, Search, Building2, CreditCard,
   Shield, User, Filter, CheckCircle2, Clock, AlertTriangle,
@@ -45,6 +45,19 @@ export default function LnDocuments() {
   const [category, setCategory] = useState("all");
   const [companyFilter, setCompanyFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); }, []);
+  const handleDragLeave = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); }, []);
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      toast({ title: "Document Uploaded", description: `${files[0].name} has been submitted for review.` });
+    }
+  }, [toast]);
 
   const filtered = LN_DOCUMENTS.filter(d => {
     if (category !== "all" && d.category !== category) return false;
@@ -62,11 +75,20 @@ export default function LnDocuments() {
   const actionCount = LN_DOCUMENTS.filter(d => d.status === "action-required").length;
 
   function handleUpload() {
-    toast({ title: "Document Uploaded", description: "Your document has been submitted for review." });
+    fileInputRef.current?.click();
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      toast({ title: "Document Uploaded", description: `${files[0].name} has been submitted for review.` });
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   return (
     <div className="p-6 space-y-6" data-testid="ln-documents-page">
+      <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.doc,.docx,.jpg,.png" data-testid="input-file-upload" />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold font-heading" data-testid="text-page-title">Document Vault</h1>
@@ -75,6 +97,22 @@ export default function LnDocuments() {
         <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2" onClick={handleUpload} data-testid="button-upload-doc">
           <Upload className="size-4" /> Upload Document
         </Button>
+      </div>
+
+      <div
+        className={cn(
+          "border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer",
+          isDragging ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-blue-300 hover:bg-blue-50/30"
+        )}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={handleUpload}
+        data-testid="dropzone-upload"
+      >
+        <Upload className={cn("size-8 mx-auto mb-2", isDragging ? "text-blue-500" : "text-muted-foreground")} />
+        <p className="text-sm font-medium">{isDragging ? "Drop files here" : "Drag & drop files here, or click to browse"}</p>
+        <p className="text-xs text-muted-foreground mt-1">PDF, DOC, JPG, PNG up to 10 MB</p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">

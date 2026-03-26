@@ -10,6 +10,8 @@ export interface LnCompany {
   ein?: string;
   packageTier: string;
   startedAt: string;
+  registeredAgent?: string;
+  stageCompletionDates?: Record<string, string>;
 }
 
 export interface LnClientProfile {
@@ -43,6 +45,8 @@ export const CLIENT_PROFILE: LnClientProfile = {
       currentStage: 4,
       packageTier: "Premium",
       startedAt: "2025-12-12",
+      registeredAgent: "LegalNations Registered Agent (DE)",
+      stageCompletionDates: { s1: "2025-12-12", s2: "2025-12-18", s3: "2026-01-20", s4: "2026-02-05" },
     },
     {
       id: "co-002",
@@ -54,6 +58,8 @@ export const CLIENT_PROFILE: LnClientProfile = {
       ein: "92-7654321",
       packageTier: "Standard",
       startedAt: "2025-06-01",
+      registeredAgent: "LegalNations Registered Agent (WY)",
+      stageCompletionDates: { s1: "2025-06-01", s2: "2025-06-15", s3: "2025-08-15", s4: "2025-09-02", s5: "2025-09-20", s6: "2025-10-15", s7: "2025-10-28" },
     },
   ],
 };

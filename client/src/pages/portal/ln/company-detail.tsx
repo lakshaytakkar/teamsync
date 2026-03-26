@@ -95,11 +95,12 @@ export default function LnCompanyDetail() {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {[
           { icon: MapPin, label: "State", value: company.state },
           { icon: Package, label: "Package", value: company.packageTier },
           { icon: Hash, label: "EIN", value: company.ein || "Pending" },
+          { icon: Shield, label: "Registered Agent", value: company.registeredAgent || "Pending Assignment" },
           { icon: Calendar, label: "Started", value: fmt(company.startedAt) },
         ].map(item => (
           <Card key={item.label} className="p-4">
@@ -149,6 +150,9 @@ export default function LnCompanyDetail() {
                       {stage.name}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">{stage.description}</p>
+                    {isDone && company.stageCompletionDates?.[stage.id] && (
+                      <p className="text-[10px] text-emerald-600 mt-0.5">Completed {fmt(company.stageCompletionDates[stage.id])}</p>
+                    )}
                     {isCurrent && (
                       <Badge className="mt-1 bg-blue-50 text-blue-700 border-blue-200 text-[10px]" variant="outline">Current Stage</Badge>
                     )}
