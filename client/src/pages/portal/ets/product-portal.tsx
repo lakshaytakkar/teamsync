@@ -23,6 +23,7 @@ import {
   type ProductLabelStatus, type ProductTag, type CatalogZone,
 } from "@/lib/mock-data-product-catalog";
 import { calculateEtsPrices, ETS_CATEGORY_DUTY_RATES, ETS_MRP_BANDS, defaultPriceSettings } from "@/lib/mock-data-ets";
+import { mockPriceSettingsStore } from "@/lib/mock-price-settings-store";
 
 const ZONE_NAME: Record<string, string> = {};
 const CAT_NAME: Record<string, string> = {};
@@ -1320,9 +1321,7 @@ const DUTY_CATEGORY_LABELS: Record<string, string> = {
 
 export function EtsProductPricing() {
   const [settings, setSettings] = useState(() => {
-    const obj: Record<string, number> = {};
-    for (const s of defaultPriceSettings) obj[s.key] = s.value;
-    return obj as {
+    return mockPriceSettingsStore.get() as {
       exchange_rate: number; sourcing_commission: number; freight_per_cbm: number;
       insurance_percent: number; sw_surcharge_percent: number; cha_port_percent: number;
       domestic_freight_percent: number; mrp_tagging_cost_per_unit: number;
@@ -1403,7 +1402,7 @@ export function EtsProductPricing() {
           <Button variant="outline" className="text-sm gap-1.5" onClick={() => setRecalcOpen(true)} data-testid="button-recalculate-all">
             <RefreshCw className="w-4 h-4" />Recalculate All Products
           </Button>
-          <Button className="bg-pink-500 hover:bg-pink-600 text-white text-sm gap-1.5" onClick={() => setSaved(true)} data-testid="button-save-settings">
+          <Button className="bg-pink-500 hover:bg-pink-600 text-white text-sm gap-1.5" onClick={() => { mockPriceSettingsStore.save(settings); setSaved(true); }} data-testid="button-save-settings">
             <CheckCircle2 className="w-4 h-4" />{saved ? "Saved!" : "Save Settings"}
           </Button>
         </div>
