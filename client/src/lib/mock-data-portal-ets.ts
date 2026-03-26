@@ -1,3 +1,5 @@
+import { PARTNER_PROFILE } from "./mock-data-dashboard-ets";
+
 export interface EtsPortalClient {
   id: number;
   name: string;
@@ -8,12 +10,12 @@ export interface EtsPortalClient {
 }
 
 export const portalEtsClient: EtsPortalClient = {
-  id: 1,
-  name: "Rajesh Kumar",
-  email: "rajesh@example.in",
-  phone: "+91 98110 45678",
+  id: PARTNER_PROFILE.id,
+  name: PARTNER_PROFILE.name,
+  email: PARTNER_PROFILE.email,
+  phone: PARTNER_PROFILE.phone,
   avatar: "RK",
-  city: "Delhi",
+  city: PARTNER_PROFILE.city,
 };
 
 export const ETS_PORTAL_COLOR = "#F97316";

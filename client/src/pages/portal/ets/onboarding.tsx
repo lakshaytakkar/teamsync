@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 import {
   User, Store, Package, ClipboardCheck,
-  ChevronRight, ChevronLeft, CheckCircle2,
+  ChevronRight, ChevronLeft, CheckCircle2, Sparkles, ArrowRight,
+  PartyPopper,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +17,7 @@ import {
   portalEtsClient,
   ETS_PORTAL_COLOR,
 } from "@/lib/mock-data-portal-ets";
+import { PARTNER_PROFILE } from "@/lib/mock-data-dashboard-ets";
 
 const STEPS = [
   { id: 1, title: "Personal Details", icon: User, description: "Your name, email, and phone number." },
@@ -33,16 +36,93 @@ function OnboardingSkeleton() {
   );
 }
 
+function OnboardingSuccess({ onStartSetup }: { onStartSetup: () => void }) {
+  return (
+    <div className="px-16 lg:px-24 py-6" data-testid="onboarding-success">
+      <div className="max-w-2xl mx-auto">
+        <Card className="rounded-2xl border-0 shadow-lg overflow-hidden">
+          <div className="relative bg-gradient-to-br from-orange-500 via-orange-600 to-amber-500 p-10 text-white text-center">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/4 -translate-x-1/4" />
+            <div className="relative z-10">
+              <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-5">
+                <PartyPopper className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold font-heading mb-2" data-testid="text-success-title">
+                You're all set!
+              </h1>
+              <p className="text-orange-100 text-base max-w-md mx-auto">
+                Your store profile is complete. Now let's build your store together — from selecting inventory to your launch day.
+              </p>
+            </div>
+          </div>
+
+          <CardContent className="p-8">
+            <div className="text-center mb-8">
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                You told us about your store — now let's build it. The next step is Phase A Store Setup, where you'll select your inventory, approve your store design, and get your launch kit ready.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              {[
+                { icon: Package, label: "Select Inventory", desc: "Choose from 200+ products" },
+                { icon: Store, label: "Approve Design", desc: "Review your 3D store layout" },
+                { icon: Sparkles, label: "Launch Ready", desc: "Complete your checklist" },
+              ].map((item, idx) => (
+                <div key={idx} className="text-center p-4 rounded-xl bg-orange-50 border border-orange-100" data-testid={`success-step-${idx}`}>
+                  <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <item.icon className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <p className="text-xs font-semibold text-orange-900">{item.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={onStartSetup}
+                size="lg"
+                className="gap-2 font-bold text-white"
+                style={{ backgroundColor: ETS_PORTAL_COLOR }}
+                data-testid="button-start-store-setup"
+              >
+                <ArrowRight className="w-5 h-5" />
+                Start Store Setup (Phase A)
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => window.history.back()}
+                data-testid="button-go-dashboard"
+              >
+                Go to Dashboard
+              </Button>
+            </div>
+
+            <p className="text-center text-xs text-muted-foreground mt-4">
+              Your relationship manager <strong>{PARTNER_PROFILE.rmName}</strong> will guide you through each step.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 export default function EtsPortalOnboarding() {
   const clientId = portalEtsClient.id;
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
+  const [completed, setCompleted] = useState(false);
   const [formData, setFormData] = useState({
-    name: portalEtsClient.name,
-    email: portalEtsClient.email,
-    phone: portalEtsClient.phone,
-    city: portalEtsClient.city,
-    storeAddress: "",
+    name: PARTNER_PROFILE.name,
+    email: PARTNER_PROFILE.email,
+    phone: PARTNER_PROFILE.phone,
+    city: PARTNER_PROFILE.city,
+    storeAddress: PARTNER_PROFILE.storeAddress,
     storeArea: "",
     preferredCategories: "",
     notes: "",
@@ -58,10 +138,27 @@ export default function EtsPortalOnboarding() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/ets-portal/client', clientId] });
+      Object.assign(PARTNER_PROFILE, {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        city: formData.city,
+        storeAddress: formData.storeAddress,
+        onboardingCompleted: true,
+      });
+      setCompleted(true);
     },
   });
 
   if (isLoading) return <OnboardingSkeleton />;
+
+  if (completed) {
+    return (
+      <OnboardingSuccess
+        onStartSetup={() => navigate("/portal-ets/catalog")}
+      />
+    );
+  }
 
   const progress = (currentStep / STEPS.length) * 100;
 
@@ -207,7 +304,10 @@ export default function EtsPortalOnboarding() {
           disabled={saveMutation.isPending}
           data-testid="button-next"
         >
-          {currentStep === STEPS.length ? (saveMutation.isPending ? "Saving..." : "Submit") : "Next"}
+          {currentStep === STEPS.length
+            ? (saveMutation.isPending ? "Saving..." : "Submit & Continue")
+            : "Next"
+          }
           {currentStep < STEPS.length && <ChevronRight className="h-4 w-4 ml-2" />}
         </Button>
       </div>
