@@ -290,7 +290,7 @@ export function LnManagerLeads() {
   const [sourceFilter, setSourceFilter] = useState("all");
   const [packageFilter, setPackageFilter] = useState("all");
 
-  const sources = [...new Set(MANAGER_ALL_LEADS.map(l => l.source))];
+  const sources = Array.from(new Set(MANAGER_ALL_LEADS.map(l => l.source)));
   const packages = ["Basic", "Standard", "Premium"];
 
   // Derive package from value
@@ -1868,7 +1868,7 @@ export function LnManagerTasks() {
 
   const open = filtered.filter(t => getGlobalTaskStatus(t) !== "done");
   const done = filtered.filter(t => getGlobalTaskStatus(t) === "done");
-  const assignees = [...new Set(allTasks.map(t => t.assignedTo))];
+  const assignees = Array.from(new Set(allTasks.map(t => t.assignedTo)));
 
   const totalOpen = allTasks.filter(t => getGlobalTaskStatus(t) !== "done").length;
   const totalDone = allTasks.filter(t => getGlobalTaskStatus(t) === "done").length;
