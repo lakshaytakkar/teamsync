@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ function MovementIcon({ type }: { type: string }) {
 }
 
 export default function EtsInventory() {
+  const inSidebar = useEtsSidebar();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<StockStatus | "all">("all");
@@ -74,7 +76,7 @@ export default function EtsInventory() {
   const movements = selectedProduct ? getProductMovements(selectedProduct) : [];
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1400px] mx-auto">
+    <div className={inSidebar ? "p-5 space-y-5" : "p-4 md:p-6 space-y-5 max-w-[1400px] mx-auto"}>
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
           <Package className="w-5 h-5 text-white" />

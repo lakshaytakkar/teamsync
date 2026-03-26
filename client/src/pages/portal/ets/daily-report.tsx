@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +28,7 @@ function getDateLabel(range: DateRange) {
 }
 
 export default function EtsDailyReport() {
+  const inSidebar = useEtsSidebar();
   const [range, setRange] = useState<DateRange>("today");
 
   const filteredSales = useMemo(() => {
@@ -101,7 +103,7 @@ export default function EtsDailyReport() {
   const [topTab, setTopTab] = useState<"qty" | "revenue">("qty");
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
+    <div className={inSidebar ? "p-5 space-y-5" : "p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto"}>
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">

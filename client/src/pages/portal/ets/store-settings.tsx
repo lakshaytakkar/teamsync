@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import {
 } from "@/lib/mock-data-pos-ets";
 
 export default function EtsStoreSettings() {
+  const inSidebar = useEtsSidebar();
   const { toast } = useToast();
   const [settings, setSettings] = useState<StoreSettings>({ ...STORE_SETTINGS });
   const [quickAddSearch, setQuickAddSearch] = useState("");
@@ -58,7 +60,7 @@ export default function EtsStoreSettings() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[900px] mx-auto">
+    <div className={inSidebar ? "p-5 space-y-5" : "p-4 md:p-6 space-y-5 max-w-[900px] mx-auto"}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center">

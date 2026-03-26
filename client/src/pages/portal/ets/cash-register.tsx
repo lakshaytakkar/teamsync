@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ function formatINR(n: number) {
 }
 
 export default function EtsCashRegister() {
+  const inSidebar = useEtsSidebar();
   const { toast } = useToast();
   const [tab, setTab] = useState<Tab>("current");
   const [sessions, setSessions] = useState<RegisterSession[]>([...REGISTER_SESSIONS]);
@@ -87,7 +89,7 @@ export default function EtsCashRegister() {
   const closedSessions = sessions.filter(s => s.status === "closed");
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto">
+    <div className={inSidebar ? "p-5 space-y-5" : "p-4 md:p-6 space-y-5 max-w-[1200px] mx-auto"}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">

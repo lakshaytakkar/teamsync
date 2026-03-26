@@ -1,3 +1,4 @@
+import { createContext, useContext } from "react";
 import { useLocation, Link } from "wouter";
 import { useVertical } from "@/lib/vertical-store";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,11 @@ import {
   CreditCard, FileText,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+
+const EtsSidebarContext = createContext(false);
+export function useEtsSidebar() {
+  return useContext(EtsSidebarContext);
+}
 
 const SUB_ITEM_ICONS: Record<string, LucideIcon> = {
   "/portal-ets/inventory": Package,
@@ -23,6 +29,13 @@ const SUB_ITEM_ICONS: Record<string, LucideIcon> = {
   "/portal-ets/checklist": CheckSquare,
   "/portal-ets/payments": CreditCard,
   "/portal-ets/invoices": FileText,
+};
+
+const CATEGORY_SUBTITLES: Record<string, string> = {
+  "Inventory": "Stock control center",
+  "Operations": "Store operations management",
+  "My Store": "Store profile & settings",
+  "Payments": "Payment tracking",
 };
 
 function isItemActive(location: string, itemUrl: string): boolean {
@@ -53,16 +66,22 @@ export function EtsSubNavSidebar({ children }: { children: React.ReactNode }) {
   }
 
   const CategoryIcon = activeCategory.icon;
+  const subtitle = CATEGORY_SUBTITLES[activeCategory.title] || "";
 
   return (
-    <div className="flex h-full" data-testid="ets-sidebar-layout">
-      <aside className="w-56 shrink-0 border-r bg-gray-50/70 overflow-y-auto" data-testid="ets-subnav-sidebar">
-        <div className="p-4 pb-3">
-          <div className="flex items-center gap-2.5 px-2 mb-4">
-            {CategoryIcon && <CategoryIcon className="w-5 h-5 text-orange-600" />}
-            <span className="text-sm font-bold text-gray-900 tracking-tight">{activeCategory.title}</span>
+    <EtsSidebarContext.Provider value={true}>
+      <div className="p-4 md:p-6 space-y-4 max-w-[1400px] mx-auto" data-testid="ets-sidebar-layout">
+        <div className="flex items-center gap-3">
+          {CategoryIcon && <CategoryIcon className="w-6 h-6 text-orange-500" />}
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight" data-testid="text-sidebar-category-title">{activeCategory.title}</h1>
+            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
           </div>
-          <nav className="space-y-0.5">
+        </div>
+
+        <div className="flex rounded-2xl bg-gray-50/80 border border-gray-100 min-h-[calc(100vh-200px)] overflow-hidden" data-testid="ets-sidebar-card">
+          <nav className="w-[200px] shrink-0 py-5 px-3 space-y-0.5" data-testid="ets-subnav-sidebar">
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-4">Sub menu</p>
             {activeCategory.items.map((item: any) => {
               const isActive = isItemActive(location, item.url);
               const Icon = SUB_ITEM_ICONS[item.url];
@@ -74,34 +93,31 @@ export function EtsSubNavSidebar({ children }: { children: React.ReactNode }) {
                 >
                   <div
                     className={cn(
-                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer",
+                      "flex items-center gap-3 px-4 py-2.5 rounded-[10px] text-[14px] transition-colors cursor-pointer",
                       isActive
-                        ? "bg-orange-50 text-orange-700 font-semibold border border-orange-200/60"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium"
+                        ? "bg-orange-100 text-orange-600 font-bold"
+                        : "text-[#6c7278] font-semibold hover:bg-gray-100"
                     )}
                   >
                     {Icon && (
                       <Icon
                         className={cn(
-                          "w-4 h-4 shrink-0",
-                          isActive ? "text-orange-600" : "text-gray-400"
+                          "w-[18px] h-[18px] shrink-0",
+                          isActive ? "text-orange-500" : "text-gray-400"
                         )}
                       />
                     )}
                     <span className="truncate">{item.title}</span>
-                    {isActive && (
-                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500" />
-                    )}
                   </div>
                 </Link>
               );
             })}
           </nav>
+          <div className="flex-1 bg-white rounded-r-2xl overflow-auto">
+            {children}
+          </div>
         </div>
-      </aside>
-      <div className="flex-1 overflow-auto">
-        {children}
       </div>
-    </div>
+    </EtsSidebarContext.Provider>
   );
 }

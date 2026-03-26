@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from "react";
+import { useEtsSidebar } from "@/components/layout/ets-subnav-sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ interface AdjustmentLog {
 }
 
 export default function EtsStockAdjustment() {
+  const inSidebar = useEtsSidebar();
   const { toast } = useToast();
   const [barcodeInput, setBarcodeInput] = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -94,7 +96,7 @@ export default function EtsStockAdjustment() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-5 max-w-[1000px] mx-auto">
+    <div className={inSidebar ? "p-5 space-y-5" : "p-4 md:p-6 space-y-5 max-w-[1000px] mx-auto"}>
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
           <ClipboardList className="w-5 h-5 text-white" />
