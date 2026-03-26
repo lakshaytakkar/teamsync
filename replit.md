@@ -1582,12 +1582,20 @@ New role-based LN portal using the admin panel layout (TopNavigation + role swit
 
 **Client Sidebar**: `client/src/components/layout/ln-subnav-sidebar.tsx` — mirrors ETS pattern, renders for client role when active category has multiple items.
 
-**Mock Data**: `client/src/lib/mock-data-dashboard-ln.ts` — CLIENT_PROFILE, 7 FORMATION_STAGE_DEFINITIONS, DASHBOARD_METRICS, 6 COMPLIANCE_DEADLINES, 8 RECENT_ACTIVITY items, RM_CONTACT, 3 FORMATION_PACKAGES, 8 US_STATES_POPULAR.
+**Mock Data**: `client/src/lib/mock-data-dashboard-ln.ts` — CLIENT_PROFILE (with companies array), 7 FORMATION_STAGES, DASHBOARD_METRICS, 6 COMPLIANCE_DEADLINES, 8 RECENT_ACTIVITY, RM_CONTACT, 3 FORMATION_PACKAGES, 8 US_STATES_POPULAR, 13 LN_DOCUMENTS, 6 LN_INVOICES (with line items), 3 LN_CONVERSATIONS, 10 LN_MESSAGES, 15 LN_FAQS.
 
 | Page | Route | File |
 |------|-------|------|
 | Dashboard | `/portal-ln` | `client/src/pages/portal/ln/dashboard.tsx` |
 | Onboarding | `/portal-ln/onboarding` | `client/src/pages/portal/ln/onboarding.tsx` |
+| My Companies | `/portal-ln/companies` | `client/src/pages/portal/ln/companies.tsx` |
+| Company Detail | `/portal-ln/companies/:companyId` | `client/src/pages/portal/ln/company-detail.tsx` |
+| Document Vault | `/portal-ln/documents` | `client/src/pages/portal/ln/documents.tsx` |
+| Invoices | `/portal-ln/invoices` | `client/src/pages/portal/ln/invoices.tsx` |
+| Invoice Detail | `/portal-ln/invoices/:invoiceId` | `client/src/pages/portal/ln/invoice-detail.tsx` |
+| Messages | `/portal-ln/messages` | `client/src/pages/portal/ln/messages.tsx` |
+| Support | `/portal-ln/support` | `client/src/pages/portal/ln/support.tsx` |
+| Profile | `/portal-ln/profile` | `client/src/pages/portal/ln/profile.tsx` |
 | Admin (placeholder) | `/portal-ln/admin/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
 | Formation (placeholder) | `/portal-ln/formation/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |
 | Compliance (placeholder) | `/portal-ln/compliance/*` | `client/src/pages/portal/ln/role-placeholder.tsx` |

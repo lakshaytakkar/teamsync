@@ -542,7 +542,7 @@ export function TopNavigation() {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-sm" data-testid="menu-item-profile">My Profile</DropdownMenuItem>
+              <DropdownMenuItem className="text-sm" data-testid="menu-item-profile" onClick={() => setLocation(isLnPortal ? "/portal-ln/profile" : isEtsPortal ? "/portal-ets/profile" : "/profile")}>My Profile</DropdownMenuItem>
               <DropdownMenuItem className="text-sm" data-testid="menu-item-settings">Account Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-sm" data-testid="menu-item-logout" onClick={() => clearCart()}>Log Out</DropdownMenuItem>

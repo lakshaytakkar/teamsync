@@ -90,7 +90,7 @@ export interface DashboardMetrics {
 export const DASHBOARD_METRICS: DashboardMetrics = {
   activeEntities: 1,
   completedEntities: 1,
-  verifiedDocuments: 9,
+  verifiedDocuments: 11,
   pendingDocuments: 1,
   pendingInvoices: 2,
   outstandingAmount: 224,
@@ -211,6 +211,136 @@ export const FORMATION_PACKAGES: PackageTier[] = [
       "Dedicated compliance officer",
     ],
   },
+];
+
+export interface LnDocument {
+  id: string;
+  companyId: string;
+  companyName: string;
+  name: string;
+  category: "formation" | "tax" | "compliance" | "identity" | "banking";
+  uploadedAt: string;
+  size: string;
+  status: "verified" | "pending-review" | "action-required";
+}
+
+export const LN_DOCUMENTS: LnDocument[] = [
+  { id: "doc-001", companyId: "co-001", companyName: "TechVentures LLC", name: "Passport - Rajesh Kumar", category: "identity", uploadedAt: "2025-12-15", size: "2.4 MB", status: "verified" },
+  { id: "doc-002", companyId: "co-001", companyName: "TechVentures LLC", name: "Address Proof - Utility Bill", category: "identity", uploadedAt: "2025-12-16", size: "1.1 MB", status: "verified" },
+  { id: "doc-003", companyId: "co-001", companyName: "TechVentures LLC", name: "Articles of Organization", category: "formation", uploadedAt: "2026-01-20", size: "340 KB", status: "verified" },
+  { id: "doc-004", companyId: "co-001", companyName: "TechVentures LLC", name: "Operating Agreement", category: "formation", uploadedAt: "2026-01-22", size: "520 KB", status: "verified" },
+  { id: "doc-005", companyId: "co-001", companyName: "TechVentures LLC", name: "EIN Confirmation Letter (CP 575)", category: "tax", uploadedAt: "2026-02-05", size: "180 KB", status: "verified" },
+  { id: "doc-006", companyId: "co-001", companyName: "TechVentures LLC", name: "BOI Filing Draft", category: "compliance", uploadedAt: "2026-02-28", size: "290 KB", status: "action-required" },
+  { id: "doc-007", companyId: "co-001", companyName: "TechVentures LLC", name: "SSN/ITIN Application Receipt", category: "identity", uploadedAt: "2026-01-10", size: "95 KB", status: "pending-review" },
+  { id: "doc-008", companyId: "co-002", companyName: "CloudBase Corp", name: "Passport - Rajesh Kumar", category: "identity", uploadedAt: "2025-06-10", size: "2.4 MB", status: "verified" },
+  { id: "doc-009", companyId: "co-002", companyName: "CloudBase Corp", name: "Articles of Incorporation", category: "formation", uploadedAt: "2025-08-15", size: "380 KB", status: "verified" },
+  { id: "doc-010", companyId: "co-002", companyName: "CloudBase Corp", name: "EIN Confirmation Letter (CP 575)", category: "tax", uploadedAt: "2025-09-02", size: "180 KB", status: "verified" },
+  { id: "doc-011", companyId: "co-002", companyName: "CloudBase Corp", name: "BOI Filing Confirmation", category: "compliance", uploadedAt: "2025-09-20", size: "210 KB", status: "verified" },
+  { id: "doc-012", companyId: "co-002", companyName: "CloudBase Corp", name: "Relay Bank Account Details", category: "banking", uploadedAt: "2025-10-15", size: "95 KB", status: "verified" },
+  { id: "doc-013", companyId: "co-002", companyName: "CloudBase Corp", name: "Compliance Calendar 2026", category: "compliance", uploadedAt: "2025-10-28", size: "150 KB", status: "verified" },
+];
+
+export interface LnInvoiceLineItem {
+  id: string;
+  description: string;
+  amount: number;
+}
+
+export interface LnInvoice {
+  id: string;
+  number: string;
+  description: string;
+  companyId: string;
+  companyName: string;
+  amount: number;
+  status: "paid" | "pending" | "overdue";
+  issuedAt: string;
+  dueDate: string;
+  paidAt?: string;
+  lineItems: LnInvoiceLineItem[];
+}
+
+export const LN_INVOICES: LnInvoice[] = [
+  { id: "inv-001", number: "LN-2025-0042", description: "Premium Formation Package — TechVentures LLC", companyId: "co-001", companyName: "TechVentures LLC", amount: 1499, status: "paid", issuedAt: "2025-12-10", dueDate: "2025-12-20", paidAt: "2025-12-12", lineItems: [
+    { id: "li-001", description: "Premium Formation Package", amount: 1299 },
+    { id: "li-002", description: "Rush Processing Fee", amount: 200 },
+  ]},
+  { id: "inv-002", number: "LN-2026-0008", description: "Registered Agent — Annual Fee (Delaware)", companyId: "co-001", companyName: "TechVentures LLC", amount: 149, status: "paid", issuedAt: "2026-01-05", dueDate: "2026-01-20", paidAt: "2026-01-18", lineItems: [
+    { id: "li-003", description: "Registered Agent Service — Delaware (Annual)", amount: 149 },
+  ]},
+  { id: "inv-003", number: "LN-2026-0019", description: "BOI Filing Service — TechVentures LLC", companyId: "co-001", companyName: "TechVentures LLC", amount: 99, status: "pending", issuedAt: "2026-02-25", dueDate: "2026-03-10", lineItems: [
+    { id: "li-004", description: "Beneficial Ownership Information Report Filing", amount: 99 },
+  ]},
+  { id: "inv-004", number: "LN-2025-0021", description: "Standard Formation Package — CloudBase Corp", companyId: "co-002", companyName: "CloudBase Corp", amount: 799, status: "paid", issuedAt: "2025-07-22", dueDate: "2025-08-05", paidAt: "2025-07-24", lineItems: [
+    { id: "li-005", description: "Standard Formation Package", amount: 699 },
+    { id: "li-006", description: "Registered Agent (1st Year Free)", amount: 0 },
+    { id: "li-007", description: "Expedited Processing", amount: 100 },
+  ]},
+  { id: "inv-005", number: "LN-2025-0033", description: "Registered Agent — Annual Fee (Wyoming)", companyId: "co-002", companyName: "CloudBase Corp", amount: 99, status: "paid", issuedAt: "2025-08-20", dueDate: "2025-09-05", paidAt: "2025-08-28", lineItems: [
+    { id: "li-008", description: "Registered Agent Service — Wyoming (Annual)", amount: 99 },
+  ]},
+  { id: "inv-006", number: "LN-2026-0025", description: "Annual Report Filing — CloudBase Corp", companyId: "co-002", companyName: "CloudBase Corp", amount: 125, status: "overdue", issuedAt: "2026-02-01", dueDate: "2026-02-28", lineItems: [
+    { id: "li-009", description: "Wyoming Annual Report Filing Service", amount: 75 },
+    { id: "li-010", description: "State Filing Fee (Wyoming)", amount: 50 },
+  ]},
+];
+
+export interface LnConversation {
+  id: string;
+  specialistName: string;
+  specialistRole: string;
+  specialistInitials: string;
+  companyName: string;
+  lastMessage: string;
+  lastTimestamp: string;
+  unread: number;
+}
+
+export interface LnMessage {
+  id: string;
+  conversationId: string;
+  from: string;
+  fromRole: string;
+  isClient: boolean;
+  content: string;
+  timestamp: string;
+}
+
+export const LN_CONVERSATIONS: LnConversation[] = [
+  { id: "conv-001", specialistName: "Priya Sharma", specialistRole: "Formation Specialist", specialistInitials: "PS", companyName: "TechVentures LLC", lastMessage: "Once the BOI filing is done, we'll start the Mercury bank account application and Stripe setup.", lastTimestamp: "2026-02-28T09:30:00Z", unread: 1 },
+  { id: "conv-002", specialistName: "Arjun Mehta", specialistRole: "Compliance Officer", specialistInitials: "AM", companyName: "TechVentures LLC", lastMessage: "Please review the BOI draft in your Documents section and confirm the beneficial ownership details.", lastTimestamp: "2026-02-28T09:15:00Z", unread: 1 },
+  { id: "conv-003", specialistName: "Priya Sharma", specialistRole: "Formation Specialist", specialistInitials: "PS", companyName: "CloudBase Corp", lastMessage: "CloudBase Corp formation is now complete! All documents have been delivered.", lastTimestamp: "2025-10-28T16:00:00Z", unread: 0 },
+];
+
+export const LN_MESSAGES: LnMessage[] = [
+  { id: "msg-001", conversationId: "conv-001", from: "Priya Sharma", fromRole: "Formation Specialist", isClient: false, content: "Hi Rajesh! Your Articles of Organization for TechVentures LLC have been successfully filed with the Delaware Division of Corporations. You should receive the stamped copy within 5-7 business days.", timestamp: "2026-01-20T14:30:00Z" },
+  { id: "msg-002", conversationId: "conv-001", from: "Rajesh Kumar", fromRole: "Client", isClient: true, content: "That's great news! How long will the EIN application take after this?", timestamp: "2026-01-20T15:10:00Z" },
+  { id: "msg-003", conversationId: "conv-001", from: "Priya Sharma", fromRole: "Formation Specialist", isClient: false, content: "We'll submit the SS-4 form to the IRS within 48 hours. Typically takes 2-4 weeks to receive the EIN, but we'll expedite it. I'll keep you updated!", timestamp: "2026-01-20T15:45:00Z" },
+  { id: "msg-004", conversationId: "conv-001", from: "Priya Sharma", fromRole: "Formation Specialist", isClient: false, content: "Great news — your EIN has been assigned! It's 88-1234567. I've uploaded the confirmation letter to your document vault.", timestamp: "2026-02-05T10:20:00Z" },
+  { id: "msg-005", conversationId: "conv-001", from: "Rajesh Kumar", fromRole: "Client", isClient: true, content: "Amazing, thank you! What's the next step now?", timestamp: "2026-02-05T11:00:00Z" },
+  { id: "msg-006", conversationId: "conv-001", from: "Priya Sharma", fromRole: "Formation Specialist", isClient: false, content: "Once the BOI filing is done, we'll start the Mercury bank account application and Stripe setup. Should be about 1-2 weeks from there to completion!", timestamp: "2026-02-28T09:30:00Z" },
+  { id: "msg-007", conversationId: "conv-002", from: "Arjun Mehta", fromRole: "Compliance Officer", isClient: false, content: "Hi Rajesh, I'm handling your BOI filing for TechVentures LLC. I've prepared the draft — please review it in your Documents section and confirm the beneficial ownership details are correct.", timestamp: "2026-02-28T09:15:00Z" },
+  { id: "msg-008", conversationId: "conv-003", from: "Priya Sharma", fromRole: "Formation Specialist", isClient: false, content: "Hi Rajesh! Just wanted to let you know that CloudBase Corp's formation process is now fully complete. All compliance calendars and documents have been delivered to your vault.", timestamp: "2025-10-28T16:00:00Z" },
+  { id: "msg-009", conversationId: "conv-003", from: "Rajesh Kumar", fromRole: "Client", isClient: true, content: "Excellent work! The whole process was very smooth. Thank you for everything.", timestamp: "2025-10-28T16:30:00Z" },
+  { id: "msg-010", conversationId: "conv-003", from: "Priya Sharma", fromRole: "Formation Specialist", isClient: false, content: "Thank you, Rajesh! Don't forget to file your annual report before May 1st. It's already in your compliance calendar. Reach out anytime you need help!", timestamp: "2025-10-28T17:00:00Z" },
+];
+
+export const LN_FAQS = [
+  { question: "How long does LLC formation take?", answer: "LLC formation timelines vary by state: Delaware typically takes 3-5 business days, Wyoming 2-3 business days, and most other states 1-2 weeks. With our Rush Processing (Premium package), we can often get Delaware filings completed in 24-48 hours." },
+  { question: "What documents do I need for KYC?", answer: "You'll need a valid passport (color scan of the photo page), proof of address (utility bill or bank statement less than 3 months old), a selfie holding your passport, and optionally your SSN or ITIN if you have one." },
+  { question: "Which state should I choose for my company?", answer: "Delaware is ideal for companies planning to raise investment due to its well-established business courts. Wyoming offers the best value with no state tax, strong privacy, and low fees. Nevada provides similar tax benefits with strong privacy protections. If you operate locally, your home state may be most practical." },
+  { question: "What is a BOI filing and is it required?", answer: "BOI (Beneficial Ownership Information) filing is a federal requirement under the Corporate Transparency Act. All US companies must report their beneficial owners to FinCEN. New companies must file within 90 days of formation. Failure to file can result in fines up to $500/day." },
+  { question: "When is my annual report due?", answer: "Annual report deadlines vary by state: Delaware LLCs have a $300 annual tax due June 1st. Wyoming annual reports are due on the anniversary of formation. Corporations may have different deadlines. Your compliance calendar tracks all your specific deadlines." },
+  { question: "How do I get my EIN (Employer Identification Number)?", answer: "We file IRS Form SS-4 on your behalf. For US persons, EINs can be obtained same-day online. For international applicants, the process takes 2-4 weeks via fax or mail. We handle the entire process and upload the confirmation letter to your document vault." },
+  { question: "What's included in each package?", answer: "Basic ($399): LLC/Corp filing, Articles, Operating Agreement, EIN. Standard ($799): Everything in Basic plus expedited processing, BOI filing, 1st year registered agent, banking assistance, and dedicated specialist. Premium ($1,499): Everything in Standard plus rush processing, compliance calendar, annual report filing, tax consultation, full banking setup, and dedicated compliance officer." },
+  { question: "How do I open a US bank account?", answer: "We assist with opening accounts at Mercury (our recommended partner) or other neo-banks. For international founders, Mercury allows remote account opening without a US visit. We prepare all required documentation and guide you through their application process. Most accounts are approved within 1-2 weeks." },
+  { question: "What is a Registered Agent and do I need one?", answer: "A registered agent is a person or company designated to receive legal and government correspondence on behalf of your business. Every US company is required to have a registered agent in the state of formation. Our Standard and Premium packages include registered agent service for the first year." },
+  { question: "Can I form a company as a non-US resident?", answer: "Yes! Non-US residents can form LLCs and Corporations in all 50 states without needing a visa or Social Security Number. You will need a passport for KYC verification. We specialize in helping international founders establish their US business presence." },
+  { question: "What taxes will my company owe?", answer: "Tax obligations depend on your entity type, state, and business activities. LLCs are pass-through entities (profits taxed at personal rates). C-Corps pay a 21% federal corporate tax. Some states impose franchise taxes, annual fees, or state income tax. We recommend consulting with our tax specialist for your specific situation." },
+  { question: "How do I maintain compliance after formation?", answer: "Key compliance tasks include: filing annual reports, paying state franchise taxes, maintaining a registered agent, filing BOI reports, keeping operating agreements current, and meeting tax filing deadlines. Our Premium package includes a compliance calendar that tracks all your obligations." },
+  { question: "Can I change my company's state later?", answer: "Yes, you can domesticate (transfer) your company to another state, though it involves filing in both the old and new states. It's more cost-effective to choose the right state from the beginning. We can help you evaluate the best state for your specific needs." },
+  { question: "What's the difference between an LLC and a Corporation?", answer: "LLCs offer flexible management, pass-through taxation, and simpler compliance. Corporations (C-Corps) are better for raising venture capital, offering stock options, and scaling. C-Corps face double taxation but have well-established corporate governance. Most small businesses and startups start with an LLC." },
+  { question: "How do I set up Stripe for payment processing?", answer: "After your company has an EIN and a US bank account, we assist with creating your Stripe account. The process involves verifying your business details, connecting your bank account, and setting up your payment preferences. Most setups are completed within 3-5 business days." },
 ];
 
 export const US_STATES_POPULAR = [

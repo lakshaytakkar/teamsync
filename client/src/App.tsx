@@ -203,6 +203,14 @@ import LnDashboard from "@/pages/portal/ln/dashboard";
 import LnOnboarding from "@/pages/portal/ln/onboarding";
 import LnRolePlaceholder from "@/pages/portal/ln/role-placeholder";
 import LnClientPlaceholder from "@/pages/portal/ln/client-placeholder";
+import LnCompanies from "@/pages/portal/ln/companies";
+import LnCompanyDetail from "@/pages/portal/ln/company-detail";
+import LnDocuments from "@/pages/portal/ln/documents";
+import LnInvoices from "@/pages/portal/ln/invoices";
+import LnInvoiceDetail from "@/pages/portal/ln/invoice-detail";
+import LnMessagesPage from "@/pages/portal/ln/messages";
+import LnSupport from "@/pages/portal/ln/support";
+import LnProfile from "@/pages/portal/ln/profile";
 import EtsPortalDashboard from "@/pages/portal/ets/dashboard";
 import EtsPortalStore from "@/pages/portal/ets/store";
 import EtsPortalOrders from "@/pages/portal/ets/orders";
@@ -533,12 +541,14 @@ function Router() {
       <Route path="/portal-ets/vendor" component={EtsVendorPortal} />
       <Route path="/portal-ets" component={EtsPortalDashboard} />
       <Route path="/portal-ln/onboarding" component={LnOnboarding} />
-      <Route path="/portal-ln/companies" component={LnClientPlaceholder} />
-      <Route path="/portal-ln/documents" component={LnClientPlaceholder} />
-      <Route path="/portal-ln/invoices" component={LnClientPlaceholder} />
-      <Route path="/portal-ln/messages" component={LnClientPlaceholder} />
-      <Route path="/portal-ln/support" component={LnClientPlaceholder} />
-      <Route path="/portal-ln/profile" component={LnClientPlaceholder} />
+      <Route path="/portal-ln/companies/:companyId" component={LnCompanyDetail} />
+      <Route path="/portal-ln/companies" component={LnCompanies} />
+      <Route path="/portal-ln/documents" component={LnDocuments} />
+      <Route path="/portal-ln/invoices/:invoiceId" component={LnInvoiceDetail} />
+      <Route path="/portal-ln/invoices" component={LnInvoices} />
+      <Route path="/portal-ln/messages" component={LnMessagesPage} />
+      <Route path="/portal-ln/support" component={LnSupport} />
+      <Route path="/portal-ln/profile" component={LnProfile} />
       <Route path="/portal-ln/admin/:rest*" component={LnRolePlaceholder} />
       <Route path="/portal-ln/admin" component={LnRolePlaceholder} />
       <Route path="/portal-ln/formation/:rest*" component={LnRolePlaceholder} />
